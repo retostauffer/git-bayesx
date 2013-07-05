@@ -1398,6 +1398,34 @@ double FC_nonp::compute_importancemeasure(bool absolute)
   }
 
 
+double FC_nonp::compute_importancemeasure_discrete(bool absolute)
+  {
+//  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
+  double n = designp->data.rows();
+
+
+  unsigned j;
+  double x_j;
+  double sum = 0;
+  double pr;
+
+  for (j=0;j<designp->posbeg.size();j++)
+    {
+    pr = (designp->posend[j]-designp->posbeg[j]+1)/n;
+    if (absolute)
+      sum +=  fabs(betamean(j,0))*pr;
+    else
+      sum +=  pow(betamean(j,0),2)*pr;
+
+ //   out << kd_xjm1 << endl;
+ //   out << kd_xj << endl;
+ //   out << endl;
+
+    }
+  return sum;
+  }
+
+
 void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                         const ST::string & pathresults)
   {
@@ -1433,7 +1461,10 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     out_R << "family=" << likep->familyshort.strtochar() << ",";
     out_R << "hlevel=" << likep->hlevel << ",";
     out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
-    out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
+    if (designp->intvar.rows()==designp->data.rows())
+      out_R << "term=sx("  << designp->datanames[1].strtochar() << ",by=" << designp->datanames[0].strtochar() << "),";
+    else
+      out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
     out_R << "filetype=nonlinear,";
     out_R << "pathsamples=" << paths.strtochar() << ",";
     out_R << "pathbasis=" << pathbasis.strtochar() << endl;
@@ -1446,8 +1477,18 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    double im_absolute = compute_importancemeasure(true);
-    double im_var = compute_importancemeasure(false);
+    double im_absolute;
+    double im_var;
+    if (designp->discrete)
+      {
+      im_var = compute_importancemeasure_discrete(false);
+      im_absolute = compute_importancemeasure_discrete(true);
+      }
+    else
+      {
+      im_var = compute_importancemeasure(false);
+      im_absolute = compute_importancemeasure(true);
+      }
     optionsp->out("    Importance measures\n");
     optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
     optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
@@ -1482,14 +1523,14 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       optionsp->out("    Scaling factor to blow up pointwise " +
                    ST::inttostring(optionsp->level1) + " percent credible intervals\n");
       optionsp->out("    to obtain simultaneous credible intervals: " +
-           ST::doubletostring(s_level1,6) + "\n");
+           ST::doubletostring(s_level2,6) + "\n");
 
       optionsp->out("\n");
 
       optionsp->out("    Scaling factor to blow up pointwise " +
                    ST::inttostring(optionsp->level2) + " percent credible intervals\n");
       optionsp->out("    to obtain simultaneous credible intervals: " +
-           ST::doubletostring(s_level2,6) + "\n");
+           ST::doubletostring(s_level1,6) + "\n");
 
       optionsp->out("\n");
       }

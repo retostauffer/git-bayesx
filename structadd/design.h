@@ -115,6 +115,7 @@ class __EXPORT_TYPE DESIGN
 
   // Variables determined by function init_data
 
+  bool discrete;                             // data discrete or continuous
   datamatrix data;                           // data matrix
   datamatrix intvar;                         // interaction variable for
                                              // varying coefficients

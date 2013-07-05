@@ -311,6 +311,8 @@ DESIGN::DESIGN(GENERAL_OPTIONS * o,DISTR * lp,FC_linear * fcp)
 
   changingdesign = false;
 
+  discrete = false;
+
   optionsp = o;
   likep = lp;
   FClinearp = fcp;
@@ -335,6 +337,8 @@ DESIGN::DESIGN(GENERAL_OPTIONS * o,DISTR * lp,FC_linear * fcp)
 DESIGN::DESIGN(const DESIGN & m)
   {
   changingdesign = m.changingdesign;
+
+  discrete = m.discrete;
 
   optionsp = m.optionsp;
   likep = m.likep;
@@ -414,6 +418,8 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
     return *this;
 
   changingdesign = m.changingdesign;
+
+  discrete = m.discrete;
 
   optionsp = m.optionsp;
   likep = m.likep;

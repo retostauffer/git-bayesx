@@ -181,6 +181,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   double kernel_density(const double & x, const double & h);
 
   double compute_importancemeasure(bool absolute);
+  double compute_importancemeasure_discrete(bool absolute);
 
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file

@@ -76,6 +76,8 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
 
   likep_RE = dp_RE;
 
+  discrete = true;
+
   type = Hrandom;
 
   init_data(dm,iv);

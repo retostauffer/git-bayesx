@@ -94,6 +94,8 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
 
     read_options(op,vn);
 
+    discrete = true;
+
     ma = m;
     type = Mrf;
 

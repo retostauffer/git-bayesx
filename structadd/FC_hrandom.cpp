@@ -661,6 +661,29 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
+//   ofstream out("c:\\bayesx\\trunk\\testh\\results\\datare.raw");
+//   designp->data.prettyPrint(out);
+
+
+    double im_absolute;
+    double im_var;
+    if (designp->discrete)
+      {
+      im_var = compute_importancemeasure_discrete(false);
+      im_absolute = compute_importancemeasure_discrete(true);
+      }
+    else
+      {
+      im_var = compute_importancemeasure(false);
+      im_absolute = compute_importancemeasure(true);
+      }
+
+    optionsp->out("    Importance measures\n");
+    optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
+    optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
+    optionsp->out("\n");
+
+
     optionsp->out("    Mean effects evaluated at " +
                   designp->datanames[designp->datanames.size()-1] + "=" +
                   designp->effectvalues[designp->meaneffectnr]);
@@ -684,14 +707,14 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       optionsp->out("    Scaling factor to blow up pointwise " +
                    ST::inttostring(optionsp->level1) + " percent credible intervals\n");
       optionsp->out("    to obtain simultaneous credible intervals: " +
-           ST::doubletostring(s_level1,6) + "\n");
+           ST::doubletostring(s_level2,6) + "\n");
 
       optionsp->out("\n");
 
       optionsp->out("    Scaling factor to blow up pointwise " +
                    ST::inttostring(optionsp->level2) + " percent credible intervals\n");
       optionsp->out("    to obtain simultaneous credible intervals: " +
-           ST::doubletostring(s_level2,6) + "\n");
+           ST::doubletostring(s_level1,6) + "\n");
 
       optionsp->out("\n");
       }
