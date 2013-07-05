@@ -903,7 +903,7 @@ double DESIGN::compute_kernel_intvar(void)
 
   statmatrix<int> intindex = statmatrix<int>(intvar.rows(),1);
   intindex.indexinit();
-  intvar.indexsort(intindex,0,intvar.rows(),0,0);
+  intvar.indexsort(intindex,0,intvar.rows()-1,0,0);
 
   vector<int> posb;
   vector<int> pose;
