@@ -1,0 +1,11 @@
+% usefile c:\bayesx\trunk\testh\prg\hgaussian_varcoeff_1fkt.txt
+
+dataset d
+d.infile using c:\bayesx\trunk\testh\testdata\gaussian_varcoeff.raw
+d.generate x2 = normal()
+
+mcmcreg b
+b.outfile = c:\bayesx\trunk\testh\results\r
+b.hregress y = const + x2*x1(pspline) ,   iterations=12000 step=10 burnin=2000 family=gaussian using d
+
+
