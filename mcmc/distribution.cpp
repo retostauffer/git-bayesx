@@ -166,7 +166,7 @@ double DISTRIBUTION::compute_msep(void)
   datamatrix mu = datamatrix(nlcols,1,0);
   double * mum = mu.getV();
   // double mu;   // siehe "compute_deviance"
- 
+
   double nr = 0;
   double * work2 = weight2.getV();
 
@@ -187,7 +187,7 @@ double DISTRIBUTION::compute_msep(void)
       {
       worklin += nlcols - 1;
       workresp += nlcols - 1;
-      }  
+      }
     }
 
   return  deviancesat;   //      /nr;
@@ -267,7 +267,7 @@ double DISTRIBUTION::compute_bic(const double & df)
   double devsat=0;
   compute_overall_deviance(dev,devsat);
 
-  double bic = dev + log(get_nrobs_wpw())*df;
+  double bic = dev + log(static_cast<double>(get_nrobs_wpw()))*df;
   return bic;
   }
 
@@ -695,7 +695,7 @@ ST::string DISTRIBUTION::get_mean_sample(void) const
 
 /*  file = pathresultsscale.substr(0,pathresultsscale.length()-9) + "_predictor_sample.raw";
     responsesave.get_samples(file);*/
-    
+
     }
 
   return file;
@@ -1949,7 +1949,7 @@ void DISTRIBUTION::add_linearpred(const double & m,const unsigned & beg,
 
   }
 
-  
+
 void DISTRIBUTION::add_linearpred2(const double & m,const unsigned & beg,
                          const unsigned & end,
                          const statmatrix<int> & index,
@@ -3210,7 +3210,7 @@ void DISTRIBUTION::outresults(void)
 
     optionsp->out("  Saturated Deviance (-2*Loglikelihood(y|mu) + 2*Loglikelihood(y|mu=y))\n");
     optionsp->out("\n");
-    
+
     devhelpm = deviance.mean(1);
 
     optionsp->out(meanstr + ST::string(' ',20-l_meanstr) +
@@ -6242,7 +6242,7 @@ double DISTRIBUTION_gaussian::compute_improvedaic(const double & df)
 double DISTRIBUTION_gaussian::compute_bic(const double & df)
   {
   double bic = log(compute_rss() / get_nrobs_wpw()) * get_nrobs_wpw()
-               + log(get_nrobs_wpw())*df;
+               + log(static_cast<double>(get_nrobs_wpw()))*df;
   return bic;
   }
 
@@ -7088,7 +7088,7 @@ const double * linpred,double * mu) const
   *mu = el/(1+el);
   }
 
-  
+
 DISTRIBUTION_binomial::DISTRIBUTION_binomial(MCMCoptions * o,
                          const datamatrix & r,const datamatrix & w)
   : DISTRIBUTION(o,r,w)
@@ -7725,15 +7725,15 @@ void DISTRIBUTION_binomial_latent::compute_bootstrap_data(const double * linpred
     while(i<=*weight)
       {
       u = uniform();
-      if(u <= mu) 
+      if(u <= mu)
         pres += 1;
       i += 1;
-      } 
+      }
     pres /= *weight;
     }
- 
+
   *wresp = pres;
-  }  
+  }
 
 //------------------------------------------------------------------------------
 //----------------- CLASS DISTRIBUTION_binomial_logit_latent -------------------
@@ -8293,7 +8293,7 @@ void DISTRIBUTION_poisson::compute_bootstrap_data(const double * linpred,const d
     while(zeit<=1)
       {
       zeit += randnumbers::rand_expo(mu);
-      pres += 1; 
+      pres += 1;
       }
     pres -= 1;
     pres / *weight;

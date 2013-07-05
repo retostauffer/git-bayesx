@@ -39,11 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
     }
 #elif defined(__BUILDING_GNU)
 #include <limits.h>
+    const double NAN = DBL_MAX;
+
     bool
     infinite(double x)
     {
-//        return finite(x) != 0;
-    return !isfinite(x);
++        return ABS(x) > DBL_MAX;
++    // return !isfinite(x);
     }
 #else
 #include"../values.h"

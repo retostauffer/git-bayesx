@@ -518,7 +518,7 @@ using std::flush;
   gcv = loglike+2*gcv;
   gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
   aic = loglike + 2*df;
-  bic = loglike + log(nrobspos)*df;
+  bic = loglike + log(static_cast<double>(nrobspos))*df;
 
   out("\n");
   out("  Model Fit\n",true);
@@ -1370,7 +1370,7 @@ bool remlest::estimate_dispers(const datamatrix resp, const datamatrix & offset,
       }
     gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
     aic = loglike + 2*df;
-    bic = loglike + log(nrobspos)*df;
+    bic = loglike + log(static_cast<double>(nrobspos))*df;
 
     out("\n");
     out("  Model Fit\n",true);
@@ -1768,7 +1768,7 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
       }*/
     gcv /= (double)nrobspos*(1-(double)df/(double)nrobspos)*(1-(double)df/(double)nrobspos);
     aic = loglike + 2*df;
-    bic = loglike + log(nrobspos)*df;
+    bic = loglike + log(static_cast<double>(nrobspos))*df;
 
     out("\n");
     out("  Model Fit\n",true);
@@ -5896,7 +5896,7 @@ for(i=0; i<nrobs; i++)
 
   loglike *= -2;
   aic = loglike + 2*df;
-  bic = loglike + log(nrobspos)*df;
+  bic = loglike + log(static_cast<double>(nrobspos))*df;
 
 
   out("\n");

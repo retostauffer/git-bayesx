@@ -462,7 +462,7 @@ double FC_cv::compute_logscore(void)
     for (s=0;s<S;s++)
       log_score(i,0) +=  exp(lhelp(i,s));
 
-    log_score(i,0) = log(S) - log(log_score(i,0));
+    log_score(i,0) = log(static_cast<double>(S)) - log(log_score(i,0));
     }
 
   return log_score.mean(0);
