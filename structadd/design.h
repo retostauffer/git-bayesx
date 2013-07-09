@@ -166,6 +166,8 @@ class __EXPORT_TYPE DESIGN
 
   double compute_kernel_intvar(void);
 
+  double compute_epanechnikov(double & x, statmatrix<int> & intindex, vector<int> & posb, vector<int> & pose);
+
   // ---------------------------------------------------------------------------
 
   //---------------------------- Zout_derivative -------------------------------

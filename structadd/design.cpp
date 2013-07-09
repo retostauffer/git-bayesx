@@ -895,6 +895,41 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   }
 
 
+double DESIGN::compute_epanechnikov(double & x, statmatrix<int> & intindex, vector<int> & posb, vector<int> & pose)
+  {
+  double sum=0;
+  unsigned j;
+
+  double n = intvar.rows();
+  double si=sqrt(intvar.var(0));
+  double R = (intvar.quantile(75,0) - intvar.quantile(25,0))/1.34;
+
+  double h;
+  if (si < R)
+    h = 0.9*si*pow(n,-0.2);
+  else
+    h = 0.9*R*pow(n,-0.2);
+
+  double n_j;
+  double Kd;
+  double x_j;
+
+  for (j=0;j<posb.size();j++)
+    {
+    x_j = intvar(intindex(posb[j],0),0);
+    u = (x-x_j)/h;
+    if ( (u <= 1) && (u >= -1) )
+      {
+      n_j = pose[j]-posb[j]+1;
+      Kd = 0.75*(1.0-u*u);
+      sum += n_j * Kd;
+      }
+    }
+
+  return sum;
+  }
+
+
 double DESIGN::compute_kernel_intvar(void)
   {
   unsigned j;
@@ -938,6 +973,20 @@ double DESIGN::compute_kernel_intvar(void)
       pr = (pose[j]-posb[j]+1)/n;
       sum += pr*fabs(intvar(intindex(posb[j],0),0));
       }
+    }
+  else
+    {
+    double diff;
+    double xjm1 = intvar(intindex(posb[0],0),0);
+    double xj;
+    for (j=1;j<posb.size();j++)
+      {
+      xj = intvar(intindex(posb[j],0),0);
+      diff = xj - xjm1;
+      sum += diff*(fabs(xjm1)*compute_epanechnikov(xjm1,intindex, posb, pose)+fabs(xj)*compute_epanechnikov(xj,intindex, posb, pose));
+      }
+
+    xjm1 = xj;
     }
 
   return sum;
