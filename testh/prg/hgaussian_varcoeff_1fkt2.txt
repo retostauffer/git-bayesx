@@ -2,7 +2,7 @@
 
 dataset d
 d.infile using c:\bayesx\trunk\testh\testdata\gaussian_varcoeff.raw
-
+d.generate x2 = normal()
 
 mcmcreg b
 b.outfile = c:\bayesx\trunk\testh\results\r
