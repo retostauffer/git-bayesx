@@ -897,6 +897,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
 
 double DESIGN::compute_epanechnikov(double & x, statmatrix<int> & intindex, vector<int> & posb, vector<int> & pose)
   {
+
   double sum=0;
   unsigned j;
 
@@ -913,6 +914,7 @@ double DESIGN::compute_epanechnikov(double & x, statmatrix<int> & intindex, vect
   double n_j;
   double Kd;
   double x_j;
+  double u;
 
   for (j=0;j<posb.size();j++)
     {
@@ -926,11 +928,13 @@ double DESIGN::compute_epanechnikov(double & x, statmatrix<int> & intindex, vect
       }
     }
 
+  sum = sum/(n*h);
+
   return sum;
   }
 
 
-double DESIGN::compute_kernel_intvar(void)
+double DESIGN::compute_kernel_intvar(bool absolute)
   {
   unsigned j;
 
@@ -962,11 +966,9 @@ double DESIGN::compute_kernel_intvar(void)
   if (pose.size() < posb.size())
     pose.push_back(intvar.rows()-1);
 
-  double sum;
+  double sum=0;
   if (posb.size() <= 10)
     {
-
-    sum=0;
     double pr = 0;
     for (j=0;j<posb.size();j++)
       {
@@ -977,16 +979,32 @@ double DESIGN::compute_kernel_intvar(void)
   else
     {
     double diff;
+    double add;
     double xjm1 = intvar(intindex(posb[0],0),0);
     double xj;
-    for (j=1;j<posb.size();j++)
-      {
-      xj = intvar(intindex(posb[j],0),0);
-      diff = xj - xjm1;
-      sum += diff*(fabs(xjm1)*compute_epanechnikov(xjm1,intindex, posb, pose)+fabs(xj)*compute_epanechnikov(xj,intindex, posb, pose));
-      }
 
-    xjm1 = xj;
+    if (absolute)
+      {
+      for (j=1;j<posb.size();j++)
+        {
+        xj = intvar(intindex(posb[j],0),0);
+        diff = xj - xjm1;
+        sum += 0.5*diff*(fabs(xjm1)*compute_epanechnikov(xjm1,intindex, posb, pose)
+               +fabs(xj)*compute_epanechnikov(xj,intindex, posb, pose));
+        xjm1 = xj;
+        }
+      }
+    else
+      {
+      for (j=1;j<posb.size();j++)
+        {
+        xj = intvar(intindex(posb[j],0),0);
+        diff = xj - xjm1;
+        sum += 0.5*diff*(pow(xjm1,2)*compute_epanechnikov(xjm1,intindex, posb, pose)
+               +pow(xj,2)*compute_epanechnikov(xj,intindex, posb, pose));
+        xjm1 = xj;
+        }
+      }
     }
 
   return sum;
@@ -1595,6 +1613,7 @@ void DESIGN::outbasis_R(ofstream & out)
 
 
 } // end: namespace MCMC
+
 
 
 

@@ -164,7 +164,7 @@ class __EXPORT_TYPE DESIGN
   // TASK: computes integral |intvar| g(intvar) dintvar where g is the epanechnikov
   //       kernel density estimator with AMISE optimal bandwidth
 
-  double compute_kernel_intvar(void);
+  double compute_kernel_intvar(bool absolute);
 
   double compute_epanechnikov(double & x, statmatrix<int> & intindex, vector<int> & posb, vector<int> & pose);
 

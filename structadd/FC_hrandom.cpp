@@ -678,6 +678,15 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
       im_absolute = compute_importancemeasure(true);
       }
 
+    if (designp->intvar.rows()==designp->data.rows())
+      {
+      double kintvar = designp->compute_kernel_intvar(true);
+      im_absolute *= kintvar;
+      kintvar = designp->compute_kernel_intvar(false);
+      im_var *= kintvar;
+      }
+
+
     optionsp->out("    Importance measures\n");
     optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
     optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");

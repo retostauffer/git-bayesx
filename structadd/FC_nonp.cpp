@@ -1492,8 +1492,10 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
     if (designp->intvar.rows()==designp->data.rows())
       {
-      double kintvar = designp->compute_kernel_intvar();
+      double kintvar = designp->compute_kernel_intvar(true);
       im_absolute *= kintvar;
+      kintvar = designp->compute_kernel_intvar(false);
+      im_var *= kintvar;
       }
 
     optionsp->out("    Importance measures\n");
