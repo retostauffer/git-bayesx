@@ -478,10 +478,11 @@ void FC_nonp_variance_varselection::update(void)
   mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
 
   double tau = mutau + sqrt(Sigmatau) * rand_normal();
-
   double tau2 = tau*tau;
+  if (tau2 < 0.0000000001)
+    tau2 = 0.0000000001;
 
-  beta(0,0) = pow(tau,2);
+  beta(0,0) = tau2;
 
 
   beta(0,1) = likep->get_scale()/beta(0,0);
