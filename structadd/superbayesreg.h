@@ -123,7 +123,7 @@ using MCMC::DISTR_gengamma_sigma;
 using MCMC::DISTR_gengamma_tau;
 using MCMC::DISTR_t_mu;
 using MCMC::DISTR_t_sigma2;
-using MCMC::DISTR_t_n;
+using MCMC::DISTR_t_df;
 using MCMC::DISTR_zeroadjusted;
 using MCMC::DISTR_zeroadjusted_mult;
 using MCMC::DISTR_weibull_lambda;
@@ -375,7 +375,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gengamma_tau> distr_gengamma_taus;
   vector<DISTR_t_mu> distr_t_mus;
   vector<DISTR_t_sigma2> distr_t_sigma2s;
-  vector<DISTR_t_n> distr_t_ns;
+  vector<DISTR_t_df> distr_t_dfs;
   vector<DISTR_weibull_lambda> distr_weibull_lambdas;
   vector<DISTR_weibull_alpha> distr_weibull_alphas;
   vector<DISTR_dagum_a> distr_dagum_as;

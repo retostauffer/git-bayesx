@@ -279,7 +279,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gengamma_tau");
   families.push_back("t_mu");
   families.push_back("t_sigma2");
-  families.push_back("t_n");
+  families.push_back("t_df");
   families.push_back("bivnormal_mu");
   families.push_back("bivnormal_sigma");
   families.push_back("bivnormal_rho");
@@ -652,8 +652,8 @@ void superbayesreg::clear(void)
   distr_t_sigma2s.erase(distr_t_sigma2s.begin(),distr_t_sigma2s.end());
   distr_t_sigma2s.reserve(20);
 
-  distr_t_ns.erase(distr_t_ns.begin(),distr_t_ns.end());
-  distr_t_ns.reserve(20);
+  distr_t_dfs.erase(distr_t_dfs.begin(),distr_t_dfs.end());
+  distr_t_dfs.reserve(20);
 
   distr_bivnormal_mus.erase(distr_bivnormal_mus.begin(),distr_bivnormal_mus.end());
   distr_bivnormal_mus.reserve(20);
@@ -884,7 +884,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
-  distr_t_ns = b.distr_t_ns;
+  distr_t_dfs = b.distr_t_dfs;
   distr_bivnormal_mus = b.distr_bivnormal_mus;
   distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
   distr_bivnormal_rhos = b.distr_bivnormal_rhos;
@@ -1015,10 +1015,10 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gengamma_taus = b.distr_gengamma_taus;
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
+  distr_t_dfs = b.distr_t_dfs;
   distr_bivnormal_mus = b.distr_bivnormal_mus;
   distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
   distr_bivnormal_rhos = b.distr_bivnormal_rhos;
-  distr_t_ns = b.distr_t_ns;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
@@ -1946,19 +1946,19 @@ bool superbayesreg::create_distribution(void)
      }
  //------------------------------ END: dagum_a ----------------------------------
 
-  //---------------------------------- t_n -----------------------------------
-   else if (family.getvalue() == "t_n" && equationtype.getvalue()=="df")
+  //---------------------------------- t_df -----------------------------------
+   else if (family.getvalue() == "t_df" && equationtype.getvalue()=="df")
      {
 
      computemodeforstartingvalues = true;
 
-     distr_t_ns.push_back(DISTR_t_n(&generaloptions,D.getCol(0),w));
+     distr_t_dfs.push_back(DISTR_t_df(&generaloptions,D.getCol(0),w));
 
-     equations[modnr].distrp = &distr_t_ns[distr_t_ns.size()-1];
+     equations[modnr].distrp = &distr_t_dfs[distr_t_dfs.size()-1];
      equations[modnr].pathd = "";
 
      }
- //------------------------------- END: t_n ---------------------------------
+ //------------------------------- END: t_df ---------------------------------
 
  //---------------------------------- t_sigma2 --------------------------------
    else if (family.getvalue() == "t_sigma2" && equationtype.getvalue()=="scale")
@@ -1986,7 +1986,7 @@ bool superbayesreg::create_distribution(void)
      equations[modnr].distrp = &distr_t_mus[distr_t_mus.size()-1];
      equations[modnr].pathd = "";
 
-     if (distr_t_ns.size() != 1)
+     if (distr_t_dfs.size() != 1)
        {
        outerror("ERROR: Equation for degrees of freedom is missing");
        return true;
@@ -1998,24 +1998,24 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     predict_mult_distrs.push_back(&distr_t_ns[distr_t_ns.size()-1]);
+     predict_mult_distrs.push_back(&distr_t_dfs[distr_t_dfs.size()-1]);
      predict_mult_distrs.push_back(&distr_t_sigma2s[distr_t_sigma2s.size()-1]);
      predict_mult_distrs.push_back(&distr_t_mus[distr_t_mus.size()-1]);
 
-     distr_t_ns[distr_t_ns.size()-1].distrp.push_back(
+     distr_t_dfs[distr_t_dfs.size()-1].distrp.push_back(
      &distr_t_sigma2s[distr_t_sigma2s.size()-1]);
 
-	 distr_t_ns[distr_t_ns.size()-1].distrp.push_back(
+	 distr_t_dfs[distr_t_dfs.size()-1].distrp.push_back(
      &distr_t_mus[distr_t_mus.size()-1]);
 
      distr_t_sigma2s[distr_t_sigma2s.size()-1].distrp.push_back(
-     &distr_t_ns[distr_t_ns.size()-1]);
+     &distr_t_dfs[distr_t_dfs.size()-1]);
 
      distr_t_sigma2s[distr_t_sigma2s.size()-1].distrp.push_back(
      &distr_t_mus[distr_t_mus.size()-1]);
 
      distr_t_mus[distr_t_mus.size()-1].distrp.push_back(
-     &distr_t_ns[distr_t_ns.size()-1]);
+     &distr_t_dfs[distr_t_dfs.size()-1]);
 
      distr_t_mus[distr_t_mus.size()-1].distrp.push_back(
      &distr_t_sigma2s[distr_t_sigma2s.size()-1]);
