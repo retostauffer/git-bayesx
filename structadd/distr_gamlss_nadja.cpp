@@ -85,7 +85,7 @@ double DISTR_t_df::loglikelihood_weightsone(double * response,
     double l;
 
      l = (randnumbers::lngamma_exact(arg))-(randnumbers::lngamma_exact(arg1))-
-            0.5*log(degf) - (arg)*log(1+pow((*response)-(*worktransformlin[1]),2)/((*worktransformlin[0])*degf));
+            0.5*log(degf) - (arg)*log(1+pow((*response)-(*worklin[1]),2)/((*worktransformlin[0])*degf));
 
 
   modify_worklin();
@@ -115,21 +115,14 @@ void DISTR_t_df::compute_iwls_wweightschange_weightsone(
     }
 
     double degf = exp((*linpred));
-    double denom = (*worktransformlin[0])*degf+pow((*response)-(*worktransformlin[1]),2);
+    double denom = (*worktransformlin[0])*degf+pow((*response)-(*worklin[1]),2);
     double frac = pow((*response)-(*worktransformlin[1]),2)/((*worktransformlin[0])*degf);
     double arg = (degf+1)/2;
     double arg1 = degf/2;
-    double nu = -0.5 + arg*pow(((*response)-(*worktransformlin[1])),2)/denom + 0.5*degf*(randnumbers::digamma_exact(arg)-randnumbers::digamma_exact(arg1)-log(1+frac));
+    double nu = -0.5 + arg*pow(((*response)-(*worklin[1])),2)/denom + 0.5*degf*(randnumbers::digamma_exact(arg)-randnumbers::digamma_exact(arg1)-log(1+frac));
 
   //  *workingweight = pow(nu,2);
     *workingweight =  - 0.25*pow(degf,2)*(randnumbers::trigamma_exact(arg)-randnumbers::trigamma_exact(arg1)) - degf/((degf+1)) + degf/(2*(degf+3));
-
-   // *workingweight = - arg1*(randnumbers::digamma_exact(arg)-randnumbers::digamma_exact(arg1)-log(1+frac)) - arg1*(frac)/(1+frac) -
-    //                    arg1*( arg1*randnumbers::trigamma_exact(arg)-arg1*randnumbers::trigamma_exact(arg1) + frac/(1+frac) ) +
-    //                    arg*frac/(pow(1+frac,2));
-
-   // if (*workingweight <=0)
-   // *workingweight = 0.001;
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -237,7 +230,7 @@ double DISTR_t_sigma2::loglikelihood_weightsone(double * response,
 
   double l;
 
-     l =  - 0.5*log(sigma_2) - (((*worktransformlin[0])+1)/(2))*log(1+pow((*response)-(*worktransformlin[1]),2)/(sigma_2*(*worktransformlin[0])));
+     l =  - 0.5*log(sigma_2) - (((*worktransformlin[0])+1)/(2))*log(1+pow((*response)-(*worklin[1]),2)/(sigma_2*(*worktransformlin[0])));
 
 
   modify_worklin();
