@@ -408,8 +408,6 @@ void FC_nonp_variance_varselection::update(void)
 
   FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)*r_delta);
 
-  double psi2 = FC_psi2.beta(0,0);
-
   FC_psi2.update();
 
   // end: updating psi2
@@ -430,8 +428,6 @@ void FC_nonp_variance_varselection::update(void)
     r_delta = r;
     }
 
-  double delta = FC_delta.beta(0,0);
-
   FC_delta.update();
 
   // end: updating delta
@@ -441,7 +437,6 @@ void FC_nonp_variance_varselection::update(void)
 
   FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
                                           b_omega+1-FC_delta.beta(0,0));
-  double omega = FC_omega.beta(0,0);
 
   FC_omega.update();
 
@@ -451,9 +446,6 @@ void FC_nonp_variance_varselection::update(void)
   // updating tau2
 
   FCnonpp->designp->compute_effect(X,FCnonpp->beta);
-
-//  ofstream out("c:\\bayesx\\testh\\results\\X.res");
-//  X.prettyPrint(out);
 
   double * worklin;
   if (likep->linpred_current==1)
@@ -478,12 +470,12 @@ void FC_nonp_variance_varselection::update(void)
   mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
 
   double tau = mutau + sqrt(Sigmatau) * rand_normal();
+
   double tau2 = tau*tau;
-  if (tau2 < 0.0000000001)
-    tau2 = 0.0000000001;
+  if (tau2 < 0.000000001)
+    tau2 = 0.000000001;
 
   beta(0,0) = tau2;
-
 
   beta(0,1) = likep->get_scale()/beta(0,0);
 

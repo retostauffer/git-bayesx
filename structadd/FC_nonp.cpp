@@ -629,7 +629,9 @@ void FC_nonp::update_gaussian(void)
         (designp->changingdesign) ||
         (!lambdaconst)
         )
+      {
       designp->compute_precision(lambda);
+      }
 
 
     double * work = paramhelp.getV();
@@ -742,7 +744,9 @@ void FC_nonp::update_isotonic(void)
       (designp->changingdesign) ||
       (!lambdaconst)
       )
+    {
     designp->compute_precision(lambda);
+    }
 
   int count = 0;
   int maxit = 20;
@@ -1329,8 +1333,6 @@ double FC_nonp::kernel_density(const double & x, const double & h)
   double x_j;
   double Kd;
 
-//  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
-
   for (j=0;j<designp->posbeg.size();j++)
     {
     x_j = designp->data(designp->posbeg[j],0);
@@ -1341,23 +1343,15 @@ double FC_nonp::kernel_density(const double & x, const double & h)
       Kd = 0.75*(1.0-u*u);
       sum += n_j * Kd;
 
-//     out << n_j << endl;
-//     out << u << endl;
-//     out << x << endl;
-//     out << x_j << endl;
-//     out << Kd << endl;
-//     out << sum << endl << endl;
      }
     }
 
-//  out.close();
   return 1/(n*h)*sum;
   }
 
 
 double FC_nonp::compute_importancemeasure(bool absolute)
   {
-//  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
   double n = designp->data.rows();
 
   double si=sqrt(designp->data.var(0));
@@ -1388,10 +1382,6 @@ double FC_nonp::compute_importancemeasure(bool absolute)
     else
       sum += diff* (pow(betamean(j-1,0),2)* kd_xjm1 + pow(betamean(j,0),2)*kd_xj)/2;
 
- //   out << kd_xjm1 << endl;
- //   out << kd_xj << endl;
- //   out << endl;
-
     x_jm1 = x_j;
     }
   return sum;
@@ -1400,12 +1390,9 @@ double FC_nonp::compute_importancemeasure(bool absolute)
 
 double FC_nonp::compute_importancemeasure_discrete(bool absolute)
   {
-//  ofstream out("c:\\bayesx\\trunk\\testh\\results\\test.res");
   double n = designp->data.rows();
 
-
   unsigned j;
-  double x_j;
   double sum = 0;
   double pr;
 
@@ -1416,10 +1403,6 @@ double FC_nonp::compute_importancemeasure_discrete(bool absolute)
       sum +=  fabs(betamean(j,0))*pr;
     else
       sum +=  pow(betamean(j,0),2)*pr;
-
- //   out << kd_xjm1 << endl;
- //   out << kd_xj << endl;
- //   out << endl;
 
     }
   return sum;
@@ -2084,6 +2067,8 @@ void FC_nonp::reset(void)
 
 
 } // end: namespace MCMC
+
+
 
 
 

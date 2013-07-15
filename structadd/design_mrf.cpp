@@ -230,7 +230,6 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
 void DESIGN_mrf::outbasis_R(ofstream & out)
   {
-  unsigned i;
   out << "BayesX.design.matrix<-function(x,...){" << endl;
   out << "x<-as.integer(x)" << endl;
   out << "nl<-" << effectvalues.size() << endl;

@@ -595,13 +595,14 @@ void DESIGN::compute_XtransposedWX(void)
   else
     {
 
-    unsigned int i,j;
+    int i;
 
     if (ZoutTZout_d.size() <= 1)
       {
 
       for (i=0;i<int(nrpar);i++)
         {
+        unsigned j;
         for (j=0;j<ZoutT[i].size();j++)
           {
           ZoutTZout_d.push_back(pow(ZoutT[i][j],2));
@@ -615,6 +616,7 @@ void DESIGN::compute_XtransposedWX(void)
     vector<int>::iterator Wsump_d_p = Wsump_d.begin();
     int s;
 
+    int j;
     for (i=0;i<int(nrpar);i++,++diag)
       {
       *diag=0;
@@ -640,7 +642,7 @@ void DESIGN::compute_XtransposedWX(void)
     vector<double>::iterator ZoutTZoutp = ZoutTZout.begin();
     vector<int>::iterator beg_ZoutTZoutp = beg_ZoutTZout.begin();
     vector<int>::iterator Wsumpp = Wsump.begin();
-    int nr=0;
+    unsigned  nr=0;
 
     unsigned k;
     int beg, end;
@@ -979,7 +981,6 @@ double DESIGN::compute_kernel_intvar(bool absolute)
   else
     {
     double diff;
-    double add;
     double xjm1 = intvar(intindex(posb[0],0),0);
     double xj;
 
@@ -1328,7 +1329,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
   double * workingweightp = likep->workingweight.getV();
   unsigned * indp = ind.getV();
 
-  int i;
+  unsigned i;
   double * resp = res.getV();
   for (i=0;i<res.rows();i++,resp++)
     *resp =  0;
@@ -1505,7 +1506,7 @@ void DESIGN::update_linpred(datamatrix & f)
 
   unsigned * indp = ind.getV();
 
-  int i;
+  unsigned i;
 
   if (intvar.rows()==data.rows())   // varying coefficient
     {
@@ -1546,7 +1547,7 @@ bool DESIGN::update_linpred_save(datamatrix & f)
 
   unsigned * indp = ind.getV();
 
-  int i;
+  unsigned i;
 
   if (intvar.rows()==data.rows())   // varying coefficient
     {
