@@ -260,10 +260,24 @@ class __EXPORT_TYPE DISTR
   //---------------------------- COMPUTING THE CDF -----------------------------
   //----------------------------------------------------------------------------
 
-  virtual double cdf(double * res,double * lin,double * weight)
+  // FUNCTION: cdf
+  // TASK: computes the cdf for a single observation
+
+  virtual double cdf(double * res,double * param,double * weight,double * scale)
     {
     return 0;
     }
+
+  virtual double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    return 0;
+    }
+
 
   //----------------------------------------------------------------------------
   //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
