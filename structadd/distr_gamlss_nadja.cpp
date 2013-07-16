@@ -6863,8 +6863,6 @@ void DISTR_bivprobit_mu::set_worklin(void)
 
   DISTR_gamlss::set_worklin();
 
-  response2p = response2.getV();
-
   response2p = workingresponse2p->getV();
 
   }
@@ -6882,6 +6880,41 @@ void DISTR_bivprobit_mu::modify_worklin(void)
     }
 
   }
+
+
+void DISTR_bivprobit_mu::update(void)
+  {
+
+  double * workresp = response.getV();
+  double * workwresp = workingresponse.getV();
+  double * weightwork = weight.getV();
+  response2p = workingresponse2p->getV();
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  unsigned i;
+  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,response2p++)
+    {
+
+    if (*weightwork != 0)
+      {
+      if (*workresp > 0)
+        *workwresp = trunc_normal2(0,20,*worklin,1);
+      else
+        *workwresp = trunc_normal2(-20,0,*worklin,1);
+      }
+
+    }
+
+
+
+  }
+
+
 
 
 

@@ -2412,6 +2412,8 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
 
   void outoptions(void);
 
+  void update(void);
+
   void update_end(void);
 
   };
