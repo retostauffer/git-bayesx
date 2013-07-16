@@ -426,7 +426,19 @@ double DISTR_t_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_t_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+    double a = 0.5*(*param[0]);
+    double b = 0.5;
+    double x = ((*response)-(*param[2]))/pow((*param[1]),0.5);
+    return ( 1- 0.5*incomplete_beta(a,b,x));
+    }
+*/
 double DISTR_t_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -1865,7 +1877,17 @@ double DISTR_pareto_b::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_pareto_b::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+
+    return ( 1- pow((*param[1],(*param[0])))*pow((*response)+(*param[1]),-(*param[0])) );
+    }
+*/
 double DISTR_pareto_b::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -2382,7 +2404,17 @@ double DISTR_dagum_a::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_dagum_a::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+
+    return ( pow((1+pow((*response)/(*param[1]),-(*param[2]))),-(*param[0])) );
+    }
+*/
 double DISTR_dagum_a::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -2764,7 +2796,17 @@ double DISTR_weibull_lambda::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_weibull_lambda::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+
+    return ( 1 - exp(-pow((*response)/(*param[1]),(*param[0]))) );
+    }
+*/
 double DISTR_weibull_lambda::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -4015,7 +4057,18 @@ double DISTR_lognormal2_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_lognormal2_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+    double arg = (log(*response)-(*param[1]))/(*param[0]) ;
+
+    return ((Phi2(arg));
+    }
+*/
 double DISTR_lognormal2_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -4375,7 +4428,18 @@ double DISTR_lognormal_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_lognormal_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+    double arg = (log(*response)-(*param[1]))/pow((*param[0]),0.5) ;
+
+    return ((Phi2(arg));
+    }
+*/
 double DISTR_lognormal_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -4726,7 +4790,18 @@ double DISTR_normal2_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_normal2_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+    double arg = ((*response)-(*param[1]))/(*param[0]) ;
+
+    return ((Phi2(arg));
+    }
+*/
 double DISTR_normal2_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -5080,7 +5155,18 @@ double DISTR_normal_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_normal_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+    double arg = ((*response)-(*param[1]))/pow((*param[0]),0.5) ;
+
+    return ((Phi2(arg));
+    }
+*/
 double DISTR_normal_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -5475,7 +5561,19 @@ double DISTR_beta_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_beta_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
 
+
+    {
+    double a =  (*param[0])*(*param[1]);
+    double b = (*param[0])*(1-(*param[1]));
+
+    return ( incomplete_beta(a,b,(*response)) );
+    }
+*/
 double DISTR_beta_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -5715,7 +5813,18 @@ double DISTR_cloglog::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
-
+/*double DISTR_cloglog::cdf(double * response,double * param,double * weight,double * scale)
+    {
+        double Fy = 0;
+        if (*response>0) {
+            Fy = 1;
+            if(*response<1) {
+                Fy = 1-(*param);
+            }
+        }
+    return 0;
+    }
+*/
 double DISTR_cloglog::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {

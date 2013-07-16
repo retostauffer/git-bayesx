@@ -1218,6 +1218,11 @@ double DISTR_poisson::get_intercept_start(void)
   return 0;
   }
 
+/*double DISTR_poisson::cdf(double * res,double * param,double * weight,double * scale)
+    {
+    return 0;
+    }
+*/
 
 double DISTR_poisson::loglikelihood(double * response, double * linpred,
                                      double * weight)

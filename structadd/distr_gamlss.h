@@ -110,6 +110,7 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   void update_end(void);
 
+
   };
 
 
