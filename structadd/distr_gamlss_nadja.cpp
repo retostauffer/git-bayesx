@@ -6595,14 +6595,10 @@ double DISTR_bivprobit_rho::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
-  // *worklin[0] = linear predictor of sigma_2 equation
-  // *worktransformlin[0] = sigma_2;
-  // *worklin[1] = linear predictor of sigma_1 equation
-  // *worktransformlin[1] = sigma_1;
-  // *worklin[2] = linear predictor of mu_2 equation
-  // *worktransformlin[2] = mu_2;
-  // *worklin[3] = linear predictor of mu_1 equation
-  // *worktransformlin[3] = mu_1;
+  // *worklin[0] = linear predictor of mu_2 equation
+  // *worktransformlin[0] = mu_2;
+  // *worklin[1] = linear predictor of mu_1 equation
+  // *worktransformlin[1] = mu_1;
 
 
   if (counter==0)
@@ -6624,9 +6620,9 @@ double DISTR_bivprobit_rho::loglikelihood_weightsone(double * response,
 
 //hier ist jetzt das problem, dass ich die aktuelle response gleichung brauche und die von dem mu2 oder rho2
 
-     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
-                                 2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
-                                +  pow((((*response2p))-(*worklin[2])),2)/pow((*worktransformlin[0]),2) );
+     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[1])),2) -
+                                 2*rho*(((*response)-(*worklin[1])))*(((*response2p)-(*worklin[0])))
+                                +  pow((((*response2p))-(*worklin[0])),2) );
 
 
   modify_worklin();
@@ -6644,14 +6640,10 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
-  // *worklin[0] = linear predictor of sigma_2 equation
-  // *worktransformlin[0] = sigma_2;
-  // *worklin[1] = linear predictor of sigma_1 equation
-  // *worktransformlin[1] = sigma_1;
-  // *worklin[2] = linear predictor of mu_2 equation
-  // *worktransformlin[2] = mu_2;
-  // *worklin[3] = linear predictor of mu_1 equation
-  // *worktransformlin[3] = mu_1;
+  // *worklin[0] = linear predictor of mu_2 equation
+  // *worktransformlin[0] = mu_2;
+  // *worklin[1] = linear predictor of mu_1 equation
+  // *worktransformlin[1] = mu_1;
 
   if (counter==0)
     {
@@ -6679,9 +6671,9 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
   double oneminusrho2 = 1- rho2;
 
 
-    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[3])),2)/pow((*worktransformlin[1]),2)
-                                                      +  pow((((*response2p))-(*worktransformlin[2])),2)/pow((*worktransformlin[0]),2) )
-                +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worktransformlin[2]))/((*worktransformlin[0]))) );
+    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[1])),2)
+                                                      +  pow((((*response2p))-(*worktransformlin[0])),2) )
+                +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
 
 
 
@@ -6692,9 +6684,9 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
-                                 2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
-                                +  pow((((*response2p))-(*worklin[2])),2)/pow((*worktransformlin[0]),2) );
+        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[1])),2) -
+                                 2*rho*(((*response)-(*worklin[1])))*(((*response2p)-(*worklin[0])))
+                                +  pow((((*response2p))-(*worklin[0])),2) );
 
       }
 
@@ -6904,9 +6896,9 @@ void DISTR_bivprobit_mu::update(void)
     if (*weightwork != 0)
       {
       if (*workresporig > 0)
-        *workwresp = trunc_normal2(0,10000000,*worklin,1);
+        *workwresp = trunc_normal2(0,1000,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-(*worktransformlin[0]));
       else
-        *workwresp = trunc_normal2(-10000000,0,*worklin,1);
+        *workwresp = trunc_normal2(-1000,0,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-(*worktransformlin[0]));
       *workresp = (*workwresp);
       }
 
@@ -7004,7 +6996,7 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_bivprobit_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  *mu = ((*linpred[predstart_mumult+3+pos]));
+  *mu = ((*linpred[predstart_mumult+1+pos]));
   }
 
 
