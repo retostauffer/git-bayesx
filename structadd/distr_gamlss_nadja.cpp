@@ -1056,7 +1056,6 @@ void DISTR_betainf_mu::update_end(void)
   else
     worklin = linearpred2.getV();
 
-  double exp_lin;
   double * pmu = helpmat1.getV();
 
   unsigned i;
@@ -1382,7 +1381,7 @@ void DISTR_betainf_nu::update_end(void)
   else
     worklin = linearpred2.getV();
 
-  double exp_lin;
+
   double * pmu = helpmat1.getV();
 
   unsigned i;
@@ -1606,7 +1605,7 @@ void DISTR_betainf_tau::update_end(void)
   else
     worklin = linearpred2.getV();
 
-  double exp_lin;
+
   double * pmu = helpmat1.getV();
 
   unsigned i;
@@ -6798,6 +6797,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(const DISTR_bivprobit_mu & nd)
   pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
   }
 
 
@@ -6810,6 +6810,7 @@ const DISTR_bivprobit_mu & DISTR_bivprobit_mu::operator=(
   pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
   return *this;
   }
 
@@ -6863,6 +6864,8 @@ void DISTR_bivprobit_mu::set_worklin(void)
   DISTR_gamlss::set_worklin();
 
   response2p = response2.getV();
+
+  response2p = workingresponse2p->getV();
 
   }
 

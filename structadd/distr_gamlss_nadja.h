@@ -2364,6 +2364,8 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
   datamatrix response2;
   double * response2p;
 
+  datamatrix * workingresponse2p;
+
   void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
