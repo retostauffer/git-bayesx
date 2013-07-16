@@ -2361,7 +2361,8 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
 
   public:
 
-  datamatrix response2;
+  datamatrix responseorig;
+
   double * response2p;
 
   datamatrix * workingresponse2p;

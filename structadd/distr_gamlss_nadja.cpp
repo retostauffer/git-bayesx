@@ -6786,6 +6786,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+  responseorig = response;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
   }
@@ -6795,7 +6796,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(const DISTR_bivprobit_mu & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
   pos = nd.pos;
-  response2 = nd.response2;
+  responseorig = nd.responseorig;
   response2p = nd.response2p;
   workingresponse2p = nd.workingresponse2p;
   }
@@ -6808,7 +6809,7 @@ const DISTR_bivprobit_mu & DISTR_bivprobit_mu::operator=(
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
   pos = nd.pos;
-  response2 = nd.response2;
+  responseorig = nd.responseorig;
   response2p = nd.response2p;
   workingresponse2p = nd.workingresponse2p;
   return *this;
@@ -6884,6 +6885,7 @@ void DISTR_bivprobit_mu::update(void)
   {
 
   double * workresp = response.getV();
+  double * workresporig =responseorig.getV();
   double * workwresp = workingresponse.getV();
   double * weightwork = weight.getV();
   response2p = workingresponse2p->getV();
@@ -6895,15 +6897,17 @@ void DISTR_bivprobit_mu::update(void)
     worklin = linearpred2.getV();
 
   unsigned i;
-  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,response2p++)
+  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,
+           response2p++,workresporig++)
     {
 
     if (*weightwork != 0)
       {
-      if (*workresp > 0)
+      if (*workresporig > 0)
         *workwresp = trunc_normal2(0,10000000,*worklin,1);
       else
         *workwresp = trunc_normal2(-10000000,0,*worklin,1);
+      *workresp = (*workwresp);
       }
 
     }
