@@ -2284,7 +2284,7 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
   };
 
-/*
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_bivprobit_rho ------------------------
 //------------------------------------------------------------------------------
@@ -2413,7 +2413,7 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
   void update_end(void);
 
   };
-*/
+
 
 
 } // end: namespace MCMC
