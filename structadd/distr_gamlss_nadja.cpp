@@ -6824,20 +6824,18 @@ void DISTR_bivprobit_mu::compute_deviance_mult(vector<double *> response,
 
    // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
    // *linpred[0] = eta_rho
-   // *linpred[1] = eta_sigma_2
-   // *linpred[2] = eta_mu_2
-   // *linpred[3] = eta_sigma_1
-   // *linpred[4] = eta_mu_1
+   // *linpred[1] = eta_mu_2
+   // *linpred[2] = eta_mu_1
 
-   if (*weight[4] == 0)
+   if (*weight[2] == 0)
      *deviance=0;
    else
      {
      double rho = (*linpred[0])/pow(1+pow((*linpred[0]),2),0.5);
-     double sigma_2 = exp(*linpred[1]);
-     double mu_2 = (*linpred[3]);
-     double sigma_1 = exp(*linpred[2]);
-     double mu_1 = (*linpred[4]);
+     double sigma_2 = 1;
+     double mu_2 = (*linpred[1]);
+     double sigma_1 = 1;
+     double mu_1 = (*linpred[2]);
      double hilfs1 = 1-pow(rho,2);
      double l;
 
@@ -6903,9 +6901,9 @@ void DISTR_bivprobit_mu::update(void)
     if (*weightwork != 0)
       {
       if (*workresp > 0)
-        *workwresp = trunc_normal2(0,20,*worklin,1);
+        *workwresp = trunc_normal2(0,10000000,*worklin,1);
       else
-        *workwresp = trunc_normal2(-20,0,*worklin,1);
+        *workwresp = trunc_normal2(-10000000,0,*worklin,1);
       }
 
     }
@@ -6926,10 +6924,7 @@ double DISTR_bivprobit_mu::loglikelihood_weightsone(double * response,
   // *worktransformlin[0] = rho;
   // *worklin[1] = linear predictor of mu_2 equation
   // *worktransformlin[1] = mu_2;
-  // *worklin[2] = linear predictor of sigma_1 equation
-  // *worktransformlin[2] = sigma_1;
-  // *worklin[3] = linear predictor of sigma_2 equation
-  // *worktransformlin[3] = sigma_2;
+
 
   if (counter==0)
     {
@@ -6942,8 +6937,8 @@ double DISTR_bivprobit_mu::loglikelihood_weightsone(double * response,
   double l;
 
 
-     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+     l = -(1/(2*oneminusrho2))*( pow((((*workingresponse))-mu),2) -
+                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
 
   modify_worklin();
 
@@ -6965,10 +6960,7 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
   // *worktransformlin[0] = rho;
   // *worklin[1] = linear predictor of mu_2 equation
   // *worktransformlin[1] = mu_2;
-  // *worklin[2] = linear predictor of sigma_1 equation
-  // *worktransformlin[2] = sigma_1;
-  // *worklin[3] = linear predictor of sigma_2 equation
-  // *worktransformlin[3] = sigma_2;
+
 
   // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
   // helpmat1.prettyPrint(out);
@@ -6985,18 +6977,18 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
    double oneminusrho2 = 1- rho2;
 
 
-    double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
-                                 ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+    double nu = (1/(oneminusrho2))*( (((*workingresponse))-mu) -
+                                 ((*worktransformlin[0]))*(((*workingresponse2p)-(*worktransformlin[1]))) );
 
-    *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
+    *workingweight = 1/(oneminusrho2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+        like += -(1/(2*oneminusrho2))*( pow((((*workingresponse))-mu),2) -
+                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*workingresponse2p)-(*worktransformlin[1]))) );
 
       }
 
