@@ -6937,7 +6937,7 @@ double DISTR_bivprobit_mu::loglikelihood_weightsone(double * response,
   double l;
 
 
-     l = -(1/(2*oneminusrho2))*( pow((((*workingresponse))-mu),2) -
+     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
                                  2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
 
   modify_worklin();
@@ -6978,7 +6978,7 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
 
 
     double nu = (1/(oneminusrho2))*( (((*workingresponse))-mu) -
-                                 ((*worktransformlin[0]))*(((*workingresponse2p)-(*worktransformlin[1]))) );
+                                 ((*worktransformlin[0]))*(((*response2p)-(*worktransformlin[1]))) );
 
     *workingweight = 1/(oneminusrho2);
 
@@ -6988,7 +6988,7 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
       {
 
         like += -(1/(2*oneminusrho2))*( pow((((*workingresponse))-mu),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*workingresponse2p)-(*worktransformlin[1]))) );
+                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
 
       }
 
