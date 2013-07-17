@@ -1522,7 +1522,7 @@ double DISTR_betainf_tau::cdf_mult(vector<double *> response,
     double b = (*param[2])*(1-(*param[3]));
     double frac = 1 + (*param[0]) + (*param[1]);
 
-    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*incomplete_beta(a,b,(*response[3])) );
+    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*randnumbers::incomplete_beta(a,b,(*response[3])) );
     }
 
 
