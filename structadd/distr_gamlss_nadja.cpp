@@ -1511,7 +1511,7 @@ double DISTR_betainf_tau::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
-/*double DISTR_betainf_tau::cdf_mult(vector<double *> response,
+double DISTR_betainf_tau::cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
                           vector<datamatrix *> aux)
@@ -1522,9 +1522,9 @@ double DISTR_betainf_tau::get_intercept_start(void)
     double b = (*param[2])*(1-(*param[3]));
     double frac = 1 + (*param[0]) + (*param[1]);
 
-    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*incomplete_beta(a,b,(*response)) );
+    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*incomplete_beta(a,b,(*response[3])) );
     }
-*/
+
 
 double DISTR_betainf_tau::loglikelihood_weightsone(double * response,
                                                  double * linpred)

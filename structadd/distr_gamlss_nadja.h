@@ -828,6 +828,12 @@ class __EXPORT_TYPE DISTR_betainf_tau : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
