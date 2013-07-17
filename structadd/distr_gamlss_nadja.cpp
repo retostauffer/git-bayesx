@@ -812,6 +812,20 @@ double DISTR_invgaussian_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_invgaussian_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    double arg1 = pow((pow((*param[0]),0.5)/(*response)),0.5)*((*response)/(*param[1])-1);
+    double arg2 = pow((pow((*param[0]),0.5)/(*response)),0.5)*((*response)/(*param[1])+1);
+    double arg3 = 2*pow((*param[0]),0.5)/(*param[0]);
+
+    return ((Phi2(arg)+exp(arg3)*Phi2(-arg2));
+    }
+*/
 
 double DISTR_invgaussian_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -1497,6 +1511,20 @@ double DISTR_betainf_tau::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_betainf_tau::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    double a =  (*param[2])*(*param[3]);
+    double b = (*param[2])*(1-(*param[3]));
+    double frac = 1 + (*param[0]) + (*param[1]);
+
+    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*incomplete_beta(a,b,(*response)) );
+    }
+*/
 
 double DISTR_betainf_tau::loglikelihood_weightsone(double * response,
                                                  double * linpred)

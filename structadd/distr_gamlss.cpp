@@ -439,6 +439,20 @@ double DISTR_negbin_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_negbin_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    double p =  (*param[1])/((*param[0])+(*param[1]));
+    double r = (*param[0]);
+    double kplusone = 1 + (*response);
+
+    return ( 1-incomplete_beta(kplusone,r,p) );
+    }
+*/
 
 double DISTR_negbin_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -1327,6 +1341,20 @@ double DISTR_negbinzip_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+/*double DISTR_negbinzip_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    double p =  (*param[2])/((*param[0])+(*param[2]));
+    double r = (*param[0]);
+    double kplusone = 1 + (*response);
+
+    return ( (*param[1])+(1-(*param[1]))*(1-incomplete_beta(kplusone,r,p)) );
+    }
+*/
 
 double DISTR_negbinzip_mu::loglikelihood(double * response, double * linpred,
                                          double * weight)
