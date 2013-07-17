@@ -554,6 +554,14 @@ void DISTR::compute_mu_mult(vector<double *> linpred,double * mu)
   }
 
 
+void DISTR::compute_param(const double * linpred,double * param)
+  {
+  compute_mu(linpred,param);
+  }
+
+
+
+
 double DISTR::compute_MSE(const double * response, const double * weight,
                           const double * linpred, msetype t, double v)
   {
@@ -2092,19 +2100,6 @@ DISTR_loggaussian::DISTR_loggaussian(const DISTR_loggaussian & nd)
   }
 
 
-/*
-void DISTR_loggaussian::compute_mu(const double * linpred,double * mu,
-                                bool notransform)
-  {
-//  double scale = FCsigma2.beta(0,0);
-
-  if (!notransform)
-    *mu = exp(trmult * (*linpred) + sigma2*pow(trmult,2)/2.0);
-  else
-    *mu = exp((*linpred) + sigma2*pow(trmult,2)/2.0);
-  }
-*/
-
 void DISTR_loggaussian::compute_mu(const double * linpred,double * mu)
   {
   *mu = exp((*linpred) + 0.5*sigma2);
@@ -2168,8 +2163,7 @@ void DISTR_loggaussian::sample_responses(unsigned i,datamatrix & sr)
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-//    *rp = exp(trmult*(*linpredp+sqrt(sigma2)*rand_normal()));
-        *rp = exp(*linpredp+sqrt(sigma2)*rand_normal());
+    *rp = exp(*linpredp+sqrt(sigma2)*rand_normal());
   }
 
 
@@ -2185,7 +2179,6 @@ void DISTR_loggaussian::sample_responses_cv(unsigned i,datamatrix & linpred,
 
   unsigned j;
   for (j=0;j<nrobs;j++,linpredp++,rp+=sr.cols())
-//    *rp = exp(*linpredp+trmult*sqrt(sigma2)*rand_normal());
     *rp = exp(*linpredp+sqrt(sigma2)*rand_normal());
   }
 
@@ -2216,8 +2209,6 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const double & a,
   : DISTR_gaussian(a,b,o,r,ps,w)
 
   {
-  // standardise();
-  // changingworkingweights = true;
   updateIWLS = true;
   outexpectation = true;
   }
@@ -2238,28 +2229,6 @@ DISTR_gaussian_exp::DISTR_gaussian_exp(const DISTR_gaussian_exp & nd)
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
   }
-
-
-
-/*
-void DISTR_gaussian_exp::standardise(void)
-  {
-
-  trmult = 1;
-
-  unsigned i;
-  double * workresp = workingresponse.getV();
-  double * worklin = linearpred1.getV();
-  for (i=0;i<nrobs;i++,workresp++,worklin++)
-    {
-    *workresp = response(i,0);
-    *worklin = 0;
-    }
-
-  FCsigma2.transform(0,0) = pow(trmult,2);
-
-  }
-*/
 
 
 void DISTR_gaussian_exp::outoptions(void)
@@ -2316,23 +2285,17 @@ void DISTR_gaussian_exp::update(void)
 
   }
 
-/*
-void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu,
-                                    bool notransform)
-  {
-    if (!notransform)
-      *mu = trmult * exp(*linpred);
-    else
-      *mu = exp(*linpred);
-  }
-*/
-
 
 void DISTR_gaussian_exp::compute_mu(const double * linpred,double * mu)
   {
   *mu = exp(*linpred);
   }
 
+
+void DISTR_gaussian_exp::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
 
 
 double DISTR_gaussian_exp::loglikelihood(double * res, double * lin,

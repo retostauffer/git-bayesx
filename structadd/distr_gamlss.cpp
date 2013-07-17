@@ -1082,6 +1082,11 @@ void DISTR_gamlss::compute_mu_mult(vector<double *> linpred,double * mu)
   }
 
 
+void DISTR_gamlss::compute_param(const double * linpred,double * param)
+  {
+  *param = exp(*linpred);
+  }
+
 void DISTR_gamlss::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,

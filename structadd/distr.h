@@ -321,6 +321,16 @@ class __EXPORT_TYPE DISTR
   virtual void compute_mu_mult(vector<double *> linpred,double * mu);
 
 
+  //----------------------------------------------------------------------------
+  //------------------------------- COMPUTE param ------------------------------
+  //----------------------------------------------------------------------------
+
+  virtual void compute_param(const double * linpred,double * param);
+
+  //----------------------------------------------------------------------------
+  //------------------------------- COMPUTE deviance ---------------------------
+  //----------------------------------------------------------------------------
+
   virtual void compute_deviance(const double * response,
                            const double * weight,
                            const double * mu, double * deviance,
@@ -959,7 +969,6 @@ class __EXPORT_TYPE DISTR_loggaussian : public DISTR_gaussian
 
    ~DISTR_loggaussian() {}
 
-//  void compute_mu(const double * linpred,double * mu, bool notransform);
   void compute_mu(const double * linpred,double * mu);
 
   double compute_MSE(const double * response, const double * weight,
@@ -1024,9 +1033,10 @@ class __EXPORT_TYPE DISTR_gaussian_exp : public DISTR_gaussian
 
    ~DISTR_gaussian_exp() {}
 
-//  void compute_mu(const double * linpred,double * mu, bool notransform);
+
   void compute_mu(const double * linpred,double * mu);
 
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood(double * res,
                        double * lin,

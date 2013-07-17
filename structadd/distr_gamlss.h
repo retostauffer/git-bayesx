@@ -104,6 +104,8 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   void compute_mu_mult(vector<double *> linpred,double * mu);
 
+  void compute_param(const double * linpred,double * param);  
+
   void outoptions(void);
 
   void posteriormode_end(void);

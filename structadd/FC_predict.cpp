@@ -79,11 +79,11 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
   varnames = dn;
   if (likep->maindistribution == true)
     {
-    setbeta(lp->nrobs,2,0);
+    setbeta(lp->nrobs,3,0);
     }
   else
     {
-    setbeta(lp->nrobs,2,0);
+    setbeta(lp->nrobs,3,0);
     }
 
   if (likep->maindistribution == true)
@@ -174,6 +174,8 @@ void FC_predict::get_predictor(void)
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {
+
+//    likep->compute_param(
 
     likep->compute_mu(worklinp,&muhelp);
 

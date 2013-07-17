@@ -1108,9 +1108,6 @@ void DISTR_binomialsvm::update(void)
   }
 
 
-
-
-
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_poisson ---------------------------
 //------------------------------------------------------------------------------
@@ -1274,6 +1271,7 @@ void DISTR_poisson::compute_mu(const double * linpred,double * mu)
     *mu = exp(*linpred);
 
   }
+
 
 
 void DISTR_poisson::compute_deviance(const double * response,
