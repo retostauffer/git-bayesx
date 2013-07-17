@@ -6926,6 +6926,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(const DISTR_bivprobit_mu & nd)
   {
   pos = nd.pos;
   responseorig = nd.responseorig;
+//  response2 = nd.response2;
   response2p = nd.response2p;
   workingresponse2p = nd.workingresponse2p;
   }
