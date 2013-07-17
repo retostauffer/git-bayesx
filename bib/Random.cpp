@@ -1555,7 +1555,7 @@ double lngamma_exact (double & x)
 	return logGamma;
 }
 
-double n_choose_k (int & n, double & k)
+double n_choose_k (int n, double k)
 {
     if( n >= 0 and k == 0)
         return 1;
@@ -1565,7 +1565,7 @@ double n_choose_k (int & n, double & k)
         return n_choose_k(n-1, k) + n_choose_k(n-1,k-1);
 }
 
-double incomplete_beta (double & a, double & b, double & x)
+double incomplete_beta (double a, double b, double x)
 {
     double Ix = 0;
     for (int i=a; i<(a+b); i++) {

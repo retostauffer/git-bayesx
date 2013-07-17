@@ -249,10 +249,10 @@ double __EXPORT_TYPE lngamma_exact(double & x);
 double __EXPORT_TYPE gamma_exact(double & x);
 
 // returns n choose k
-double __EXPORT_TYPE n_choose_k(int & n, double & k);
+double __EXPORT_TYPE n_choose_k(int n, double k);
 
 // returns incomplete beta function
-double __EXPORT_TYPE incomplete_beta(double & a, double & b, double & x);
+double __EXPORT_TYPE incomplete_beta(double a, double b, double x);
 
 }
 
