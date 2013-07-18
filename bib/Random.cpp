@@ -1557,9 +1557,9 @@ double lngamma_exact (double & x)
 
 double n_choose_k (int n, double k)
 {
-    if( n >= 0 and k == 0)
+    if ( n >= 0 && k == 0)
         return 1;
-    else if(n == 0 and k >= 0)
+    else if(n == 0 && k >= 0)
         return 0;
     else
         return n_choose_k(n-1, k) + n_choose_k(n-1,k-1);
