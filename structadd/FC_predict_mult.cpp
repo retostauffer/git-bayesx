@@ -56,7 +56,7 @@ FC_predict_mult::FC_predict_mult(GENERAL_OPTIONS * o,vector<DISTR *> lp,
   designmatrix= dm;
   varnames = dn;
 
-  setbeta((likep[0])->nrobs,likep.size()*2,0);
+  setbeta((likep[0])->nrobs,likep.size()*3,0);
 
   FC_deviance = FC(o,"",1,1,fpd);
 
@@ -151,6 +151,12 @@ void FC_predict_mult::get_predictor(void)
       for (j=0;j<likep.size();j++,betap++)
         {
         likep[j]->compute_mu_mult(worklinp,betap);
+        }
+
+
+      for (j=0;j<likep.size();j++,betap++)
+        {
+        likep[j]->compute_param(worklinp[j],betap);
         }
 
 
@@ -452,6 +458,27 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           }
         }
 
+
+      for (i=0;i<likep.size();i++)
+        {
+
+        if (likep[i]->outpredictor)
+          {
+          outres << "pmean_" << likep[i]->predictor_name << "   ";
+
+          if (optionsp->samplesize > 1)
+            {
+            outres << "pqu"  << l1  << "_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << l2  << "_" << likep[i]->predictor_name << "   ";
+            outres << "pmed_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u1  << "_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u2  << "_" << likep[i]->predictor_name << "   ";
+            }
+          }
+
+        }
+
+
       outres << endl;
 
       double * workmean = betamean.getV();
@@ -470,6 +497,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
         for (j=0;j<designmatrix.cols();j++)
           outres << designmatrix(i,j) << "   ";
 
+        // predictor
         for (j=0;j<likep.size();j++,
             workmean++,
             workbetaqu_l1_lower_p++,
@@ -493,7 +521,9 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
               }
             }
           }
+        // end: predictor
 
+        // begin: mu
         for (j=0;j<likep.size();j++,
             workmean++,
             workbetaqu_l1_lower_p++,
@@ -517,9 +547,34 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
               outres << *workbetaqu_l1_upper_p << "   ";
               }
             }
-          // end mu
-
           }
+        // end: mu
+
+        // parameter
+        for (j=0;j<likep.size();j++,
+            workmean++,
+            workbetaqu_l1_lower_p++,
+            workbetaqu_l2_lower_p++,
+            workbetaqu50++,
+            workbetaqu_l1_upper_p++,
+            workbetaqu_l2_upper_p++)
+          {
+
+          if (likep[j]->outpredictor)
+            {
+            outres << *workmean << "   ";
+
+            if (optionsp->samplesize > 1)
+              {
+              outres << *workbetaqu_l1_lower_p << "   ";
+              outres << *workbetaqu_l2_lower_p << "   ";
+              outres << *workbetaqu50 << "   ";
+              outres << *workbetaqu_l2_upper_p << "   ";
+              outres << *workbetaqu_l1_upper_p << "   ";
+              }
+            }
+          }
+        // end: parameter
 
         outres << endl;
         }
@@ -540,6 +595,12 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           outres << "pmean_E_" << likep[i]->predictor_name << "   ";
         }
 
+      for (i=0;i<likep.size();i++)
+        {
+        if (likep[i]->outpredictor)
+          outres << "pmean_param_" << likep[i]->predictor_name << "   ";
+        }
+
       outres << endl;
 
       double * workmean = betamean.getV();
@@ -561,6 +622,12 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
         for (j=0;j<likep.size();j++,workmean++)
           {
           if (likep[j]->outexpectation)
+            outres << *workmean << "   ";
+          }
+
+        for (j=0;j<likep.size();j++,workmean++)
+          {
+          if (likep[j]->outpredictor)
             outres << *workmean << "   ";
           }
 
