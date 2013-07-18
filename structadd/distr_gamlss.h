@@ -104,7 +104,7 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   void compute_mu_mult(vector<double *> linpred,double * mu);
 
-  void compute_param(const double * linpred,double * param);  
+  void compute_param(const double * linpred,double * param);
 
   void outoptions(void);
 
@@ -354,6 +354,8 @@ class __EXPORT_TYPE DISTR_zip_cloglog_pi : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -527,7 +529,7 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
                       double * workingresponse, const bool & like);
 
 
-  void compute_param(const double * linpred,double * param);                      
+  void compute_param(const double * linpred,double * param);
 
   void outoptions(void);
 

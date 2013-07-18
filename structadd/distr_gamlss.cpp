@@ -602,6 +602,11 @@ double DISTR_zip_cloglog_pi::get_intercept_start(void)
   return 0;
   }
 
+void DISTR_zip_cloglog_pi::compute_param(const double * linpred,double * param)
+  {
+  double el = exp(*linpred);
+  *param = exp(-exp(el));
+  }
 
 double DISTR_zip_cloglog_pi::loglikelihood_weightsone(double * response,
                                                       double * linpred)
@@ -823,7 +828,6 @@ double DISTR_zip_cloglog_mu::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
-
 
 double DISTR_zip_cloglog_mu::loglikelihood_weightsone(double * response,
                                                       double * linpred)

@@ -189,180 +189,12 @@ class __EXPORT_TYPE DISTR_t_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
-  double loglikelihood_weightsone(double * response, double * linpred);
-
-  void compute_iwls_wweightschange_weightsone(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-  void compute_mu_mult(vector<double *> linpred,double * mu);
-
-  void outoptions(void);
-
-  void update_end(void);
-
-  };
-
-
-
-/*
-//------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_t_n ------------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE DISTR_t_n : public DISTR_gamlss
-  {
-
-  protected:
-
-
-  public:
-
-
-   // DEFAULT CONSTRUCTOR
-
-  DISTR_t_n(void) : DISTR_gamlss()
-    {
-    }
-
-   // CONSTRUCTOR
-
-  DISTR_t_n(GENERAL_OPTIONS * o, const datamatrix & r,
-                       const datamatrix & w=datamatrix());
-
-   // COPY CONSTRUCTOR
-
-  DISTR_t_n(const DISTR_t_n & nd);
-
-   // OVERLOADED ASSIGNMENT OPERATOR
-
-  const DISTR_t_n & operator=(const DISTR_t_n & nd);
-
-   // DESTRUCTOR
-
-  ~DISTR_t_n() {}
-
-  double get_intercept_start(void);
-
-  double loglikelihood_weightsone(double * response, double * linpred);
-
-  void compute_iwls_wweightschange_weightsone(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-
-  void outoptions(void);
-
-  void update_end(void);
-
-  };
-
-
-//------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_t_sigma2 --------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE DISTR_t_sigma2 : public DISTR_gamlss
-  {
-
-  protected:
-
-
-  public:
-
-
-   // DEFAULT CONSTRUCTOR
-
-  DISTR_t_sigma2(void) : DISTR_gamlss()
-    {
-    }
-
-   // CONSTRUCTOR
-
-  DISTR_t_sigma2(GENERAL_OPTIONS * o, const datamatrix & r,
-                       const datamatrix & w=datamatrix());
-
-   // COPY CONSTRUCTOR
-
-  DISTR_t_sigma2(const DISTR_t_sigma2 & nd);
-
-   // OVERLOADED ASSIGNMENT OPERATOR
-
-  const DISTR_t_sigma2 & operator=(const DISTR_t_sigma2 & nd);
-
-   // DESTRUCTOR
-
-  ~DISTR_t_sigma2() {}
-
-  double get_intercept_start(void);
-
-  double loglikelihood_weightsone(double * response, double * linpred);
-
-  void compute_iwls_wweightschange_weightsone(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-
-  void outoptions(void);
-
-  void update_end(void);
-
-  };
-
-
-//------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_t_mu ------------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE DISTR_t_mu : public DISTR_gamlss
-  {
-
-  protected:
-
-
-  public:
-
-   void check_errors(void);
-
-   // DEFAULT CONSTRUCTOR
-
-  DISTR_t_mu(void) : DISTR_gamlss()
-    {
-    }
-
-   // CONSTRUCTOR
-
-  DISTR_t_mu(GENERAL_OPTIONS * o, const datamatrix & r,
-                       const datamatrix & w=datamatrix());
-
-   // COPY CONSTRUCTOR
-
-  DISTR_t_mu(const DISTR_t_mu & nd);
-
-   // OVERLOADED ASSIGNMENT OPERATOR
-
-  const DISTR_t_mu & operator=(const DISTR_t_mu & nd);
-
-   // DESTRUCTOR
-
-  ~DISTR_t_mu() {}
-
-  void compute_deviance_mult(vector<double *> response,
-                             vector<double *> weight,
-                             vector<double *> linpred,
-                             double * deviance,
-                             vector<datamatrix*> aux);
-
-  double get_intercept_start(void);
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -381,9 +213,6 @@ class __EXPORT_TYPE DISTR_t_mu : public DISTR_gamlss
 
   };
 
-
-
-*/
 
 
 //------------------------------------------------------------------------------
@@ -441,7 +270,7 @@ class __EXPORT_TYPE DISTR_invgaussian_sigma2 : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_invgaussian_mu -------------------------------
+//----------------------- CLASS: DISTR_invgaussian_mu --------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_invgaussian_mu : public DISTR_gamlss
@@ -484,6 +313,11 @@ class __EXPORT_TYPE DISTR_invgaussian_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -602,6 +436,11 @@ class __EXPORT_TYPE DISTR_pareto_b : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -656,6 +495,8 @@ class __EXPORT_TYPE DISTR_betainf_mu : public DISTR_gamlss
   ~DISTR_betainf_mu() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -766,6 +607,8 @@ class __EXPORT_TYPE DISTR_betainf_sigma2 : public DISTR_gamlss
   ~DISTR_betainf_sigma2() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1010,6 +853,11 @@ class __EXPORT_TYPE DISTR_dagum_a : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1130,6 +978,11 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1243,6 +1096,7 @@ class __EXPORT_TYPE DISTR_gengamma_sigma : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1304,6 +1158,11 @@ class __EXPORT_TYPE DISTR_gengamma_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+//  double cdf_mult(vector<double *> response,
+//                          vector<double *> param,
+//                          vector<double *> weight,
+//                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1426,6 +1285,11 @@ class __EXPORT_TYPE DISTR_gamma_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+ // double cdf_mult(vector<double *> response,
+  //                        vector<double *> param,
+  //                        vector<double *> weight,
+  //                        vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1542,6 +1406,13 @@ class __EXPORT_TYPE DISTR_lognormal2_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1662,6 +1533,13 @@ class __EXPORT_TYPE DISTR_lognormal_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1776,6 +1654,13 @@ class __EXPORT_TYPE DISTR_normal2_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1896,6 +1781,13 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1954,6 +1846,8 @@ class __EXPORT_TYPE DISTR_beta_sigma2 : public DISTR_gamlss
   ~DISTR_beta_sigma2() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -2018,6 +1912,13 @@ class __EXPORT_TYPE DISTR_beta_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -2081,6 +1982,10 @@ class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
+  double cdf(double * response,double * param,double * weight,double * scale);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -2140,6 +2045,8 @@ class __EXPORT_TYPE DISTR_bivnormal_rho : public DISTR_gamlss
   ~DISTR_bivnormal_rho() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -2273,6 +2180,8 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -2332,6 +2241,8 @@ class __EXPORT_TYPE DISTR_bivprobit_rho : public DISTR_gamlss
   ~DISTR_bivprobit_rho() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -2405,6 +2316,8 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
