@@ -169,13 +169,14 @@ void FC_predict::get_predictor(void)
   double * workresponse = likep->response.getV();
   double * workweight = likep->weight.getV();
   double muhelp;
+  double paramhelp;
   double scalehelp=likep->get_scale();
-//  double weightone = 1;
+
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {
 
-//    likep->compute_param(
+    likep->compute_param(worklinp,&paramhelp);
 
     likep->compute_mu(worklinp,&muhelp);
 
@@ -186,21 +187,13 @@ void FC_predict::get_predictor(void)
 
       deviance+=deviancehelp;
 
-//      if (*workweight==0)
-//        predlik = likep->loglikelihood(workresponse,worklinp,&weightone);
-//      else
-//        predlik = likep->loglikelihood(workresponse,worklinp,workweight);
-
       }
 
     *betap = *worklinp;
     betap++;
     *betap = muhelp;
-//    if (likep->maindistribution == true)
-//      {
-//      betap++;
-//      *betap = predlik;
-//      }
+    betap++;
+    *betap = paramhelp;
 
     }
 
@@ -434,21 +427,6 @@ void FC_predict::compute_MSE(const ST::string & pathresults)
 
   }
 
-/*
-  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
-    if (*weightp==0)
-      {
-      meanmse_zeroweight += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
-      nrzeroweights++;
-      }
-    else
-      meanmse += likep->compute_MSE(responsep,weightp,linpredp,MSE,MSEparam);
-*/
-
-//void FC_predict::get_samples(const ST::string & filename,ofstream & outg) const
-//  {
-//  double f=0;
-//  }
 
 void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
                             const ST::string & pathresults)
@@ -522,6 +500,17 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u2  << "_mu   ";
       }
 
+    outres << "pmean_param   ";
+
+    if ((optionsp->samplesize > 1) && (nosamplessave==false))
+      {
+      outres << "pqu"  << l1  << "_param   ";
+      outres << "pqu"  << l2  << "_param   ";
+      outres << "pmed_param   ";
+      outres << "pqu"  << u1  << "_param   ";
+      outres << "pqu"  << u2  << "_param   ";
+      }
+
     outres << endl;
 
     double * workmean = betamean.getV();
@@ -578,6 +567,28 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
           }
         // end mu
 
+
+        // parameter
+        workmean++;
+        workbetaqu_l1_lower_p++;
+        workbetaqu_l2_lower_p++;
+        workbetaqu50++;
+        workbetaqu_l1_upper_p++;
+        workbetaqu_l2_upper_p++;
+
+        outres << *workmean << "   ";
+
+        if (optionsp->samplesize > 1)
+          {
+          outres << *workbetaqu_l1_lower_p << "   ";
+          outres << *workbetaqu_l2_lower_p << "   ";
+          outres << *workbetaqu50 << "   ";
+          outres << *workbetaqu_l2_upper_p << "   ";
+          outres << *workbetaqu_l1_upper_p << "   ";
+          }
+        // end parameter
+
+
         outres << endl;
         }
       }
@@ -592,6 +603,10 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
         for (j=0;j<designmatrix.cols();j++)
           outres << designmatrix(i,j) << "   ";
+
+        outres << *workmean << "   ";
+
+        workmean++;
 
         outres << *workmean << "   ";
 

@@ -527,6 +527,7 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
                       double * workingresponse, const bool & like);
 
 
+  void compute_param(const double * linpred,double * param);                      
 
   void outoptions(void);
 
@@ -786,6 +787,7 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
                       double * weight, double * workingweight,
                       double * workingresponse, const bool & like);
 
+  void compute_param(const double * linpred,double * param);
 
   void outoptions(void);
 
