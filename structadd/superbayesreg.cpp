@@ -295,6 +295,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("betainf_nu");
   families.push_back("betainf_tau");
   families.push_back("zero_adjusted");
+  families.push_back("dirichlet");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -319,10 +320,8 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("nu");
   equationtypes.push_back("df");
   equationtypes.push_back("rho");
- // equationtypes.push_back("tau");
- // equationtypes.push_back("a");
- // equationtypes.push_back("b");
- // equationtypes.push_back("p");
+  equationtypes.push_back("alpha");
+
   equationtype = stroption("equationtype",equationtypes,"mean");
 
   predictop.reserve(20);
@@ -378,6 +377,8 @@ void superbayesreg::create_hregress(void)
   linpredmaxlimit = doubleoption("linpredmaxlimit",1000000000,-1000000000,1000000000);
   saveestimation = simpleoption("saveestimation",false);
 
+  nrcat = intoption("nrcat",2,1,10);
+
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -418,7 +419,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&linpredminlimit);
   regressoptions.push_back(&linpredmaxlimit);
   regressoptions.push_back(&saveestimation);
-
+  regressoptions.push_back(&nrcat);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -675,6 +676,9 @@ void superbayesreg::clear(void)
   distr_zeroadjusteds.erase(distr_zeroadjusteds.begin(),distr_zeroadjusteds.end());
   distr_zeroadjusteds.reserve(5);
 
+  distr_dirichlets.erase(distr_dirichlets.begin(),distr_dirichlets.end());
+  distr_dirichlets.reserve(5);
+
   distr_zeroadjusted_mults.erase(distr_zeroadjusted_mults.begin(),distr_zeroadjusted_mults.end());
   distr_zeroadjusted_mults.reserve(5);
 
@@ -900,6 +904,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
+  distr_dirichlets = b.distr_dirichlets;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
   distr_weibull_alphas = b.distr_weibull_alphas;
   distr_dagum_as = b.distr_dagum_as;
@@ -1032,6 +1037,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_bivprobit_mus = b.distr_bivprobit_mus;
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
+  distr_dirichlets = b.distr_dirichlets;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
   distr_weibull_alphas = b.distr_weibull_alphas;
@@ -1231,7 +1237,12 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN RHO REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_RHO_REGRESSION_"+ rn;
       }
-
+  else if (equations[modnr].equationtype == "alpha")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN ALPHA REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_ALPHA_REGRESSION_"+ rn;
+      }
  else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
@@ -1324,6 +1335,12 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": RANDOM EFFECTS RHO REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_RHO";
+      }
+    else if (equations[modnr].equationtype == "alpha")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS ALPHA REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_ALPHA";
       }
     }
 
@@ -2274,7 +2291,57 @@ bool superbayesreg::create_distribution(void)
      }
  //------------------------------ END: bivprobit_mu ----------------------------------
 
+//----------------------------- dirichlet -------------------------------
+  else if ((family.getvalue() == "dirichlet") && ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="alpha")))
+    {
+    computemodeforstartingvalues = true;
 
+    int nrc = nrcat.getvalue();
+
+    distr_dirichlets.push_back(DISTR_dirichlet(&generaloptions,D.getCol(0),nrc,w));
+
+    equations[modnr].distrp = &distr_dirichlets[distr_dirichlets.size()-1];
+    equations[modnr].pathd = "";
+
+
+    if ((equationtype.getvalue()=="mean") && (distr_dirichlets.size() < 2 | distr_dirichlets.size()>7))
+       {
+       outerror("ERROR: Number of equations has to be between 2 and 7");
+       return true;
+       }
+
+   if ((equationtype.getvalue()=="mean") && (distr_dirichlets.size() != (nrc)))
+       {
+       outerror("ERROR: Number of equations has to be equal to number of categories");
+       return true;
+       }
+
+   if (equationtype.getvalue()=="mean")
+       {
+
+           unsigned i;
+           for(i=(nrc);i>0;i--)
+                predict_mult_distrs.push_back(&distr_dirichlets[distr_dirichlets.size()-i]);
+
+           unsigned k;
+           for(k=(nrc);k>0;k--) {
+              unsigned j;
+             for(j=(nrc);j>0;j--) {
+
+                if(k==j) {
+
+                }
+                else {
+                    distr_dirichlets[distr_dirichlets.size()-k].distrp.push_back(
+                    &distr_dirichlets[distr_dirichlets.size()-j]);
+                }
+             }
+           }
+
+       }
+
+    }
+//-------------------------- END: dirichlet -----------------------------
 
  //---------------------------------- gengamma tau -----------------------------------
    else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="shape2")

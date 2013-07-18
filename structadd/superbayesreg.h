@@ -140,6 +140,7 @@ using MCMC::DISTR_bivnormal_mu;
 using MCMC::DISTR_bivnormal_rho;
 using MCMC::DISTR_bivprobit_mu;
 using MCMC::DISTR_bivprobit_rho;
+using MCMC::DISTR_dirichlet;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -318,6 +319,10 @@ class __EXPORT_TYPE superbayesreg : public statobject
   doubleoption linpredmaxlimit;
   simpleoption saveestimation;
 
+  //dirichlet regression
+
+  intoption nrcat;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------
@@ -394,6 +399,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_bivnormal_rho> distr_bivnormal_rhos;
   vector<DISTR_bivprobit_mu> distr_bivprobit_mus;
   vector<DISTR_bivprobit_rho> distr_bivprobit_rhos;
+  vector<DISTR_dirichlet> distr_dirichlets;
 
   bool create_distribution(void);
 

@@ -2003,6 +2003,71 @@ class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_dirichlet -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_dirichlet : public DISTR_gamlss
+  {
+
+  protected:
+
+  int nrcat;
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_dirichlet(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_dirichlet(GENERAL_OPTIONS * o, const datamatrix & r, int & nrc,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_dirichlet(const DISTR_dirichlet & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_dirichlet & operator=(const DISTR_dirichlet & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_dirichlet() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+ // double cdf(double * response,double * param,double * weight,double * scale);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_bivnormal_rho ------------------------

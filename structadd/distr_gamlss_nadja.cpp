@@ -5269,10 +5269,6 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
   // *worklin[0] = linear predictor of sigma2 equation
   // *worktransformlin[0] = sigma2;
 
-  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
-  // helpmat1.prettyPrint(out);
-  // for (i=0;i<helpmat1.rows();i++)
-  //   out << helpmat1(i,0) << endl;
 
   if (counter==0)
     {
@@ -5621,6 +5617,25 @@ void DISTR_beta_mu::compute_deviance_mult(vector<double *> response,
 
 
     *deviance = -2*l;
+
+ /*   double a = sigma_2*mu;
+    double b = sigma_2*(1-mu);
+    std::ofstream out;
+  // helpmat1.prettyPrint(out);
+    for (int i=0; i<(a+b); i++) {
+    out.open ("C:\\Urs\\nchoosek.raw", std::ofstream::out | std::ofstream::app);
+    out << a ;
+    out << " " ;
+    out << b ;
+    out << " " ;
+    out << i ;
+    out << " " ;
+    out << randnumbers::n_choose_k(a+b-1,i) ;
+    out << " " ;
+    out << randnumbers::incomplete_beta(a,b,(*response[1])) << endl;
+    out.close();
+    }*/
+
     }
 
   }
@@ -5692,11 +5707,6 @@ void DISTR_beta_mu::compute_iwls_wweightschange_weightsone(
 
   // *worklin[0] = linear predictor of sigma2 equation
   // *worktransformlin[0] = (1-sigma2)/sigma2;
-
-  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
-  // helpmat1.prettyPrint(out);
-  // for (i=0;i<helpmat1.rows();i++)
-  //   out << helpmat1(i,0) << endl;
 
   if (counter==0)
     {
@@ -6027,10 +6037,254 @@ void DISTR_cloglog::update_end(void)
 
   }
 
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_dirichlet -----------------------------
+//------------------------------------------------------------------------------
+
+void DISTR_dirichlet::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if ((*workresp!= 0) | (*workresp!= 1) )
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response has to be equal to zero or one\n");
+          }
 
 
-  //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_bivnormal_rho ----------------------
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_dirichlet::DISTR_dirichlet(GENERAL_OPTIONS * o,
+                                           const datamatrix & r, int & nrc,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,nrc-1,w)
+  {
+  family = "dirichlet";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "alpha";
+  linpredminlimit=-10;
+  linpredmaxlimit=15;
+  nrcat = nrc;
+  }
+
+
+DISTR_dirichlet::DISTR_dirichlet(const DISTR_dirichlet & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+    nrcat = nd.nrcat;
+  }
+
+
+const DISTR_dirichlet & DISTR_dirichlet::operator=(
+                            const DISTR_dirichlet & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  nrcat = nd.nrcat;
+  return *this;
+  }
+
+
+void DISTR_dirichlet::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+
+
+   if (*weight[0] == 0)
+     *deviance=0;
+   else
+     {
+     double sum_alpha = 0;
+     double sum_log_gamma = 0;
+     double sum_rest = 0;
+
+     unsigned i;
+     for(i=0;i<nrcat;i++) {
+        double hilfs = exp(*linpred[i]);
+        sum_log_gamma += randnumbers::lngamma_exact(hilfs);
+        sum_alpha += exp(*linpred[i]);
+        sum_rest += exp(*linpred[i]-1)*log(*response[i]);
+     }
+
+     double l = -sum_log_gamma + randnumbers::lngamma_exact(sum_alpha) + sum_rest;
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_dirichlet::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+ /*double DISTR_dirichlet::cdf(double * response,double * param,double * weight,double * scale)
+    {
+        double Fy = 0;
+        if (*response>0) {
+            Fy = 1;
+            if(*response<1) {
+                Fy = 1-(*param);
+            }
+        }
+    return 0;
+    }
+*/
+double DISTR_dirichlet::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha_i equation
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+     double alpha_current = exp(*linpred);
+     double sum_alpha = alpha_current;
+
+     unsigned i;
+     for(i=0;i<(nrcat-1);i++) {
+        sum_alpha += (*worktransformlin[i]);
+     }
+
+     double l = -randnumbers::lngamma_exact(alpha_current) + randnumbers::lngamma_exact(sum_alpha) + alpha_current*log(*response);
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_dirichlet::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+     double alpha_current = exp(*linpred);
+     double sum_alpha = alpha_current;
+
+     unsigned i;
+     for(i=0;i<(nrcat-1);i++) {
+        sum_alpha += (*worktransformlin[i]);
+     }
+
+    double nu = alpha_current*( -randnumbers::digamma_exact(alpha_current) +randnumbers::digamma_exact(sum_alpha) + log(*response) );
+
+    *workingweight = pow(alpha_current,2)*( randnumbers::trigamma_exact(alpha_current) - randnumbers::trigamma_exact(sum_alpha) );
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+      like += -randnumbers::lngamma_exact(alpha_current) + randnumbers::lngamma_exact(sum_alpha) + alpha_current*log(*response);
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_dirichlet::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  *mu = 0;
+  }
+
+
+void DISTR_dirichlet::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (alpha): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_dirichlet::update_end(void)
+  {
+
+
+  // helpmat1 stores 1-exp(-exp_lin)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double exp_lin;
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_bivnormal_rho -------------------------
 //------------------------------------------------------------------------------
 
 

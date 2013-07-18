@@ -179,7 +179,7 @@ void GENERAL_OPTIONS::outoptions(void)
   if (saveestimation)
     out("  Saveestimation:        enabled\n");
   else
-    out("  Saveestimation:        disabled\n");  
+    out("  Saveestimation:        disabled\n");
   out("\n");
   }
 
