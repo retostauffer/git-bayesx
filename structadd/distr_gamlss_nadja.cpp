@@ -5859,8 +5859,7 @@ void DISTR_cloglog::compute_deviance_mult(vector<double *> response,
   {
 
    // *response[0] = *response[1] = response
-   // *linpred[0] = eta_sigma2
-   // *linpred[1] = eta_mu
+
 
    if (*weight[0] == 0)
      *deviance=0;
@@ -5892,7 +5891,7 @@ double DISTR_cloglog::get_intercept_start(void)
 void DISTR_cloglog::compute_param(const double * linpred,double * param)
   {
    double arg = exp((*linpred));
-  *param = 1+exp(-arg);
+  *param = 1-exp(-arg);
   }
 
  double DISTR_cloglog::cdf(double * response,double * param,double * weight,double * scale)
@@ -5946,8 +5945,6 @@ void DISTR_cloglog::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
-  // *worklin[0] = linear predictor of sigma2 equation
-  // *worktransformlin[0] = (1-sigma2)/sigma2;
 
   // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
   // helpmat1.prettyPrint(out);
@@ -6140,7 +6137,6 @@ double DISTR_bivnormal_rho::loglikelihood_weightsone(double * response,
   double oneminusrho2 = 1- rho2;
   double l;
 
-//hier ist jetzt das problem, dass ich die aktuelle response gleichung brauche und die von dem mu2 oder rho2
 
      l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
                                  2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
