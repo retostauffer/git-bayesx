@@ -6138,8 +6138,8 @@ void DISTR_dirichlet::compute_deviance_mult(vector<double *> response,
      for(i=0;i<nrcat;i++) {
         double hilfs = exp(*linpred[i]);
         sum_log_gamma += randnumbers::lngamma_exact(hilfs);
-        sum_alpha += exp(*linpred[i]);
-        sum_rest += exp(*linpred[i]-1)*log(*response[i]);
+        sum_alpha += hilfs;
+        sum_rest += (hilfs-1)*log(*response[i]);
      }
 
      double l = -sum_log_gamma + randnumbers::lngamma_exact(sum_alpha) + sum_rest;
