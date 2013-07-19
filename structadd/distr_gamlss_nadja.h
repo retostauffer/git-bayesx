@@ -2014,6 +2014,8 @@ class __EXPORT_TYPE DISTR_dirichlet : public DISTR_gamlss
 
   int nrcat;
 
+  unsigned pos;
+
   public:
 
   void check_errors(void);
@@ -2026,7 +2028,7 @@ class __EXPORT_TYPE DISTR_dirichlet : public DISTR_gamlss
 
    // CONSTRUCTOR
 
-  DISTR_dirichlet(GENERAL_OPTIONS * o, const datamatrix & r, int & nrc,
+  DISTR_dirichlet(GENERAL_OPTIONS * o, const datamatrix & r, int & nrc, unsigned & p,
                        const datamatrix & w=datamatrix());
 
    // COPY CONSTRUCTOR

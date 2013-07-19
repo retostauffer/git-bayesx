@@ -2298,7 +2298,17 @@ bool superbayesreg::create_distribution(void)
 
     int nrc = nrcat.getvalue();
 
-    distr_dirichlets.push_back(DISTR_dirichlet(&generaloptions,D.getCol(0),nrc,w));
+    unsigned pos;
+    unsigned countpos;
+    for (countpos=0;countpos<(nrc);countpos++)
+    {
+       if (distr_dirichlets.size()==countpos)
+        pos=countpos;
+    }
+
+
+
+    distr_dirichlets.push_back(DISTR_dirichlet(&generaloptions,D.getCol(0),nrc,pos,w));
 
     equations[modnr].distrp = &distr_dirichlets[distr_dirichlets.size()-1];
     equations[modnr].pathd = "";

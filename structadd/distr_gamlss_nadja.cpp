@@ -6084,7 +6084,7 @@ void DISTR_dirichlet::check_errors(void)
 
 
 DISTR_dirichlet::DISTR_dirichlet(GENERAL_OPTIONS * o,
-                                           const datamatrix & r, int & nrc,
+                                           const datamatrix & r, int & nrc, unsigned & p,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,nrc-1,w)
   {
@@ -6095,6 +6095,7 @@ DISTR_dirichlet::DISTR_dirichlet(GENERAL_OPTIONS * o,
   linpredminlimit=-10;
   linpredmaxlimit=15;
   nrcat = nrc;
+  pos = p;
   }
 
 
@@ -6102,6 +6103,7 @@ DISTR_dirichlet::DISTR_dirichlet(const DISTR_dirichlet & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
     nrcat = nd.nrcat;
+    pos = nd.pos;
   }
 
 
@@ -6112,6 +6114,7 @@ const DISTR_dirichlet & DISTR_dirichlet::operator=(
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
   nrcat = nd.nrcat;
+  pos = nd.pos;
   return *this;
   }
 
@@ -6245,7 +6248,16 @@ void DISTR_dirichlet::compute_iwls_wweightschange_weightsone(
 
 void DISTR_dirichlet::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  *mu = 0;
+     double alpha_current = exp(*linpred[predstart_mumult+pos]);
+     double sum_alpha = 0;
+
+     unsigned i;
+     for(i=0;i<nrcat;i++) {
+        double hilfs = exp(*linpred[predstart_mumult+i]);
+        sum_alpha += hilfs;
+        }
+
+     *mu = alpha_current/sum_alpha;
   }
 
 
