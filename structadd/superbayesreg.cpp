@@ -2314,9 +2314,9 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
 
-    if ((equationtype.getvalue()=="mean") && (distr_dirichlets.size() < 2 | distr_dirichlets.size()>7))
+    if ((equationtype.getvalue()=="mean") && (distr_dirichlets.size() < 2 | distr_dirichlets.size()>10))
        {
-       outerror("ERROR: Number of equations has to be between 2 and 7");
+       outerror("ERROR: Number of equations has to be between 2 and 10");
        return true;
        }
 

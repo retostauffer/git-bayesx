@@ -88,7 +88,6 @@ class __EXPORT_TYPE GENERAL_OPTIONS
 
   bool saveestimation;
 
-  unsigned nrcat;
 
 
   // DEFAULT CONSTRUCTOR
