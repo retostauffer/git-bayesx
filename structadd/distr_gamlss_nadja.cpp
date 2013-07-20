@@ -6998,6 +6998,7 @@ DISTR_bivprobit_rho::DISTR_bivprobit_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-100;
   linpredmaxlimit=100;
+  responseorig = response;
 
   }
 
@@ -7005,8 +7006,10 @@ DISTR_bivprobit_rho::DISTR_bivprobit_rho(GENERAL_OPTIONS * o,
 DISTR_bivprobit_rho::DISTR_bivprobit_rho(const DISTR_bivprobit_rho & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
-  response2 = nd.response2;
+  responseorig = nd.responseorig;
+//  response2 = nd.response2;
   response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
   }
 
 
@@ -7016,8 +7019,10 @@ const DISTR_bivprobit_rho & DISTR_bivprobit_rho::operator=(
   if (this==&nd)
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
-  response2 = nd.response2;
+  responseorig = nd.responseorig;
+//  response2 = nd.response2;
   response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
   return *this;
   }
 
@@ -7038,7 +7043,7 @@ void DISTR_bivprobit_rho::set_worklin(void)
 
   DISTR_gamlss::set_worklin();
 
-  response2p = response2.getV();
+  response2p = workingresponse2p->getV();
 
   }
 
@@ -7326,7 +7331,7 @@ void DISTR_bivprobit_mu::set_worklin(void)
 
   DISTR_gamlss::set_worklin();
 
-  response2p = workingresponse2p->getV();
+    response2p = workingresponse2p->getV();
 
   }
 

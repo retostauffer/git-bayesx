@@ -2267,6 +2267,10 @@ bool superbayesreg::create_distribution(void)
        distr_bivprobit_mus[distr_bivprobit_mus.size()-1].response2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response.getV();
        distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].response2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response.getV();
 
+     //  distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-1].workingresponse.getV();
+     //  distr_bivprobit_mus[distr_bivprobit_mus.size()-1].workingresponse2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse.getV();
+     //  distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].workingresponse2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse.getV();
+
 
 	   distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].distrp.push_back(
        &distr_bivprobit_mus[distr_bivprobit_mus.size()-2]);

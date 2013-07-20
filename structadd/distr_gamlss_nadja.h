@@ -2280,9 +2280,11 @@ class __EXPORT_TYPE DISTR_bivprobit_rho : public DISTR_gamlss
   void modify_worklin(void);
 
   public:
-
-  datamatrix response2;
+  datamatrix responseorig;
+  //datamatrix response2;
   double * response2p;
+
+  datamatrix * workingresponse2p;
 
    // DEFAULT CONSTRUCTOR
 
