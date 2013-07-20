@@ -50,8 +50,12 @@ vector<ST::string> & vn)
   12      internal_mult
   */
 
-
   datanames = vn;
+
+  if (op[46] == "true")
+    center = true;
+  else
+    center = false;
 
   }
 
@@ -99,7 +103,8 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
 
   compute_precision(1.0);
 
-  center = false;
+  if (center)
+    compute_basisNull();
 
   }
 
@@ -195,6 +200,35 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
   XWres_p = &XWres;
 
   }
+
+
+
+void DESIGN_hrandom::compute_basisNull(void)
+  {
+
+  if (center==true)
+    {
+    unsigned i,j;
+
+    if (centermethod==meancoeff || centermethod==meansimple || centermethod==meanfd)
+      {
+      basisNull = datamatrix(1,nrpar,1);
+      position_lin = -1;
+      }
+
+    for(i=0;i<basisNull.rows();i++)
+      {
+      basisNullt.push_back(datamatrix(basisNull.cols(),1));
+      for(j=0;j<basisNull.cols();j++)
+        basisNullt[i](j,0) = basisNull(i,j);
+      }
+
+    }
+
+  }
+
+
+
 
 
 void DESIGN_hrandom::compute_precision(double l)

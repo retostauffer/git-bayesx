@@ -86,6 +86,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption aQ;
   doubleoption bQ;
   intoption regiterates;
+  simpleoption center;
 
 
   vector<ST::string> termnames;

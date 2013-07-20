@@ -101,6 +101,8 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
+  void compute_basisNull(void);
+
   void outoptions(GENERAL_OPTIONS * op);
 
   void outbasis_R(ofstream & out);

@@ -115,6 +115,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   bQ = doubleoption("bQ",1,0.00000001,500);
   regiterates = intoption("regiterates",1000,0,1000000000);
 
+  center = simpleoption("center",false);
+
   }
 
 void term_nonp::setdefault(void)
@@ -165,6 +167,7 @@ void term_nonp::setdefault(void)
   aQ.setdefault();
   bQ.setdefault();
   regiterates.setdefault();
+  center.setdefault();
 
   }
 
@@ -262,6 +265,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&aQ);
     optlist.push_back(&bQ);
     optlist.push_back(&regiterates);
+    optlist.push_back(&center);
 
 
     unsigned i;
@@ -405,6 +409,11 @@ bool term_nonp::check(term & t)
     t.options[43] = ST::doubletostring(aQ.getvalue());
     t.options[44] = ST::doubletostring(bQ.getvalue());
     t.options[45] = ST::inttostring(regiterates.getvalue());
+
+    if (center.getvalue() == false)
+      t.options[46] = "false";
+    else
+      t.options[46] = "true";
 
     setdefault();
     return true;
