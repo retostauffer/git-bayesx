@@ -2263,13 +2263,10 @@ bool superbayesreg::create_distribution(void)
        predict_mult_distrs.push_back(&distr_bivprobit_mus[distr_bivprobit_mus.size()-2]);
        predict_mult_distrs.push_back(&distr_bivprobit_mus[distr_bivprobit_mus.size()-1]);
 
-       distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-1].response.getV();
-       distr_bivprobit_mus[distr_bivprobit_mus.size()-1].response2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response.getV();
-       distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].response2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response.getV();
-
-     //  distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-1].workingresponse.getV();
-     //  distr_bivprobit_mus[distr_bivprobit_mus.size()-1].workingresponse2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse.getV();
-     //  distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].workingresponse2p = distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse.getV();
+       distr_bivprobit_mus[distr_bivprobit_mus.size()-2].workingresponse2p = &distr_bivprobit_mus[distr_bivprobit_mus.size()-1].response;
+       distr_bivprobit_mus[distr_bivprobit_mus.size()-1].workingresponse2p = &distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response;
+       distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].workingresponse1p = &distr_bivprobit_mus[distr_bivprobit_mus.size()-1].response;
+       distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].workingresponse2p = &distr_bivprobit_mus[distr_bivprobit_mus.size()-2].response;
 
 
 	   distr_bivprobit_rhos[distr_bivprobit_rhos.size()-1].distrp.push_back(

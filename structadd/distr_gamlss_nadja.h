@@ -2284,7 +2284,11 @@ class __EXPORT_TYPE DISTR_bivprobit_rho : public DISTR_gamlss
   //datamatrix response2;
   double * response2p;
 
+  double * response1p;
+
   datamatrix * workingresponse2p;
+
+  datamatrix * workingresponse1p;
 
    // DEFAULT CONSTRUCTOR
 
