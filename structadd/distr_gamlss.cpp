@@ -1748,6 +1748,12 @@ double DISTR_negbinzip_pi::get_intercept_start(void)
   return 0;
   }
 
+  void DISTR_negbinzip_pi::compute_param(const double * linpred,double * param)
+  {
+  double el = exp(*linpred);
+  *param = el/(1+el);
+  }
+
 
 double DISTR_negbinzip_pi::loglikelihood(double * response, double * linpred,
                                      double * weight)
@@ -1911,12 +1917,6 @@ void DISTR_negbinzip_pi::update_end(void)
 
   }
 
-
-void DISTR_negbinzip_pi::compute_param(const double * linpred,double * param)
-  {
-  double el = exp(*linpred);
-  *param = el/(1+el);
-  }
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS DISTR_negbinzip_delta ------------------------
@@ -2851,6 +2851,11 @@ double DISTR_zippi::get_intercept_start(void)
   return 0; // log(m/(1-m));
   }
 
+void DISTR_zippi::compute_param(const double * linpred,double * param)
+  {
+   double arg = exp((*linpred));
+  *param = arg/(1+arg);
+  }
 
 
 void DISTR_zippi::set_worklinlambda(void)
@@ -3048,12 +3053,6 @@ void DISTR_zippi::update_end(void)
     *wpi = 0.001+0.998/(1+(*ete));
     }
 
-  }
-
-void DISTR_zippi::compute_param(const double * linpred,double * param)
-  {
-  double el = exp(*linpred);
-  *param = el/(1+el);
   }
 
 

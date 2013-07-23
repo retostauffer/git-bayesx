@@ -6998,7 +6998,7 @@ DISTR_bivprobit_rho::DISTR_bivprobit_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-100;
   linpredmaxlimit=100;
-  responseorig = response;
+ // responseorig = response;
 
   }
 
@@ -7006,7 +7006,7 @@ DISTR_bivprobit_rho::DISTR_bivprobit_rho(GENERAL_OPTIONS * o,
 DISTR_bivprobit_rho::DISTR_bivprobit_rho(const DISTR_bivprobit_rho & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
-  responseorig = nd.responseorig;
+ // responseorig = nd.responseorig;
 //  response2 = nd.response2;
   response2p = nd.response2p;
   workingresponse2p = nd.workingresponse2p;
@@ -7096,8 +7096,8 @@ double DISTR_bivprobit_rho::loglikelihood_weightsone(double * response,
   double l;
 
 
-     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
-                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
+     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[1])),2) -
+                                 2*rho*(((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
                                 +  pow((((*response2p))-(*worktransformlin[0])),2) );
 
 
@@ -7142,14 +7142,25 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
     hilfs = pow((1+pow((*linpred),2)),0.5);
   }
 
+//          std::ofstream out;
+//  // helpmat1.prettyPrint(out);
+//    out.open ("C:\\tmp\\bivprobit2.raw", std::ofstream::out | std::ofstream::app);
+//    out << *workingresponse ;
+//    out << " " ;
+//    out << *response1p ;
+//    out << " " ;
+//    out << *response  ;
+//    out << " " ;
+//    out << *response2p << endl;
+//    out.close();
 
   double rho2 = pow(rho,2);
   double oneminusrho2 = 1- rho2;
 
 
-    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response1p))-(*worktransformlin[1])),2)
+    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[1])),2)
                                                       +  pow((((*response2p))-(*worktransformlin[0])),2) )
-                +(hilfs+rho*(*linpred))*( (((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
+                +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
 
 
 
@@ -7160,28 +7171,16 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
-                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
+        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[1])),2) -
+                                 2*rho*(((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
                                 +  pow((((*response2p))-(*worktransformlin[0])),2) );
 
       }
 
+
   modify_worklin();
 
 
-//    std::ofstream out;
-//  // helpmat1.prettyPrint(out);
-//    out.open ("C:\\bivprobit2.raw", std::ofstream::out | std::ofstream::app);
-//    out << *workingresponse ;
-//    out << " " ;
-//    out << *response1p ;
-//    out << " " ;
-//    out << " " ;
-//    out << " " ;
-//    out << *worktransformlin[0] ;
-//    out << " " ;
-//    out << *response2p << endl;
-//    out.close();
 
   }
 
@@ -7360,26 +7359,21 @@ void DISTR_bivprobit_mu::modify_worklin(void)
   DISTR_gamlss::modify_worklin();
 
   if (counter<nrobs-1)
-    {
     response2p++;
-    }
+
+
 
   }
+
 
 
 void DISTR_bivprobit_mu::update(void)
   {
 
-  if (counter==0)
-    {
-    set_worklin();
-    }
 
   double * workresp = response.getV();
   double * workresporig =responseorig.getV();
-  double * workwresp = workingresponse.getV();
   double * weightwork = weight.getV();
-  response2p = workingresponse2p->getV();
 
   double * worklin;
   if (linpred_current==1)
@@ -7387,41 +7381,42 @@ void DISTR_bivprobit_mu::update(void)
   else
     worklin = linearpred2.getV();
 
+  set_worklin();
+
   unsigned i;
-  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,workwresp++,
-           response2p++,workresporig++)
+  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,
+           response2p++,workresporig++,worktransformlin[0]++,worktransformlin[1]++)
     {
 
     if (*weightwork != 0)
       {
       if (*workresporig > 0)
-        *workwresp = trunc_normal2(0,100,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-pow(*worktransformlin[0],2));
+        *workresp = trunc_normal2(0,10,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-pow(*worktransformlin[0],2));
       else
-        *workwresp = trunc_normal2(-100,0,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-pow(*worktransformlin[0],2));
-      *workresp = (*workwresp);
+        *workresp = trunc_normal2(-10,0,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-pow(*worktransformlin[0],2));
       }
 
-    }
-
-
-//    std::ofstream out;
+//          std::ofstream out;
 //  // helpmat1.prettyPrint(out);
-//    out.open ("C:\\bivprobit.raw", std::ofstream::out | std::ofstream::app);
+//    out.open ("C:\\tmp\\bivprobit.raw", std::ofstream::out | std::ofstream::app);
 //    out << *workresp ;
 //    out << " " ;
-//    out << *workwresp ;
+//    out << *workresporig ;
 //    out << " " ;
 //    out << *worklin ;
 //    out << " " ;
 //    out << *worktransformlin[0] ;
 //    out << " " ;
-//        out << *worktransformlin[1] ;
+//    out << *worktransformlin[1] ;
 //    out << " " ;
 //    out << *response2p << endl;
 
+    }
+
+
+
+
   }
-
-
 
 
 

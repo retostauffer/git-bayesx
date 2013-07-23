@@ -512,6 +512,8 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
@@ -529,7 +531,6 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
                       double * workingresponse, const bool & like);
 
 
-  void compute_param(const double * linpred,double * param);
 
   void outoptions(void);
 
@@ -772,6 +773,8 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
@@ -789,7 +792,6 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
                       double * weight, double * workingweight,
                       double * workingresponse, const bool & like);
 
-  void compute_param(const double * linpred,double * param);
 
   void outoptions(void);
 
