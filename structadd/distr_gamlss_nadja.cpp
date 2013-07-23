@@ -7096,8 +7096,8 @@ double DISTR_bivprobit_rho::loglikelihood_weightsone(double * response,
   double l;
 
 
-     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[1])),2) -
-                                 2*rho*(((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
+     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
+                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
                                 +  pow((((*response2p))-(*worktransformlin[0])),2) );
 
 
@@ -7158,9 +7158,9 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
   double oneminusrho2 = 1- rho2;
 
 
-    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[1])),2)
+    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response1p))-(*worktransformlin[1])),2)
                                                       +  pow((((*response2p))-(*worktransformlin[0])),2) )
-                +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
+                +(hilfs+rho*(*linpred))*( (((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
 
 
 
@@ -7171,8 +7171,8 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[1])),2) -
-                                 2*rho*(((*response)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
+        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
+                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
                                 +  pow((((*response2p))-(*worktransformlin[0])),2) );
 
       }
@@ -7375,25 +7375,25 @@ void DISTR_bivprobit_mu::update(void)
   double * workresporig =responseorig.getV();
   double * weightwork = weight.getV();
 
-  double * worklin;
+  double * worklin_current;
   if (linpred_current==1)
-    worklin = linearpred1.getV();
+    worklin_current = linearpred1.getV();
   else
-    worklin = linearpred2.getV();
+    worklin_current = linearpred2.getV();
 
   set_worklin();
 
   unsigned i;
-  for(i=0;i<nrobs;i++,worklin++,workresp++,weightwork++,
-           response2p++,workresporig++,worktransformlin[0]++,worktransformlin[1]++)
+  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,
+           response2p++,workresporig++,worktransformlin[0]++,worklin[1]++)
     {
 
     if (*weightwork != 0)
       {
       if (*workresporig > 0)
-        *workresp = trunc_normal2(0,10,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-pow(*worktransformlin[0],2));
+        *workresp = trunc_normal2(0,20,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
       else
-        *workresp = trunc_normal2(-10,0,*worklin+(*worktransformlin[0])*((*response2p)-(*worktransformlin[1])),1-pow(*worktransformlin[0],2));
+        *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
       }
 
 //          std::ofstream out;
@@ -7403,7 +7403,7 @@ void DISTR_bivprobit_mu::update(void)
 //    out << " " ;
 //    out << *workresporig ;
 //    out << " " ;
-//    out << *worklin ;
+//    out << *worklin[1] ;
 //    out << " " ;
 //    out << *worktransformlin[0] ;
 //    out << " " ;
