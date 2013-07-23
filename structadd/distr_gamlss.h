@@ -433,6 +433,8 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood(double * response, double * linpred,
                                          double * weight);
 
@@ -615,6 +617,8 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 
@@ -696,6 +700,7 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);

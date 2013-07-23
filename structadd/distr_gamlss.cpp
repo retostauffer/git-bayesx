@@ -1350,6 +1350,11 @@ double DISTR_negbinzip_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+void DISTR_negbinzip_mu::compute_param(const double * linpred,double * param)
+  {
+  *param = exp((*linpred));
+  }
+
 /*double DISTR_negbinzip_mu::cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
@@ -2095,6 +2100,10 @@ double DISTR_negbinzip_delta::get_intercept_start(void)
   return 0;
   }
 
+void DISTR_negbinzip_delta::compute_param(const double * linpred,double * param)
+  {
+  *param = exp((*linpred));
+  }
 
 double DISTR_negbinzip_delta::loglikelihood(double * response, double * linpred,
                                      double * weight)
@@ -2511,6 +2520,11 @@ double DISTR_ziplambda::get_intercept_start(void)
   return 0; //log(response.mean(0));
   }
 
+void DISTR_ziplambda::compute_param(const double * linpred,double * param)
+  {
+   double arg = exp((*linpred));
+  *param = arg;
+  }
 
 double DISTR_ziplambda::loglikelihood(double * response, double * linpred,
                                      double * weight)
