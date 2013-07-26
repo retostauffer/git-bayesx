@@ -345,6 +345,36 @@ double DISTR::get_intercept_start(void)
   }
 
 
+double DISTR::compute_quantile_residual(double * res,double * param,double * weight,
+                                        double * scale)
+  {
+  // NADJA: hier die compute_cdf funktion aufrufen
+  return 0;
+  }
+
+
+double DISTR::compute_quantile_residual_mult(vector<double *> response,
+                                             vector<double *> param,
+                                             vector<double *> weight,
+                                             vector<datamatrix *> aux)
+  {
+  // NADJA: hier die compute_cdf_mult funktion aufrufen
+  return 0;
+  }
+
+
+double DISTR::compute_brier(void)
+  {
+  return 0;
+  }
+
+
+double DISTR::compute_brier_mult(void)
+  {
+  return 0;
+  }
+
+
 double DISTR::loglikelihood(const bool & current)
   {
 

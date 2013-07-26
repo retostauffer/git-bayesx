@@ -748,45 +748,37 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     outres << designp->datanames[designp->datanames.size()-1] << "   ";
     outres << "pmean_tot   ";
 
-    if (optionsp->samplesize > 1)
-      {
-      outres << "pqu"  << l1  << "_tot   ";
-      outres << "pqu"  << l2  << "_tot   ";
-      outres << "pmed_tot   ";
-      outres << "pqu"  << u1  << "_tot   ";
-      outres << "pqu"  << u2  << "_tot   ";
-      outres << "pcat" << optionsp->level1 << "_tot   ";
-      outres << "pcat" << optionsp->level2 << "_tot   ";
+    outres << "pqu"  << l1  << "_tot   ";
+    outres << "pqu"  << l2  << "_tot   ";
+    outres << "pmed_tot   ";
+    outres << "pqu"  << u1  << "_tot   ";
+    outres << "pqu"  << u2  << "_tot   ";
+    outres << "pcat" << optionsp->level1 << "_tot   ";
+    outres << "pcat" << optionsp->level2 << "_tot   ";
 
-      outres << "pqu"  << l1  << "tot_sim   ";
-      outres << "pqu"  << l2  << "tot_sim   ";
-      outres << "pqu"  << u1  << "tot_sim   ";
-      outres << "pqu"  << u2  << "tot_sim   ";
-      outres << "pcat" << optionsp->level1 << "tot_sim   ";
-      outres << "pcat" << optionsp->level2 << "tot_sim   ";
-      }
-
+    outres << "pqu"  << l1  << "tot_sim   ";
+    outres << "pqu"  << l2  << "tot_sim   ";
+    outres << "pqu"  << u1  << "tot_sim   ";
+    outres << "pqu"  << u2  << "tot_sim   ";
+    outres << "pcat" << optionsp->level1 << "tot_sim   ";
+    outres << "pcat" << optionsp->level2 << "tot_sim   ";
 
     outres << "pmean   ";
 
-    if (optionsp->samplesize > 1)
-      {
-      outres << "pqu"  << l1  << "   ";
-      outres << "pqu"  << l2  << "   ";
-      outres << "pmed   ";
-      outres << "pqu"  << u1  << "   ";
-      outres << "pqu"  << u2  << "   ";
-      outres << "pcat" << optionsp->level1 << "   ";
-      outres << "pcat" << optionsp->level2 << "   ";
+    outres << "pqu"  << l1  << "   ";
+    outres << "pqu"  << l2  << "   ";
+    outres << "pmed   ";
+    outres << "pqu"  << u1  << "   ";
+    outres << "pqu"  << u2  << "   ";
+    outres << "pcat" << optionsp->level1 << "   ";
+    outres << "pcat" << optionsp->level2 << "   ";
 
-      outres << "pqu"  << l1  << "_sim   ";
-      outres << "pqu"  << l2  << "_sim   ";
-      outres << "pqu"  << u1  << "_sim   ";
-      outres << "pqu"  << u2  << "_sim   ";
-      outres << "pcat" << optionsp->level1 << "_sim   ";
-      outres << "pcat" << optionsp->level2 << "_sim   ";
-      }
-
+    outres << "pqu"  << l1  << "_sim   ";
+    outres << "pqu"  << l2  << "_sim   ";
+    outres << "pqu"  << u1  << "_sim   ";
+    outres << "pqu"  << u2  << "_sim   ";
+    outres << "pcat" << optionsp->level1 << "_sim   ";
+    outres << "pcat" << optionsp->level2 << "_sim   ";
 
     if (computemeaneffect==true)
       {
@@ -901,6 +893,8 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
           outres << 0 << "   ";
 
         }
+      else
+        outres << "0   0   0   0   0   0   0   0   0   0   0   0   0   ";
 
       outres << *workmean_rcoeff << "   ";
 
@@ -951,6 +945,8 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
           outres << 0 << "   ";
 
         }
+      else
+        outres << "0   0   0   0   0   0   0   0   0   0   0   0   0   ";
 
 
       if (computemeaneffect==true)
@@ -966,6 +962,8 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
           outres << *mu_workbetaqu_l2_upper_p << "   ";
           outres << *mu_workbetaqu_l1_upper_p << "   ";
           }
+        else
+          outres << "0   0   0   0   0   ";  
 
         if (i <nrpar-1)
           {

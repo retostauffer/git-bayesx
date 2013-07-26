@@ -511,6 +511,8 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u2  << "_param   ";
       }
 
+    outres << "quantile_res   score_brier";
+
     outres << endl;
 
     double * workmean = betamean.getV();
@@ -520,9 +522,14 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
     double * workbetaqu50 = betaqu50.getV();
 
+    double * responsep = likep->response.getV();
+    double * weightp = likep->weight.getV();
+
+    double scalehelp = likep->get_scalemean();
+
     if (nosamplessave==false)
       {
-      for(i=0;i<designmatrix.rows();i++,
+      for(i=0;i<designmatrix.rows();i++,responsep++,weightp++,
             workmean++,
             workbetaqu_l1_lower_p++,
             workbetaqu_l2_lower_p++,
@@ -588,6 +595,9 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
           }
         // end parameter
 
+
+        outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
+        outres << likep->compute_brier()    << "   ";
 
         outres << endl;
         }

@@ -279,6 +279,17 @@ class __EXPORT_TYPE DISTR
     }
 
 
+   double compute_quantile_residual(double * res,double * param,double * weight,
+                                    double * scale);
+
+   double compute_quantile_residual_mult(vector<double *> response,
+                                         vector<double *> param,
+                                         vector<double *> weight,
+                                          vector<datamatrix *> aux);
+
+   double compute_brier(void);
+   double compute_brier_mult(void);
+
   //----------------------------------------------------------------------------
   //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------
   //----------------------------------------------------------------------------
