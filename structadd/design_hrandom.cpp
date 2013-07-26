@@ -52,6 +52,26 @@ vector<ST::string> & vn)
 
   datanames = vn;
 
+  if (op[16]=="meancoeff")
+    centermethod = meancoeff;
+  else if (op[16] == "meansimple")
+    centermethod = meansimple;
+  else if (op[16] == "integralsimple")
+    centermethod = integralsimple;
+  else if (op[16] == "nullspace")
+    centermethod = nullspace;
+  else if (op[16] == "meaninvvar")
+    centermethod = cmeaninvvar;
+  else if (op[16] == "meanintegral")
+    centermethod = cmeanintegral;
+  else if (op[16] == "meanf")
+    centermethod = meanf;
+  else if (op[16] == "meanfd")
+    centermethod = meanfd;
+  else if (op[16] == "meansum2")
+    centermethod = meansum2;
+
+
   if (op[46] == "true")
     center = true;
   else
