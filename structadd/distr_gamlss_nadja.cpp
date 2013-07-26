@@ -440,7 +440,7 @@ double DISTR_t_mu::cdf_mult(vector<double *> response,
     {
     double a = 0.5*(*param[0]);
     double b = 0.5;
-    double x = ((*response[2])-(*param[2]))/pow((*param[1]),0.5);
+    double x = (*param[0])/(pow((((*response[2])-(*param[2]))/pow((*param[1]),0.5)),2)+(*param[0]));
     return ( 1- 0.5*randnumbers::incomplete_beta(a,b,x));
     }
 
@@ -824,11 +824,13 @@ double DISTR_invgaussian_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg1 = pow((pow((*param[0]),0.5)/(*response[1])),0.5)*((*response[1])/(*param[1])-1);
-    double arg2 = pow((pow((*param[0]),0.5)/(*response[1])),0.5)*((*response[1])/(*param[1])+1);
-    double arg3 = 2*pow((*param[0]),0.5)/(*param[0]);
+    double arg = pow(1/((*param[0])*(*response[1])),0.5);
+    double arg0 = (*response[1])/((*param[1]));
+    double arg1 = arg*(arg0-1);
+    double arg2 = -arg*(arg0+1);
+    double arg3 = 2/((*param[0])*(*param[0]));
 
-    return (randnumbers::Phi2(arg1)+exp(arg3)*randnumbers::Phi2(-arg2));
+    return (randnumbers::Phi2(arg1)+exp(arg3)*randnumbers::Phi2(arg2));
     }
 
 
@@ -2849,7 +2851,7 @@ double DISTR_weibull_lambda::cdf_mult(vector<double *> response,
 
     {
 
-    return ( 1 - exp(-pow((*response[1])/(*param[1]),(*param[0]))) );
+    return ( 1 - exp(-pow((*response[1])*(*param[1]),(*param[0]))) );
     }
 
 double DISTR_weibull_lambda::loglikelihood_weightsone(double * response,
