@@ -3375,6 +3375,17 @@ double DISTR_gengamma_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+double DISTR_gengamma_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+
+    return ( 0 );
+    }
+
 
 double DISTR_gengamma_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -3744,6 +3755,16 @@ double DISTR_gamma_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+double DISTR_gamma_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+
+    return ( 0 );
+    }
 
 double DISTR_gamma_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -5234,6 +5255,17 @@ double DISTR_normal_mu::cdf_mult(vector<double *> response,
     return (randnumbers::Phi2(arg));
     }
 
+//double DISTR_normal_mu::compute_quantile_residual_mult(vector<double *> response,
+//                                             vector<double *> param,
+//                                             vector<double *> weight,
+//                                             vector<datamatrix *> aux)
+//  {
+//  double u_est;
+//  u_est = cdf_mult(response,param,weight,aux);
+//  double res_est = randnumbers::invPhi2(u_est);
+//  return res_est;
+//  }
+
 double DISTR_normal_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -5911,12 +5943,29 @@ void DISTR_cloglog::compute_param(const double * linpred,double * param)
         double Fy = 0;
         if (*response>0) {
             Fy = 1;
-            if(*response<1) {
+            if((*response<1)&(*response>0)) {
                 Fy = 1-(*param);
             }
         }
-    return 0;
+    return Fy;
     }
+
+double DISTR_cloglog::compute_quantile_residual_mult(vector<double *> response,
+                                         vector<double *> param,
+                                         vector<double *> weight,
+                                          vector<datamatrix *> aux)
+    {
+    double u_est;
+    if(*response[0]==0) {
+        u_est = randnumbers::uniform_ab(0,(*param[0]));
+    }
+    else {
+        u_est = randnumbers::uniform();
+    }
+    double res_est = randnumbers::invPhi2(u_est);
+    return res_est;
+    }
+
 
 double DISTR_cloglog::loglikelihood_weightsone(double * response,
                                                  double * linpred)

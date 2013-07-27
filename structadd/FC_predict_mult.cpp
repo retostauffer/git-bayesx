@@ -207,7 +207,7 @@ void FC_predict_mult::outresults_DIC(ofstream & out_stata, ofstream & out_R,
   ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
   ofstream out(pathresultsdic.strtochar());
 
-  out_R << "DIC=" << pathresultsdic << ";" <<  endl;  
+  out_R << "DIC=" << pathresultsdic << ";" <<  endl;
 
   optionsp->out("    Results for the DIC are stored in file\n");
   optionsp->out("    " +  pathresultsdic + "\n");
@@ -220,7 +220,7 @@ void FC_predict_mult::outresults_DIC(ofstream & out_stata, ofstream & out_R,
   vector<double *> worklinp;
   vector<double *> workresponse;
   vector<double *> workweight;
-  vector<datamatrix *>    aux;
+  vector<datamatrix *>   aux;
 
   unsigned j;
 
@@ -397,7 +397,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    Results for the predictor, mean are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
-    out_R << "predict=" << pathresults << ";" <<  endl;    
+    out_R << "predict=" << pathresults << ";" <<  endl;
 
     ofstream outres(pathresults.strtochar());
 
@@ -418,6 +418,19 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
     for (i=0;i<varnames.size();i++)
       outres << varnames[i] << "   ";
+
+      vector<double *> responsep;
+      vector<double *> weightpmat;
+      vector<double *> workmeanmat;
+      vector<datamatrix *>   auxhelp;
+
+     for (j=0;j<likep.size();j++) {
+            workmeanmat.push_back((betamean.getV()+j));
+            responsep.push_back(likep[j]->response.getV());
+            weightpmat.push_back(likep[j]->weight.getV());
+            auxhelp.push_back(likep[j]->get_auxiliary_parameter());
+    }
+
 
     if (nosamplessave==false)
       {
@@ -478,6 +491,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
         }
 
+      outres << "quantile_res";
 
       outres << endl;
 
@@ -487,6 +501,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
       double * workbetaqu_l1_upper_p = betaqu_l1_upper.getV();
       double * workbetaqu_l2_upper_p = betaqu_l2_upper.getV();
       double * workbetaqu50 = betaqu50.getV();
+
 
 
       for(i=0;i<designmatrix.rows();i++)
@@ -509,6 +524,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
           if (likep[j]->outpredictor)
             {
+
             outres << *workmean << "   ";
 
             if (optionsp->samplesize > 1)
@@ -558,6 +574,8 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
             workbetaqu50++,
             workbetaqu_l1_upper_p++,
             workbetaqu_l2_upper_p++)
+
+
           {
 
           if (likep[j]->outpredictor)
@@ -576,7 +594,18 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           }
         // end: parameter
 
-        outres << endl;
+
+
+    outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+
+    for (j=0;j<likep.size();j++)
+      {
+      weightpmat[j]++;
+      responsep[j]++;
+      }
+
+
+     outres << endl;
         }
 
       } // end: if (nosamplessave==false)
@@ -601,6 +630,8 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           outres << "pmean_param_" << likep[i]->predictor_name << "   ";
         }
 
+      outres << "quantile_res";
+
       outres << endl;
 
       double * workmean = betamean.getV();
@@ -615,23 +646,55 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
         for (j=0;j<likep.size();j++,workmean++)
           {
+      //    workmeanmat[j]++;
           if (likep[j]->outpredictor)
             outres << *workmean << "   ";
           }
 
         for (j=0;j<likep.size();j++,workmean++)
           {
+        //  workmeanmat[j]++;
           if (likep[j]->outexpectation)
             outres << *workmean << "   ";
           }
 
         for (j=0;j<likep.size();j++,workmean++)
           {
+         // workmeanmat[j]++;
           if (likep[j]->outpredictor)
             outres << *workmean << "   ";
           }
 
+
+    outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+
+                  std::ofstream out;
+//  // helpmat1.prettyPrint(out);
+//    out.open ("C:\\tmp\\res.raw", std::ofstream::out | std::ofstream::app);
+//    out << designmatrix(i,0) ;
+//    out << " " ;
+//    out << *responsep[1] ;
+//    out << " " ;
+//    out << *workmeanmat[1] ;
+//    out << " " ;
+//    out << *workmeanmat[0] ;
+//    out << " " ;
+//    out << *weightpmat[1] ;
+//    out << " " ;
+//    out << *weightpmat[0] ;
+//    out << " " ;
+//    out << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << endl;
+
+
+
         outres << endl;
+
+        for(j=0;j<likep.size();j++) {
+            responsep[j]++;
+            weightpmat[j]++;
+            workmeanmat[j]++;
+        }
+
         }
 
       }

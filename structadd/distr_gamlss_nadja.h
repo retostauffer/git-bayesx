@@ -1159,10 +1159,10 @@ class __EXPORT_TYPE DISTR_gengamma_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
-//  double cdf_mult(vector<double *> response,
-//                          vector<double *> param,
-//                          vector<double *> weight,
-//                          vector<datamatrix *> aux);
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1285,10 +1285,10 @@ class __EXPORT_TYPE DISTR_gamma_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
- // double cdf_mult(vector<double *> response,
-  //                        vector<double *> param,
-  //                        vector<double *> weight,
-  //                        vector<datamatrix *> aux);
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1788,6 +1788,7 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
                           vector<double *> weight,
                           vector<datamatrix *> aux);
 
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1984,7 +1985,12 @@ class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
 
   void compute_param(const double * linpred,double * param);
 
-  double cdf(double * response,double * param,double * weight,double * scale);
+  double cdf(double * res,double * param,double * weight,double * scale);
+
+  double compute_quantile_residual_mult(vector<double *> response,
+                                         vector<double *> param,
+                                         vector<double *> weight,
+                                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 

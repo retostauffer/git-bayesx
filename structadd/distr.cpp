@@ -348,8 +348,9 @@ double DISTR::get_intercept_start(void)
 double DISTR::compute_quantile_residual(double * res,double * param,double * weight,
                                         double * scale)
   {
-  // NADJA: hier die compute_cdf funktion aufrufen
-  return 0;
+  double u_est = cdf(res,param,weight,scale);
+  double res_est = randnumbers::invPhi2(u_est);
+  return res_est;
   }
 
 
@@ -358,8 +359,9 @@ double DISTR::compute_quantile_residual_mult(vector<double *> response,
                                              vector<double *> weight,
                                              vector<datamatrix *> aux)
   {
-  // NADJA: hier die compute_cdf_mult funktion aufrufen
-  return 0;
+  double u_est = cdf_mult(response,param,weight,aux);
+  double res_est = randnumbers::invPhi2(u_est);
+  return res_est;
   }
 
 

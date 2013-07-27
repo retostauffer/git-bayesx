@@ -53,6 +53,8 @@ namespace randnumbers
 
 double __EXPORT_TYPE uniform(void);
 
+double __EXPORT_TYPE uniform_ab(double a, double b);
+
 
 inline double __EXPORT_TYPE phi(const double & x)
   {

@@ -198,6 +198,13 @@ double uniform(void)
 
   }
 
+double uniform_ab(double a, double b)
+{
+    double zufall = 0;
+    zufall = a+uniform()*(b-a);
+    return(zufall);
+}
+
 
 
 double rand_gamma(double a,double b)

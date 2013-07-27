@@ -225,7 +225,7 @@ void FC_predict::outresults_DIC(ofstream & out_stata, ofstream & out_R,
   ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
   ofstream out(pathresultsdic.strtochar());
 
-  out_R << "DIC=" << pathresultsdic << ";" <<  endl;  
+  out_R << "DIC=" << pathresultsdic << ";" <<  endl;
 
   optionsp->out("    Results for the DIC are stored in file\n");
   optionsp->out("    " +  pathresultsdic + "\n");
@@ -623,6 +623,9 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
         workmean++;
 
         outres << *workmean << "   ";
+
+        outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
+        outres << likep->compute_brier()    << "   ";
 
         outres << endl;
         }
