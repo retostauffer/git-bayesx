@@ -299,6 +299,8 @@ void FC_nonp::perform_centering(void)
       centerparam_weight();
     else if (designp->centermethod==meansum2)
       centerparam_sum2(s2);
+    else if (designp->centermethod==meansimplevar)
+      centerparam_sample_var();
     else
       centerparam_sample();
     }
@@ -632,7 +634,6 @@ void FC_nonp::update_gaussian(void)
       {
       designp->compute_precision(lambda);
       }
-
 
     double * work = paramhelp.getV();
     unsigned i;
@@ -1857,6 +1858,28 @@ void FC_nonp::initialize_center(void)
   Utc = datamatrix(nrpar,1);
   }
 
+
+void FC_nonp::centerparam_sample_var(void)
+  {
+  unsigned j;
+  double * paramp = param.getV();
+  double sumparam = 0;
+  double sumvar =  0;
+  for (j=0;j<param.rows();j++,paramp++)
+    {
+    sumparam += (*paramp);
+    sumvar += 1/designp->precision.getDiag(j);
+    }
+
+  double c = sumparam/sumvar;
+
+  paramp = param.getV();
+  for (j=0;j<param.rows();j++,paramp++)
+    {
+    *paramp -= c/designp->precision.getDiag(j);
+    }
+
+  }
 
 void FC_nonp::centerparam_sample(void)
   {

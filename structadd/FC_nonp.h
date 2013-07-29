@@ -79,7 +79,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void centerparam_weight(void);
   void centerparam_sum2(double & s2);
   void centerparam_sample(void);
-
+  void centerparam_sample_var(void);
 
   bool computemeaneffect;
   double meaneffectconstant;

@@ -74,7 +74,7 @@ enum effecttype2 {
 //    sum_j f(x_(j)) = 0 (over the different observations)
 
 enum centerm {meancoeff,nullspace,meansimple,integralsimple,
-              cmeanintegral,cmeaninvvar,meanf,meanfd,meansum2};
+              cmeanintegral,cmeaninvvar,meanf,meanfd,meansum2,meansimplevar};
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------

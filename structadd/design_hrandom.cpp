@@ -123,8 +123,7 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
 
   compute_precision(1.0);
 
-  if (center)
-    compute_basisNull();
+  centermethod=meansimplevar;
 
   }
 
