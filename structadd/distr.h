@@ -288,8 +288,14 @@ class __EXPORT_TYPE DISTR
                                          vector<double *> weight,
                                           vector<datamatrix *> aux);
 
-   double compute_brier(void);
-   double compute_brier_mult(void);
+   double compute_quadr(void);
+   double compute_quadr_mult(void);
+   double compute_log(void);
+   double compute_log_mult(void);
+   double compute_spherical(void);
+   double compute_spherical_mult(void);
+   double compute_CRPS(void);
+   double compute_CRPS_mult(void);
 
   //----------------------------------------------------------------------------
   //----------------------- COMPUTING THE LOGLIKELIHOOD ------------------------

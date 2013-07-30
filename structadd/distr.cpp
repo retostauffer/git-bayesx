@@ -365,16 +365,48 @@ double DISTR::compute_quantile_residual_mult(vector<double *> response,
   }
 
 
-double DISTR::compute_brier(void)
+double DISTR::compute_quadr(void)
   {
   return 0;
   }
 
 
-double DISTR::compute_brier_mult(void)
+double DISTR::compute_quadr_mult(void)
   {
   return 0;
   }
+
+double DISTR::compute_log(void)
+  {
+  return 0;
+  }
+
+
+double DISTR::compute_log_mult(void)
+  {
+  return 0;
+  }
+double DISTR::compute_spherical(void)
+  {
+  return 0;
+  }
+
+
+double DISTR::compute_spherical_mult(void)
+  {
+  return 0;
+  }
+double DISTR::compute_CRPS(void)
+  {
+  return 0;
+  }
+
+
+double DISTR::compute_CRPS_mult(void)
+  {
+  return 0;
+  }
+
 
 
 double DISTR::loglikelihood(const bool & current)

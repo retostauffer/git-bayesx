@@ -511,7 +511,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
       outres << "pqu"  << u2  << "_param   ";
       }
 
-    outres << "quantile_res   score_brier";
+    outres << "quantile_res quadratic_score logarithmic_score spherical_score CRPS";
 
     outres << endl;
 
@@ -597,7 +597,10 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
 
         outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
-        outres << likep->compute_brier()    << "   ";
+        outres << likep->compute_quadr()    << "   ";
+        outres << likep->compute_log()    << "   ";
+        outres << likep->compute_spherical()    << "   ";
+        outres << likep->compute_CRPS()    << "   ";
 
         outres << endl;
         }
@@ -625,7 +628,10 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
         outres << *workmean << "   ";
 
         outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
-        outres << likep->compute_brier()    << "   ";
+        outres << likep->compute_quadr()    << "   ";
+        outres << likep->compute_log()    << "   ";
+        outres << likep->compute_spherical()    << "   ";
+        outres << likep->compute_CRPS()    << "   ";
 
         outres << endl;
         }
