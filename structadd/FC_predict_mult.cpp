@@ -596,20 +596,22 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           }
         // end: parameter
 
-    outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
-    outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
-    outres << likep[likep.size()-1]->compute_log_mult()    << "   ";
-    outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
-    outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+        outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_log_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
 
-    for (j=0;j<likep.size();j++)
-      {
-      weightpmat[j]++;
-      responsep[j]++;
-      }
+        if (i < designmatrix.rows()-1)
+          {
+          for (j=0;j<likep.size();j++)
+            {
+            weightpmat[j]++;
+            responsep[j]++;
+            }
+          }
 
-
-     outres << endl;
+        outres << endl;
         }
 
       } // end: if (nosamplessave==false)
