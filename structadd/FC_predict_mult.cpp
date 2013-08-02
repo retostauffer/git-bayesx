@@ -424,12 +424,13 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
       vector<double *> workmeanmat;
       vector<datamatrix *>   auxhelp;
 
-     for (j=0;j<likep.size();j++) {
-            workmeanmat.push_back((betamean.getV()+j));
-            responsep.push_back(likep[j]->response.getV());
-            weightpmat.push_back(likep[j]->weight.getV());
-            auxhelp.push_back(likep[j]->get_auxiliary_parameter());
-    }
+     for (j=0;j<likep.size();j++)
+       {
+       workmeanmat.push_back((betamean.getV()+j));
+       responsep.push_back(likep[j]->response.getV());
+       weightpmat.push_back(likep[j]->weight.getV());
+       auxhelp.push_back(likep[j]->get_auxiliary_parameter());
+       }
 
 
     if (nosamplessave==false)
@@ -581,6 +582,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           if (likep[j]->outpredictor)
             {
             outres << *workmean << "   ";
+            workmeanmat[j] = workmean;
 
             if (optionsp->samplesize > 1)
               {
@@ -593,8 +595,6 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
             }
           }
         // end: parameter
-
-
 
     outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
     outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
