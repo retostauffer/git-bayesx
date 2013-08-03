@@ -240,6 +240,11 @@ class __EXPORT_TYPE DISTR_negbin_mu : public DISTR_gamlss
                           vector<double *> weight,
                           vector<datamatrix *> aux);
 
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -303,6 +308,16 @@ class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -439,6 +454,11 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
   double get_intercept_start(void);
 
  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
                           vector<datamatrix *> aux);
@@ -711,6 +731,16 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
 
   double get_intercept_start(void);
   void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);

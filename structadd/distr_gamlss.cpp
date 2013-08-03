@@ -439,6 +439,14 @@ double DISTR_negbin_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+double DISTR_negbin_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
 double DISTR_negbin_mu::cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
@@ -828,6 +836,22 @@ double DISTR_zip_cloglog_mu::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
+
+double DISTR_zip_cloglog_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_zip_cloglog_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
 
 double DISTR_zip_cloglog_mu::loglikelihood_weightsone(double * response,
                                                       double * linpred)
@@ -1354,6 +1378,14 @@ void DISTR_negbinzip_mu::compute_param(const double * linpred,double * param)
   {
   *param = exp((*linpred));
   }
+
+double DISTR_negbinzip_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
 
 double DISTR_negbinzip_mu::cdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -2518,6 +2550,22 @@ double DISTR_ziplambda::get_intercept_start(void)
   {
   return 0; //log(response.mean(0));
   }
+
+double DISTR_ziplambda::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_ziplambda::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
 
 void DISTR_ziplambda::compute_param(const double * linpred,double * param)
   {

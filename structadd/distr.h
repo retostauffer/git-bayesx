@@ -279,6 +279,20 @@ class __EXPORT_TYPE DISTR
     }
 
 
+  virtual double pdf(double * res,double * param,double * weight,double * scale)
+    {
+    return 0;
+    }
+
+  virtual double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    return 0;
+    }
 
   virtual double compute_quantile_residual(double * res,double * param,double * weight,
                                     double * scale);
