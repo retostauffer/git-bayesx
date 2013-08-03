@@ -280,10 +280,10 @@ void superbayesreg::create_hregress(void)
   families.push_back("t_mu");
   families.push_back("t_sigma2");
   families.push_back("t_df");
-  families.push_back("bivt_mu");
-  families.push_back("bivt_sigma");
-  families.push_back("bivt_df");
-  families.push_back("bivt_rho");
+//  families.push_back("bivt_mu");
+//  families.push_back("bivt_sigma");
+//  families.push_back("bivt_df");
+//  families.push_back("bivt_rho");
   families.push_back("bivnormal_mu");
   families.push_back("bivnormal_sigma");
   families.push_back("bivnormal_rho");
@@ -662,17 +662,17 @@ void superbayesreg::clear(void)
   distr_t_dfs.erase(distr_t_dfs.begin(),distr_t_dfs.end());
   distr_t_dfs.reserve(20);
 
-  distr_bivt_mus.erase(distr_bivt_mus.begin(),distr_bivt_mus.end());
-  distr_bivt_mus.reserve(20);
-
-  distr_bivt_sigmas.erase(distr_bivt_sigmas.begin(),distr_bivt_sigmas.end());
-  distr_bivt_sigmas.reserve(20);
-
-  distr_bivt_dfs.erase(distr_bivt_dfs.begin(),distr_bivt_dfs.end());
-  distr_bivt_dfs.reserve(20);
-
-  distr_bivt_rhos.erase(distr_bivt_rhos.begin(),distr_bivt_rhos.end());
-  distr_bivt_rhos.reserve(20);
+//  distr_bivt_mus.erase(distr_bivt_mus.begin(),distr_bivt_mus.end());
+//  distr_bivt_mus.reserve(20);
+//
+//  distr_bivt_sigmas.erase(distr_bivt_sigmas.begin(),distr_bivt_sigmas.end());
+//  distr_bivt_sigmas.reserve(20);
+//
+//  distr_bivt_dfs.erase(distr_bivt_dfs.begin(),distr_bivt_dfs.end());
+//  distr_bivt_dfs.reserve(20);
+//
+//  distr_bivt_rhos.erase(distr_bivt_rhos.begin(),distr_bivt_rhos.end());
+//  distr_bivt_rhos.reserve(20);
 
   distr_bivnormal_mus.erase(distr_bivnormal_mus.begin(),distr_bivnormal_mus.end());
   distr_bivnormal_mus.reserve(20);
@@ -913,10 +913,10 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
   distr_t_dfs = b.distr_t_dfs;
-  distr_bivt_mus = b.distr_bivt_mus;
-  distr_bivt_sigmas = b.distr_bivt_sigmas;
-  distr_bivt_dfs = b.distr_bivt_dfs;
-  distr_bivt_rhos = b.distr_bivt_rhos;
+//  distr_bivt_mus = b.distr_bivt_mus;
+//  distr_bivt_sigmas = b.distr_bivt_sigmas;
+//  distr_bivt_dfs = b.distr_bivt_dfs;
+//  distr_bivt_rhos = b.distr_bivt_rhos;
   distr_bivnormal_mus = b.distr_bivnormal_mus;
   distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
   distr_bivnormal_rhos = b.distr_bivnormal_rhos;
@@ -1054,10 +1054,10 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_bivnormal_mus = b.distr_bivnormal_mus;
   distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
   distr_bivnormal_rhos = b.distr_bivnormal_rhos;
-  distr_bivt_mus = b.distr_bivt_mus;
-  distr_bivt_sigmas = b.distr_bivt_sigmas;
-  distr_bivt_dfs = b.distr_bivt_dfs;
-  distr_bivt_rhos = b.distr_bivt_rhos;
+//  distr_bivt_mus = b.distr_bivt_mus;
+//  distr_bivt_sigmas = b.distr_bivt_sigmas;
+//  distr_bivt_dfs = b.distr_bivt_dfs;
+//  distr_bivt_rhos = b.distr_bivt_rhos;
   distr_bivprobit_mus = b.distr_bivprobit_mus;
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
@@ -2077,214 +2077,214 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: t_mu ----------------------------------
 
 
- //---------------------------------- bivt_rho -----------------------------------
-   else if (family.getvalue() == "bivt_rho" && equationtype.getvalue()=="rho")
-     {
-
-     computemodeforstartingvalues = true;
-
-     distr_bivt_rhos.push_back(DISTR_bivt_rho(&generaloptions,D.getCol(0),w));
-
-     equations[modnr].distrp = &distr_bivt_rhos[distr_bivt_rhos.size()-1];
-     equations[modnr].pathd = "";
-
-     }
- //------------------------------- END: bivt_rho ---------------------------------
-
- //---------------------------------- bivt_df -----------------------------------
-   else if (family.getvalue() == "bivt_df" && equationtype.getvalue()=="df")
-     {
-
-     computemodeforstartingvalues = true;
-
-     distr_bivt_dfs.push_back(DISTR_bivt_df(&generaloptions,D.getCol(0),w));
-
-     equations[modnr].distrp = &distr_bivt_dfs[distr_bivt_dfs.size()-1];
-     equations[modnr].pathd = "";
-
-     }
- //------------------------------- END: bivt_df ---------------------------------
-
- //---------------------------------- bivt_sigma --------------------------------
-   else if (family.getvalue() == "bivt_sigma" && equationtype.getvalue()=="scale")
-     {
-
-     computemodeforstartingvalues = true;
-
-      unsigned pos;
-      if (distr_bivt_sigmas.size()==0)
-        pos=0;
-      else
-        pos=1;
-
-     distr_bivt_sigmas.push_back(DISTR_bivt_sigma(&generaloptions,D.getCol(0),pos,w));
-
-     equations[modnr].distrp = &distr_bivt_sigmas[distr_bivt_sigmas.size()-1];
-     equations[modnr].pathd = "";
-
-     if (distr_bivt_sigmas.size() == 2)
-       {
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response2 = distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response;
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response2 = distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response;
-       }
-
-
-     }
- //------------------------------ END: bivt_sigma -------------------------------
-
-
- // ----------------------------------- bivt_mu ----------------------------------
-   else if ((family.getvalue() == "bivt_mu") &&
-            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
-           )
-     {
-
-    // computemodeforstartingvalues = true;
-
-     unsigned pos;
-     if (equationtype.getvalue()=="mean")
-       pos = 1;
-     else
-       pos = 0;
-
-     distr_bivt_mus.push_back(DISTR_bivt_mu(&generaloptions,D.getCol(0),pos,w));
-
-     equations[modnr].distrp = &distr_bivt_mus[distr_bivt_mus.size()-1];
-     equations[modnr].pathd = "";
-
-     if (distr_bivt_dfs.size() != 1)
-       {
-       outerror("ERROR: Equation for degrees of freedom is missing");
-       return true;
-       }
-
-     if (distr_bivt_rhos.size() != 1)
-       {
-       outerror("ERROR: Equation for rho is missing");
-       return true;
-       }
-
-     if (distr_bivt_sigmas.size() != 2)
-       {
-       outerror("ERROR: Equation for sigma is missing");
-       return true;
-       }
-
-     if ((equationtype.getvalue()=="mean") && (distr_bivt_mus.size() != 2))
-       {
-       outerror("ERROR: Two equations for mus required");
-       return true;
-       }
-
-     if (equationtype.getvalue()=="mean")
-       {
-
-       predict_mult_distrs.push_back(&distr_bivt_dfs[distr_bivt_dfs.size()-1]);
-       predict_mult_distrs.push_back(&distr_bivt_rhos[distr_bivt_rhos.size()-1]);
-       predict_mult_distrs.push_back(&distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
-       predict_mult_distrs.push_back(&distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
-       predict_mult_distrs.push_back(&distr_bivt_mus[distr_bivt_mus.size()-2]);
-       predict_mult_distrs.push_back(&distr_bivt_mus[distr_bivt_mus.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-2].response2 = distr_bivt_mus[distr_bivt_mus.size()-1].response;
-       distr_bivt_mus[distr_bivt_mus.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
-       distr_bivt_rhos[distr_bivt_rhos.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
-       distr_bivt_dfs[distr_bivt_dfs.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
-    //   distr_bivt_dfs[distr_bivt_dfs.size()-1].response = distr_bivt_mus[distr_bivt_mus.size()-1].response;
-
-       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
-       &distr_bivt_rhos[distr_bivt_rhos.size()-2]);
-
-       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
-
-       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
-
-	   distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-2]);
-
-       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-1]);
-
-       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
-       &distr_bivt_dfs[distr_bivt_dfs.size()-2]);
-
-       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
-
-       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
-
-	   distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-2]);
-
-       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-1]);
-
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
-       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
-
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
-       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
-
-        distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
-
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-2]);
-
-        distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-1]);
-
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
-       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
-
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
-       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
-
-        distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
-
-       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-1]);
-
-        distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-2]);
-
-        distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
-       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
-       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
-
-        distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
-       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
-       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
-       &distr_bivt_mus[distr_bivt_mus.size()-2]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
-
-       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
-       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
-       }
-
-     }
- //------------------------------ END: bivt_mu ----------------------------------
+// //---------------------------------- bivt_rho -----------------------------------
+//   else if (family.getvalue() == "bivt_rho" && equationtype.getvalue()=="rho")
+//     {
+//
+//     computemodeforstartingvalues = true;
+//
+//     distr_bivt_rhos.push_back(DISTR_bivt_rho(&generaloptions,D.getCol(0),w));
+//
+//     equations[modnr].distrp = &distr_bivt_rhos[distr_bivt_rhos.size()-1];
+//     equations[modnr].pathd = "";
+//
+//     }
+// //------------------------------- END: bivt_rho ---------------------------------
+//
+// //---------------------------------- bivt_df -----------------------------------
+//   else if (family.getvalue() == "bivt_df" && equationtype.getvalue()=="df")
+//     {
+//
+//     computemodeforstartingvalues = true;
+//
+//     distr_bivt_dfs.push_back(DISTR_bivt_df(&generaloptions,D.getCol(0),w));
+//
+//     equations[modnr].distrp = &distr_bivt_dfs[distr_bivt_dfs.size()-1];
+//     equations[modnr].pathd = "";
+//
+//     }
+// //------------------------------- END: bivt_df ---------------------------------
+//
+// //---------------------------------- bivt_sigma --------------------------------
+//   else if (family.getvalue() == "bivt_sigma" && equationtype.getvalue()=="scale")
+//     {
+//
+//     computemodeforstartingvalues = true;
+//
+//      unsigned pos;
+//      if (distr_bivt_sigmas.size()==0)
+//        pos=0;
+//      else
+//        pos=1;
+//
+//     distr_bivt_sigmas.push_back(DISTR_bivt_sigma(&generaloptions,D.getCol(0),pos,w));
+//
+//     equations[modnr].distrp = &distr_bivt_sigmas[distr_bivt_sigmas.size()-1];
+//     equations[modnr].pathd = "";
+//
+//     if (distr_bivt_sigmas.size() == 2)
+//       {
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response2 = distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response;
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response2 = distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response;
+//       }
+//
+//
+//     }
+// //------------------------------ END: bivt_sigma -------------------------------
+//
+//
+// // ----------------------------------- bivt_mu ----------------------------------
+//   else if ((family.getvalue() == "bivt_mu") &&
+//            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+//           )
+//     {
+//
+//    // computemodeforstartingvalues = true;
+//
+//     unsigned pos;
+//     if (equationtype.getvalue()=="mean")
+//       pos = 1;
+//     else
+//       pos = 0;
+//
+//     distr_bivt_mus.push_back(DISTR_bivt_mu(&generaloptions,D.getCol(0),pos,w));
+//
+//     equations[modnr].distrp = &distr_bivt_mus[distr_bivt_mus.size()-1];
+//     equations[modnr].pathd = "";
+//
+//     if (distr_bivt_dfs.size() != 1)
+//       {
+//       outerror("ERROR: Equation for degrees of freedom is missing");
+//       return true;
+//       }
+//
+//     if (distr_bivt_rhos.size() != 1)
+//       {
+//       outerror("ERROR: Equation for rho is missing");
+//       return true;
+//       }
+//
+//     if (distr_bivt_sigmas.size() != 2)
+//       {
+//       outerror("ERROR: Equation for sigma is missing");
+//       return true;
+//       }
+//
+//     if ((equationtype.getvalue()=="mean") && (distr_bivt_mus.size() != 2))
+//       {
+//       outerror("ERROR: Two equations for mus required");
+//       return true;
+//       }
+//
+//     if (equationtype.getvalue()=="mean")
+//       {
+//
+//       predict_mult_distrs.push_back(&distr_bivt_dfs[distr_bivt_dfs.size()-1]);
+//       predict_mult_distrs.push_back(&distr_bivt_rhos[distr_bivt_rhos.size()-1]);
+//       predict_mult_distrs.push_back(&distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
+//       predict_mult_distrs.push_back(&distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
+//       predict_mult_distrs.push_back(&distr_bivt_mus[distr_bivt_mus.size()-2]);
+//       predict_mult_distrs.push_back(&distr_bivt_mus[distr_bivt_mus.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-2].response2 = distr_bivt_mus[distr_bivt_mus.size()-1].response;
+//       distr_bivt_mus[distr_bivt_mus.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
+//       distr_bivt_rhos[distr_bivt_rhos.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
+//       distr_bivt_dfs[distr_bivt_dfs.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
+//    //   distr_bivt_dfs[distr_bivt_dfs.size()-1].response = distr_bivt_mus[distr_bivt_mus.size()-1].response;
+//
+//       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
+//       &distr_bivt_rhos[distr_bivt_rhos.size()-2]);
+//
+//       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
+//
+//       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
+//
+//	   distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-2]);
+//
+//       distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-1]);
+//
+//       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
+//       &distr_bivt_dfs[distr_bivt_dfs.size()-2]);
+//
+//       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
+//
+//       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
+//
+//	   distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-2]);
+//
+//       distr_bivt_rhos[distr_bivt_rhos.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-1]);
+//
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
+//       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
+//
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
+//       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
+//
+//        distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
+//
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-2]);
+//
+//        distr_bivt_sigmas[distr_bivt_sigmas.size()-2].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-1]);
+//
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
+//       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
+//
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
+//       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
+//
+//        distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
+//
+//       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-1]);
+//
+//        distr_bivt_sigmas[distr_bivt_sigmas.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-2]);
+//
+//        distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
+//       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
+//       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-2].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
+//
+//        distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
+//       &distr_bivt_dfs[distr_bivt_dfs.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
+//       &distr_bivt_rhos[distr_bivt_rhos.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
+//       &distr_bivt_mus[distr_bivt_mus.size()-2]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-1]);
+//
+//       distr_bivt_mus[distr_bivt_mus.size()-1].distrp.push_back(
+//       &distr_bivt_sigmas[distr_bivt_sigmas.size()-2]);
+//       }
+//
+//     }
+// //------------------------------ END: bivt_mu ----------------------------------
 
 
 
