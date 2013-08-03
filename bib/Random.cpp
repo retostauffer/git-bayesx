@@ -1581,4 +1581,26 @@ double incomplete_beta (double a, double b, double x)
     return Ix;
 }
 
+double incomplete_gamma (double a, double x)
+{
+    const int ITMAX = 100;
+    const double EPS = 2.22045e-016;
+    int n;
+    double sum;
+    double gamser;
+    double gln = randnumbers::lngamma_exact(a);
+    double ap = a;
+    double del = sum = 1.0/a;
+    for (n=0; n<ITMAX; n++) {
+        ++ap;
+        del *= x/ap;
+        sum += del;
+        if(fabs(del)<fabs(sum)*EPS) {
+            gamser = sum*exp(-x+log(x)-gln);
+        }
+    }
+    return gamser;
+}
+
+
 } // end: namespace randnumbers

@@ -596,11 +596,11 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           }
         // end: parameter
 
-        outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
-        outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
-        outres << likep[likep.size()-1]->compute_log_mult()    << "   ";
-        outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
-        outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
+          outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+          outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
+          outres << likep[likep.size()-1]->compute_log_mult()    << "   ";
+          outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
+          outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
 
         if (i < designmatrix.rows()-1)
           {
@@ -611,7 +611,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
             }
           }
 
-        outres << endl;
+          outres << endl;
         }
 
       } // end: if (nosamplessave==false)
@@ -636,7 +636,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           outres << "pmean_param_" << likep[i]->predictor_name << "   ";
         }
 
-      outres << "quantile_res";
+      outres << "quantile_res quadratic_score logarithmic_score spherical_score CRPS";
 
       outres << endl;
 
@@ -652,58 +652,58 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
         for (j=0;j<likep.size();j++,workmean++)
           {
-      //    workmeanmat[j]++;
           if (likep[j]->outpredictor)
             outres << *workmean << "   ";
           }
 
         for (j=0;j<likep.size();j++,workmean++)
           {
-        //  workmeanmat[j]++;
           if (likep[j]->outexpectation)
             outres << *workmean << "   ";
           }
 
         for (j=0;j<likep.size();j++,workmean++)
           {
-         // workmeanmat[j]++;
           if (likep[j]->outpredictor)
             outres << *workmean << "   ";
+            workmeanmat[j] = workmean;
           }
 
 
-    outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
-    outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
-    outres << likep[likep.size()-1]->compute_log_mult()    << "   ";
-    outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
-    outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+        outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_log_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
+        outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
 
-                  std::ofstream out;
-//  // helpmat1.prettyPrint(out);
-//    out.open ("C:\\tmp\\res.raw", std::ofstream::out | std::ofstream::app);
-//    out << designmatrix(i,0) ;
-//    out << " " ;
-//    out << *responsep[1] ;
-//    out << " " ;
-//    out << *workmeanmat[1] ;
-//    out << " " ;
-//    out << *workmeanmat[0] ;
-//    out << " " ;
-//    out << *weightpmat[1] ;
-//    out << " " ;
-//    out << *weightpmat[0] ;
-//    out << " " ;
-//    out << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << endl;
-
+        std::ofstream out;
+  // helpmat1.prettyPrint(out);
+    out.open ("C:\\tmp\\res.raw", std::ofstream::out | std::ofstream::app);
+    out << *responsep[1] ;
+    out << " " ;
+    out << *responsep[0] ;
+    out << " " ;
+    out << *workmeanmat[1] ;
+    out << " " ;
+    out << *workmeanmat[0] ;
+    out << " " ;
+    out << *weightpmat[1] ;
+    out << " " ;
+    out << *weightpmat[0] ;
+    out << " " ;
+    out << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << endl;
 
 
         outres << endl;
 
-        for(j=0;j<likep.size();j++) {
-            responsep[j]++;
+        if (i < designmatrix.rows()-1)
+          {
+          for (j=0;j<likep.size();j++)
+            {
             weightpmat[j]++;
-            workmeanmat[j]++;
-        }
+            responsep[j]++;
+            }
+          }
 
         }
 
