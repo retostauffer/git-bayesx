@@ -79,7 +79,7 @@ double DISTR_t_df::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-   double degf = exp(*linpred);
+    double degf = exp(*linpred);
     double arg = (degf+1)/2;
     double arg1 = (degf)/2;
     double l;
@@ -533,10 +533,14 @@ void DISTR_t_mu::compute_iwls_wweightschange_weightsone(
 void DISTR_t_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
 
-  //double degf = exp((*linpred[predstart_mumult]));
+   if(exp((*linpred[predstart_mumult]))>1)
+   {
+       *mu = (*linpred[predstart_mumult+2]);
+   } else
+   {
+       *mu = 0;
+   }
 
-
-  *mu = (*linpred[predstart_mumult+2]);
 
 
   }
@@ -7331,7 +7335,14 @@ void DISTR_bivt_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_bivt_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  *mu = ((*linpred[predstart_mumult+4+pos]));
+    if(exp((*linpred[predstart_mumult]))>2)
+    {
+        *mu = ((*linpred[predstart_mumult+4+pos]));
+    } else
+    {
+        *mu = 0;
+    }
+
   }
 
 
