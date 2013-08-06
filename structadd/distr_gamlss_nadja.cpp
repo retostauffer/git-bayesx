@@ -449,7 +449,8 @@ double DISTR_t_mu::cdf_mult(vector<double *> response,
     double a = 0.5*(*param[0]);
     double b = 0.5;
     double x = (*param[0])/(pow((((*response[2])-(*param[2]))/pow((*param[1]),0.5)),2)+(*param[0]));
-    return ( 1- 0.5*randnumbers::incomplete_beta(a,b,x));
+    return 0;
+//    return ( 1- 0.5*randnumbers::incomplete_beta(a,b,x));
     }
 
 double DISTR_t_mu::loglikelihood_weightsone(double * response,
@@ -1566,8 +1567,9 @@ double DISTR_betainf_tau::cdf_mult(vector<double *> response,
     double a =  (*param[2])*(*param[3]);
     double b = (*param[2])*(1-(*param[3]));
     double frac = 1 + (*param[0]) + (*param[1]);
-
-    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*randnumbers::incomplete_beta(a,b,(*response[3])) );
+    return 0;
+//
+//    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*randnumbers::incomplete_beta(a,b,(*response[3])) );
     }
 
 
@@ -5804,7 +5806,8 @@ double DISTR_beta_mu::cdf_mult(vector<double *> response,
     double a =  (*param[0])*(*param[1]);
     double b = (*param[0])*(1-(*param[1]));
 
-    return ( randnumbers::incomplete_beta(a,b,(*response[1])) );
+     return 0;
+//   return ( randnumbers::incomplete_beta(a,b,(*response[1])) );
     }
 
 double DISTR_beta_mu::loglikelihood_weightsone(double * response,

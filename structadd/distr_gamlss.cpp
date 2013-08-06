@@ -457,8 +457,8 @@ double DISTR_negbin_mu::cdf_mult(vector<double *> response,
     double p =  (*param[1])/((*param[0])+(*param[1]));
     double r = (*param[0]);
     double kplusone = 1 + (*response[1]);
-
-    return ( 1-randnumbers::incomplete_beta(kplusone,r,p) );
+    return 0;
+//    return ( 1-randnumbers::incomplete_beta(kplusone,r,p) );
     }
 
 
@@ -1398,7 +1398,8 @@ double DISTR_negbinzip_mu::cdf_mult(vector<double *> response,
     double r = (*param[0]);
     double kplusone = 1 + (*response[2]);
 
-    return ( (*param[1])+(1-(*param[1]))*(1-randnumbers::incomplete_beta(kplusone,r,p)) );
+    return 0;
+//    return ( (*param[1])+(1-(*param[1]))*(1-randnumbers::incomplete_beta(kplusone,r,p)) );
     }
 
 double DISTR_negbinzip_mu::loglikelihood(double * response, double * linpred,
