@@ -183,7 +183,7 @@ DISTR_t_sigma2::DISTR_t_sigma2(GENERAL_OPTIONS * o,
   family = "t-distribution - sigma2";
     outpredictor = true;
   outexpectation = false;
-  predictor_name = "sigma";
+  predictor_name = "sigma2";
     linpredminlimit=-10;
   linpredmaxlimit=15;
   }
