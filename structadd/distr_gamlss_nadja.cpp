@@ -6332,11 +6332,11 @@ void DISTR_dirichlet::compute_deviance_mult(vector<double *> response,
   return 0; // log(response.mean(0));
   }
 
-  void DISTR_dirichlet::compute_param(const double * linpred,double * param)
-  {
-  double el = exp(*linpred);
-  *param = el/(1+el);
-  }
+//  void DISTR_dirichlet::compute_param(const double * linpred,double * param)
+//  {
+//  double el = exp(*linpred);
+//  *param = el/(1+el);
+//  }
 
  double DISTR_dirichlet::pdf_mult(vector<double *> response,
                           vector<double *> param,

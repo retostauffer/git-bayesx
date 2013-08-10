@@ -2129,7 +2129,7 @@ class __EXPORT_TYPE DISTR_dirichlet : public DISTR_gamlss
 
   double get_intercept_start(void);
 
-  void compute_param(const double * linpred,double * param);
+ // void compute_param(const double * linpred,double * param);
 
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
