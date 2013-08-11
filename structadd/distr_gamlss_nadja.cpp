@@ -6228,10 +6228,10 @@ void DISTR_dirichlet::check_errors(void)
       if (*workweight > 0)
         {
 
-        if ((*workresp!= 0) | (*workresp!= 1) )
+        if ((*workresp>1) | (*workresp<0) )
           {
           errors=true;
-          errormessages.push_back("ERROR: response has to be equal to zero or one\n");
+          errormessages.push_back("ERROR: response has to be between zero and one\n");
           }
 
 
