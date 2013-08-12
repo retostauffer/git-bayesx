@@ -259,17 +259,16 @@ const DESIGN_pspline & DESIGN_pspline::operator=(const DESIGN_pspline & m)
 void DESIGN_pspline::outbasis_R(ofstream & out)
   {
   unsigned i;
-  out << "BayesX.design.matrix<-function(x,...){" << endl;
-  out << "require(\"splines\")" << endl;
-  out << "knots<-c(";
-  for (i=0;i<knot.size()-1;i++)
-    {
-    out << knot[i] << ",";
-    }
-  out << knot[knot.size()-1] << ")" << endl;
-  out << "degree<-" << degree << endl;
-  out << "X<-splineDesign(knots=knots,x=x,ord=degree+1,outer.ok=TRUE,...)" << endl;
-  out << "return(X)" << endl;
+  out << "BayesX.design.matrix<-function(x, ...) {" << endl;
+  out << "  require(\"splines\")" << endl;
+  out << "  knots <- c(";
+  for(i = 0; i < knot.size() - 1; i++)
+    out << knot[i] << ", ";
+  out << knot[knot.size() - 1] << ")" << endl;
+  out << "  degree <- " << degree << endl;
+  out << "  X <- splineDesign(knots = knots, x = x, ord = degree + 1, outer.ok = TRUE, ...)" << endl;
+  out << "  attr(X, \"type\") <- \"ps\"" << endl;
+  out << "  return(X)" << endl;
   out << "}" << endl;
   }
 

@@ -228,16 +228,27 @@ void DESIGN_mrf::init_data(const datamatrix & dm, const datamatrix & iv)
 
   }
 
+
 void DESIGN_mrf::outbasis_R(ofstream & out)
   {
-  out << "BayesX.design.matrix<-function(x,...){" << endl;
-  out << "x<-as.integer(x)" << endl;
-  out << "nl<-" << effectvalues.size() << endl;
-  out << "x<-factor(x, levels = 1:nl)" << endl;
-  out << "X<-diag(nl)[x,]" << endl;
-  out << "return(X)" << endl;
+  unsigned i;
+  out << "BayesX.design.matrix <- function(x, ...) {" << endl;
+  out << "  w <- getOption(\"warn\")" << endl;
+  out << "  options(warn = -1)" << endl;
+  out << "  tx <- as.integer(as.character(x))" << endl;
+  out << "  options(\"warn\" = w)" << endl;
+  out << "  x <- if(!any(is.na(tx))) tx else as.integer(x)" << endl;
+  out << "  levels <- c(";
+  for(i = 0; i < effectvalues.size() - 1; i++)
+    out << effectvalues[i] << ", ";
+  out << effectvalues[effectvalues.size() - 1] << ")" << endl;
+  out << "  x <- factor(x, levels = levels)" << endl;
+  out << "  X <- diag(length(levels))[x, ]" << endl;
+  out << "  attr(X, \"type\") <- \"mrf\"" << endl;
+  out << "  return(X)" << endl;
   out << "}" << endl;
   }
+
 
 void DESIGN_mrf::compute_penalty(void)
   {
