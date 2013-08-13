@@ -693,7 +693,7 @@ void superbayesreg::clear(void)
   distr_zeroadjusteds.reserve(5);
 
   distr_dirichlets.erase(distr_dirichlets.begin(),distr_dirichlets.end());
-  distr_dirichlets.reserve(5);
+  distr_dirichlets.reserve(20);
 
   distr_zeroadjusted_mults.erase(distr_zeroadjusted_mults.begin(),distr_zeroadjusted_mults.end());
   distr_zeroadjusted_mults.reserve(5);
@@ -1483,12 +1483,16 @@ bool superbayesreg::check_errors(void)
 
   for (k=0;k<equations.size();k++)
     {
-
+    bool test = equations[k].distrp->errors;
+    int test2 = k;
     if (equations[k].distrp->errors == true)
       {
       err = true;
       for (j=0;j<equations[k].distrp->errormessages.size();j++)
+        {
+        ST::string test3 = equations[k].distrp->errormessages[j];
         outerror(equations[k].distrp->errormessages[j]);
+        }
       }
 
     }
