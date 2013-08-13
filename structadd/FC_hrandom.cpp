@@ -646,7 +646,7 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
     out_R << "filetype=nonlinear,";
     out_R << "pathsamples=" << paths.strtochar() << ",";
-    out_R << "pathbasis=" << pathbasis.strtochar() << endl;
+    out_R << "pathbasis=" << pathbasis.strtochar() << ",";
 
 
     outgraphs(out_stata,out_R,pathresults);

@@ -1451,7 +1451,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
       out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
     out_R << "filetype=nonlinear,";
     out_R << "pathsamples=" << paths.strtochar() << ",";
-    out_R << "pathbasis=" << pathbasis.strtochar() << endl;
+    out_R << "pathbasis=" << pathbasis.strtochar() << ",";
 
     optionsp->out("    Estimated parameters are stored in file\n");
     optionsp->out("    " +  pathresultsbeta + "\n");

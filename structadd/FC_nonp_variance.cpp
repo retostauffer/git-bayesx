@@ -245,6 +245,11 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     optionsp->out("    Results for the variance component are also stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
+
+    ST::string paths = pathresults.substr(0,pathresults.length()-4) +
+                                 "_sample.raw";
+
+    out_R << "pathvarsample=" << paths << endl; 
 //    out_R << "filetype=param; path=" << pathresults << ";" <<  endl;
 
     ofstream ou(pathresults.strtochar());
@@ -347,16 +352,23 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
   FC_psi2 = FC(o,"",1,1,"");
   FC_psi2.setbeta(1,1,0.5);
 
-  FC_omega = FC(o,"",1,1,"");
-  FC_omega.setbeta(1,1,0.5);
 
-  a_omega = 1;
-  b_omega = 1;
+  FC_omega = FC(o,"",1,1,"");
 
-  v = 5;
-  Q = 25;
+  FC_omega.setbeta(1,1,0.5);
 
-  }
+
+  a_omega = 1;
+
+  b_omega = 1;
+
+
+  v = 5;
+
+  Q = 25;
+
+
+  }
 
 
 FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_variance_varselection & m)
