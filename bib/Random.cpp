@@ -47,12 +47,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
     }
 #else
 #include"../values.h"
-    const double NAN = MAXDOUBLE;
+    const double NAN = DBL_MAX; // MAXDOUBLE;
 
     bool
     infinite(double x)
     {
-        return ABS(x) > MAXDOUBLE;
+        return ABS(x) > DBL_MAX; // MAXDOUBLE;
     }
 #endif
 
