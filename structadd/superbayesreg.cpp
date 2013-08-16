@@ -668,11 +668,11 @@ void superbayesreg::clear(void)
   distr_bivt_sigmas.erase(distr_bivt_sigmas.begin(),distr_bivt_sigmas.end());
   distr_bivt_sigmas.reserve(20);
 
-  distr_bivt_dfs.erase(distr_bivt_dfs.begin(),distr_bivt_dfs.end());
-  distr_bivt_dfs.reserve(20);
-
   distr_bivt_rhos.erase(distr_bivt_rhos.begin(),distr_bivt_rhos.end());
   distr_bivt_rhos.reserve(20);
+
+  distr_bivt_dfs.erase(distr_bivt_dfs.begin(),distr_bivt_dfs.end());
+  distr_bivt_dfs.reserve(20);
 
   distr_bivnormal_mus.erase(distr_bivnormal_mus.begin(),distr_bivnormal_mus.end());
   distr_bivnormal_mus.reserve(20);

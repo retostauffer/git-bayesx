@@ -400,8 +400,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_betainf_tau> distr_betainf_taus;
   vector<DISTR_bivt_mu> distr_bivt_mus;
   vector<DISTR_bivt_sigma> distr_bivt_sigmas;
-  vector<DISTR_bivt_df> distr_bivt_dfs;
   vector<DISTR_bivt_rho> distr_bivt_rhos;
+  vector<DISTR_bivt_df> distr_bivt_dfs;
   vector<DISTR_bivnormal_mu> distr_bivnormal_mus;
   vector<DISTR_bivnormal_sigma> distr_bivnormal_sigmas;
   vector<DISTR_bivnormal_rho> distr_bivnormal_rhos;

@@ -2159,65 +2159,6 @@ class __EXPORT_TYPE DISTR_dirichlet : public DISTR_gamlss
   };
 
 
-//------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_bivt_rho --------------------------------
-//------------------------------------------------------------------------------
-
-class __EXPORT_TYPE DISTR_bivt_rho : public DISTR_gamlss
-  {
-
-  protected:
-
-  void set_worklin(void);
-  void modify_worklin(void);
-
-  public:
-
-  datamatrix response2;
-  double * response2p;
-
-   // DEFAULT CONSTRUCTOR
-
-  DISTR_bivt_rho(void) : DISTR_gamlss()
-    {
-    }
-
-   // CONSTRUCTOR
-
-  DISTR_bivt_rho(GENERAL_OPTIONS * o, const datamatrix & r,
-                       const datamatrix & w=datamatrix());
-
-   // COPY CONSTRUCTOR
-
-  DISTR_bivt_rho(const DISTR_bivt_rho & nd);
-
-   // OVERLOADED ASSIGNMENT OPERATOR
-
-  const DISTR_bivt_rho & operator=(const DISTR_bivt_rho & nd);
-
-   // DESTRUCTOR
-
-  ~DISTR_bivt_rho() {}
-
-  double get_intercept_start(void);
-
-  void compute_param(const double * linpred,double * param);
-
-  double loglikelihood_weightsone(double * response, double * linpred);
-
-  void compute_iwls_wweightschange_weightsone(double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like);
-
-
-  void outoptions(void);
-
-  void update_end(void);
-
-  };
 
 
 //------------------------------------------------------------------------------
@@ -2261,6 +2202,66 @@ class __EXPORT_TYPE DISTR_bivt_df : public DISTR_gamlss
   ~DISTR_bivt_df() {}
 
   double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivt_rho --------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivt_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivt_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivt_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivt_rho(const DISTR_bivt_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivt_rho & operator=(const DISTR_bivt_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivt_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
