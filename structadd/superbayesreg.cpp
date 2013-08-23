@@ -298,6 +298,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("betainf_sigma2");
   families.push_back("betainf_nu");
   families.push_back("betainf_tau");
+  families.push_back("betainf0_nu");
   families.push_back("zero_adjusted");
   families.push_back("dirichlet");
   family = stroption("family",families,"gaussian");
@@ -725,6 +726,9 @@ void superbayesreg::clear(void)
   distr_betainf_taus.erase(distr_betainf_taus.begin(),distr_betainf_taus.end());
   distr_betainf_taus.reserve(20);
 
+  distr_betainf0_nus.erase(distr_betainf0_nus.begin(),distr_betainf0_nus.end());
+  distr_betainf0_nus.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -934,6 +938,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_betainf_sigma2s = b.distr_betainf_sigma2s;
   distr_betainf_nus = b.distr_betainf_nus;
   distr_betainf_taus = b.distr_betainf_taus;
+  distr_betainf0_nus = b.distr_betainf0_nus;
 
 
   resultsyesno = b.resultsyesno;
@@ -1072,6 +1077,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_betainf_sigma2s = b.distr_betainf_sigma2s;
   distr_betainf_nus = b.distr_betainf_nus;
   distr_betainf_taus = b.distr_betainf_taus;
+  distr_betainf0_nus = b.distr_betainf0_nus;
 
 
   resultsyesno = b.resultsyesno;
@@ -1924,7 +1930,43 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: betainf_tau -------------------------------
 
+//------------------------------- betainf0_nu ------------------------------------
+  else if (family.getvalue() == "betainf0_nu" && equationtype.getvalue()=="mean")
+    {
 
+    computemodeforstartingvalues = true;
+
+    distr_betainf0_nus.push_back(DISTR_betainf0_nu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_betainf0_nus[distr_betainf0_nus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+    predict_mult_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+    predict_mult_distrs.push_back(&distr_betainf0_nus[distr_betainf0_nus.size()-1]);
+
+
+    if (distr_beta_sigma2s.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
+
+    if (distr_beta_mus.size() != 1)
+      {
+      outerror("ERROR: Equation for mu is missing");
+      return true;
+      }
+
+      distr_beta_sigma2s[distr_beta_sigma2s.size()-1].distrp.push_back
+      (&distr_beta_mus[distr_beta_mus.size()-1]);
+
+      distr_beta_mus[distr_beta_mus.size()-1].distrp.push_back
+      (&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+
+
+    }
+//------------------------------- END: betainf0_nu -------------------------------
 
   //---------------------------------- dagum_p -----------------------------------
    else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape2")
@@ -3084,31 +3126,54 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: beta sigma2 -------------------------------
 
 //------------------------------- beta mu ------------------------------------
-  else if (family.getvalue() == "beta_mu" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "beta_mu")
     {
 
-    computemodeforstartingvalues = true;
+    if (equationtype.getvalue()=="mean")
+    {
+        computemodeforstartingvalues = true;
 
-    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+        distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
 
-    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
-    equations[modnr].pathd = "";
+        equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+        equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+        predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
 
-    if (distr_beta_sigma2s.size() != 1)
-      {
-      outerror("ERROR: Equation for sigma2 is missing");
-      return true;
-      }
+        if (distr_beta_sigma2s.size() != 1)
+        {
+        outerror("ERROR: Equation for sigma2 is missing");
+        return true;
+        }
+        else
+        {
+        distr_beta_sigma2s[distr_beta_sigma2s.size()-1].distrp.push_back
+        (&distr_beta_mus[distr_beta_mus.size()-1]);
+
+        distr_beta_mus[distr_beta_mus.size()-1].distrp.push_back
+        (&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+        }
+    }
+    else if (equationtype.getvalue()=="location")
+    {
+        computemodeforstartingvalues = true;
+
+        distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+
+        equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+        equations[modnr].pathd = "";
+
+        predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+
+
+
+    }
     else
-      {
-      distr_beta_sigma2s[distr_beta_sigma2s.size()-1].distrp.push_back
-      (&distr_beta_mus[distr_beta_mus.size()-1]);
+    {
+       outerror("ERROR: Wrong model specification equationtype does not fit with family");
+        return true;
+    }
 
-      distr_beta_mus[distr_beta_mus.size()-1].distrp.push_back
-      (&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
-      }
 
     }
 //------------------------------- END: beta mu -------------------------------

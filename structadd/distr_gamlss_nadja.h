@@ -34,6 +34,191 @@ namespace MCMC
 {
 
 
+////------------------------------------------------------------------------------
+////----------------------- CLASS: DISTR_betazinf_mu -------------------------------
+////------------------------------------------------------------------------------
+//
+//class __EXPORT_TYPE DISTR_betazinf_mu : public DISTR_gamlss
+//  {
+//
+//  protected:
+//
+//
+//  public:
+//
+//   // DEFAULT CONSTRUCTOR
+//
+//  DISTR_betazinf_mu(void) : DISTR_gamlss()
+//    {
+//    }
+//
+//   // CONSTRUCTOR
+//
+//  DISTR_betazinf_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+//                       const datamatrix & w=datamatrix());
+//
+//   // COPY CONSTRUCTOR
+//
+//  DISTR_betazinf_mu(const DISTR_betazinf_mu & nd);
+//
+//   // OVERLOADED ASSIGNMENT OPERATOR
+//
+//  const DISTR_betazinf_mu & operator=(const DISTR_betazinf_mu & nd);
+//
+//   // DESTRUCTOR
+//
+//  ~DISTR_betazinf_mu() {}
+//
+//  double get_intercept_start(void);
+//
+//  void compute_param(const double * linpred,double * param);
+//
+//  double loglikelihood_weightsone(double * response, double * linpred);
+//
+//  void compute_iwls_wweightschange_weightsone(double * response,
+//                                              double * linpred,
+//                                              double * workingweight,
+//                                              double * workingresponse,
+//                                              double & like,
+//                                              const bool & compute_like);
+//
+//
+//  void outoptions(void);
+//
+//  void update_end(void);
+//
+//  };
+//
+//
+////------------------------------------------------------------------------------
+////----------------------- CLASS: DISTR_betazinf_sigma2 -------------------------------
+////------------------------------------------------------------------------------
+//
+//class __EXPORT_TYPE DISTR_betazinf_sigma2 : public DISTR_gamlss
+//  {
+//
+//  protected:
+//
+//
+//  public:
+//
+//   // DEFAULT CONSTRUCTOR
+//
+//  DISTR_betazinf_sigma2(void) : DISTR_gamlss()
+//    {
+//    }
+//
+//   // CONSTRUCTOR
+//
+//  DISTR_betazinf_sigma2(GENERAL_OPTIONS * o, const datamatrix & r,
+//                       const datamatrix & w=datamatrix());
+//
+//   // COPY CONSTRUCTOR
+//
+//  DISTR_betazinf_sigma2(const DISTR_betazinf_sigma2 & nd);
+//
+//   // OVERLOADED ASSIGNMENT OPERATOR
+//
+//  const DISTR_betazinf_sigma2 & operator=(const DISTR_betazinf_sigma2 & nd);
+//
+//   // DESTRUCTOR
+//
+//  ~DISTR_betazinf_sigma2() {}
+//
+//  double get_intercept_start(void);
+//
+//  void compute_param(const double * linpred,double * param);
+//
+//  double loglikelihood_weightsone(double * response, double * linpred);
+//
+//  void compute_iwls_wweightschange_weightsone(double * response,
+//                                              double * linpred,
+//                                              double * workingweight,
+//                                              double * workingresponse,
+//                                              double & like,
+//                                              const bool & compute_like);
+//
+//
+//  void outoptions(void);
+//
+//  void update_end(void);
+//
+//  };
+//
+//
+//
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_betainf0_nu -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_betainf0_nu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_betainf0_nu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_betainf0_nu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_betainf0_nu(const DISTR_betainf0_nu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_betainf0_nu & operator=(const DISTR_betainf0_nu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_betainf0_nu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_t_df ------------------------------------
 //------------------------------------------------------------------------------

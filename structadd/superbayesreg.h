@@ -134,6 +134,7 @@ using MCMC::DISTR_dagum_p;
 using MCMC::DISTR_betainf_mu;
 using MCMC::DISTR_betainf_sigma2;
 using MCMC::DISTR_betainf_nu;
+using MCMC::DISTR_betainf0_nu;
 using MCMC::DISTR_betainf_tau;
 using MCMC::DISTR_bivt_mu;
 using MCMC::DISTR_bivt_sigma;
@@ -398,6 +399,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_betainf_sigma2> distr_betainf_sigma2s;
   vector<DISTR_betainf_nu> distr_betainf_nus;
   vector<DISTR_betainf_tau> distr_betainf_taus;
+  vector<DISTR_betainf0_nu> distr_betainf0_nus;
   vector<DISTR_bivt_mu> distr_bivt_mus;
   vector<DISTR_bivt_sigma> distr_bivt_sigmas;
   vector<DISTR_bivt_rho> distr_bivt_rhos;
