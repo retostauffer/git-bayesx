@@ -30,31 +30,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 // define what is NAN, and how we determine whether a double is infinite.
 #if defined(MICROSOFT_VISUAL)
 #include <limits>
-    const double NAN = DBL_MAX;
-
     bool
     infinite(double x)
     {
         return ABS(x) > DBL_MAX;
     }
 #elif defined(__BUILDING_GNU)
-    const double NAN = DBL_MAX; // MAXDOUBLE;
-
     bool
     infinite(double x)
     {
         return ABS(x) > DBL_MAX;
-    // return !isfinite(x);
     }
 #else
 #include"../values.h"
-    const double NAN = DBL_MAX; // MAXDOUBLE;
-
     bool
     infinite(double x)
     {
-        return ABS(x) > DBL_MAX; // MAXDOUBLE;
+        return ABS(x) > DBL_MAX;
     }
+#endif
+
+#ifndef NAN
+  #define NAN DBL_MAX
 #endif
 
 // define a "repeat" syntax (for the new generators adapted from R)
