@@ -163,7 +163,7 @@ void DESIGN_hrandom::outbasis_R(ofstream & out)
   out << "BayesX.design.matrix <- function(x, ...) {" << endl;
   out << "  w <- getOption(\"warn\")" << endl;
   out << "  options(warn = -1)" << endl;
-  out << "  tx <- as.integer(as.character(x))" << endl;
+  out << "  tx <- as.integer(as.character(unlist(x)))" << endl;
   out << "  options(\"warn\" = w)" << endl;
   out << "  x <- if(!any(is.na(tx))) tx else as.integer(x)" << endl;
   out << "  levels <- c(";

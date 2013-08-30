@@ -261,6 +261,7 @@ void DESIGN_pspline::outbasis_R(ofstream & out)
   unsigned i;
   out << "BayesX.design.matrix<-function(x, ...) {" << endl;
   out << "  require(\"splines\")" << endl;
+  out << "  x <- unlist(x)" << endl;
   out << "  knots <- c(";
   for(i = 0; i < knot.size() - 1; i++)
     out << knot[i] << ", ";
