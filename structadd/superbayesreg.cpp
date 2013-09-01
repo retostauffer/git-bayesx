@@ -268,6 +268,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("normal_sigma2");
   families.push_back("normal2_mu");
   families.push_back("normal2_sigma");
+  families.push_back("truncnormal2_mu");
+  families.push_back("truncnormal2_sigma");
   families.push_back("gamma_mu");
   families.push_back("gamma_sigma");
   families.push_back("pareto_b");
@@ -627,6 +629,12 @@ void superbayesreg::clear(void)
   distr_normal2_sigmas.erase(distr_normal2_sigmas.begin(),distr_normal2_sigmas.end());
   distr_normal2_sigmas.reserve(20);
 
+  distr_truncnormal2_mus.erase(distr_truncnormal2_mus.begin(),distr_truncnormal2_mus.end());
+  distr_truncnormal2_mus.reserve(20);
+
+  distr_truncnormal2_sigmas.erase(distr_truncnormal2_sigmas.begin(),distr_truncnormal2_sigmas.end());
+  distr_truncnormal2_sigmas.reserve(20);
+
   distr_invgaussian_mus.erase(distr_invgaussian_mus.begin(),distr_invgaussian_mus.end());
   distr_invgaussian_mus.reserve(20);
 
@@ -905,6 +913,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_normal_sigma2s = b.distr_normal_sigma2s;
   distr_normal2_mus = b.distr_normal2_mus;
   distr_normal2_sigmas = b.distr_normal2_sigmas;
+  distr_truncnormal2_mus = b.distr_truncnormal2_mus;
+  distr_truncnormal2_sigmas = b.distr_truncnormal2_sigmas;
   distr_invgaussian_mus = b.distr_invgaussian_mus;
   distr_invgaussian_sigma2s = b.distr_invgaussian_sigma2s;
   distr_gamma_mus = b.distr_gamma_mus;
@@ -1043,6 +1053,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_normal_mus = b.distr_normal_mus;
   distr_normal_sigma2s = b.distr_normal_sigma2s;
   distr_normal2_mus = b.distr_normal2_mus;
+  distr_truncnormal2_mus = b.distr_truncnormal2_mus;
+  distr_truncnormal2_sigmas = b.distr_truncnormal2_sigmas;
   distr_normal2_sigmas = b.distr_normal2_sigmas;
   distr_invgaussian_mus = b.distr_invgaussian_mus;
   distr_invgaussian_sigma2s = b.distr_invgaussian_sigma2s;
@@ -3007,6 +3019,55 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: lognormal mu -------------------------------
+
+
+//-------------------------------- truncnormal2 sigma ---------------------------------
+  else if (family.getvalue() == "truncnormal2_sigma" && equationtype.getvalue()=="scale")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_truncnormal2_sigmas.push_back(DISTR_truncnormal2_sigma(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_truncnormal2_sigmas[distr_truncnormal2_sigmas.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_truncnormal2_sigmas[distr_truncnormal2_sigmas.size()-1]);
+
+    }
+//---------------------------- END: truncnormal2 sigma -------------------------------
+
+//------------------------------- truncnormal2 mu ------------------------------------
+  else if ((family.getvalue() == "truncnormal2_mu") &&
+           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
+          )
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_truncnormal2_mus.push_back(DISTR_truncnormal2_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_truncnormal2_mus[distr_truncnormal2_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_truncnormal2_mus[distr_truncnormal2_mus.size()-1]);
+
+    if (distr_truncnormal2_sigmas.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma is missing");
+      return true;
+      }
+    else
+      {
+      distr_truncnormal2_sigmas[distr_truncnormal2_sigmas.size()-1].distrp.push_back
+      (&distr_truncnormal2_mus[distr_truncnormal2_mus.size()-1]);
+
+      distr_truncnormal2_mus[distr_truncnormal2_mus.size()-1].distrp.push_back
+      (&distr_truncnormal2_sigmas[distr_truncnormal2_sigmas.size()-1]);
+      }
+
+    }
+//------------------------------- END: truncnormal2 mu -------------------------------
 
 
 //-------------------------------- normal2 sigma ---------------------------------

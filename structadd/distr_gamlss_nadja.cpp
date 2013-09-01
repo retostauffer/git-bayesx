@@ -4952,8 +4952,393 @@ void DISTR_lognormal_mu::update_end(void)
 
   }
 
-  //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_normal2_sigma ----------------------
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_truncnormal2_sigma --------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_truncnormal2_sigma::DISTR_truncnormal2_sigma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "truncnormal2 - sigma";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_truncnormal2_sigma::DISTR_truncnormal2_sigma(const DISTR_truncnormal2_sigma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_truncnormal2_sigma & DISTR_truncnormal2_sigma::operator=(
+                            const DISTR_truncnormal2_sigma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_truncnormal2_sigma::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_truncnormal2_sigma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = (eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double sig = exp((*linpred));
+
+  double l;
+
+     l = -log(sig)-pow((((*response))-(*worklin[0])),2)/(2*pow(sig,2)) - log(randnumbers::Phi2((*worklin[0])/sig));
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_truncnormal2_sigma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = mu
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double sig = exp(*linpred);
+
+    double dens = (1/(pow(2*PI,0.5)))*exp(-0.5*pow(((*worklin[0])/sig),2));
+
+    double hilfs = ((*worklin[0])/sig)*(dens/randnumbers::Phi2((*worklin[0])/sig));
+
+    double nu = -1 + (pow(((*response)-(*worklin[0])),2))/pow(sig,2) + hilfs;
+
+
+   // *workingweight = 2;
+    *workingweight = 2 - hilfs*( 1 + pow(((*worklin[0])/sig),2) + hilfs );
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -log(sig)-pow((((*response))-(*worklin[0])),2)/(2*pow(sig,2)) - log(randnumbers::Phi2((*worklin[0])/sig));
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_truncnormal2_sigma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_truncnormal2_sigma::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_truncnormal2_mu ---------------------
+//------------------------------------------------------------------------------
+void DISTR_truncnormal2_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_truncnormal2_mu::DISTR_truncnormal2_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "truncnormal2 - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+//    linpredminlimit=-10;
+ // linpredmaxlimit=15;
+  }
+
+
+DISTR_truncnormal2_mu::DISTR_truncnormal2_mu(const DISTR_truncnormal2_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_truncnormal2_mu & DISTR_truncnormal2_mu::operator=(
+                            const DISTR_truncnormal2_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_truncnormal2_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_sigma2
+   // *linpred[1] = eta_mu
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+     double sig = exp(*linpred[0]);
+     double mu = (*linpred[1]);
+
+     double l;
+
+       l = -0.5*log(2*PI)-log(sig)-pow((((*response[0]))-mu),2)/(2*pow(sig,2)) - log(randnumbers::Phi2(mu/sig));
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_truncnormal2_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_truncnormal2_mu::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+ double DISTR_truncnormal2_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_truncnormal2_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    double arg = ((*response[1])-(*param[1]))/(*param[0]) ;
+    double res = (randnumbers::Phi2(arg)-randnumbers::Phi2(-(*param[1])/(*param[0])))/(randnumbers::Phi2(-(*param[1])/(*param[0])));
+    return (res);
+    }
+
+double DISTR_truncnormal2_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = (*linpred);
+
+  double l;
+
+     l = -pow((((*response))-mu),2)/(2*pow((*worktransformlin[0]),2)) - log(randnumbers::Phi2(mu/(*worktransformlin[0])));
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_truncnormal2_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = (*linpred);
+
+    double dens = (1/(pow(2*PI,0.5)))*exp(-0.5*pow((mu/(*worktransformlin[0])),2));
+
+    double hilfs = (1/(*worktransformlin[0]))*(dens/randnumbers::Phi2(mu/(*worktransformlin[0])));
+
+    double nu = ((*response)-mu)/pow((*worktransformlin[0]),2) - hilfs;
+
+    *workingweight = 1/pow((*worktransformlin[0]),2) - (mu/pow((*worktransformlin[0]),2))*hilfs - pow(hilfs,2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow((((*response))-mu),2)/(2*pow((*worktransformlin[0]),2)) - log(randnumbers::Phi2(mu/(*worktransformlin[0])));
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_truncnormal2_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+   double arg = (*linpred[predstart_mumult+1])/exp(*linpred[predstart_mumult]);
+   double hilfs = (exp(*linpred[predstart_mumult])*(1/(pow(2*PI,0.5)))*exp(-0.5*pow(arg,2)))/randnumbers::Phi2(arg);
+  *mu = ((*linpred[predstart_mumult+1])) + hilfs;
+  }
+
+
+void DISTR_truncnormal2_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_truncnormal2_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_normal2_sigma -------------------------
 //------------------------------------------------------------------------------
 
 
@@ -5091,8 +5476,8 @@ void DISTR_normal2_sigma::update_end(void)
 
   }
 
-  //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_normal2_mu ------------------------
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_normal2_mu --------------------------
 //------------------------------------------------------------------------------
 void DISTR_normal2_mu::check_errors(void)
   {
@@ -5329,7 +5714,7 @@ void DISTR_normal2_mu::update_end(void)
 
 
 
-  //------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_normal_sigma2 ---------------------------
 //--------------------------------------------------------------------------------
 
