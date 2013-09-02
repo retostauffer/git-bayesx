@@ -2567,8 +2567,8 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
     double nu = (*worktransformlin[1]) - (((*worktransformlin[0])+1)*(*worktransformlin[1]))/(1+hilfs) ;
 
 
-   // *workingweight = (pow((*worktransformlin[1]),2)*pow((*worktransformlin[0]),2)*((*worktransformlin[0])+1))/((*worktransformlin[0])+2);
-    *workingweight = (((*worktransformlin[0])+1)*pow((*worktransformlin[1]),2)*hilfs)/pow((1+hilfs),2);
+    *workingweight = (pow((*worktransformlin[1]),2)*(*worktransformlin[0]))/((*worktransformlin[0])+2);
+   // *workingweight = (((*worktransformlin[0])+1)*pow((*worktransformlin[1]),2)*hilfs)/pow((1+hilfs),2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
