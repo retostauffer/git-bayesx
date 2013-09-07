@@ -1772,8 +1772,8 @@ void DISTR_betainf_tau::compute_deviance_mult(vector<double *> response,
         l = log(tau) - log(one_nup_tau);
      }
      else
-       l = (mu_help-1)*log(*response[2]) +
-			(one_minus_mu_help-1)*log(1-(*response[2]))-
+       l = (mu_help-1)*log(*response[3]) +
+			(one_minus_mu_help-1)*log(1-(*response[3]))-
 			randnumbers::lngamma_exact(mu_help)-
 			randnumbers::lngamma_exact(one_minus_mu_help)+
 			randnumbers::lngamma_exact(help)- log(one_nup_tau);
@@ -9035,9 +9035,9 @@ void DISTR_bivprobit_mu::compute_deviance_mult(vector<double *> response,
      double hilfs1 = 1-pow(rho,2);
      double l;
 
-       l = -log(2*PI)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[4]))-mu_1),2) -
-                                                                                2*rho*(((*response[4])-mu_1))*(((*response[3])-mu_2))
-                                                                                + pow((((*response[3]))-mu_2),2) );
+       l = -log(2*PI)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[2]))-mu_1),2) -
+                                                                                2*rho*(((*response[2])-mu_1))*(((*response[1])-mu_2))
+                                                                                + pow((((*response[1]))-mu_2),2) );
 
 
     *deviance = -2*l;
