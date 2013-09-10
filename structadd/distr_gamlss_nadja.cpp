@@ -24,6 +24,247 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_betainf1_tau --------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_betainf1_tau::DISTR_betainf1_tau(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,0,w)
+  {
+  family = "Beta One Inflated - tau";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "tau";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+  }
+
+
+DISTR_betainf1_tau::DISTR_betainf1_tau(const DISTR_betainf1_tau & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_betainf1_tau & DISTR_betainf1_tau::operator=(
+                            const DISTR_betainf1_tau & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_betainf1_tau::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_tau
+   // *linpred[1] = eta_nu
+   // *linpred[2] = eta_sigma2
+   // *linpred[3] = eta_mu
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+     double taup = exp(*linpred[2]);
+     double sigma_2 = exp(*linpred[1])/(1+exp(*linpred[1]));
+     double mu = exp(*linpred[0])/(1+exp(*linpred[0]));
+     double help = (1-sigma_2)/sigma_2;
+     double one_minus_mu_help = (1-mu)*help;
+     double mu_help = mu*help;
+     double one_taup = (1+taup);
+
+     double l;
+
+     if ((*response[2])==1)
+     {
+         l = log(taup) - log(one_taup);
+     }
+      else
+       l = (mu_help-1)*log(*response[1]) +
+			(one_minus_mu_help-1)*log(1-(*response[1]))-
+			randnumbers::lngamma_exact(mu_help)-
+			randnumbers::lngamma_exact(one_minus_mu_help)+
+			randnumbers::lngamma_exact(help)- log(one_taup);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_betainf1_tau::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+ double DISTR_betainf1_tau::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_betainf1_tau::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+//    double a =  (*param[2])*(*param[3]);
+//    double b = (*param[2])*(1-(*param[3]));
+ //   double frac = 1 + (*param[0]) + (*param[1]);
+    return 0;
+//
+//    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*randnumbers::incomplete_beta(a,b,(*response[3])) );
+    }
+
+
+double DISTR_betainf1_tau::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = exp(eta_nu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double taup = exp((*linpred));
+
+  double l;
+
+    if ((*response)==1)
+     {
+         l = log(taup) - log(1+taup);
+     }
+     else
+     {
+        l =  - log(1+taup);
+     }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_betainf1_tau::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = exp(eta_nu);
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double taup = exp(*linpred);
+
+    double hilfs = 1+ taup;
+
+    double nu = -taup/hilfs;
+
+    if ((*response)==1)
+    {
+        nu += 1;
+    }
+
+    *workingweight = taup/(pow(hilfs,2));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+        if (compute_like)
+      {
+
+        if ((*response)==0)
+        {
+            like += log(taup) - log(1+taup);
+        }
+        else
+        {
+            like -=   log(1+taup);
+        }
+        }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_betainf1_tau::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  double exp_lin_taup = exp(*linpred[predstart_mumult+2]);
+  double exp_lin_mu = exp(*linpred[predstart_mumult]);
+  double hilfs = (1+exp_lin_taup);
+  *mu = (1-(exp_lin_taup)/hilfs)*(exp_lin_mu/(1+exp_lin_mu))+ exp_lin_taup/hilfs;
+  }
+
+
+void DISTR_betainf1_tau::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (nu): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_betainf1_tau::update_end(void)
+  {
+
+
+  // helpmat1 stores exp(eta_nu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
 //--------------------------- CLASS: DISTR_betainf0_nu --------------------------
 //------------------------------------------------------------------------------
 
