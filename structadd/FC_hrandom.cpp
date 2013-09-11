@@ -666,34 +666,35 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
 //   ofstream out("c:\\bayesx\\trunk\\testh\\results\\datare.raw");
 //   designp->data.prettyPrint(out);
 
-
-    double im_absolute;
-    double im_var;
-    if (designp->discrete)
+    if (imeasures)
       {
-      im_var = compute_importancemeasure_discrete(false);
-      im_absolute = compute_importancemeasure_discrete(true);
+      double im_absolute;
+      double im_var;
+      if (designp->discrete)
+        {
+        im_var = compute_importancemeasure_discrete(false);
+        im_absolute = compute_importancemeasure_discrete(true);
+        }
+      else
+        {
+        im_var = compute_importancemeasure(false);
+        im_absolute = compute_importancemeasure(true);
+        }
+
+      if (designp->intvar.rows()==designp->data.rows())
+        {
+        double kintvar = designp->compute_kernel_intvar(true);
+        im_absolute *= kintvar;
+        kintvar = designp->compute_kernel_intvar(false);
+        im_var *= kintvar;
+        }
+
+
+      optionsp->out("    Importance measures\n");
+      optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
+      optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
+      optionsp->out("\n");
       }
-    else
-      {
-      im_var = compute_importancemeasure(false);
-      im_absolute = compute_importancemeasure(true);
-      }
-
-    if (designp->intvar.rows()==designp->data.rows())
-      {
-      double kintvar = designp->compute_kernel_intvar(true);
-      im_absolute *= kintvar;
-      kintvar = designp->compute_kernel_intvar(false);
-      im_var *= kintvar;
-      }
-
-
-    optionsp->out("    Importance measures\n");
-    optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
-    optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
-    optionsp->out("\n");
-
 
     optionsp->out("    Mean effects evaluated at " +
                   designp->datanames[designp->datanames.size()-1] + "=" +
@@ -965,7 +966,7 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
           outres << *mu_workbetaqu_l1_upper_p << "   ";
           }
         else
-          outres << "0   0   0   0   0   ";  
+          outres << "0   0   0   0   0   ";
 
         if (i <nrpar-1)
           {

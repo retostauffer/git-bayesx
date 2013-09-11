@@ -367,9 +367,9 @@ void superbayesreg::create_hregress(void)
   stoprmax = intoption("stoprmax",5,1,100000);
   fraclimit = doubleoption("fraclimit",0.001,0,1);
 
-  scaleconst = simpleoption("scaleconst",false);
+  scaleconst = simpleoption("scaleconst",false);
 
-  utilities = simpleoption("utilities",false);
+  utilities = simpleoption("utilities",false);
 
   aexp = doubleoption("aexp",0,0.00000000001,100000000);
   bexp = doubleoption("bexp",1,0.00000000001,100000000);
@@ -386,6 +386,8 @@ void superbayesreg::create_hregress(void)
   saveestimation = simpleoption("saveestimation",false);
 
   nrcat = intoption("nrcat",2,1,10);
+
+  imeasures = simpleoption("imeasures",false);
 
   regressoptions.reserve(200);
 
@@ -428,6 +430,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&linpredmaxlimit);
   regressoptions.push_back(&saveestimation);
   regressoptions.push_back(&nrcat);
+  regressoptions.push_back(&imeasures);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,

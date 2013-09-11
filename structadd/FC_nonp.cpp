@@ -120,6 +120,8 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
 
   read_options(op,vn);
 
+  imeasures=false;
+
   masterp = mp;
   equationnr = enr;
   likep = lp;
@@ -178,6 +180,8 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   : FC(FC(m))
   {
 
+  imeasures=m.imeasures;
+
   masterp = m.masterp;
   equationnr = m.equationnr;
 
@@ -230,6 +234,8 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+
+  imeasures=m.imeasures;
 
   masterp = m.masterp;
   equationnr = m.equationnr;
@@ -1461,31 +1467,38 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    double im_absolute;
-    double im_var;
-    if (designp->discrete)
+    // ---------------------------- compute importancemeasures ------------------------
+
+    if (imeasures)
       {
-      im_var = compute_importancemeasure_discrete(false);
-      im_absolute = compute_importancemeasure_discrete(true);
-      }
-    else
-      {
-      im_var = compute_importancemeasure(false);
-      im_absolute = compute_importancemeasure(true);
+      double im_absolute;
+      double im_var;
+      if (designp->discrete)
+        {
+        im_var = compute_importancemeasure_discrete(false);
+        im_absolute = compute_importancemeasure_discrete(true);
+        }
+      else
+        {
+        im_var = compute_importancemeasure(false);
+        im_absolute = compute_importancemeasure(true);
+        }
+
+      if (designp->intvar.rows()==designp->data.rows())
+        {
+        double kintvar = designp->compute_kernel_intvar(true);
+        im_absolute *= kintvar;
+        kintvar = designp->compute_kernel_intvar(false);
+        im_var *= kintvar;
+        }
+
+      optionsp->out("    Importance measures\n");
+      optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
+      optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
+      optionsp->out("\n");
       }
 
-    if (designp->intvar.rows()==designp->data.rows())
-      {
-      double kintvar = designp->compute_kernel_intvar(true);
-      im_absolute *= kintvar;
-      kintvar = designp->compute_kernel_intvar(false);
-      im_var *= kintvar;
-      }
-
-    optionsp->out("    Importance measures\n");
-    optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
-    optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
-    optionsp->out("\n");
+    // ---------------------------- end: compute importancemeasures -----------------------------------------
 
     if (designp->intvar.rows()==designp->data.rows())
       {

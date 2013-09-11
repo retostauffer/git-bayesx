@@ -295,6 +295,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   simpleoption cv;
 
+  simpleoption imeasures;
+
   vector<ST::string> MSEop;
   stroption mse;
   doubleoption mseparam;

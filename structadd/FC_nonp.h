@@ -113,6 +113,11 @@ class __EXPORT_TYPE FC_nonp  : public FC
   datamatrix ccenter;
   datamatrix helpcenter;
 
+  //--------------------------- importance measures ---------------------------
+
+  bool imeasures;
+
+
   void get_linparam(void);
 
   void initialize_center(void);
