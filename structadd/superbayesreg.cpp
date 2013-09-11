@@ -4331,6 +4331,9 @@ bool superbayesreg::create_hrandom(unsigned i)
 
     }
 
+  if (imeasures.getvalue() == true && FC_hrandoms.size() >= 1)
+      FC_hrandoms[FC_hrandoms.size()-1].imeasures=true;
+
   return false;
 
   }
@@ -4871,6 +4874,9 @@ bool superbayesreg::create_nonp(void)
 
     if (error)
       return error;
+
+    if (imeasures.getvalue() == true && FC_nonps.size() >= 1)
+      FC_nonps[FC_nonps.size()-1].imeasures=true;
     }
 
   return false;
