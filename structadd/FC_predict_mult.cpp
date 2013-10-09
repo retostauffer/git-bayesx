@@ -478,15 +478,15 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
         if (likep[i]->outpredictor)
           {
-          outres << "pmean_" << likep[i]->predictor_name << "   ";
+          outres << "pmean_param_" << likep[i]->predictor_name << "   ";
 
           if (optionsp->samplesize > 1)
             {
-            outres << "pqu"  << l1  << "_" << likep[i]->predictor_name << "   ";
-            outres << "pqu"  << l2  << "_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << l1  << "_param_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << l2  << "_param_" << likep[i]->predictor_name << "   ";
             outres << "pmed_" << likep[i]->predictor_name << "   ";
-            outres << "pqu"  << u1  << "_" << likep[i]->predictor_name << "   ";
-            outres << "pqu"  << u2  << "_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u1  << "_param_" << likep[i]->predictor_name << "   ";
+            outres << "pqu"  << u2  << "_param_" << likep[i]->predictor_name << "   ";
             }
           }
 
