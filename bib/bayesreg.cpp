@@ -345,7 +345,7 @@ void bayesreg::create(void)
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
   reference = doubleoption("reference",0,-10000,10000);
-  
+
 
   vector<ST::string> dop;
   dop.push_back("nb");
@@ -1106,6 +1106,7 @@ int bayesreg::parse(const ST::string & c)
   if (pos >= 0)
 	 (*functions[pos])(*this);
 
+  return(pos);
   }
 
 
@@ -1390,7 +1391,7 @@ bool bayesreg::create_distribution(void)
     while(k<cens.rows() && !censerr)
       {
       if(cens(k,0)!=1 && cens(k,0)!=0)
-        censerr=true;  
+        censerr=true;
       k++;
       }
     if(censerr)
