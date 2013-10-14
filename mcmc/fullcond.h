@@ -912,7 +912,7 @@ class __EXPORT_TYPE FULLCOND
 
   virtual double compute_df(void)
     {
-    return 0;
+    return 0.;
     }
 
   virtual void set_dfunstruct(const double & df_unstr)  // für spatialtotal
