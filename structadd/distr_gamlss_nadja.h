@@ -271,6 +271,8 @@ class __EXPORT_TYPE DISTR_t_sigma2 : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -400,6 +402,8 @@ class __EXPORT_TYPE DISTR_invgaussian_sigma2 : public DISTR_gamlss
   ~DISTR_invgaussian_sigma2() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1401,6 +1405,8 @@ class __EXPORT_TYPE DISTR_gamma_sigma : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1659,6 +1665,8 @@ class __EXPORT_TYPE DISTR_lognormal_sigma2 : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param(const double * linpred,double * param);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -1916,6 +1924,7 @@ class __EXPORT_TYPE DISTR_normal2_sigma : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -2045,6 +2054,8 @@ class __EXPORT_TYPE DISTR_normal_sigma2 : public DISTR_gamlss
   ~DISTR_normal_sigma2() {}
 
   double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 

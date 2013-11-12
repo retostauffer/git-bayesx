@@ -693,6 +693,11 @@ double DISTR_t_sigma2::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+  void DISTR_t_sigma2::compute_param(const double * linpred,double * param)
+  {
+  *param = pow(exp(*linpred), 0.5);
+  }
+
 
 double DISTR_t_sigma2::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -930,7 +935,7 @@ double DISTR_t_mu::cdf_mult(vector<double *> response,
     {
     double a = 0.5*(*param[0]);
     double b = 0.5;
-    double x = (*param[0])/(pow((((*response[2])-(*param[2]))/pow((*param[1]),0.5)),2)+(*param[0]));
+   // double x = (*param[0])/(pow((((*response[2])-(*param[2]))/pow((*param[1]))),2)+(*param[0]));
     return 0;
 //    return ( 1- 0.5*randnumbers::incomplete_beta(a,b,x));
     }
@@ -1105,6 +1110,10 @@ double DISTR_invgaussian_sigma2::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+void DISTR_invgaussian_sigma2::compute_param(const double * linpred,double * param)
+  {
+  *param = pow(exp((*linpred)),0.5);
+  }
 
 double DISTR_invgaussian_sigma2::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -1311,6 +1320,7 @@ double DISTR_invgaussian_mu::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
+
 
  double DISTR_invgaussian_mu::pdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -4091,6 +4101,11 @@ double DISTR_gamma_sigma::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+void DISTR_gamma_sigma::compute_param(const double * linpred,double * param)
+  {
+  *param = 1/pow(exp((*linpred)),0.5);
+  }
+
 
 double DISTR_gamma_sigma::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -4854,6 +4869,11 @@ double DISTR_lognormal_sigma2::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+void DISTR_lognormal_sigma2::compute_param(const double * linpred,double * param)
+  {
+  *param = pow(exp((*linpred)),0.5);
+  }
+
 
 double DISTR_lognormal_sigma2::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -5061,6 +5081,8 @@ double DISTR_lognormal_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+
+
 void DISTR_lognormal_mu::compute_param(const double * linpred,double * param)
   {
   *param = (*linpred);
@@ -5081,7 +5103,7 @@ double DISTR_lognormal_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg = (log(*response[1])-(*param[1]))/pow((*param[0]),0.5) ;
+    double arg = (log(*response[1])-(*param[1]))/((*param[0])) ;
 
     return (randnumbers::Phi2(arg));
     }
@@ -5622,6 +5644,7 @@ double DISTR_normal2_sigma::get_intercept_start(void)
   }
 
 
+
 double DISTR_normal2_sigma::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
@@ -5998,6 +6021,10 @@ double DISTR_normal_sigma2::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+void DISTR_normal_sigma2::compute_param(const double * linpred,double * param)
+  {
+  *param = pow(exp((*linpred)),0.5);
+  }
 
 double DISTR_normal_sigma2::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -6219,7 +6246,7 @@ double DISTR_normal_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg = ((*response[1])-(*param[1]))/pow((*param[0]),0.5) ;
+    double arg = ((*response[1])-(*param[1]))/((*param[0])) ;
 
     return (randnumbers::Phi2(arg));
     }
