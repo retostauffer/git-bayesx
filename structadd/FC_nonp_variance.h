@@ -60,6 +60,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   bool lambdaconst;
 
+  double zcurrent;
+
   public:
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------

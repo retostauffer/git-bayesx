@@ -88,6 +88,8 @@ FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTI
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
 
+  zcurrent=0.1;
+
   }
 
 
@@ -104,6 +106,7 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
   lambdaconst = m.lambdaconst;
+  zcurrent = m.zcurrent;
   }
 
 
@@ -123,6 +126,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
   lambdaconst = m.lambdaconst;
+  zcurrent = m.zcurrent;
   return *this;
   }
 
@@ -145,11 +149,12 @@ void FC_nonp_variance::update(void)
       {
 
       double B = 1;
-      double gamma = rand_gamma(0.5,0.5);
+      double quadf = designp->penalty_compute_quadform(FCnonpp->param);
+      double gamma = rand_gamma(designp->rankK/2+0.5 ,1/(2*zcurrent*zcurrent)*quadf+0.5);
       double mu = sqrt(1/(B*designp->penalty_compute_quadform(FCnonpp->param))*gamma);
       double lambda = 1/(2*B*mu*mu);
 
-      double tildez2inv = rand_inv_gaussian(mu,lambda);
+      double tildez2inv = pow(rand_inv_gaussian(mu,lambda),2);
       double z2 = pow(tildez2inv,-1/designp->rankK);
 
      beta(0,0) = z2/gamma;
