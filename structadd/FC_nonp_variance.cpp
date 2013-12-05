@@ -139,9 +139,27 @@ void FC_nonp_variance::update(void)
 
   if (lambdaconst == false)
     {
-    beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
-                b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
 
+    bool cauchy = false;
+    if (cauchy == true)
+      {
+
+      double B = 1;
+      double gamma = rand_gamma(0.5,0.5);
+      double mu = sqrt(1/(B*designp->penalty_compute_quadform(FCnonpp->param))*gamma);
+      double lambda = 1/(2*B*mu*mu);
+
+      double tildez2inv = rand_inv_gaussian(mu,lambda);
+      double z2 = pow(tildez2inv,-1/designp->rankK);
+
+     beta(0,0) = z2/gamma;
+      }
+    else
+      {
+      beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
+                  b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
+
+      }
 
     beta(0,1) = likep->get_scale()/beta(0,0);
 
@@ -249,7 +267,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out_R << "pathvarsample=" << paths << endl; 
+    out_R << "pathvarsample=" << paths << endl;
 //    out_R << "filetype=param; path=" << pathresults << ";" <<  endl;
 
     ofstream ou(pathresults.strtochar());
