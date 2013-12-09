@@ -88,6 +88,9 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   intoption regiterates;
   simpleoption center;
 
+  doubleoption tildea;
+  doubleoption tildeb;
+  simpleoption cauchy;
 
   vector<ST::string> termnames;
 

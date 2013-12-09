@@ -55,6 +55,14 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
     }
 
 
+  f = op[47].strtodouble(tildea);
+  f = op[48].strtodouble(tildeb);
+
+  if (op[49] == "true")
+    {
+    cauchy = true;
+    }
+
   }
 
 
@@ -88,8 +96,6 @@ FC_nonp_variance::FC_nonp_variance(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTI
   FCnonpp->tau2 = beta(0,0);
   FCnonpp->lambda = beta(0,1);
 
-  zcurrent=0.1;
-
   }
 
 
@@ -106,7 +112,9 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
   lambdaconst = m.lambdaconst;
-  zcurrent = m.zcurrent;
+  tildea = m.tildea;
+  tildeb = m.tildeb;
+  cauchy = m.cauchy;
   }
 
 
@@ -126,7 +134,9 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   b_invgamma = m.b_invgamma;
   lambdastart = m.lambdastart;
   lambdaconst = m.lambdaconst;
-  zcurrent = m.zcurrent;
+  tildea = m.tildea;
+  tildeb = m.tildeb;
+  cauchy = m.cauchy;
   return *this;
   }
 
@@ -144,11 +154,8 @@ void FC_nonp_variance::update(void)
   if (lambdaconst == false)
     {
 
-    bool cauchy = false;
     if (cauchy == true)
       {
-      double tildea = -0.5;
-      double tildeb = 0;
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
       double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
 
@@ -159,8 +166,9 @@ void FC_nonp_variance::update(void)
 
       if (u <= (fcnew - fcold ))
         {
-        beta(0,0) = gamma;
 
+        beta(0,0) = gamma;
+        acceptance++;
         }
 
       }
@@ -168,14 +176,14 @@ void FC_nonp_variance::update(void)
       {
       beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
                   b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
-
+      acceptance++;
       }
 
     beta(0,1) = likep->get_scale()/beta(0,0);
 
     FCnonpp->tau2 = beta(0,0);
 
-    acceptance++;
+
     FC::update();
 
     }
@@ -224,6 +232,8 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
   if (optionsp->samplesize > 1)
     {
+
+    FC::outresults_acceptance();
 
     vstr = "    Mean:         ";
     optionsp->out(vstr + ST::string(' ',20-vstr.length()) +
@@ -314,14 +324,30 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
 void FC_nonp_variance::outoptions(void)
   {
+  if (cauchy)
+    {
+    optionsp->out("  Cauchy prior\n");
 
-  b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
+    optionsp->out("  Hyperparameter tildea for proposal density: " +
+                ST::doubletostring(tildea) + "\n" );
 
-  optionsp->out("  Hyperprior a for variance parameter: " +
+    optionsp->out("  Hyperparameter tildeb for proposal density: " +
+                ST::doubletostring(tildeb) + "\n" );
+
+    }
+  else
+    {
+
+    optionsp->out("  Inverse gamma prior\n");
+
+    b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
+
+    optionsp->out("  Hyperprior a for variance parameter: " +
                 ST::doubletostring(a_invgamma) + "\n" );
-  optionsp->out("  Hyperprior b for variance parameter: " +
+    optionsp->out("  Hyperprior b for variance parameter: " +
                 ST::doubletostring(b_invgamma) + "\n" );
-  optionsp->out("\n");
+    optionsp->out("\n");
+    }
   }
 
 

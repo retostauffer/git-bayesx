@@ -57,7 +57,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   centermethods.push_back("meaninvvar");
   centermethods.push_back("nullspace");
   centermethods.push_back("meansimple");      // subtract mean from parameters
-  centermethods.push_back("integralsimple");      // subtract mean from parameters  
+  centermethods.push_back("integralsimple");      // subtract mean from parameters
   centermethods.push_back("meanf");           // sample centered f
   centermethods.push_back("meanfd");           // sample centered f
   centermethods.push_back("meansum2");
@@ -117,6 +117,11 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   center = simpleoption("center",false);
 
+  tildea = doubleoption("tildea",-0.5,-1.0,500);
+  tildeb = doubleoption("tildeb",0,0,500);
+  cauchy = simpleoption("cauchy",false);
+
+
   }
 
 void term_nonp::setdefault(void)
@@ -168,6 +173,10 @@ void term_nonp::setdefault(void)
   bQ.setdefault();
   regiterates.setdefault();
   center.setdefault();
+
+  tildea.setdefault();
+  tildeb.setdefault();
+  cauchy.setdefault();
 
   }
 
@@ -266,6 +275,11 @@ bool term_nonp::check(term & t)
     optlist.push_back(&bQ);
     optlist.push_back(&regiterates);
     optlist.push_back(&center);
+    optlist.push_back(&tildea);
+    optlist.push_back(&tildeb);
+    optlist.push_back(&cauchy);
+
+
 
 
     unsigned i;
@@ -414,6 +428,14 @@ bool term_nonp::check(term & t)
       t.options[46] = "false";
     else
       t.options[46] = "true";
+
+    t.options[47] = ST::doubletostring(tildea.getvalue());
+    t.options[48] = ST::doubletostring(tildeb.getvalue());
+    if (cauchy.getvalue() == false)
+      t.options[49] = "false";
+    else
+      t.options[49] = "true";
+
 
     setdefault();
     return true;

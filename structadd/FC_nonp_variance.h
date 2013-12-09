@@ -60,7 +60,10 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   bool lambdaconst;
 
-  double zcurrent;
+  double tildea;
+  double tildeb;
+  bool cauchy;
+
 
   public:
 
