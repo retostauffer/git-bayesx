@@ -6,7 +6,7 @@ d.generate x2 = normal()
 
 mcmcreg b
 b.outfile = c:\bayesx\trunk\testh\results\hgaussian_nonp_1fkt
-b.hregress y = const + x1(pspline) ,   iterations=12000 step=10 burnin=2000 family=gaussian using d
+b.hregress y = const + x1(pspline,tildea=-0.5,tildeb=0,cauchy) ,   iterations=12000 step=10 burnin=2000 family=gaussian using d
 
 
 % b.outfile = c:\bayesx\trunk\testh\results\hgaussian_nonp_1fkt
