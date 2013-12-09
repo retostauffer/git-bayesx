@@ -147,17 +147,22 @@ void FC_nonp_variance::update(void)
     bool cauchy = false;
     if (cauchy == true)
       {
-
-      double B = 1;
+      double tildea = -0.5;
+      double tildeb = 0;
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
-      double gamma = rand_gamma(designp->rankK/2+0.5 ,1/(2*zcurrent*zcurrent)*quadf+0.5);
-      double mu = sqrt(1/(B*designp->penalty_compute_quadform(FCnonpp->param))*gamma);
-      double lambda = 1/(2*B*mu*mu);
+      double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
 
-      double tildez2inv = pow(rand_inv_gaussian(mu,lambda),2);
-      double z2 = pow(tildez2inv,-1/designp->rankK);
+      double u = log(uniform());
 
-     beta(0,0) = z2/gamma;
+      double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-1/(2*beta(0,0))*quadf-log(1+beta(0,0));
+      double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-1/(2*gamma)*quadf-log(1+gamma);
+
+      if (u <= (fcnew - fcold ))
+        {
+        beta(0,0) = gamma;
+
+        }
+
       }
     else
       {
