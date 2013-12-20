@@ -62,6 +62,8 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
     {
     cauchy = true;
     }
+  else
+    cauchy = false;
 
   }
 
