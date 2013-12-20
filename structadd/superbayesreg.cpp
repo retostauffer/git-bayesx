@@ -319,6 +319,8 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
+  equationtypes.push_back("scale1");
+  equationtypes.push_back("scale2");
   equationtypes.push_back("location");
   equationtypes.push_back("scale");
   equationtypes.push_back("shape");
@@ -2408,7 +2410,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivnormal_rho ---------------------------------
 
  //---------------------------------- bivnormal_sigma --------------------------------
-   else if (family.getvalue() == "bivnormal_sigma" && equationtype.getvalue()=="scale")
+   else if ((family.getvalue() == "bivnormal_sigma") && ((equationtype.getvalue()=="scale") || (equationtype.getvalue()=="scale1") || (equationtype.getvalue()=="scale2")))
      {
 
      computemodeforstartingvalues = true;
