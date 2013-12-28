@@ -2213,7 +2213,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivt_df ---------------------------------
 
  //---------------------------------- bivt_sigma --------------------------------
-   else if (family.getvalue() == "bivt_sigma" && equationtype.getvalue()=="scale")
+   else if ((family.getvalue() == "bivt_sigma") && ((equationtype.getvalue()=="scale") || (equationtype.getvalue()=="scale1") || (equationtype.getvalue()=="scale2")))
      {
 
      computemodeforstartingvalues = true;
