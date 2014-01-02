@@ -24,7 +24,7 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_betainf1_tau --------------------------
+//--------------------------- CLASS: DISTR_betainf1_tau ------------------------
 //------------------------------------------------------------------------------
 
 
@@ -265,7 +265,7 @@ void DISTR_betainf1_tau::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_betainf0_nu --------------------------
+//--------------------------- CLASS: DISTR_betainf0_nu -------------------------
 //------------------------------------------------------------------------------
 
 
@@ -653,7 +653,7 @@ void DISTR_t_df::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_t_sigma2 ---------------------------
+//------------------------- CLASS: DISTR_t_sigma2 ------------------------------
 //------------------------------------------------------------------------------
 
 
@@ -802,7 +802,7 @@ void DISTR_t_sigma2::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_t_mu -----------------------------
+//--------------------------- CLASS: DISTR_t_mu --------------------------------
 //------------------------------------------------------------------------------
 
 
@@ -1069,7 +1069,7 @@ void DISTR_t_mu::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_invgaussian_sigma2 ----------------------
+//------------------------- CLASS: DISTR_invgaussian_sigma2 --------------------
 //------------------------------------------------------------------------------
 
 
@@ -1212,7 +1212,7 @@ void DISTR_invgaussian_sigma2::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_invgaussian_mu ------------------------
+//--------------------------- CLASS: DISTR_invgaussian_mu ----------------------
 //------------------------------------------------------------------------------
 void DISTR_invgaussian_mu::check_errors(void)
   {
@@ -1951,7 +1951,7 @@ void DISTR_betainf_nu::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_betainf_tau --------------------------
+//--------------------------- CLASS: DISTR_betainf_tau -------------------------
 //------------------------------------------------------------------------------
 
 
@@ -2198,7 +2198,7 @@ void DISTR_betainf_tau::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_pareto_p ---------------------------
+//------------------------- CLASS: DISTR_pareto_p ------------------------------
 //------------------------------------------------------------------------------
 
 
@@ -2335,7 +2335,7 @@ void DISTR_pareto_p::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_pareto_b ------------------------
+//--------------------------- CLASS: DISTR_pareto_b ----------------------------
 //------------------------------------------------------------------------------
 
 void DISTR_pareto_b::check_errors(void)
@@ -2579,7 +2579,7 @@ void DISTR_pareto_b::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_dagum_p --------------------------
+//------------------------- CLASS: DISTR_dagum_p -------------------------------
 //------------------------------------------------------------------------------
 
 DISTR_dagum_p::DISTR_dagum_p(GENERAL_OPTIONS * o,
@@ -2725,7 +2725,7 @@ void DISTR_dagum_p::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_dagum_b ---------------------------
+//------------------------- CLASS: DISTR_dagum_b -------------------------------
 //------------------------------------------------------------------------------
 
 
@@ -3132,7 +3132,7 @@ void DISTR_dagum_a::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_weibull_alpha ---------------------------
+//------------------------- CLASS: DISTR_weibull_alpha -------------------------
 //------------------------------------------------------------------------------
 
 
@@ -3271,7 +3271,7 @@ void DISTR_weibull_alpha::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_weibull_lambda ------------------------
+//--------------------------- CLASS: DISTR_weibull_lambda ----------------------
 //------------------------------------------------------------------------------
 
 void DISTR_weibull_lambda::check_errors(void)
@@ -3665,7 +3665,7 @@ void DISTR_gengamma_tau::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_gengamma_sigma ---------------------------
+//------------------------- CLASS: DISTR_gengamma_sigma ------------------------
 //------------------------------------------------------------------------------
 
 
@@ -3810,7 +3810,7 @@ void DISTR_gengamma_sigma::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_gengamma_mu ------------------------
+//--------------------------- CLASS: DISTR_gengamma_mu -------------------------
 //------------------------------------------------------------------------------
 
 void DISTR_gengamma_mu::check_errors(void)
@@ -4205,7 +4205,7 @@ void DISTR_gamma_sigma::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_gamma_mu ------------------------
+//--------------------------- CLASS: DISTR_gamma_mu ----------------------------
 //------------------------------------------------------------------------------
 
 void DISTR_gamma_mu::check_errors(void)
@@ -4583,7 +4583,7 @@ void DISTR_lognormal2_sigma::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_lognormal2_mu ------------------------
+//--------------------------- CLASS: DISTR_lognormal2_mu -----------------------
 //------------------------------------------------------------------------------
 void DISTR_lognormal2_mu::check_errors(void)
   {
@@ -7105,7 +7105,7 @@ void DISTR_cloglog::update_end(void)
   }
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_dirichlet -----------------------------
+//--------------------------- CLASS: DISTR_dirichlet ---------------------------
 //------------------------------------------------------------------------------
 
 void DISTR_dirichlet::check_errors(void)
@@ -7372,7 +7372,7 @@ void DISTR_dirichlet::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_bivt_df ----------------------------
+//------------------------- CLASS: DISTR_bivt_df -------------------------------
 //------------------------------------------------------------------------------
 
 
@@ -7757,7 +7757,7 @@ void DISTR_bivt_rho::compute_iwls_wweightschange_weightsone(
 void DISTR_bivt_rho::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (rho):\n");
+  optionsp->out("  Link function (rho): fisher z-transformation\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -8468,7 +8468,7 @@ void DISTR_bivnormal_rho::compute_iwls_wweightschange_weightsone(
 void DISTR_bivnormal_rho::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (rho):\n");
+  optionsp->out("  Link function (rho): fisher z-transformation\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -8964,7 +8964,7 @@ void DISTR_bivnormal_mu::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_bivprobit_rho ----------------------
+//------------------------- CLASS: DISTR_bivprobit_rho -------------------------
 //------------------------------------------------------------------------------
 
 
@@ -9170,7 +9170,7 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
 void DISTR_bivprobit_rho::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (rho):\n");
+  optionsp->out("  Link function (rho): fisher z-transformation\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -9521,6 +9521,569 @@ void DISTR_bivprobit_mu::update_end(void)
 
   }
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_bivlogit_or -------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_bivlogit_or::DISTR_bivlogit_or(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Bivariate logit - odds ratio";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "rho";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_bivlogit_or::DISTR_bivlogit_or(const DISTR_bivlogit_or & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_bivlogit_or & DISTR_bivlogit_or::operator=(
+                            const DISTR_bivlogit_or & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+double DISTR_bivlogit_or::get_intercept_start(void)
+  {
+  return log(response.mean(0));
+  }
+
+
+
+void DISTR_bivlogit_or::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_bivlogit_or::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+
+
+double DISTR_bivlogit_or::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu_2 equation
+  // *worktransformlin[0] = mu_2;
+  // *worklin[1] = linear predictor of mu_1 equation
+  // *worktransformlin[1] = mu_1;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double odds = exp((*linpred));
+  double p1 = (*worktransformlin[1]);
+  double psiminone = odds - 1;
+  double hilfs1 = 1 + (p1 + (*worktransformlin[0]))*psiminone;
+  double hilfs2 = -4*odds*psiminone*p1*(*worktransformlin[0]);
+  double p11 = 0.5*pow(psiminone, -1)*( hilfs1 - pow((pow(hilfs1,2) + hilfs2), 0.5));
+  if(odds == 1)
+  {
+      p11 = p1*(*worktransformlin[0]);
+  }
+
+  double l;
+
+  if(((*response) == 0) && ((*response2p) == 0)) {
+    l = log(1 + p11 - p1 - (*worktransformlin[0]));
+  }
+  else if(((*response) == 0) && ((*response2p) == 1)) {
+    l = log( (*worktransformlin[0]) - p11 );
+  }
+  else if(((*response) == 1) && ((*response2p) == 0)) {
+    l = log( p1 - p11 );
+  }
+  else {
+    l = log( p11 );
+  }
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_bivlogit_or::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma_2 equation
+  // *worktransformlin[0] = sigma_2;
+  // *worklin[1] = linear predictor of sigma_1 equation
+  // *worktransformlin[1] = sigma_1;
+  // *worklin[2] = linear predictor of mu_2 equation
+  // *worktransformlin[2] = mu_2;
+  // *worklin[3] = linear predictor of mu_1 equation
+  // *worktransformlin[3] = mu_1;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double odds = exp((*linpred));
+  double p1 = (*worktransformlin[1]);
+  double p2 = (*worktransformlin[0]);
+  double psiminone = odds - 1;
+  double hilfs1 = 1 + (p1 + p2)*psiminone;
+  double hilfs2 = -4*odds*psiminone*p1*p2;
+  double p11 = 0.5*pow(psiminone, -1)*( hilfs1 - pow((pow(hilfs1,2) + hilfs2), 0.5));
+  if(odds == 1)
+  {
+      p11 = p1*p2;
+  }
+
+  double dp11 = -p11*odds/psiminone + 0.5*pow(psiminone, -1)*( odds*(p1+p2) - ( hilfs1*odds*(p1+p2) - 2*(2*pow(odds,2)-odds)*p2*p1 )/( pow((pow(hilfs1, 2) + hilfs2), 0.5) ) );
+
+  if(odds == 1)
+  {
+      dp11 = 0;
+  }
+
+  double nu;
+
+  if(((*response) == 0) && ((*response2p) == 0)) {
+    nu = ( dp11 )/( 1+ p11 - p1- p2 );
+  }
+  else if(((*response) == 0) && ((*response2p) == 1)) {
+    nu = ( -dp11 )/( p2 - p11 );
+  }
+  else if(((*response) == 1) && ((*response2p) == 0)) {
+    nu = ( - dp11 )/( p1 - p11 );
+  }
+  else {
+    nu = ( dp11 )/( p11 );
+  }
+
+  *workingweight = pow(dp11, 2)/((1 + p11 -p1 -p2)*( p2 - p11 )) + pow(dp11, 2)/(p11*( p1 - p11 ));
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if(odds == 1)
+  {
+      *workingresponse = *linpred;
+  }
+
+    if (compute_like)
+      {
+
+        if(((*response) == 0) && ((*response2p) == 0)) {
+            like += log(1 + p11 - p1 - p2);
+        }
+        else if(((*response) == 0) && ((*response2p) == 1)) {
+            like += log( p2 - p11 );
+        }
+        else if(((*response) == 1) && ((*response2p) == 0)) {
+            like += log( p1 - p11 );
+        }
+        else {
+            like += log( p11 );
+        }
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_bivlogit_or::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (odds ratio): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_bivlogit_or::update_end(void)
+  {
+
+  // helpmat1 stores rho2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+      *pmu = exp((*worklin));
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_bivlogit_mu ------------------------
+//------------------------------------------------------------------------------
+void DISTR_bivlogit_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+            if ((*workresp!= 0) | (*workresp!= 1) )
+            {
+                errors=true;
+                errormessages.push_back("ERROR: response has to be equal to zero or one\n");
+            }
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_bivlogit_mu::DISTR_bivlogit_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  pos =p;
+  family = "Bivariate logit - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+  }
+
+
+DISTR_bivlogit_mu::DISTR_bivlogit_mu(const DISTR_bivlogit_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_bivlogit_mu & DISTR_bivlogit_mu::operator=(
+                            const DISTR_bivlogit_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+void DISTR_bivlogit_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
+   // *linpred[0] = eta_or
+   // *linpred[1] = eta_mu_2
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+
+     double l;
+
+       l = 0;
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_bivlogit_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_bivlogit_mu::compute_param(const double * linpred,double * param)
+  {
+  double el = exp(*linpred);
+  *param = el/(1+el);
+  }
+
+void DISTR_bivlogit_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_bivlogit_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+
+
+double DISTR_bivlogit_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of or equation
+  // *worktransformlin[0] = or;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double el = exp((*linpred));
+  double p1 = el/(1+el);
+  double psiminone = (*worktransformlin[0]) - 1;
+  double hilfs1 = 1 + (p1 + (*worktransformlin[1]))*psiminone;
+  double hilfs2 = -4*(*worktransformlin[0])*psiminone*p1*(*worktransformlin[1]);
+  double p11 = 0.5*pow(psiminone, -1)*( hilfs1 - pow((pow(hilfs1,2) + hilfs2), 0.5));
+  if((*worktransformlin[0]) == 1)
+  {
+      p11 = p1*(*worktransformlin[1]);
+  }
+
+  double l;
+
+  if(((*response) == 0) && ((*response2p) == 0)) {
+    l = log(1 + p11 - p1 - (*worktransformlin[1]));
+  }
+  else if(((*response) == 0) && ((*response2p) == 1)) {
+    l = log( (*worktransformlin[1]) - p11 );
+  }
+  else if(((*response) == 1) && ((*response2p) == 0)) {
+    l = log( p1 - p11 );
+  }
+  else {
+    l = log( p11 );
+  }
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_bivlogit_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+  // *worklin[2] = linear predictor of sigma_1 equation
+  // *worktransformlin[2] = sigma_1;
+  // *worklin[3] = linear predictor of sigma_2 equation
+  // *worktransformlin[3] = sigma_2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double el = exp((*linpred));
+  double p1 = el/(1+el);
+  double psiminone = (*worktransformlin[0]) - 1;
+  double hilfs1 = 1 + (p1 + (*worktransformlin[1]))*psiminone;
+  double hilfs2 = -4*(*worktransformlin[0])*psiminone*p1*(*worktransformlin[1]);
+  double p11 = 0.5*pow(psiminone, -1)*( hilfs1 - pow((pow(hilfs1,2) + hilfs2), 0.5));
+  if((*worktransformlin[0]) == 1)
+  {
+      p11 = p1*(*worktransformlin[1]);
+  }
+  double p2 = (*worktransformlin[1]);
+  double p1oneminusp1 = p1*(1-p1);
+  double dp11 = 0.5*p1oneminusp1*( 1 - ( hilfs1 - 2*(*worktransformlin[0])*p2 )/( pow((pow(hilfs1, 2) + hilfs2), 0.5) ) );
+
+  if((*worktransformlin[0]) == 1)
+  {
+      dp11 = p1oneminusp1*p2;
+  }
+
+  double nu;
+
+  if(((*response) == 0) && ((*response2p) == 0)) {
+    nu = ( dp11 - p1oneminusp1 )/( 1+ p11 - p1- p2 );
+  }
+  else if(((*response) == 0) && ((*response2p) == 1)) {
+    nu = ( -dp11 )/( p2 - p11 );
+  }
+  else if(((*response) == 1) && ((*response2p) == 0)) {
+    nu = ( p1oneminusp1 - dp11 )/( p1 - p11 );
+  }
+  else {
+    nu = ( dp11 )/( p11 );
+  }
+
+  *workingweight = pow(dp11 - p1oneminusp1, 2)/(1 + p11 -p1 -p2) + pow(dp11, 2)/(p11*( p2 - p11 )) + pow(p1oneminusp1 - dp11, 2)/( p1 - p11 );
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+  {
+
+    if(((*response) == 0) && ((*response2p) == 0)) {
+        like += log(1 + p11 - p1 - p2);
+    }
+    else if(((*response) == 0) && ((*response2p) == 1)) {
+        like += log( p2 - p11 );
+    }
+    else if(((*response) == 1) && ((*response2p) == 0)) {
+        like += log( p1 - p11 );
+    }
+    else {
+        like += log( p11 );
+    }
+
+  }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_bivlogit_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  double el = ((*linpred[predstart_mumult+1+pos]));
+  *mu = el/(1+el);
+  }
+
+
+void DISTR_bivlogit_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): logit\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_bivlogit_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+     double el = exp((*worklin));
+    *pmu = el/(1+el);
+//    double t = 0;
+    }
+
+  }
 
 
 

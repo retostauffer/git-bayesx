@@ -291,6 +291,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("bivnormal_rho");
   families.push_back("bivprobit_mu");
   families.push_back("bivprobit_rho");
+  families.push_back("bivlogit_mu");
+  families.push_back("bivlogit_or");
   families.push_back("weibull_lambda");
   families.push_back("weibull_alpha");
   families.push_back("dagum_a");
@@ -331,6 +333,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("df");
   equationtypes.push_back("rho");
   equationtypes.push_back("alpha");
+  equationtypes.push_back("oddsratio");
 
   equationtype = stroption("equationtype",equationtypes,"mean");
 
@@ -704,6 +707,12 @@ void superbayesreg::clear(void)
   distr_bivprobit_rhos.erase(distr_bivprobit_rhos.begin(),distr_bivprobit_rhos.end());
   distr_bivprobit_rhos.reserve(20);
 
+  distr_bivlogit_mus.erase(distr_bivlogit_mus.begin(),distr_bivlogit_mus.end());
+  distr_bivlogit_mus.reserve(20);
+
+  distr_bivlogit_ors.erase(distr_bivlogit_ors.begin(),distr_bivlogit_ors.end());
+  distr_bivlogit_ors.reserve(20);
+
   distr_zeroadjusteds.erase(distr_zeroadjusteds.begin(),distr_zeroadjusteds.end());
   distr_zeroadjusteds.reserve(5);
 
@@ -945,6 +954,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_bivnormal_rhos = b.distr_bivnormal_rhos;
   distr_bivprobit_mus = b.distr_bivprobit_mus;
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
+  distr_bivlogit_mus = b.distr_bivlogit_mus;
+  distr_bivlogit_ors = b.distr_bivlogit_ors;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_dirichlets = b.distr_dirichlets;
@@ -1087,6 +1098,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_bivt_rhos = b.distr_bivt_rhos;
   distr_bivprobit_mus = b.distr_bivprobit_mus;
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
+  distr_bivlogit_mus = b.distr_bivlogit_mus;
+  distr_bivlogit_ors = b.distr_bivlogit_ors;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
   distr_dirichlets = b.distr_dirichlets;
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
@@ -1295,7 +1308,13 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": MAIN ALPHA REGRESSION_"+ rn;
       equations[modnr].paths = "MAIN_ALPHA_REGRESSION_"+ rn;
       }
- else if (equations[modnr].equationtype == "meanservant")
+  else if (equations[modnr].equationtype == "oddsratio")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN ODDSRATIO REGRESSION_"+ rn;
+      equations[modnr].paths = "MAIN_ODDSRATIO_REGRESSION_"+ rn;
+      }
+  else if (equations[modnr].equationtype == "meanservant")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": MAIN REGRESSION_" + rn;
@@ -1393,6 +1412,12 @@ void superbayesreg::make_header(unsigned & modnr)
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
                               ": RANDOM EFFECTS ALPHA REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_ALPHA";
+      }
+    else if (equations[modnr].equationtype == "meanservant")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS MEANSERVANT REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_MEANSERVANT";
       }
     }
 
@@ -2634,6 +2659,89 @@ bool superbayesreg::create_distribution(void)
 
      }
  //------------------------------ END: bivprobit_mu ----------------------------------
+
+
+
+    //---------------------------------- bivlogit_or -----------------------------------
+   else if (family.getvalue() == "bivlogit_or" && equationtype.getvalue()=="oddsratio")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_bivlogit_ors.push_back(DISTR_bivlogit_or(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_bivlogit_ors[distr_bivlogit_ors.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: bivlogit_or ---------------------------------
+
+  // ----------------------------------- bivlogit_mu ----------------------------------
+   else if ((family.getvalue() == "bivlogit_mu") &&
+            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+           )
+     {
+
+    // computemodeforstartingvalues = true;
+
+     unsigned pos;
+     if (equationtype.getvalue()=="mean")
+       pos = 1;
+     else
+       pos = 0;
+
+     distr_bivlogit_mus.push_back(DISTR_bivlogit_mu(&generaloptions,D.getCol(0),pos,w));
+
+     equations[modnr].distrp = &distr_bivlogit_mus[distr_bivlogit_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_bivlogit_ors.size() != 1)
+       {
+       outerror("ERROR: Equation for oddsratio is missing");
+       return true;
+       }
+
+     if ((equationtype.getvalue()=="mean") && (distr_bivlogit_mus.size() != 2))
+       {
+       outerror("ERROR: Two equations for mus required");
+       return true;
+       }
+
+     if (equationtype.getvalue()=="mean")
+       {
+
+
+       predict_mult_distrs.push_back(&distr_bivlogit_ors[distr_bivlogit_ors.size()-1]);
+       predict_mult_distrs.push_back(&distr_bivlogit_mus[distr_bivlogit_mus.size()-2]);
+       predict_mult_distrs.push_back(&distr_bivlogit_mus[distr_bivlogit_mus.size()-1]);
+
+       distr_bivlogit_mus[distr_bivlogit_mus.size()-2].response2 = distr_bivlogit_mus[distr_bivlogit_mus.size()-1].response;
+       distr_bivlogit_mus[distr_bivlogit_mus.size()-1].response2 = distr_bivlogit_mus[distr_bivlogit_mus.size()-2].response;
+       distr_bivlogit_ors[distr_bivlogit_ors.size()-1].response2 = distr_bivlogit_mus[distr_bivlogit_mus.size()-2].response;
+
+
+	   distr_bivlogit_ors[distr_bivlogit_ors.size()-1].distrp.push_back(
+       &distr_bivlogit_mus[distr_bivlogit_mus.size()-2]);
+
+       distr_bivlogit_ors[distr_bivlogit_ors.size()-1].distrp.push_back(
+       &distr_bivlogit_mus[distr_bivlogit_mus.size()-1]);
+
+       distr_bivlogit_mus[distr_bivlogit_mus.size()-2].distrp.push_back(
+       &distr_bivlogit_ors[distr_bivlogit_ors.size()-1]);
+
+       distr_bivlogit_mus[distr_bivlogit_mus.size()-2].distrp.push_back(
+       &distr_bivlogit_mus[distr_bivlogit_mus.size()-1]);
+
+       distr_bivlogit_mus[distr_bivlogit_mus.size()-1].distrp.push_back(
+       &distr_bivlogit_ors[distr_bivlogit_ors.size()-1]);
+
+       distr_bivlogit_mus[distr_bivlogit_mus.size()-1].distrp.push_back(
+       &distr_bivlogit_mus[distr_bivlogit_mus.size()-2]);
+
+        }
+
+     }
+ //------------------------------ END: bivlogit_mu ----------------------------------
 
 //----------------------------- dirichlet -------------------------------
   else if ((family.getvalue() == "dirichlet") && ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="alpha")))

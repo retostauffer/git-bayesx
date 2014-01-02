@@ -735,7 +735,7 @@ class __EXPORT_TYPE DISTR_betainf_nu : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_betainf_sigma2 -------------------------------
+//------------------ CLASS: DISTR_betainf_sigma2 -------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_betainf_sigma2 : public DISTR_gamlss
@@ -792,7 +792,7 @@ class __EXPORT_TYPE DISTR_betainf_sigma2 : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_betainf_tau -------------------------------
+//----------------------- CLASS: DISTR_betainf_tau -----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_betainf_tau : public DISTR_gamlss
@@ -866,7 +866,7 @@ class __EXPORT_TYPE DISTR_betainf_tau : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_dagum_p ------------------------------
+//----------------------- CLASS: DISTR_dagum_p ---------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_dagum_p : public DISTR_gamlss
@@ -921,7 +921,7 @@ class __EXPORT_TYPE DISTR_dagum_p : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_dagum_b --------------------------
+//----------------------- CLASS: DISTR_dagum_b ---------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_dagum_b : public DISTR_gamlss
@@ -976,7 +976,7 @@ class __EXPORT_TYPE DISTR_dagum_b : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_dagum_a ------------------------------
+//----------------------- CLASS: DISTR_dagum_a ---------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_dagum_a : public DISTR_gamlss
@@ -1051,7 +1051,7 @@ class __EXPORT_TYPE DISTR_dagum_a : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_weibull_alpha -----------------------------
+//----------------------- CLASS: DISTR_weibull_alpha ---------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_weibull_alpha : public DISTR_gamlss
@@ -1181,7 +1181,7 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gengamma_tau ------------------------------
+//----------------------- CLASS: DISTR_gengamma_tau ----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gengamma_tau : public DISTR_gamlss
@@ -1292,7 +1292,7 @@ class __EXPORT_TYPE DISTR_gengamma_sigma : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gengamma_mu ------------------------------
+//----------------------- CLASS: DISTR_gengamma_mu -----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gengamma_mu : public DISTR_gamlss
@@ -1425,7 +1425,7 @@ class __EXPORT_TYPE DISTR_gamma_sigma : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gamma_mu -------------------------------
+//----------------------- CLASS: DISTR_gamma_mu --------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gamma_mu : public DISTR_gamlss
@@ -1552,7 +1552,7 @@ class __EXPORT_TYPE DISTR_lognormal2_sigma : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_lognormal2_mu -------------------------------
+//----------------------- CLASS: DISTR_lognormal2_mu ---------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_lognormal2_mu : public DISTR_gamlss
@@ -1685,7 +1685,7 @@ class __EXPORT_TYPE DISTR_lognormal_sigma2 : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_lognormal_mu -------------------------------
+//----------------------- CLASS: DISTR_lognormal_mu ----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_lognormal_mu : public DISTR_gamlss
@@ -1760,7 +1760,7 @@ class __EXPORT_TYPE DISTR_lognormal_mu : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_truncnormal2_sigma ---------------------------
+//----------------------- CLASS: DISTR_truncnormal2_sigma ----------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_truncnormal2_sigma : public DISTR_gamlss
@@ -1941,9 +1941,9 @@ class __EXPORT_TYPE DISTR_normal2_sigma : public DISTR_gamlss
 
   };
 
-  //------------------------------------------------------------------------------
+  //-----------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_normal2_mu -------------------------------
-//------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_normal2_mu : public DISTR_gamlss
   {
@@ -2153,7 +2153,7 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_beta_sigma2 -------------------------------
+//----------------------- CLASS: DISTR_beta_sigma2 -----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_beta_sigma2 : public DISTR_gamlss
@@ -2211,7 +2211,7 @@ class __EXPORT_TYPE DISTR_beta_sigma2 : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_beta_mu -------------------------------
+//----------------------- CLASS: DISTR_beta_mu ---------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_beta_mu : public DISTR_gamlss
@@ -2286,7 +2286,7 @@ class __EXPORT_TYPE DISTR_beta_mu : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_cloglog -------------------------------
+//----------------------- CLASS: DISTR_cloglog ---------------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
@@ -2894,7 +2894,7 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_bivprobit_rho ------------------------
+//----------------------- CLASS: DISTR_bivprobit_rho ---------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_bivprobit_rho : public DISTR_gamlss
@@ -2961,7 +2961,7 @@ class __EXPORT_TYPE DISTR_bivprobit_rho : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_bivprobit_mu -------------------------------
+//----------------------- CLASS: DISTR_bivprobit_mu ----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
@@ -3037,6 +3037,139 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
 
   };
 
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivlogit_or -----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivlogit_or : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivlogit_or(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivlogit_or(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivlogit_or(const DISTR_bivlogit_or & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivlogit_or & operator=(const DISTR_bivlogit_or & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivlogit_or() {}
+
+  double get_intercept_start(void);
+
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivlogit_mu ----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivlogit_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivlogit_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivlogit_mu(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivlogit_mu(const DISTR_bivlogit_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivlogit_mu & operator=(const DISTR_bivlogit_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivlogit_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
 
 
 } // end: namespace MCMC
