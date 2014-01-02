@@ -1359,6 +1359,18 @@ void superbayesreg::make_header(unsigned & modnr)
                               ": RANDOM EFFECTS SCALE REGRESSION";
       equations[modnr].paths = "RANDOM_EFFECTS_SCALE";
       }
+	else if (equations[modnr].equationtype == "scale1")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SCALE1 REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SCALE1";
+      }
+	else if (equations[modnr].equationtype == "scale2")
+      {
+      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS SCALE2 REGRESSION";
+      equations[modnr].paths = "RANDOM_EFFECTS_SCALE2";
+      }
     else if (equations[modnr].equationtype == "location")
       {
       equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
