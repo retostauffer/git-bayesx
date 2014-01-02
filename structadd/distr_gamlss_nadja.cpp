@@ -4455,7 +4455,7 @@ DISTR_lognormal2_sigma::DISTR_lognormal2_sigma(GENERAL_OPTIONS * o,
 
   outpredictor = true;
   outexpectation = false;
-  predictor_name = "sigma2";
+  predictor_name = "sigma";
     linpredminlimit=-10;
   linpredmaxlimit=15;
 
