@@ -4636,6 +4636,7 @@ DISTR_lognormal2_mu::DISTR_lognormal2_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+  updateIWLS =false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -4800,6 +4801,25 @@ void DISTR_lognormal2_mu::outoptions(void)
   optionsp->out("\n");
   }
 
+void DISTR_lognormal2_mu::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinp;
+  double * workweight;
+
+  worktransformlinp = distrp[0]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+        *workweight = 1/(*worktransformlinp);
+    }
+
+  }
 
 void DISTR_lognormal2_mu::update_end(void)
   {
@@ -5025,6 +5045,7 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+  updateIWLS =false;
    // linpredminlimit=-10;
   //linpredmaxlimit=15;
   }
@@ -5191,6 +5212,25 @@ void DISTR_lognormal_mu::outoptions(void)
   optionsp->out("\n");
   }
 
+void DISTR_lognormal_mu::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinp;
+  double * workweight;
+
+  worktransformlinp = distrp[0]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+        *workweight = 1/(*worktransformlinp);
+    }
+
+  }
 
 void DISTR_lognormal_mu::update_end(void)
   {
@@ -5788,6 +5828,7 @@ DISTR_normal2_mu::DISTR_normal2_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+  updateIWLS =false;
 //    linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -5951,6 +5992,26 @@ void DISTR_normal2_mu::outoptions(void)
   optionsp->out("\n");
   }
 
+
+void DISTR_normal2_mu::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinp;
+  double * workweight;
+
+  worktransformlinp = distrp[0]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+        *workweight = 1/(*worktransformlinp);
+    }
+
+  }
 
 void DISTR_normal2_mu::update_end(void)
   {
@@ -6170,6 +6231,8 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+
+  updateIWLS = false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -6338,6 +6401,27 @@ void DISTR_normal_mu::outoptions(void)
   optionsp->out("  Response function (mu): identity\n");
   optionsp->out("\n");
   optionsp->out("\n");
+  }
+
+
+void DISTR_normal_mu::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinp;
+  double * workweight;
+
+  worktransformlinp = distrp[0]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+        *workweight = 1/(*worktransformlinp);
+    }
+
   }
 
 
@@ -8253,6 +8337,7 @@ void DISTR_bivt_mu::outoptions(void)
   }
 
 
+
 void DISTR_bivt_mu::update_end(void)
   {
 
@@ -8737,6 +8822,7 @@ DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+  updateIWLS = false;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
   }
@@ -8938,6 +9024,27 @@ void DISTR_bivnormal_mu::outoptions(void)
   optionsp->out("\n");
   }
 
+void DISTR_bivnormal_mu::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinr;
+  double * worktransformlins;
+  double * workweight;
+
+  worktransformlinr = distrp[0]->helpmat1.getV();
+  worktransformlins = distrp[2]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++)
+    {
+        *workweight = 1/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+    }
+
+  }
 
 void DISTR_bivnormal_mu::update_end(void)
   {
@@ -9539,6 +9646,13 @@ DISTR_bivlogit_or::DISTR_bivlogit_or(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  datamatrix d(nrobs,1,0.00001);
+
+  if (linpred_current==1)
+    linearpred1.plus(d);
+  else
+    linearpred2.plus(d);
+
 
   }
 

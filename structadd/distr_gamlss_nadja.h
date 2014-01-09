@@ -1623,6 +1623,8 @@ class __EXPORT_TYPE DISTR_lognormal2_mu : public DISTR_gamlss
 
   void update_end(void);
 
+  void update(void);
+
   };
 
 
@@ -1755,6 +1757,8 @@ class __EXPORT_TYPE DISTR_lognormal_mu : public DISTR_gamlss
   void outoptions(void);
 
   void update_end(void);
+
+  void update(void);
 
   };
 
@@ -2013,6 +2017,8 @@ class __EXPORT_TYPE DISTR_normal2_mu : public DISTR_gamlss
 
   void update_end(void);
 
+  void update(void);
+
   };
 
 
@@ -2145,6 +2151,8 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
   void outoptions(void);
 
   void update_end(void);
+
+  void update(void);
 
   };
 
@@ -2694,6 +2702,7 @@ class __EXPORT_TYPE DISTR_bivt_mu : public DISTR_gamlss
 
   void update_end(void);
 
+
   };
 
 
@@ -2890,6 +2899,8 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
   void update_end(void);
 
+  void update(void);
+
   };
 
 
@@ -3034,6 +3045,7 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
   void update(void);
 
   void update_end(void);
+
 
   };
 
