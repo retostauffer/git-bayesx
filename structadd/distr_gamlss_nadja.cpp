@@ -10216,7 +10216,7 @@ DISTR_BCCG_nu::DISTR_BCCG_nu(GENERAL_OPTIONS * o,
   predictor_name = "nu";
     linpredminlimit=-100;
   linpredmaxlimit=150;
-  datamatrix d(nrobs,1,0.00001);
+  datamatrix d(nrobs,1,0.01);
 
   if (linpred_current==1)
     linearpred1.plus(d);
@@ -10316,22 +10316,23 @@ void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
 	 double nup = (*linpred);
      double hilfs2 = (*response)/(*worktransformlin[1]);
      double hilfs = pow(hilfs2, nup);
-     double nu = 0;
-    if(nup != 0)
-    {
-        double nu = log((*response)) - log((*worktransformlin[1])) + (1/(pow(nup,3)*pow((*worktransformlin[0]),2)))*pow(hilfs-1,2) -
-                    (1/(pow(nup,2)*pow((*worktransformlin[0]),2)))*(hilfs-1)*hilfs*log(hilfs2);
-    }
+     double nu2sig2 =  pow(nup * (*worktransformlin[0]), 2);
 
-    *workingweight = pow(nu,2);
-    if(nup == 0)
-    {
-        *workingresponse = *linpred;
-    }
-    else
-    {
+     double nu = log((*response)) - log((*worktransformlin[1]));
+
+     if((*linpred) != 0)
+        nu += (1/(pow(nup,3)*pow((*worktransformlin[0]),2)))*pow(hilfs-1,2) -
+                    (1/(pow(nup,2)*pow((*worktransformlin[0]),2)))*(hilfs-1)*hilfs*log(hilfs2);
+
+
+    *workingweight = 3 * pow(hilfs - 1, 2) / (pow(nup, 2) * nu2sig2) - 4 * (hilfs - 1) * hilfs * log(hilfs2) / (nup * nu2sig2) +
+                     2 * pow(hilfs, 2) * pow(log(hilfs), 2) / nu2sig2 - hilfs * pow(log(hilfs), 2) / nu2sig2;
+
+    if((*workingweight<=0))
+        *workingweight = 0.0001;
+
+
        *workingresponse = *linpred + nu/(*workingweight);
-    }
 
 
     if (compute_like)
@@ -10520,7 +10521,7 @@ void DISTR_BCCG_sigma::compute_iwls_wweightschange_weightsone(
         *workingweight = ((2)/(pow(sig, 2)))*pow(log(hilfs2), 2);;
     }
 
-   // *workingweight = 2;
+    *workingweight = 2;
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -10800,14 +10801,16 @@ void DISTR_BCCG_mu::compute_iwls_wweightschange_weightsone(
         nu += ((1)/(pow((*worktransformlin[1]),2)))*log(hilfs2);
     }
 
-    if ((*worktransformlin[0])==0)
+  /*  if ((*worktransformlin[0])==0)
     {
         *workingweight = ((1)/(pow((*worktransformlin[1]),2)));
     }
     else
     {
         *workingweight = ((1)/(pow((*worktransformlin[1]),2)))*(2*pow(hilfs,2)-hilfs);
-    }
+    } */
+
+    *workingweight = 2 + 2/pow((*worktransformlin[1]),2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
