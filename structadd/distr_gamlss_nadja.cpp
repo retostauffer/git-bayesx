@@ -10200,6 +10200,680 @@ void DISTR_bivlogit_mu::update_end(void)
   }
 
 
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_BCCG_nu -------------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_BCCG_nu::DISTR_BCCG_nu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "BCCG distribution - nu";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "nu";
+    linpredminlimit=-100;
+  linpredmaxlimit=150;
+  datamatrix d(nrobs,1,0.00001);
+
+  if (linpred_current==1)
+    linearpred1.plus(d);
+  else
+    linearpred2.plus(d);
+
+  }
+
+
+DISTR_BCCG_nu::DISTR_BCCG_nu(const DISTR_BCCG_nu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_BCCG_nu & DISTR_BCCG_nu::operator=(
+                            const DISTR_BCCG_nu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+  void DISTR_BCCG_nu::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+double DISTR_BCCG_nu::get_intercept_start(void)
+  {
+  return log(response.mean(0));
+  }
+
+
+double DISTR_BCCG_nu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = exp(eta_sigma);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+	 double nup = (*linpred);
+	 double hilfs2 = (*response)/(*worktransformlin[1]);
+     double hilfs = pow(hilfs2, nup);
+
+
+     double l;
+
+       l =   - log((*worktransformlin[0])) + (nup-1)*log((*response)) - nup*log((*worktransformlin[1]));
+
+       if((nup) != 0)
+       {
+           l -= ((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           l -= ((1)/(2*pow((*worktransformlin[0]), 2)))*pow(log(hilfs2), 2);
+       }
+
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma equation
+  // *worktransformlin[0] = exp(eta_sigma);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+	 double nup = (*linpred);
+     double hilfs2 = (*response)/(*worktransformlin[1]);
+     double hilfs = pow(hilfs2, nup);
+     double nu = 0;
+    if(nup != 0)
+    {
+        double nu = log((*response)) - log((*worktransformlin[1])) + (1/(pow(nup,3)*pow((*worktransformlin[0]),2)))*pow(hilfs-1,2) -
+                    (1/(pow(nup,2)*pow((*worktransformlin[0]),2)))*(hilfs-1)*hilfs*log(hilfs2);
+    }
+
+    *workingweight = pow(nu,2);
+    if(nup == 0)
+    {
+        *workingresponse = *linpred;
+    }
+    else
+    {
+       *workingresponse = *linpred + nu/(*workingweight);
+    }
+
+
+    if (compute_like)
+      {
+
+        like -= - log((*worktransformlin[0])) + (nup-1)*log((*response)) - nup*log((*worktransformlin[1]));
+
+       if((nup) != 0)
+       {
+           like -= ((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           like -= ((1)/(2*pow((*worktransformlin[0]), 2)))*pow(log(hilfs2), 2);
+       }
+
+      }
+
+        std::ofstream out;
+  // helpmat1.prettyPrint(out);
+    out.open ("C:\\tmp\\res.raw", std::ofstream::out | std::ofstream::app);
+    out << nu ;
+    out << " " ;
+    out << *workingresponse ;
+    out << " " ;
+    out << *workingweight ;
+    out << " " ;
+    out << *worktransformlin[0] ;
+    out << " " ;
+    out << *worktransformlin[1] ;
+    out << " " ;
+    out << *linpred ;
+    out << " " ;
+    out << nup  << endl;
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_BCCG_nu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (nu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_BCCG_nu::update_end(void)
+  {
+
+  // helpmat1 stores tau
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_BCCG_sigma ----------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_BCCG_sigma::DISTR_BCCG_sigma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "BCCG distribution - sigma";
+    outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+  }
+
+
+DISTR_BCCG_sigma::DISTR_BCCG_sigma(const DISTR_BCCG_sigma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_BCCG_sigma & DISTR_BCCG_sigma::operator=(
+                            const DISTR_BCCG_sigma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_BCCG_sigma::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+double DISTR_BCCG_sigma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = exp(eta_nu);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+     double sig = exp(*linpred);
+     double hilfs2 = (*response)/(*worktransformlin[1]);
+     double hilfs = pow(hilfs2, (*worktransformlin[0]));
+
+     double l;
+
+       l =  - log(sig) ;
+
+       if(((*worktransformlin[0])) != 0)
+       {
+           l -= ((1)/(2*pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           l -= ((1)/(2*pow(sig, 2)))*pow(log(hilfs2), 2);
+       }
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_BCCG_sigma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = exp(eta_nu);
+  // *worklin[1] = linear predictor of mu equation
+  // *worktransformlin[1] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+     double sig = exp(*linpred);
+     double hilfs2 = (*response)/(*worktransformlin[1]);
+     double hilfs = pow(hilfs2, (*worktransformlin[0]));
+
+
+    double nu = -1;
+
+    if((*worktransformlin[0])!=0)
+    {
+        nu += ((1)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
+        *workingweight = ((2)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
+    }
+    else
+    {
+        nu += ((1)/(pow(sig, 2)))*pow(log(hilfs2), 2);
+        *workingweight = ((2)/(pow(sig, 2)))*pow(log(hilfs2), 2);;
+    }
+
+   // *workingweight = 2;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=   - log(sig) ;
+
+       if(((*worktransformlin[0])) != 0)
+       {
+           like -= ((1)/(2*pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           like -= ((1)/(2*pow(sig, 2)))*pow(log(hilfs2), 2);
+       }
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_BCCG_sigma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_BCCG_sigma::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_BCCG_mu -----------------------------
+//------------------------------------------------------------------------------
+
+
+void DISTR_BCCG_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_BCCG_mu::DISTR_BCCG_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+    family = "BCCG distribution - mu";
+    outpredictor = true;
+    outexpectation = true;
+    predictor_name = "mu";
+    linpredminlimit=-10;
+    linpredmaxlimit=15;
+  }
+
+
+DISTR_BCCG_mu::DISTR_BCCG_mu(const DISTR_BCCG_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_BCCG_mu & DISTR_BCCG_mu::operator=(
+                            const DISTR_BCCG_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_BCCG_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_nu
+   // *linpred[1] = eta_sigma
+   // *linpred[2] = eta_mu
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+	 double nup = (*linpred[0]);
+     double sig = exp(*linpred[1]);
+     double mu = exp(*linpred[2]);
+     double hilfs = pow((*response[2])/mu, nup);
+     double hilfs2 = (*response[2])/mu;
+
+     double l;
+
+       l =  -0.5*log(2*(PI)) - log(sig) + (nup-1)*log((*response[2])) - nup*log(mu);
+
+       if((nup) != 0)
+       {
+           l -= ((1)/(2*pow(sig*nup, 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           l -= ((1)/(2*pow(sig, 2)))*pow(log(hilfs2), 2);
+       }
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_BCCG_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+
+ double DISTR_BCCG_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_BCCG_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+ //   double x = ((*response[2])-(*param[2]))/pow((*param[1]),0.5);
+ //   double u = gsl_cdf_tdist_P(x, (*param[0]));
+ //   return u;
+    return 0;
+    }
+
+double DISTR_BCCG_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = nu;
+  // *worklin[1] = linear predictor of sigma equation
+  // *worktransformlin[1] = sigma;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = exp(*linpred);
+  double hilfs2 = (*response)/mu;
+  double hilfs = pow(hilfs2, (*worktransformlin[0]));
+
+  double l;
+
+       l = - (*worktransformlin[0])*log(mu);
+
+       if(((*worktransformlin[0])) != 0)
+       {
+           l -= ((1)/(2*pow((*worktransformlin[1])*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           l -= ((1)/(2*pow((*worktransformlin[1]), 2)))*pow(log(hilfs2), 2);
+       }
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_BCCG_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of nu equation
+  // *worktransformlin[0] = nu;
+  // *worklin[1] = linear predictor of sigma equation
+  // *worktransformlin[1] = sigma;
+
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = exp(*linpred);
+    double hilfs2 = (*response)/mu;
+    double hilfs = pow(hilfs2, (*worktransformlin[0]));
+
+    double nu = -(*worktransformlin[0]);
+
+    if((*worktransformlin[0])!=0)
+    {
+        nu += ((1)/((*worktransformlin[0])*pow((*worktransformlin[1]),2)))*(hilfs-1)*hilfs;
+    }
+    else
+    {
+        nu += ((1)/(pow((*worktransformlin[1]),2)))*log(hilfs2);
+    }
+
+    if ((*worktransformlin[0])==0)
+    {
+        *workingweight = ((1)/(pow((*worktransformlin[1]),2)));
+    }
+    else
+    {
+        *workingweight = ((1)/(pow((*worktransformlin[1]),2)))*(2*pow(hilfs,2)-hilfs);
+    }
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - (*worktransformlin[0])*log(mu);
+
+       if(((*worktransformlin[0])) != 0)
+       {
+           like -= ((1)/(2*pow((*worktransformlin[1])*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
+       }
+       else
+       {
+           like -= ((1)/(2*pow((*worktransformlin[1]), 2)))*pow(log(hilfs2), 2);
+       }
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_BCCG_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+
+       *mu = 0;
+
+
+  }
+
+
+void DISTR_BCCG_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_BCCG_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores exp(eta_a)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
 
 } // end: namespace MCMC
 

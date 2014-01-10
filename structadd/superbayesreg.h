@@ -151,6 +151,9 @@ using MCMC::DISTR_bivprobit_rho;
 using MCMC::DISTR_bivlogit_mu;
 using MCMC::DISTR_bivlogit_or;
 using MCMC::DISTR_dirichlet;
+using MCMC::DISTR_BCCG_mu;
+using MCMC::DISTR_BCCG_sigma;
+using MCMC::DISTR_BCCG_nu;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -422,6 +425,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_bivlogit_mu> distr_bivlogit_mus;
   vector<DISTR_bivlogit_or> distr_bivlogit_ors;
   vector<DISTR_dirichlet> distr_dirichlets;
+  vector<DISTR_BCCG_mu> distr_BCCG_mus;
+  vector<DISTR_BCCG_sigma> distr_BCCG_sigmas;
+  vector<DISTR_BCCG_nu> distr_BCCG_nus;
 
   bool create_distribution(void);
 
