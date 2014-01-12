@@ -10216,7 +10216,7 @@ DISTR_BCCG_nu::DISTR_BCCG_nu(GENERAL_OPTIONS * o,
   predictor_name = "nu";
     linpredminlimit=-100;
   linpredmaxlimit=150;
-  datamatrix d(nrobs,1,0.01);
+  datamatrix d(nrobs,1,0.0001);
 
   if (linpred_current==1)
     linearpred1.plus(d);
@@ -10249,7 +10249,7 @@ const DISTR_BCCG_nu & DISTR_BCCG_nu::operator=(
 
 double DISTR_BCCG_nu::get_intercept_start(void)
   {
-  return log(response.mean(0));
+  return 0;
   }
 
 
@@ -10274,17 +10274,8 @@ double DISTR_BCCG_nu::loglikelihood_weightsone(double * response,
 
      double l;
 
-       l =   - log((*worktransformlin[0])) + (nup-1)*log((*response)) - nup*log((*worktransformlin[1]));
-
-       if((nup) != 0)
-       {
-           l -= ((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           l -= ((1)/(2*pow((*worktransformlin[0]), 2)))*pow(log(hilfs2), 2);
-       }
-
+       l =   (nup)*log((*response)) - nup*log((*worktransformlin[1]))
+            - ((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);
 
 
   modify_worklin();
@@ -10318,15 +10309,12 @@ void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
      double hilfs = pow(hilfs2, nup);
      double nu2sig2 =  pow(nup * (*worktransformlin[0]), 2);
 
-     double nu = log((*response)) - log((*worktransformlin[1]));
-
-     if((*linpred) != 0)
-        nu += (1/(pow(nup,3)*pow((*worktransformlin[0]),2)))*pow(hilfs-1,2) -
-                    (1/(pow(nup,2)*pow((*worktransformlin[0]),2)))*(hilfs-1)*hilfs*log(hilfs2);
+     double nu = log((*response)) - log((*worktransformlin[1])) + (1/(pow(nup,3)*pow((*worktransformlin[0]),2)))*pow(hilfs-1,2) -
+                    (1/(nu2sig2))*(hilfs-1)*hilfs*log(hilfs2);
 
 
-    *workingweight = 3 * pow(hilfs - 1, 2) / (pow(nup, 2) * nu2sig2) - 4 * (hilfs - 1) * hilfs * log(hilfs2) / (nup * nu2sig2) +
-                     2 * pow(hilfs, 2) * pow(log(hilfs), 2) / nu2sig2 - hilfs * pow(log(hilfs), 2) / nu2sig2;
+    *workingweight = 3 * pow(hilfs - 1, 2) / (pow(nup,2) * nu2sig2) - 4 * (hilfs - 1) * hilfs * log(hilfs2) / (nup * nu2sig2) +
+                     2 * pow(hilfs, 2) * pow(log(hilfs2), 2) / nu2sig2 - hilfs * pow(log(hilfs2), 2) / nu2sig2;
 
     if((*workingweight<=0))
         *workingweight = 0.0001;
@@ -10338,20 +10326,11 @@ void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like -= - log((*worktransformlin[0])) + (nup-1)*log((*response)) - nup*log((*worktransformlin[1]));
-
-       if((nup) != 0)
-       {
-           like -= ((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           like -= ((1)/(2*pow((*worktransformlin[0]), 2)))*pow(log(hilfs2), 2);
-       }
-
+        like +=  (nup)*log((*response)) - nup*log((*worktransformlin[1]));
+                -((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);
       }
 
-        std::ofstream out;
+ /*     std::ofstream out;
   // helpmat1.prettyPrint(out);
     out.open ("C:\\tmp\\res.raw", std::ofstream::out | std::ofstream::app);
     out << nu ;
@@ -10367,6 +10346,7 @@ void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
     out << *linpred ;
     out << " " ;
     out << nup  << endl;
+*/
 
   modify_worklin();
 
@@ -10466,16 +10446,7 @@ double DISTR_BCCG_sigma::loglikelihood_weightsone(double * response,
 
      double l;
 
-       l =  - log(sig) ;
-
-       if(((*worktransformlin[0])) != 0)
-       {
-           l -= ((1)/(2*pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           l -= ((1)/(2*pow(sig, 2)))*pow(log(hilfs2), 2);
-       }
+       l =  - log(sig) - ((1)/(2*pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
 
 
   modify_worklin();
@@ -10508,18 +10479,9 @@ void DISTR_BCCG_sigma::compute_iwls_wweightschange_weightsone(
      double hilfs = pow(hilfs2, (*worktransformlin[0]));
 
 
-    double nu = -1;
+    double nu = -1 +  ((1)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
 
-    if((*worktransformlin[0])!=0)
-    {
-        nu += ((1)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
-        *workingweight = ((2)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
-    }
-    else
-    {
-        nu += ((1)/(pow(sig, 2)))*pow(log(hilfs2), 2);
-        *workingweight = ((2)/(pow(sig, 2)))*pow(log(hilfs2), 2);;
-    }
+  //  *workingweight = ((2)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
 
     *workingweight = 2;
 
@@ -10528,16 +10490,8 @@ void DISTR_BCCG_sigma::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=   - log(sig) ;
+        like +=   - log(sig) - ((1)/(2*pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
 
-       if(((*worktransformlin[0])) != 0)
-       {
-           like -= ((1)/(2*pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           like -= ((1)/(2*pow(sig, 2)))*pow(log(hilfs2), 2);
-       }
       }
 
   modify_worklin();
@@ -10677,16 +10631,9 @@ void DISTR_BCCG_mu::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-       l =  -0.5*log(2*(PI)) - log(sig) + (nup-1)*log((*response[2])) - nup*log(mu);
+       l =  -0.5*log(2*(PI)) - log(sig) + (nup-1)*log((*response[2])) - nup*log(mu)
+            - ((1)/(2*pow(sig*nup, 2)))*pow((hilfs-1) ,2);
 
-       if((nup) != 0)
-       {
-           l -= ((1)/(2*pow(sig*nup, 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           l -= ((1)/(2*pow(sig, 2)))*pow(log(hilfs2), 2);
-       }
 
 
     *deviance = -2*l;
@@ -10743,16 +10690,8 @@ double DISTR_BCCG_mu::loglikelihood_weightsone(double * response,
 
   double l;
 
-       l = - (*worktransformlin[0])*log(mu);
+       l = - (*worktransformlin[0])*log(mu) -  ((1)/(2*pow((*worktransformlin[1])*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
 
-       if(((*worktransformlin[0])) != 0)
-       {
-           l -= ((1)/(2*pow((*worktransformlin[1])*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           l -= ((1)/(2*pow((*worktransformlin[1]), 2)))*pow(log(hilfs2), 2);
-       }
 
   modify_worklin();
 
@@ -10790,16 +10729,8 @@ void DISTR_BCCG_mu::compute_iwls_wweightschange_weightsone(
     double hilfs2 = (*response)/mu;
     double hilfs = pow(hilfs2, (*worktransformlin[0]));
 
-    double nu = -(*worktransformlin[0]);
+    double nu = -(*worktransformlin[0]) +  ((1)/((*worktransformlin[0])*pow((*worktransformlin[1]),2)))*(hilfs-1)*hilfs;
 
-    if((*worktransformlin[0])!=0)
-    {
-        nu += ((1)/((*worktransformlin[0])*pow((*worktransformlin[1]),2)))*(hilfs-1)*hilfs;
-    }
-    else
-    {
-        nu += ((1)/(pow((*worktransformlin[1]),2)))*log(hilfs2);
-    }
 
   /*  if ((*worktransformlin[0])==0)
     {
@@ -10817,16 +10748,8 @@ void DISTR_BCCG_mu::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  - (*worktransformlin[0])*log(mu);
+        like +=  - (*worktransformlin[0])*log(mu) -  ((1)/(2*pow((*worktransformlin[1])*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
 
-       if(((*worktransformlin[0])) != 0)
-       {
-           like -= ((1)/(2*pow((*worktransformlin[1])*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);
-       }
-       else
-       {
-           like -= ((1)/(2*pow((*worktransformlin[1]), 2)))*pow(log(hilfs2), 2);
-       }
 
       }
 
