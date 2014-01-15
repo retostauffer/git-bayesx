@@ -10161,8 +10161,22 @@ void DISTR_bivlogit_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_bivlogit_mu::compute_mu_mult(vector<double *> linpred,double * mu)
   {
-  double el = ((*linpred[predstart_mumult+1+pos]));
-  *mu = el/(1+el);
+  double p1 = exp( (*linpred[predstart_mumult+2]) );
+  p1 = p1 / (1+p1);
+  double p2 = exp( (*linpred[predstart_mumult+1]) );
+  p2 = p2 / (1+p2);
+
+  double psi = exp((*linpred[predstart_mumult]));
+
+  double a = 1 + ( p1 + p2 ) * ( psi - 1 );
+  double b = - 4 * psi * ( psi - 1 ) * p1 * p2;
+  
+  if(psi == 1) {
+    *mu = ( p1 * p2 );
+  } else {
+    *mu = 0.5 * pow(( psi - 1), -1) * ( a - pow(( pow(a, 2) + b ), 0.5) );
+  }
+
   }
 
 
