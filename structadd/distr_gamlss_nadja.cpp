@@ -9974,9 +9974,30 @@ void DISTR_bivlogit_mu::compute_deviance_mult(vector<double *> response,
    else
      {
 
-     double l;
+    double odds = exp((*linpred[0]));
+    double p1 = exp( (*linpred[2]) );
+    p1 = p1 / (1+p1);
+    double p2 = exp( (*linpred[1]) );
+    p2 = p2 / (1+p2);
+    double psiminone = odds - 1;
+    double hilfs1 = 1 + (p1 +p2)*psiminone;
+    double hilfs2 = -4*odds*psiminone*p1*p2;
+    double p11 = 0.5*pow(psiminone, -1)*( hilfs1 - pow((pow(hilfs1,2) + hilfs2), 0.5));
 
-       l = 0;
+     double l = 0;
+
+    if(((*response[2]) == 0) && ((*response[1]) == 0)) {
+        l += log(1 + p11 - p1 - p2);
+    }
+    else if(((*response[2]) == 0) && ((*response[1]) == 1)) {
+        l += log( p2 - p11 );
+    }
+    else if(((*response[2]) == 1) && ((*response[1]) == 0)) {
+        l += log( p1 - p11 );
+    }
+    else {
+        l += log( p11 );
+    }
 
 
     *deviance = -2*l;
@@ -10170,7 +10191,7 @@ void DISTR_bivlogit_mu::compute_mu_mult(vector<double *> linpred,double * mu)
 
   double a = 1 + ( p1 + p2 ) * ( psi - 1 );
   double b = - 4 * psi * ( psi - 1 ) * p1 * p2;
-  
+
   if(psi == 1) {
     *mu = ( p1 * p2 );
   } else {
