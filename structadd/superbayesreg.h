@@ -154,6 +154,8 @@ using MCMC::DISTR_dirichlet;
 using MCMC::DISTR_BCCG_mu;
 using MCMC::DISTR_BCCG_sigma;
 using MCMC::DISTR_BCCG_nu;
+using MCMC::DISTR_gumbelcopula;
+using MCMC::DISTR_gumbelcopula_rho;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -428,6 +430,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_BCCG_mu> distr_BCCG_mus;
   vector<DISTR_BCCG_sigma> distr_BCCG_sigmas;
   vector<DISTR_BCCG_nu> distr_BCCG_nus;
+  vector<DISTR_gumbelcopula> distr_gumbelcopulas;
+  vector<DISTR_gumbelcopula_rho> distr_gumbelcopula_rhos;
 
   bool create_distribution(void);
 

@@ -7188,6 +7188,521 @@ void DISTR_cloglog::update_end(void)
 
   }
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_gumbelcopula_rho -------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gumbelcopula_rho::DISTR_gumbelcopula_rho(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Gumbel copula - rho";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "rho";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_gumbelcopula_rho::DISTR_gumbelcopula_rho(const DISTR_gumbelcopula_rho & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_gumbelcopula_rho & DISTR_gumbelcopula_rho::operator=(
+                            const DISTR_gumbelcopula_rho & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+double DISTR_gumbelcopula_rho::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_gumbelcopula_rho::compute_param(const double * linpred,double * param)
+  {
+   double arg = exp(*linpred);
+  *param = arg + 1;
+  }
+
+void DISTR_gumbelcopula_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_gumbelcopula_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+
+
+double DISTR_gumbelcopula_rho::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma_2 equation
+  // *worktransformlin[0] = sigma_2;
+  // *worklin[1] = linear predictor of sigma_1 equation
+  // *worktransformlin[1] = sigma_1;
+  // *worklin[2] = linear predictor of mu_2 equation
+  // *worktransformlin[2] = mu_2;
+  // *worklin[3] = linear predictor of mu_1 equation
+  // *worktransformlin[3] = mu_1;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double rho = exp((*linpred)) + 1;
+    double logu = log((*response));
+    double logv = log((*response2p));
+    double logurho = pow(-logu, rho);
+    double logvrho = pow(-logv, rho);
+    double arg = logurho + logvrho;
+    double copula = exp(-pow(arg, (1 / rho)));
+    double l;
+
+   /*  l = log(copula) + (rho -1) * (log(-logu) + log(-logv)) - logu - logv +
+                log(pow(arg, (2 / rho - 2))) + (rho -1 ) * pow(arg, (1 / rho - 2)); */
+
+    l = log(copula) + (rho -1) * (log(-logu) + log(-logv)) - logu - logv +
+                (2 / rho - 2) * log(logurho + logvrho) + log(1 + (rho - 1) * pow((logurho + logvrho), (-1 / rho)));
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_gumbelcopula_rho::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma_2 equation
+  // *worktransformlin[0] = sigma_2;
+  // *worklin[1] = linear predictor of sigma_1 equation
+  // *worktransformlin[1] = sigma_1;
+  // *worklin[2] = linear predictor of mu_2 equation
+  // *worktransformlin[2] = mu_2;
+  // *worklin[3] = linear predictor of mu_1 equation
+  // *worktransformlin[3] = mu_1;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  /*  double rho = exp((*linpred)) + 1;
+    double logu = log((*response));
+    double logv = log((*response2p));
+    double logurho = pow(-logu, rho);
+    double logvrho = pow(-logv, rho);
+    double arg = logurho + logvrho;
+    double onerho = (1 / rho);
+    double lcopula = (-pow(arg, onerho));
+    double hilfs = (1 / rho - 2);
+    double hilfs2 = (2 / rho - 2);
+    double arg2 = pow(arg, hilfs2);
+    double arg3 = pow(arg, hilfs);
+    double divi = (rho - 1) / rho;
+ /*   double abl = logurho * (rho - 1) * log(-logu) + logvrho * (rho - 1) * log(-logv);
+    double abl2 = abl2 = abl + pow(rho - 1, 2) * (logurho * pow(log(-logu), 2) + logvrho * pow(log(-logv), 2));
+    double nenner = arg2 + (rho -1) *  arg3;
+    double zaehler1 = arg2 * (abl * (2 / rho - 2) / arg + log(arg) * (-2 * (rho - 1) / pow(rho, 2)));
+    double zaehler2 = (rho - 1) * arg3 + (rho - 1) * arg3 * (abl * hilfs / arg + log(arg) * (-(rho - 1)/pow(rho, 2)));
+    double zaehler = zaehler1 + zaehler2;
+
+    double nu = -lcopula * (log(arg) * (-(rho - 1) / pow(rho, 2)) + (1 / rho) * abl / arg) +
+                (rho - 1) * (log(-logu) + log(-logv)) +
+                (zaehler1 + zaehler2) / (arg2 + (rho -1) * arg3);
+
+    *workingweight =  lcopula * pow((abl * onerho / arg - (rho - 1) * log(arg) / pow(rho, 2)), 2) +
+                      lcopula * (abl2 * onerho / arg - pow(abl / arg, 2) * onerho - 2 * abl * (rho - 1) / (arg * pow(rho, 2)) + log(arg) * (rho -1) * (-1 + 2 * (rho - 1) / rho) / pow(rho, 2)) -
+                      (rho - 1) * (log(-logu) + log(-logv)) -
+                      pow(arg2 * (hilfs2 * abl / arg + log(arg) * (-2 * (rho - 1) / pow(rho, 2))), 2) / nenner -
+                      - (arg2 * (-4 * divi * abl / (arg * rho) + hilfs2 * abl2 / arg - hilfs2 * pow(abl / arg, 2) - 2 * divi * log(arg) / rho + 3 * pow(divi, 2) * log(arg) / rho)) / nenner
+                      - zaehler2 / nenner
+                      - ((rho - 1) * arg3 * (abl * hilfs / arg - divi * log(arg) / rho) * (1 + abl * hilfs / arg - divi * log(arg) / rho)) / nenner
+                      - (arg3 * (abl2 * hilfs / arg - hilfs * pow(abl / arg, 2) - 2 * divi * abl / (arg * rho) - log(arg) * divi / rho + 2 *  log(arg) * pow(divi, 2) / rho)) / nenner
+                      + pow(zaehler / nenner, 2); */
+    double rho = exp((*linpred)) + 1;
+    double logu = log((*response));
+    double logv = log((*response2p));
+    double logurho = pow(-logu, rho);
+    double logvrho = pow(-logv, rho);
+    double arg = logurho + logvrho;
+    double onerho = (1 / rho);
+    double hilfs = (rho - 1) / pow(rho, 2);
+    double hilfs2 = (2 / rho - 2);
+    double lcopula = (-pow(arg, onerho));
+    double grho = logurho + logvrho;
+    double hilfs4 = pow(grho, onerho);
+    double hilfs5 = pow(grho, (-onerho));
+    double abl = logurho * (rho - 1) * log(-logu) + logvrho * (rho - 1) * log(-logv);
+    double hilfs3 = abl / (grho * rho) - log(grho) * hilfs;
+    double abl2 = abl + pow(rho - 1, 2) * (logurho * pow(log(-logu), 2) + logvrho * pow(log(-logv), 2));
+    double zaehler = (rho - 1) * hilfs5 * (1 + (-hilfs3));
+    double nenner = 1 + (rho - 1) * hilfs5;
+
+    double nu = -hilfs4 * (hilfs3) +
+                (rho - 1) * (log(-logu) + log(-logv)) + hilfs2 * abl / grho - 2 * hilfs * log(grho) + zaehler / nenner;
+
+    *workingweight = hilfs4 * (pow(hilfs3, 2) + abl2 * onerho / grho - pow(abl / grho, 2) * onerho - 2 * abl * hilfs / grho - hilfs * log(grho) + 2 * hilfs * onerho * log(grho))
+                      - (rho - 1) * (log(-logu) + log(-logv)) + 3 * hilfs * abl /grho - hilfs2 * (abl2 / grho - pow(abl / grho, 2)) +
+                      2 * hilfs * log(grho) - 2 * hilfs * onerho * log(grho) -
+                      (rho - 1) * hilfs5 * (1 - hilfs3) * (1 - hilfs3)/ nenner -
+                      (rho - 1) * hilfs5 * (-1) * (abl2 * onerho / grho - pow(abl / grho, 2) * onerho - 2 * abl * hilfs / grho - hilfs * log(grho) + 2 * hilfs * onerho * log(grho)) / nenner
+                      + (zaehler * (nenner - 1) + (rho - 1) * hilfs5 * (-hilfs3)) / pow(nenner, 2);
+
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+      //  like += lcopula + (rho -1) * (log(-logu) + log(-logv)) - logu - logv +
+       //         log(arg2 + (rho -1 ) * arg3);
+          like += lcopula + (rho -1) * (log(-logu) + log(-logv)) - logu - logv +
+                (2 / rho - 2) * log(logurho + logvrho) + log(1 + (rho - 1) * pow((logurho + logvrho), (-1 / rho)));
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_gumbelcopula_rho::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (rho): shifted exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gumbelcopula_rho::update_end(void)
+  {
+
+  // helpmat1 stores rho2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin) + 1;
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_gumbelcopula ------------------------
+//------------------------------------------------------------------------------
+void DISTR_gumbelcopula::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+            if((*workresp) > 1 )
+            {
+                errors=true;
+                errormessages.push_back("ERROR: cdfs of marginals take values inbetween zero and one!\n");
+            }
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_gumbelcopula::DISTR_gumbelcopula(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  pos =p;
+  family = "Gumbel copula";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+  updateIWLS = false;
+//    linpredminlimit=-10;
+//  linpredmaxlimit=15;
+  }
+
+
+DISTR_gumbelcopula::DISTR_gumbelcopula(const DISTR_gumbelcopula & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_gumbelcopula & DISTR_gumbelcopula::operator=(
+                            const DISTR_gumbelcopula & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+void DISTR_gumbelcopula::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
+   // *linpred[0] = eta_rho
+   // *linpred[1] = eta_sigma_2
+   // *linpred[2] = eta_mu_2
+   // *linpred[3] = eta_sigma_1
+   // *linpred[4] = eta_mu_1
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+
+     double l;
+
+       l = 0;
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_gumbelcopula::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_gumbelcopula::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+void DISTR_gumbelcopula::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_gumbelcopula::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+
+
+double DISTR_gumbelcopula::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+  // *worklin[2] = linear predictor of sigma_1 equation
+  // *worktransformlin[2] = sigma_1;
+  // *worklin[3] = linear predictor of sigma_2 equation
+  // *worktransformlin[3] = sigma_2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double l;
+
+
+     l = 0;
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_gumbelcopula::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+  // *worklin[2] = linear predictor of sigma_1 equation
+  // *worktransformlin[2] = sigma_1;
+  // *worklin[3] = linear predictor of sigma_2 equation
+  // *worktransformlin[3] = sigma_2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+
+    double nu = 0;
+
+    *workingweight = 1;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += 0;
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_gumbelcopula::compute_mu_mult(vector<double *> linpred,double * mu)
+  {
+  *mu = 1 - 1 / exp((*linpred[predstart_mumult+2]));
+  }
+
+
+void DISTR_gumbelcopula::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gumbelcopula::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DISTR_dirichlet ---------------------------
 //------------------------------------------------------------------------------

@@ -309,6 +309,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("BCCG_mu");
   families.push_back("BCCG_sigma");
   families.push_back("BCCG_nu");
+  families.push_back("gumbelcopula");
+  families.push_back("gumbelcopula_rho");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -767,6 +769,12 @@ void superbayesreg::clear(void)
   distr_BCCG_nus.erase(distr_BCCG_nus.begin(),distr_BCCG_nus.end());
   distr_BCCG_nus.reserve(20);
 
+  distr_gumbelcopulas.erase(distr_gumbelcopulas.begin(),distr_gumbelcopulas.end());
+  distr_gumbelcopulas.reserve(20);
+
+  distr_gumbelcopula_rhos.erase(distr_gumbelcopula_rhos.begin(),distr_gumbelcopula_rhos.end());
+  distr_gumbelcopula_rhos.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -985,7 +993,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_BCCG_mus = b.distr_BCCG_mus;
   distr_BCCG_sigmas = b.distr_BCCG_sigmas;
   distr_BCCG_nus = b.distr_BCCG_nus;
-
+  distr_gumbelcopulas = b.distr_gumbelcopulas;
+  distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1132,6 +1141,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_BCCG_mus = b.distr_BCCG_mus;
   distr_BCCG_sigmas = b.distr_BCCG_sigmas;
   distr_BCCG_nus = b.distr_BCCG_nus;
+  distr_gumbelcopulas = b.distr_gumbelcopulas;
+  distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -3440,6 +3451,88 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: cloglog -----------------------------
+
+//----------------------------- gumbelcopula_rho ----------------------
+  else if (family.getvalue() == "gumbelcopula_rho" && equationtype.getvalue()=="rho")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_gumbelcopula_rhos.push_back(DISTR_gumbelcopula_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
+
+    }
+//-------------------------- END: gumbelcopula_rho ---------------------
+
+// ----------------------------------- gumbelcopula ----------------------
+   else if ((family.getvalue() == "gumbelcopula") &&
+            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+           )
+     {
+
+    // computemodeforstartingvalues = true;
+
+     unsigned pos;
+     if (equationtype.getvalue()=="mean")
+       pos = 1;
+     else
+       pos = 0;
+
+     distr_gumbelcopulas.push_back(DISTR_gumbelcopula(&generaloptions,D.getCol(0),pos,w));
+
+     equations[modnr].distrp = &distr_gumbelcopulas[distr_gumbelcopulas.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_gumbelcopula_rhos.size() != 1)
+       {
+       outerror("ERROR: Equation for correlation parameter rho is missing");
+       return true;
+       }
+
+     if ((equationtype.getvalue()=="mean") && (distr_gumbelcopulas.size() != 2))
+       {
+       outerror("ERROR: Two equations for marginal distributions required");
+       return true;
+       }
+
+     if (equationtype.getvalue()=="mean")
+       {
+
+
+       predict_mult_distrs.push_back(&distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
+       predict_mult_distrs.push_back(&distr_gumbelcopulas[distr_gumbelcopulas.size()-2]);
+       predict_mult_distrs.push_back(&distr_gumbelcopulas[distr_gumbelcopulas.size()-1]);
+
+       distr_gumbelcopulas[distr_gumbelcopulas.size()-2].response2 = distr_gumbelcopulas[distr_gumbelcopulas.size()-1].response;
+       distr_gumbelcopulas[distr_gumbelcopulas.size()-1].response2 = distr_gumbelcopulas[distr_gumbelcopulas.size()-2].response;
+       distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].response2 = distr_gumbelcopulas[distr_gumbelcopulas.size()-2].response;
+
+
+	   distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].distrp.push_back(
+       &distr_gumbelcopulas[distr_gumbelcopulas.size()-2]);
+
+       distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].distrp.push_back(
+       &distr_gumbelcopulas[distr_gumbelcopulas.size()-1]);
+
+       distr_gumbelcopulas[distr_gumbelcopulas.size()-2].distrp.push_back(
+       &distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
+
+       distr_gumbelcopulas[distr_gumbelcopulas.size()-2].distrp.push_back(
+       &distr_gumbelcopulas[distr_gumbelcopulas.size()-1]);
+
+       distr_gumbelcopulas[distr_gumbelcopulas.size()-1].distrp.push_back(
+       &distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
+
+       distr_gumbelcopulas[distr_gumbelcopulas.size()-1].distrp.push_back(
+       &distr_gumbelcopulas[distr_gumbelcopulas.size()-2]);
+
+        }
+
+     }
+ //------------------------------ END: gumbelcopula ---------------------------
 
 
 //---------------------------------- ZIP pi ------------------------------------
