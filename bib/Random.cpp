@@ -1579,6 +1579,18 @@ double incomplete_beta (double a, double b, double x)
     return Ix;
 }
 
+double sgn (double x)
+{
+
+    if (x > 0)
+        return 1;
+    else if(x < 0)
+        return -1;
+    else
+        return 0;
+}
+
+
 double incomplete_gamma (double a, double x)
 {
     const int ITMAX = 100;

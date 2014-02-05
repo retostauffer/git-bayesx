@@ -256,6 +256,9 @@ double __EXPORT_TYPE n_choose_k(int n, double k);
 // returns incomplete beta function
 double __EXPORT_TYPE incomplete_beta(double a, double b, double x);
 
+// returns signum of a number
+double __EXPORT_TYPE sgn(double x);
+
 // returns incomplete gamma function
 double __EXPORT_TYPE incomplete_gamma(double a, double x);
 
