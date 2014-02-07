@@ -72,7 +72,7 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
   void compute_mu(const double * linpred,double * mu);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,
@@ -279,7 +279,7 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
   void compute_mu(const double * linpred,double * mu);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void compute_deviance(const double * response, const double * weight,
                         const double * mu,double * deviance,

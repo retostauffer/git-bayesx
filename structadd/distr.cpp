@@ -612,7 +612,7 @@ void DISTR::compute_mu(const double * linpred,double * mu)
   }
 
 
-void DISTR::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   }

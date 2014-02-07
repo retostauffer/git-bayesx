@@ -156,6 +156,15 @@ using MCMC::DISTR_BCCG_sigma;
 using MCMC::DISTR_BCCG_nu;
 using MCMC::DISTR_gumbelcopula;
 using MCMC::DISTR_gumbelcopula_rho;
+using MCMC::DISTR_sfa_mu_y;
+using MCMC::DISTR_sfa_mu_u;
+using MCMC::DISTR_sfa_sigma_u;
+using MCMC::DISTR_sfa_sigma_v;
+using MCMC::DISTR_sfa2_mu_y;
+using MCMC::DISTR_sfa2_mu_u;
+using MCMC::DISTR_sfa2_sigma_u;
+using MCMC::DISTR_sfa2_sigma_v;
+using MCMC::DISTR_sfa_alpha;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -432,6 +441,15 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_BCCG_nu> distr_BCCG_nus;
   vector<DISTR_gumbelcopula> distr_gumbelcopulas;
   vector<DISTR_gumbelcopula_rho> distr_gumbelcopula_rhos;
+  vector<DISTR_sfa_mu_y> distr_sfa_mu_ys;
+  vector<DISTR_sfa_mu_u> distr_sfa_mu_us;
+  vector<DISTR_sfa_sigma_u> distr_sfa_sigma_us;
+  vector<DISTR_sfa_sigma_v> distr_sfa_sigma_vs;
+  vector<DISTR_sfa_alpha> distr_sfa_alphas;
+  vector<DISTR_sfa2_mu_y> distr_sfa2_mu_ys;
+  vector<DISTR_sfa2_mu_u> distr_sfa2_mu_us;
+  vector<DISTR_sfa2_sigma_u> distr_sfa2_sigma_us;
+  vector<DISTR_sfa2_sigma_v> distr_sfa2_sigma_vs;
 
   bool create_distribution(void);
 

@@ -542,7 +542,7 @@ void DISTR_negbin_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_negbin_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_negbin_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = exp(*linpred[predstart_mumult+1]);
   }
@@ -944,7 +944,7 @@ void DISTR_zip_cloglog_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_zip_cloglog_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_zip_cloglog_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double el = exp(-exp(*linpred[predstart_mumult]));
 
@@ -1105,7 +1105,7 @@ double DISTR_gamlss::loglikelihood_weightsone(double * response,
   }
 
 
-void DISTR_gamlss::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_gamlss::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   }
 
@@ -1456,7 +1456,7 @@ double DISTR_negbinzip_mu::loglikelihood_weightsone(double * response,
   }
 
 
-void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_negbinzip_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   double lambda;
@@ -2628,7 +2628,7 @@ double DISTR_ziplambda::loglikelihood_weightsone(
   }
 
 
-void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_ziplambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   double lambda;

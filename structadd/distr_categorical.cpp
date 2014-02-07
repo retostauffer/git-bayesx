@@ -364,7 +364,7 @@ void DISTR_binomial::compute_mu(const double * linpred,double * mu)
   }
 
 
-void DISTR_binomial::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_binomial::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double el = exp(*linpred[predstart_mumult]);
   *mu = el/(1+el);
@@ -668,7 +668,7 @@ void DISTR_binomialprobit::compute_mu(const double * linpred,double * mu)
   }
 
 
-void DISTR_binomialprobit::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_binomialprobit::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = randnumbers::Phi2(*linpred[predstart_mumult]);
   }

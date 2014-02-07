@@ -102,7 +102,7 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
                                               double & like,
                                               const bool & compute_like);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void compute_param(const double * linpred,double * param);
 
@@ -254,7 +254,7 @@ class __EXPORT_TYPE DISTR_negbin_mu : public DISTR_gamlss
                                               double & like,
                                               const bool & compute_like);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void outoptions(void);
 
@@ -328,7 +328,7 @@ class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
                                               double & like,
                                               const bool & compute_like);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void outoptions(void);
 
@@ -482,7 +482,7 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
                       double * workingresponse, const bool & like);
 
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void outoptions(void);
 
@@ -758,7 +758,7 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                       double * workingresponse, const bool & like);
 
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void outoptions(void);
 

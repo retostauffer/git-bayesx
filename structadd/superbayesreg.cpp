@@ -311,6 +311,16 @@ void superbayesreg::create_hregress(void)
   families.push_back("BCCG_nu");
   families.push_back("gumbelcopula");
   families.push_back("gumbelcopula_rho");
+  families.push_back("sfa_sigma_v");
+  families.push_back("sfa_sigma_u");
+  families.push_back("sfa_mu_y");
+  families.push_back("sfa_mu_u");
+  families.push_back("sfa_alpha");
+  families.push_back("sfa2_mu_y");
+  families.push_back("sfa2_sigma_v");
+  families.push_back("sfa2_sigma_u");
+  families.push_back("sfa2_mu_u");
+  families.push_back("sfa2_mu_y");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -775,6 +785,33 @@ void superbayesreg::clear(void)
   distr_gumbelcopula_rhos.erase(distr_gumbelcopula_rhos.begin(),distr_gumbelcopula_rhos.end());
   distr_gumbelcopula_rhos.reserve(20);
 
+  distr_sfa_mu_ys.erase(distr_sfa_mu_ys.begin(),distr_sfa_mu_ys.end());
+  distr_sfa_mu_ys.reserve(20);
+
+  distr_sfa_mu_us.erase(distr_sfa_mu_us.begin(),distr_sfa_mu_us.end());
+  distr_sfa_mu_us.reserve(20);
+
+  distr_sfa_sigma_us.erase(distr_sfa_sigma_us.begin(),distr_sfa_sigma_us.end());
+  distr_sfa_sigma_us.reserve(20);
+
+  distr_sfa_sigma_vs.erase(distr_sfa_sigma_vs.begin(),distr_sfa_sigma_vs.end());
+  distr_sfa_sigma_vs.reserve(20);
+
+  distr_sfa_alphas.erase(distr_sfa_alphas.begin(),distr_sfa_alphas.end());
+  distr_sfa_alphas.reserve(20);
+
+  distr_sfa2_mu_ys.erase(distr_sfa2_mu_ys.begin(),distr_sfa2_mu_ys.end());
+  distr_sfa2_mu_ys.reserve(20);
+
+  distr_sfa2_mu_us.erase(distr_sfa2_mu_us.begin(),distr_sfa2_mu_us.end());
+  distr_sfa2_mu_us.reserve(20);
+
+  distr_sfa2_sigma_us.erase(distr_sfa2_sigma_us.begin(),distr_sfa2_sigma_us.end());
+  distr_sfa2_sigma_us.reserve(20);
+
+  distr_sfa2_sigma_vs.erase(distr_sfa2_sigma_vs.begin(),distr_sfa2_sigma_vs.end());
+  distr_sfa2_sigma_vs.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -995,6 +1032,15 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopulas = b.distr_gumbelcopulas;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
+  distr_sfa2_mu_ys = b.distr_sfa2_mu_ys;
+  distr_sfa2_mu_us = b.distr_sfa2_mu_us;
+  distr_sfa2_sigma_us = b.distr_sfa2_sigma_us;
+  distr_sfa2_sigma_vs = b.distr_sfa2_sigma_vs;
+  distr_sfa_mu_ys = b.distr_sfa_mu_ys;
+  distr_sfa_mu_us = b.distr_sfa_mu_us;
+  distr_sfa_sigma_us = b.distr_sfa_sigma_us;
+  distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
+  distr_sfa_alphas = b.distr_sfa_alphas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1143,6 +1189,15 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopulas = b.distr_gumbelcopulas;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
+  distr_sfa2_mu_ys = b.distr_sfa2_mu_ys;
+  distr_sfa2_mu_us = b.distr_sfa2_mu_us;
+  distr_sfa2_sigma_us = b.distr_sfa2_sigma_us;
+  distr_sfa2_sigma_vs = b.distr_sfa2_sigma_vs;
+  distr_sfa_mu_ys = b.distr_sfa_mu_ys;
+  distr_sfa_mu_us = b.distr_sfa_mu_us;
+  distr_sfa_sigma_us = b.distr_sfa_sigma_us;
+  distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
+  distr_sfa_alphas = b.distr_sfa_alphas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -3720,6 +3775,308 @@ bool superbayesreg::create_distribution(void)
 
      }
  //------------------------------ END: BCCG_mu ----------------------------------
+
+
+ //-------------------------------- sfa_alpha ---------------------------------
+  else if (family.getvalue() == "sfa_alpha" && equationtype.getvalue()=="alpha")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa_alphas.push_back(DISTR_sfa_alpha(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa_alphas[distr_sfa_alphas.size()-1];
+    equations[modnr].pathd = "";
+
+  //  predict_mult_distrs.push_back(&distr_sfa_alphas[distr_sfa_alphas.size()-1]);
+
+    }
+//---------------------------- END: sfa_alpha -------------------------------
+
+ //-------------------------------- sfa_sigma_v ---------------------------------
+  else if (family.getvalue() == "sfa_sigma_v" && equationtype.getvalue()=="scale")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa_sigma_vs.push_back(DISTR_sfa_sigma_v(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1];
+    equations[modnr].pathd = "";
+
+ //   predict_mult_distrs.push_back(&distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1]);
+
+    }
+//---------------------------- END: sfa_sigma_v -------------------------------
+
+ //-------------------------------- sfa_sigma_u ---------------------------------
+  else if (family.getvalue() == "sfa_sigma_u" && equationtype.getvalue()=="scale")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa_sigma_us.push_back(DISTR_sfa_sigma_u(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1];
+    equations[modnr].pathd = "";
+
+  //  predict_mult_distrs.push_back(&distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1]);
+
+    }
+//---------------------------- END: sfa_sigma_u -------------------------------
+
+ //-------------------------------- sfa_mu_u ---------------------------------
+  else if (family.getvalue() == "sfa_mu_u" && equationtype.getvalue()=="mu")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa_mu_us.push_back(DISTR_sfa_mu_u(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa_mu_us[distr_sfa_mu_us.size()-1];
+    equations[modnr].pathd = "";
+
+  //  predict_mult_distrs.push_back(&distr_sfa_mu_us[distr_sfa_mu_us.size()-1]);
+
+    }
+//---------------------------- END: sfa_mu_u -------------------------------
+
+
+//------------------------------- sfa_mu_y ------------------------------------
+  else if (family.getvalue() == "sfa_mu_y" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa_mu_ys.push_back(DISTR_sfa_mu_y(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1];
+    equations[modnr].pathd = "";
+
+ //   predict_mult_distrs.push_back(&distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1]);
+
+    if (distr_sfa_alphas.size() != 1)
+      {
+      outerror("ERROR: Equation for alpha is missing");
+      return true;
+      }
+    if (distr_sfa_sigma_vs.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma_v is missing");
+      return true;
+      }
+    if (distr_sfa_sigma_us.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma_u is missing");
+      return true;
+      }
+    if (distr_sfa_mu_us.size() != 1)
+      {
+      outerror("ERROR: Equation for mu_u is missing");
+      return true;
+      }
+    else
+      {
+
+     predict_mult_distrs.push_back(&distr_sfa_alphas[distr_sfa_alphas.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa_mu_us[distr_sfa_mu_us.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1]);
+
+
+      distr_sfa_alphas[distr_sfa_alphas.size()-1].distrp.push_back
+      (&distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1]);
+
+      distr_sfa_alphas[distr_sfa_alphas.size()-1].distrp.push_back
+      (&distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1]);
+
+      distr_sfa_alphas[distr_sfa_alphas.size()-1].distrp.push_back
+      (&distr_sfa_mu_us[distr_sfa_mu_us.size()-1]);
+
+      distr_sfa_alphas[distr_sfa_alphas.size()-1].distrp.push_back
+      (&distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1]);
+
+      distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa_alphas[distr_sfa_alphas.size()-1]);
+
+      distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1]);
+
+      distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa_mu_us[distr_sfa_mu_us.size()-1]);
+
+      distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1]);
+
+      distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa_alphas[distr_sfa_alphas.size()-1]);
+
+      distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1]);
+
+      distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa_mu_us[distr_sfa_mu_us.size()-1]);
+
+      distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1]);
+
+      distr_sfa_mu_us[distr_sfa_mu_us.size()-1].distrp.push_back
+      (&distr_sfa_alphas[distr_sfa_alphas.size()-1]);
+
+      distr_sfa_mu_us[distr_sfa_mu_us.size()-1].distrp.push_back
+      (&distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1]);
+
+      distr_sfa_mu_us[distr_sfa_mu_us.size()-1].distrp.push_back
+      (&distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1]);
+
+      distr_sfa_mu_us[distr_sfa_mu_us.size()-1].distrp.push_back
+      (&distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1]);
+
+      distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa_alphas[distr_sfa_alphas.size()-1]);
+
+      distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa_sigma_vs[distr_sfa_sigma_vs.size()-1]);
+
+      distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa_sigma_us[distr_sfa_sigma_us.size()-1]);
+
+      distr_sfa_mu_ys[distr_sfa_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa_mu_us[distr_sfa_mu_us.size()-1]);
+      }
+
+    }
+//------------------------------- END: sfa_mu_y -------------------------------
+
+
+//-------------------------------- sfa2_sigma_v ---------------------------------
+  else if (family.getvalue() == "sfa2_sigma_v" && equationtype.getvalue()=="scale")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa2_sigma_vs.push_back(DISTR_sfa2_sigma_v(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1];
+    equations[modnr].pathd = "";
+
+ //   predict_mult_distrs.push_back(&distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1]);
+
+    }
+//---------------------------- END: sfa2_sigma_v -------------------------------
+
+ //-------------------------------- sfa2_sigma_u ---------------------------------
+  else if (family.getvalue() == "sfa2_sigma_u" && equationtype.getvalue()=="scale")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa2_sigma_us.push_back(DISTR_sfa2_sigma_u(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1];
+    equations[modnr].pathd = "";
+
+  //  predict_mult_distrs.push_back(&distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1]);
+
+    }
+//---------------------------- END: sfa2_sigma_u -------------------------------
+
+ //-------------------------------- sfa2_mu_u ---------------------------------
+  else if (family.getvalue() == "sfa2_mu_u" && equationtype.getvalue()=="mu")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa2_mu_us.push_back(DISTR_sfa2_mu_u(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1];
+    equations[modnr].pathd = "";
+
+  //  predict_mult_distrs.push_back(&distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1]);
+
+    }
+//---------------------------- END: sfa2_mu_u -------------------------------
+
+
+//------------------------------- sfa2_mu_y ------------------------------------
+  else if (family.getvalue() == "sfa2_mu_y" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_sfa2_mu_ys.push_back(DISTR_sfa2_mu_y(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1];
+    equations[modnr].pathd = "";
+
+ //   predict_mult_distrs.push_back(&distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1]);
+
+    if (distr_sfa2_sigma_vs.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma_v is missing");
+      return true;
+      }
+    if (distr_sfa2_sigma_us.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma_u is missing");
+      return true;
+      }
+    if (distr_sfa2_mu_us.size() != 1)
+      {
+      outerror("ERROR: Equation for mu_u is missing");
+      return true;
+      }
+    else
+      {
+
+
+     predict_mult_distrs.push_back(&distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1]);
+     predict_mult_distrs.push_back(&distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1]);
+
+
+      distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1]);
+
+      distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1]);
+
+      distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1].distrp.push_back
+      (&distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1]);
+
+      distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1]);
+
+      distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1]);
+
+      distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1].distrp.push_back
+      (&distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1]);
+
+      distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1].distrp.push_back
+      (&distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1]);
+
+      distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1].distrp.push_back
+      (&distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1]);
+
+      distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1].distrp.push_back
+      (&distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1]);
+
+      distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa2_sigma_vs[distr_sfa2_sigma_vs.size()-1]);
+
+      distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa2_sigma_us[distr_sfa2_sigma_us.size()-1]);
+
+      distr_sfa2_mu_ys[distr_sfa2_mu_ys.size()-1].distrp.push_back
+      (&distr_sfa2_mu_us[distr_sfa2_mu_us.size()-1]);
+      }
+
+    }
+//------------------------------- END: sfa2_mu_y -------------------------------
+
 
 
 //-------------------------------- ZIP pi cloglog ------------------------------

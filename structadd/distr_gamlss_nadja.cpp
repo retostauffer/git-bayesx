@@ -221,7 +221,7 @@ void DISTR_betainf1_tau::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_betainf1_tau::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_betainf1_tau::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double exp_lin_taup = exp(*linpred[predstart_mumult+2]);
   double exp_lin_mu = exp(*linpred[predstart_mumult]);
@@ -462,7 +462,7 @@ void DISTR_betainf0_nu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_betainf0_nu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_betainf0_nu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double exp_lin_nup = exp(*linpred[predstart_mumult+2]);
   double exp_lin_mu = exp(*linpred[predstart_mumult]);
@@ -1018,7 +1018,7 @@ void DISTR_t_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_t_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_t_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
    if(exp((*linpred[predstart_mumult]))>1)
@@ -1415,7 +1415,7 @@ void DISTR_invgaussian_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_invgaussian_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_invgaussian_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   *mu = exp((*linpred[predstart_mumult+1]));
@@ -2153,7 +2153,7 @@ void DISTR_betainf_tau::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_betainf_tau::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_betainf_tau::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double exp_lin_tau = exp(*linpred[predstart_mumult+3]);
   double exp_lin_nup = exp(*linpred[predstart_mumult+2]);
@@ -2534,7 +2534,7 @@ void DISTR_pareto_b::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_pareto_b::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_pareto_b::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
    double p = exp((*linpred[predstart_mumult]));
@@ -3077,7 +3077,7 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_dagum_a::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_dagum_a::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   double exp_lin_a = exp((*linpred[predstart_mumult+2]));
@@ -3473,7 +3473,7 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
    double hilfs = 1+1/exp((*linpred[predstart_mumult]));
@@ -4014,7 +4014,7 @@ void DISTR_gengamma_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_gengamma_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_gengamma_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   double exp_linmu = exp((*linpred[predstart_mumult+2]));
@@ -4400,7 +4400,7 @@ void DISTR_gamma_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_gamma_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_gamma_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   *mu = exp((*linpred[predstart_mumult+1]));
@@ -4786,7 +4786,7 @@ void DISTR_lognormal2_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_lognormal2_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_lognormal2_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double s2 = pow(exp(*linpred[predstart_mumult]),2);
   *mu = exp((*linpred[predstart_mumult+1])+s2/2);
@@ -5197,7 +5197,7 @@ void DISTR_lognormal_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_lognormal_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_lognormal_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double s = exp(*linpred[predstart_mumult]);
   *mu = exp((*linpred[predstart_mumult+1])+s/2);
@@ -5599,7 +5599,7 @@ void DISTR_truncnormal2_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_truncnormal2_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_truncnormal2_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
    double arg = (*linpred[predstart_mumult+1])/exp(*linpred[predstart_mumult]);
    double hilfs = (exp(*linpred[predstart_mumult])*(1/(pow(2*PI,0.5)))*exp(-0.5*pow(arg,2)))/randnumbers::Phi2(arg);
@@ -5978,7 +5978,7 @@ void DISTR_normal2_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_normal2_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_normal2_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = ((*linpred[predstart_mumult+1]));
   }
@@ -6389,7 +6389,7 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_normal_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_normal_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = ((*linpred[predstart_mumult+1]));
   }
@@ -6865,7 +6865,7 @@ void DISTR_beta_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_beta_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_beta_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double exp_lin = exp(*linpred[predstart_mumult+1]);
   *mu = exp_lin/(1+exp_lin);
@@ -7147,7 +7147,7 @@ void DISTR_cloglog::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_cloglog::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_cloglog::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double exp_lin = exp(*linpred[predstart_mumult]);
   *mu = 1-exp(-exp_lin);
@@ -7665,7 +7665,7 @@ void DISTR_gumbelcopula::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_gumbelcopula::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_gumbelcopula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = 1 - 1 / exp((*linpred[predstart_mumult+2]));
   }
@@ -7921,7 +7921,7 @@ void DISTR_dirichlet::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_dirichlet::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_dirichlet::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
      double alpha_current = exp(*linpred[predstart_mumult+pos]);
      double sum_alpha = 0;
@@ -8830,7 +8830,7 @@ void DISTR_bivt_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_bivt_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_bivt_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
     if(exp((*linpred[predstart_mumult]))>2)
     {
@@ -9525,7 +9525,7 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_bivnormal_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_bivnormal_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = ((*linpred[predstart_mumult+3+pos]));
   }
@@ -10105,7 +10105,7 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_bivprobit_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_bivprobit_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   *mu = ((*linpred[predstart_mumult+1+pos]));
   }
@@ -10695,7 +10695,7 @@ void DISTR_bivlogit_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_bivlogit_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_bivlogit_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
   double p1 = exp( (*linpred[predstart_mumult+2]) );
   p1 = p1 / (1+p1);
@@ -11315,7 +11315,7 @@ void DISTR_BCCG_mu::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_BCCG_mu::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_BCCG_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
        *mu = 0;
@@ -11351,6 +11351,1848 @@ void DISTR_BCCG_mu::update_end(void)
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
     *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa_alpha -------------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa_alpha::DISTR_sfa_alpha(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "Stochastic Frontier Analysis - alpha";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "alpha";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa_alpha::DISTR_sfa_alpha(const DISTR_sfa_alpha & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa_alpha & DISTR_sfa_alpha::operator=(
+                            const DISTR_sfa_alpha & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa_alpha::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+//void DISTR_sfa_alpha::compute_param(const double * linpred,double * param)
+//  {
+//  *param = pow(exp((*linpred)),0.5);
+//  }
+
+double DISTR_sfa_alpha::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma_v equation
+  // *worklin[1] = linear predictor of sigma_u* equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = sigma_v;
+  // *worktransformlin[1] = sigma_u*;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double alpha = exp((*linpred));
+    double muu = (*worktransformlin[2])*alpha;
+    double sigu = (*worktransformlin[1])*alpha;
+    double hilfs = pow(sigu, 2) + pow((*worktransformlin[0]), 2);
+    double epsi = (*response) - (*worktransformlin[3]);
+
+    double l;
+
+    l =  - 0.5*log(hilfs) - pow(( epsi + muu ),2)/(2*hilfs) +
+            log(randnumbers::Phi2( ((sigu*(*worktransformlin[0]))/pow(hilfs, 0.5))*(  - epsi/pow((*worktransformlin[0]),2) + muu/pow(sigu, 2) )) );
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa_alpha::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma_v equation
+  // *worklin[1] = linear predictor of sigma_u* equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = sigma_v;
+  // *worktransformlin[1] = sigma_u*;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double alp = exp(*linpred);
+    double muu = (*worktransformlin[2])*alp;
+    double sigu = alp*(*worktransformlin[1]);
+    double sigv = (*worktransformlin[0]);
+    double epsi = (*response) - (*worktransformlin[3]);
+    double hilfs = pow(sigu,2) + pow(sigv,2);
+    double hilfs2 = sigu*sigv;
+  //  double darg2 = -pow(sigu,2)/pow(hilfs, 1.5)*( - (epsi*sigu)/(sigv) + muu*sigv/sigu ) +
+  //                  (1/pow(hilfs,0.5))*( - (epsi*sigu)/(sigv)  );
+    double arg2 =  (hilfs2/pow(hilfs,0.5))*(  - (epsi)/pow(sigv,2) + muu/pow(sigu,2) );
+    double darg2 = - (*worktransformlin[1]) * sigv * (pow(alp, 2) * (*worktransformlin[2]) + epsi) / pow(hilfs, 1.5);
+    double ddarg2 = 3 * pow(alp, 2) * pow((*worktransformlin[1]), 3) * sigv * (pow(alp, 2) * (*worktransformlin[2]) + epsi) / pow(hilfs, 2.5)
+                    - 2 * pow(alp, 2) * (*worktransformlin[1]) * (*worktransformlin[2]) * sigv / pow(hilfs, 1.5);
+  //  double ddarg2 = ((3*pow(sigu,2))/pow(hilfs,2.5))*( - (epsi*pow(sigu,3))/sigv + muu*sigu*sigv ) -
+   //                 (1/pow(hilfs, 1.5))*( - (4*epsi*pow(sigu,3))/sigv ) - 2*muu*sigu*sigv/pow(hilfs, 1.5) - (epsi*sigu/sigv)/pow(hilfs, 0.5);
+
+    double densarg2 = randnumbers::phi(arg2);
+
+    double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - ( pow(sigu,2) + (epsi+muu)*muu )/hilfs + pow(((epsi+muu)*sigu/hilfs), 2) + (densarg2*darg2)/(randnumbers::Phi2(arg2));
+
+
+    *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigv,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + ( muu*(epsi+muu) + pow(muu, 2) )/hilfs ;
+                        -( 2*(epsi+muu)*muu*pow(sigu, 2) )/pow(hilfs, 2);
+ /*   *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigu,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + (  pow(muu, 2) )/hilfs ;
+                        -( 2*(epsi+muu)*muu*pow(sigu, 2) )/pow(hilfs, 2) + 2 * muu * (epsi + muu) * pow(sigv, 2) / pow(hilfs, 2); */
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - 0.5*log(hilfs) - pow(epsi+muu,2)/(2*hilfs) + log(proparg2);
+
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa_alpha::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (alpha): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa_alpha::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa_sigma_v ---------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa_sigma_v::DISTR_sfa_sigma_v(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "Stochastic Frontier Analysis - sigma_v";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma_v";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa_sigma_v::DISTR_sfa_sigma_v(const DISTR_sfa_sigma_v & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa_sigma_v & DISTR_sfa_sigma_v::operator=(
+                            const DISTR_sfa_sigma_v & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa_sigma_v::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+//void DISTR_sfa_sigma_v::compute_param(const double * linpred,double * param)
+//  {
+//  *param = exp((*linpred));
+//  }
+
+double DISTR_sfa_sigma_v::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_u* equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_u*;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[2])*(*worktransformlin[0]);
+    double sigu = (*worktransformlin[1])*(*worktransformlin[0]);
+    double sigu2 = pow(sigu,2);
+    double sigv = exp((*linpred));
+    double hilfs = sigu2 + pow(sigv, 2);
+	double epsi = (*response) - (*worktransformlin[3]);
+
+    double l;
+
+    l = - 0.5*log(hilfs) - pow(( epsi + muu),2)/(2*hilfs) +
+            log(randnumbers::Phi2( ((sigu*sigv)/pow(hilfs, 0.5))*(  - (epsi)/pow(sigv,2) + muu/sigu2 )) );
+
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa_sigma_v::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[2])*(*worktransformlin[0]);
+    double sigu = (*worktransformlin[1])*(*worktransformlin[0]);
+    double sigu2 = pow(sigu,2);
+    double sigv = exp((*linpred));
+    double epsi = (*response) - (*worktransformlin[3]);
+    double hilfs = sigu2 + pow(sigv,2);
+    double hilfs2 = sigu*sigv;
+    double darg2 = (-1/pow(hilfs, 1.5))*( - epsi*sigv*sigu + muu*pow(sigv,3)/sigu ) +
+                    (1/pow(hilfs,0.5))*( (epsi*sigu)/(sigv) + muu*sigv/sigu );
+    double arg2 =  (sigu*sigv/pow(hilfs,0.5))*(  - (epsi)/pow(sigv,2) + muu/sigu2 );
+    double ddarg2 = ((3*pow(sigv,2))/pow(hilfs,2.5))*( muu*pow(sigv,3)/sigu - (epsi*hilfs2))  + arg2 -
+                    4*muu*pow(sigv,3)/(sigu*pow(hilfs, 1.5));
+
+    double densarg2 = randnumbers::phi(arg2);
+
+    double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - pow(sigv,2)/hilfs + (pow((epsi+muu),2)*pow(sigv,2))/(pow(hilfs,2)) +
+                    (densarg2*darg2)/(proparg2);
+
+
+    *workingweight = (2*sigu2*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigv,4) - sigu2*pow(sigv,2)))/pow(hilfs,3)  -
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2);
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - 0.5*log(hilfs) - pow(epsi+muu,2)/(2*hilfs) + log(proparg2);
+
+      }
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa_sigma_v::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma_v): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa_sigma_v::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa_sigma_u -----------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa_sigma_u::DISTR_sfa_sigma_u(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "Stochastic Frontier Analysis - sigma_u";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma_u";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa_sigma_u::DISTR_sfa_sigma_u(const DISTR_sfa_sigma_u & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa_sigma_u & DISTR_sfa_sigma_u::operator=(
+                            const DISTR_sfa_sigma_u & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa_sigma_u::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+
+  }
+
+//void DISTR_sfa_sigma_u::compute_param(const double * linpred,double * param)
+//  {
+//  *param = exp((*linpred));
+//  }
+
+double DISTR_sfa_sigma_u::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[2])*(*worktransformlin[0]);
+    double sigu = exp((*linpred))*(*worktransformlin[0]);
+    double hilfs = pow(sigu, 2) + pow((*worktransformlin[1]), 2);
+	double epsi = (*response) - (*worktransformlin[3]);
+
+    double l;
+
+    l =  - 0.5*log(hilfs) - pow((epsi + muu),2)/(2*hilfs) - log(randnumbers::Phi2(muu/sigu)) +
+            log(randnumbers::Phi2( ((sigu*(*worktransformlin[1]))/pow(hilfs, 0.5))*(  - (epsi)/pow((*worktransformlin[1]),2) + muu/pow(sigu,2) )) );
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa_sigma_u::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[2])*(*worktransformlin[0]);
+    double sigu = exp((*linpred))*(*worktransformlin[0]);
+    double epsi = (*response) - (*worktransformlin[3]);
+    double hilfs = pow(sigu,2) + pow((*worktransformlin[1]),2);
+	double hilfs2 = - (epsi*sigu)/(*worktransformlin[1]) + ((*worktransformlin[1])*muu)/sigu;
+    double arg2 =  hilfs2/pow(hilfs,0.5);
+    double darg2 = -(pow(sigu,2)/pow(hilfs, 1.5))*( hilfs2 )
+					+ (- (epsi*sigu)/(*worktransformlin[1]) - (*worktransformlin[1])*muu/sigu )/pow(hilfs,0.5);
+
+	double ddarg2 = ((3*pow(sigu,3))/pow(hilfs,2.5))*(muu*(*worktransformlin[1]) - (epsi*pow(sigu,2))/(*worktransformlin[1])) -
+                    (1/pow(hilfs, 1.5))*( - (4*epsi*pow(sigu,3))/(*worktransformlin[1])) + arg2;
+
+	double arg1 = muu/sigu;
+	double darg1 = -arg1;
+
+    double densarg1 = randnumbers::phi(arg1);
+	double proparg1 = randnumbers::Phi2(arg1);
+	double densarg2 = randnumbers::phi(arg2);
+	double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - pow(sigu,2)/hilfs + (pow((epsi+muu),2)*pow(sigu,2))/(pow(hilfs,2)) +
+                    (densarg2*darg2)/proparg2 - (densarg1*darg1)/proparg1;
+
+
+    *workingweight = (2*pow(sigu,2)*pow((*worktransformlin[1]),2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigu,4) - pow(sigu,2)*pow((*worktransformlin[1]),2)))/pow(hilfs,3)  -
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) +
+						densarg1*(-arg1)*pow(darg1,2)/proparg1 + densarg1*arg1/proparg1 - pow(densarg1*darg1/proparg1,2);
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - 0.5*log(hilfs) - pow(epsi+muu,2)/(2*hilfs) - log(proparg1) + log(proparg2 );
+
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa_sigma_u::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma_u): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa_sigma_u::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa_mu_u --------------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa_mu_u::DISTR_sfa_mu_u(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "Stochastic Frontier Analysis - mu_u";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "mu_u";
+   linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa_mu_u::DISTR_sfa_mu_u(const DISTR_sfa_mu_u & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa_mu_u & DISTR_sfa_mu_u::operator=(
+                            const DISTR_sfa_mu_u & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa_mu_u::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_sfa_mu_u::compute_param(const double * linpred,double * param)
+  {
+  *param = exp((*linpred));
+  }
+
+double DISTR_sfa_mu_u::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  //  double muu = ((*linpred));
+    double muu = exp((*linpred))*(*worktransformlin[0]);
+	double epsi = (*response) -(*worktransformlin[3]);
+	double sigu = (*worktransformlin[2])*(*worktransformlin[0]);
+    double sigu2 = pow(sigu, 2);
+    double sigv2 = pow((*worktransformlin[1]), 2);
+    double hilfs = sigu2 + sigv2;
+
+    double l;
+
+    l = -pow((epsi + muu),2)/(2*hilfs) - log(randnumbers::Phi2(muu/sigu)) +
+            log(randnumbers::Phi2( (((*worktransformlin[1])*sigu)/pow(hilfs, 0.5))*( (muu)/(sigu2) - (epsi)/sigv2 )) );
+
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa_mu_u::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  //  double muu = (*linpred);
+    double muu = exp((*linpred))*(*worktransformlin[0]);
+	double epsi = (*response) -(*worktransformlin[3]);
+	double sigu = (*worktransformlin[2])*(*worktransformlin[0]);
+    double sigu2 = pow(sigu, 2);
+    double sigv2 = pow((*worktransformlin[1]), 2);
+    double hilfs = sigu2 + sigv2;
+
+	double arg2 =  (sigu*(*worktransformlin[1])/pow(hilfs,0.5))*( ( muu)/sigu2 - (epsi)/sigv2);
+
+    double darg2 = (muu*(*worktransformlin[1]))/(sigu*pow(hilfs,0.5));
+  //  double darg2 = ((*worktransformlin[1]))/((*worktransformlin[2])*pow(hilfs,0.5));
+    double arg1 = muu/sigu;
+    double darg1 = 1/(*worktransformlin[2]);
+	double densarg1 = randnumbers::phi(arg1);
+	double proparg1 = randnumbers::Phi2(arg1);
+	double densarg2 = randnumbers::phi(arg2);
+	double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - (muu*(epsi + muu))/(hilfs) - (densarg1*arg1)/proparg1 + (densarg2*darg2)/proparg2;
+  //  double nu = - ((*worktransformlin[0])*(epsi + muu))/(hilfs) - (densarg1*darg1)/proparg1 + (densarg2*darg2)/proparg2;
+
+ //   *workingweight =  pow((*worktransformlin[0]), 2)/hilfs + (densarg1*((-arg1)*pow(darg1,2)))/proparg1 -
+ //                       pow((densarg1*darg1)/proparg1,2)
+ //                   - (densarg2*((-arg2)*pow(darg2,2)))/proparg2 + pow((densarg2*darg2)/proparg2,2);
+    *workingweight = -nu + pow(muu,2)/hilfs + (densarg1*((-arg1)*pow(arg1,2)))/proparg1 -
+                        pow((densarg1*arg1)/proparg1,2)
+                    - (densarg2*((-arg2)*pow(darg2,2)))/proparg2 + pow((densarg2*darg2)/proparg2,2);
+	if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow((epsi + muu),2)/(2*hilfs) - log(proparg1) + log(proparg2);
+
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa_mu_u::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu_u): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa_mu_u::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_sfa_mu_y ----------------------------
+//------------------------------------------------------------------------------
+void DISTR_sfa_mu_y::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_sfa_mu_y::DISTR_sfa_mu_y(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "Stochastic Frontier Analysis -  mu_y";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu_y";
+ //   linpredminlimit=-10;
+ // linpredmaxlimit=15;
+  }
+
+
+DISTR_sfa_mu_y::DISTR_sfa_mu_y(const DISTR_sfa_mu_y & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa_mu_y & DISTR_sfa_mu_y::operator=(
+                            const DISTR_sfa_mu_y & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_sfa_mu_y::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response[2] = *response[3] = *response[4]
+   // *linpred[0] = eta_alpha
+   // *linpred[1] = eta_sigma_v
+   // *linpred[2] = eta_sigma_u*
+   // *linpred[3] = eta_mu_u*
+   // *linpred[4] = eta_mu_y
+
+   if (*weight[4] == 0)
+     *deviance=0;
+   else
+     {
+     double alpha = exp(*linpred[0]);
+     double sigv = exp(*linpred[1]);
+     double sigu = exp(*linpred[2])*alpha;
+     double muu = exp(*linpred[3])*alpha;
+     double epsi = (*response[4]) - (*linpred[4]);
+     double sigu2 = pow(sigu, 2);
+     double sigv2 = pow(sigv, 2);
+     double hilfs1 = sigu2 + sigv2;
+     double l;
+
+       l = -0.5*log(2*PI) - 0.5*log(hilfs1) - pow((epsi+muu),2)/(2*hilfs1) -
+            log(randnumbers::Phi2(muu/sigu)) + log(randnumbers::Phi2(((sigu*sigv)/pow(hilfs1,0.5))*( - epsi/sigv2 + muu/sigu2)));
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_sfa_mu_y::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_sfa_mu_y::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+ double DISTR_sfa_mu_y::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_sfa_mu_y::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+ //   double arg = ((*response[1])-(*param[1]))/((*param[0])) ;
+
+ //   return (randnumbers::Phi2(arg));
+      return 0;
+    }
+
+
+double DISTR_sfa_mu_y::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_u* equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_u*;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double epsi = (*response) - (*linpred);
+  double sigu = (*worktransformlin[2])*(*worktransformlin[0]);
+  double hilfs = pow(sigu, 2) + pow((*worktransformlin[1]), 2);
+  double muu = (*worktransformlin[3])*(*worktransformlin[0]);
+
+  double l;
+
+     l = -pow((epsi + muu ),2)/(2*hilfs) +
+            log(randnumbers::Phi2( ((sigu*(*worktransformlin[1]))/pow(hilfs, 0.5))*(  - epsi/pow((*worktransformlin[1]),2) + muu/pow(sigu, 2) )) );
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sfa_mu_y::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_u* equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_u*;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double epsi = (*response) - (*linpred);
+    double sigu = (*worktransformlin[0])*(*worktransformlin[2]);
+    double sigu2 = pow(sigu, 2);
+    double sigv2 = pow((*worktransformlin[1]), 2);
+    double hilfs = sigu2 + sigv2;
+    double muu = (*worktransformlin[0])*(*worktransformlin[3]);
+    double darg2 = sigu/((*worktransformlin[1])*pow(hilfs,0.5));
+    double arg2 =  (((*worktransformlin[1])*sigu)/(pow(hilfs,0.5)))*(  - (epsi)/sigv2 + muu/sigu2 );
+
+    double densarg2 = randnumbers::phi(arg2);
+
+    double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = (epsi+muu)/(hilfs) + (densarg2*darg2)/proparg2;
+
+    *workingweight = 1/hilfs - (densarg2*(-arg2)*pow(darg2,2))/(proparg2) + pow(((densarg2*darg2)/proparg2),2);
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow(epsi+muu,2)/(2*hilfs) + log(proparg2);
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa_mu_y::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  double muu = exp((*linpred[predstart_mumult])) * exp(*linpred[predstart_mumult+3]);
+  double sigu2 = pow(exp((*linpred[predstart_mumult+2])) * exp((*linpred[predstart_mumult])), 2);
+  double sigv2 = pow(exp((*linpred[predstart_mumult+1])), 2);
+  double sig2 = sigu2 + sigv2;
+  double ga = sigu2/sig2;
+  double sigast = pow(ga * (1 - ga)*sig2, 0.5);
+  double epsi = (*response[4]) - (*linpred[predstart_mumult+4]);
+  double muast = (1 - ga) * muu - ga * epsi;
+
+  *mu = randnumbers::Phi2(muast / sigast - sigast) * exp(-muast + 0.5 * pow(sigast, 2)) / randnumbers::Phi2(muast / sigast);
+  }
+
+
+void DISTR_sfa_mu_y::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu_y): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa_mu_y::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa2_sigma_v ---------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa2_sigma_v::DISTR_sfa2_sigma_v(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,3,w)
+  {
+  family = "Stochastic Frontier Analysis - sigma_v";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma_v";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa2_sigma_v::DISTR_sfa2_sigma_v(const DISTR_sfa2_sigma_v & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa2_sigma_v & DISTR_sfa2_sigma_v::operator=(
+                            const DISTR_sfa2_sigma_v & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa2_sigma_v::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+//void DISTR_sfa2_sigma_v::compute_param(const double * linpred,double * param)
+//  {
+//  *param = exp((*linpred));
+//  }
+
+double DISTR_sfa2_sigma_v::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_u* equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_u*;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[1]);
+    double sigu = (*worktransformlin[0]);
+    double sigu2 = pow(sigu,2);
+    double sigv = exp((*linpred));
+    double hilfs = sigu2 + pow(sigv, 2);
+	double epsi = (*response) - (*worktransformlin[2]);
+
+    double l;
+
+    l = - 0.5*log(hilfs) - pow(( epsi + muu),2)/(2*hilfs) +
+            log(randnumbers::Phi2( ((sigu*sigv)/pow(hilfs, 0.5))*(  - (epsi)/pow(sigv,2) + muu/sigu2 )) );
+
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa2_sigma_v::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[1]);
+    double sigu = (*worktransformlin[0]);
+    double sigu2 = pow(sigu,2);
+    double sigv = exp((*linpred));
+    double epsi = (*response) - (*worktransformlin[2]);
+    double hilfs = sigu2 + pow(sigv,2);
+    double hilfs2 = sigu*sigv;
+    double darg2 = (-1/pow(hilfs, 1.5))*( - epsi*sigv*sigu + muu*pow(sigv,3)/sigu ) +
+                    (1/pow(hilfs,0.5))*( (epsi*sigu)/(sigv) + muu*sigv/sigu );
+    double arg2 =  (sigu*sigv/pow(hilfs,0.5))*(  - (epsi)/pow(sigv,2) + muu/sigu2 );
+    double ddarg2 = ((3*pow(sigv,2))/pow(hilfs,2.5))*( muu*pow(sigv,3)/sigu - (epsi*hilfs2))  + arg2 -
+                    4*muu*pow(sigv,3)/(sigu*pow(hilfs, 1.5));
+
+    double densarg2 = randnumbers::phi(arg2);
+
+    double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - pow(sigv,2)/hilfs + (pow((epsi+muu),2)*pow(sigv,2))/(pow(hilfs,2)) +
+                    (densarg2*darg2)/(proparg2);
+
+
+    *workingweight = (2*sigu2*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigv,4) - sigu2*pow(sigv,2)))/pow(hilfs,3)  -
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2);
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - 0.5*log(hilfs) - pow(epsi+muu,2)/(2*hilfs) + log(proparg2);
+
+      }
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa2_sigma_v::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma_v): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa2_sigma_v::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa2_sigma_u -----------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa2_sigma_u::DISTR_sfa2_sigma_u(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,3,w)
+  {
+  family = "Stochastic Frontier Analysis - sigma_u";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma_u";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa2_sigma_u::DISTR_sfa2_sigma_u(const DISTR_sfa2_sigma_u & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa2_sigma_u & DISTR_sfa2_sigma_u::operator=(
+                            const DISTR_sfa2_sigma_u & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa2_sigma_u::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+
+  }
+
+//void DISTR_sfa2_sigma_u::compute_param(const double * linpred,double * param)
+//  {
+//  *param = exp((*linpred));
+//  }
+
+double DISTR_sfa2_sigma_u::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[1]);
+    double sigu = exp((*linpred));
+    double hilfs = pow(sigu, 2) + pow((*worktransformlin[0]), 2);
+	double epsi = (*response) - (*worktransformlin[2]);
+
+    double l;
+
+    l =  - 0.5*log(hilfs) - pow((epsi + muu),2)/(2*hilfs) - log(randnumbers::Phi2(muu/sigu)) +
+            log(randnumbers::Phi2( ((sigu*(*worktransformlin[0]))/pow(hilfs, 0.5))*(  - (epsi)/pow((*worktransformlin[0]),2) + muu/pow(sigu,2) )) );
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa2_sigma_u::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of mu_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = mu_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*worktransformlin[1]);
+    double sigu = exp((*linpred));
+    double epsi = (*response) - (*worktransformlin[2]);
+    double hilfs = pow(sigu,2) + pow((*worktransformlin[0]),2);
+	double hilfs2 = - (epsi*sigu)/(*worktransformlin[0]) + ((*worktransformlin[0])*muu)/sigu;
+    double arg2 =  hilfs2/pow(hilfs,0.5);
+    double darg2 = -(pow(sigu,2)/pow(hilfs, 1.5))*( hilfs2 )
+					+ (- (epsi*sigu)/(*worktransformlin[0]) - (*worktransformlin[0])*muu/sigu )/pow(hilfs,0.5);
+
+	double ddarg2 = ((3*pow(sigu,3))/pow(hilfs,2.5))*(muu*(*worktransformlin[0]) - (epsi*pow(sigu,2))/(*worktransformlin[0])) -
+                    (1/pow(hilfs, 1.5))*( - (4*epsi*pow(sigu,3))/(*worktransformlin[0])) + arg2;
+
+	double arg1 = muu/sigu;
+	double darg1 = -arg1;
+
+    double densarg1 = randnumbers::phi(arg1);
+	double proparg1 = randnumbers::Phi2(arg1);
+	double densarg2 = randnumbers::phi(arg2);
+	double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - pow(sigu,2)/hilfs + (pow((epsi+muu),2)*pow(sigu,2))/(pow(hilfs,2)) +
+                    (densarg2*darg2)/proparg2 - (densarg1*darg1)/proparg1;
+
+
+    *workingweight = (2*pow(sigu,2)*pow((*worktransformlin[0]),2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigu,4) - pow(sigu,2)*pow((*worktransformlin[0]),2)))/pow(hilfs,3)  -
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) +
+						densarg1*(-arg1)*pow(darg1,2)/proparg1 + densarg1*arg1/proparg1 - pow(densarg1*darg1/proparg1,2);
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  - 0.5*log(hilfs) - pow(epsi+muu,2)/(2*hilfs) - log(proparg1) + log(proparg2 );
+
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa2_sigma_u::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma_u): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa2_sigma_u::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//--------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_sfa2_mu_u --------------------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_sfa2_mu_u::DISTR_sfa2_mu_u(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,3,w)
+  {
+  family = "Stochastic Frontier Analysis - mu_u";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "mu_u";
+ //  linpredminlimit=-10;
+ // linpredmaxlimit=15;
+
+  }
+
+
+DISTR_sfa2_mu_u::DISTR_sfa2_mu_u(const DISTR_sfa2_mu_u & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa2_mu_u & DISTR_sfa2_mu_u::operator=(
+                            const DISTR_sfa2_mu_u & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sfa2_mu_u::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_sfa2_mu_u::compute_param(const double * linpred,double * param)
+  {
+  *param = exp(*linpred);
+  }
+
+double DISTR_sfa2_mu_u::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double muu = (*linpred);
+	double epsi = (*response) -(*worktransformlin[2]);
+	double sigu = (*worktransformlin[1]);
+    double sigu2 = pow(sigu, 2);
+    double sigv2 = pow((*worktransformlin[0]), 2);
+    double hilfs = sigu2 + sigv2;
+
+    double l;
+
+    l = -pow((epsi + muu),2)/(2*hilfs) - log(randnumbers::Phi2(muu/sigu)) +
+            log(randnumbers::Phi2( (((*worktransformlin[0])*sigu)/pow(hilfs, 0.5))*( (muu)/(sigu2) - (epsi)/sigv2 )) );
+
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_sfa2_mu_u::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_y equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_y;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double muu = (*linpred);
+	double epsi = (*response) -(*worktransformlin[2]);
+	double sigu = (*worktransformlin[1]);
+    double sigu2 = pow(sigu, 2);
+    double sigv2 = pow((*worktransformlin[0]), 2);
+    double hilfs = sigu2 + sigv2;
+
+	double arg2 =  (sigu*(*worktransformlin[0])/pow(hilfs,0.5))*( ( muu)/sigu2 - (epsi)/sigv2);
+
+    double darg2 = ((*worktransformlin[0]))/(sigu*pow(hilfs,0.5));
+    double arg1 = muu/sigu;
+    double darg1 = 1/sigu;
+	double densarg1 = randnumbers::phi(arg1);
+	double proparg1 = randnumbers::Phi2(arg1);
+	double densarg2 = randnumbers::phi(arg2);
+	double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = - ((epsi + muu))/(hilfs) - (densarg1*darg1)/proparg1 + (densarg2*darg2)/proparg2;
+
+    *workingweight =  1/hilfs + (densarg1*((-arg1)*pow(darg1,2)))/proparg1  - pow((densarg1*darg1)/proparg1,2)
+                    - (densarg2*((-arg2)*pow(darg2,2)))/proparg2  + pow((densarg2*darg2)/proparg2,2);
+
+	if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow((epsi + muu),2)/(2*hilfs) - log(proparg1) + log(proparg2);
+
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa2_mu_u::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu_u): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n") ;
+  }
+
+
+void DISTR_sfa2_mu_u::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_sfa2_mu_y ----------------------------
+//------------------------------------------------------------------------------
+void DISTR_sfa2_mu_y::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_sfa2_mu_y::DISTR_sfa2_mu_y(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,3,w)
+  {
+  family = "Stochastic Frontier Analysis -  mu_y";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu_y";
+ //   linpredminlimit=-10;
+ // linpredmaxlimit=15;
+  }
+
+
+DISTR_sfa2_mu_y::DISTR_sfa2_mu_y(const DISTR_sfa2_mu_y & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_sfa2_mu_y & DISTR_sfa2_mu_y::operator=(
+                            const DISTR_sfa2_mu_y & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_sfa2_mu_y::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response[2] = *response[3] = *response[4]
+   // *linpred[0] = eta_alpha
+   // *linpred[1] = eta_sigma_v
+   // *linpred[2] = eta_sigma_u*
+   // *linpred[3] = eta_mu_u*
+   // *linpred[4] = eta_mu_y
+
+   if (*weight[3] == 0)
+     *deviance=0;
+   else
+     {
+     double sigv = exp(*linpred[0]);
+     double sigu = exp(*linpred[1]);
+     double muu = (*linpred[2]);
+     double epsi = (*response[3]) - (*linpred[3]);
+     double sigu2 = pow(sigu, 2);
+     double sigv2 = pow(sigv, 2);
+     double hilfs1 = sigu2 + sigv2;
+     double l;
+
+       l = -0.5*log(2*PI) - 0.5*log(hilfs1) - pow((epsi+muu),2)/(2*hilfs1) -
+            log(randnumbers::Phi2(muu/sigu)) + log(randnumbers::Phi2(((sigu*sigv)/pow(hilfs1,0.5))*( - epsi/sigv2 + muu/sigu2)));
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_sfa2_mu_y::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_sfa2_mu_y::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+ double DISTR_sfa2_mu_y::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_sfa2_mu_y::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+ //   double arg = ((*response[1])-(*param[1]))/((*param[0])) ;
+
+ //   return (randnumbers::Phi2(arg));
+      return 0;
+    }
+
+
+double DISTR_sfa2_mu_y::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_u* equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_u*;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double epsi = (*response) - (*linpred);
+  double sigu = (*worktransformlin[1]);
+  double hilfs = pow(sigu, 2) + pow((*worktransformlin[0]), 2);
+  double muu = (*worktransformlin[2]);
+
+  double l;
+
+     l = -pow((epsi + muu ),2)/(2*hilfs) +
+            log(randnumbers::Phi2( ((sigu*(*worktransformlin[0]))/pow(hilfs, 0.5))*(  - epsi/pow((*worktransformlin[0]),2) + muu/pow(sigu, 2) )) );
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sfa2_mu_y::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of alpha equation
+  // *worklin[1] = linear predictor of sigma_v equation
+  // *worklin[2] = linear predictor of sigma_u* equation
+  // *worklin[3] = linear predictor of mu_u* equation
+  // *worktransformlin[0] = alpha;
+  // *worktransformlin[1] = sigma_v;
+  // *worktransformlin[2] = sigma_u*;
+  // *worktransformlin[3] = mu_u*;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double epsi = (*response) - (*linpred);
+    double sigu = (*worktransformlin[1]);
+    double sigu2 = pow(sigu, 2);
+    double sigv2 = pow((*worktransformlin[0]), 2);
+    double hilfs = sigu2 + sigv2;
+    double muu = (*worktransformlin[2]);
+    double darg2 = sigu/((*worktransformlin[0])*pow(hilfs,0.5));
+    double arg2 =  (((*worktransformlin[0])*sigu)/(pow(hilfs,0.5)))*(  - (epsi)/sigv2 + muu/sigu2 );
+
+    double densarg2 = randnumbers::phi(arg2);
+
+    double proparg2 = randnumbers::Phi2(arg2);
+
+    double nu = (epsi+muu)/(hilfs) + (densarg2*darg2)/proparg2;
+
+    *workingweight = 1/hilfs - (densarg2*(-arg2)*pow(darg2,2))/(proparg2) + pow(((densarg2*darg2)/proparg2),2);
+
+    if ((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow(epsi+muu,2)/(2*hilfs) + log(proparg2);
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sfa2_mu_y::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  double muu = exp(*linpred[predstart_mumult+2]);
+  double sigu2 = pow(exp((*linpred[predstart_mumult+1])), 2);
+  double sigv2 = pow(exp((*linpred[predstart_mumult+0])), 2);
+  double sig2 = sigu2 + sigv2;
+  double ga = sigu2/sig2;
+  double sigast = pow(ga * (1 - ga)*sig2, 0.5);
+  double epsi = (*response[3]) - (*linpred[predstart_mumult+3]);
+  double muast = (1 - ga) * muu - ga * epsi;
+
+  *mu = randnumbers::Phi2(muast / sigast - sigast) * exp(-muast + 0.5 * pow(sigast, 2)) / randnumbers::Phi2(muast / sigast);
+
+  }
+
+
+void DISTR_sfa2_mu_y::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu_y): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sfa2_mu_y::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
 //    double t = 0;
     }
 

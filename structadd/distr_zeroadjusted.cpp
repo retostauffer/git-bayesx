@@ -37,7 +37,7 @@ DISTR_zeroadjusted::DISTR_zeroadjusted(GENERAL_OPTIONS * o,DISTR* dpi,
   predict_mult = true;
   outpredictor = false;
   outexpectation = true;
-  predictor_name = "overall";  
+  predictor_name = "overall";
 
 
   optionsp = o;
@@ -91,7 +91,7 @@ void DISTR_zeroadjusted::outoptions(void)
   }
 
 
-void DISTR_zeroadjusted::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_zeroadjusted::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   double pi;
@@ -112,7 +112,7 @@ datamatrix * DISTR_zeroadjusted::get_auxiliary_parameter(
   else
     helpmat1(0,0) = distrp_mu->get_scalemean();
 
-  return &helpmat1;  
+  return &helpmat1;
   }
 
 
@@ -233,7 +233,7 @@ void DISTR_zeroadjusted_mult::outoptions(void)
   }
 
 
-void DISTR_zeroadjusted_mult::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_zeroadjusted_mult::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
   double pi;
@@ -246,7 +246,7 @@ void DISTR_zeroadjusted_mult::compute_mu_mult(vector<double *> linpred,double * 
     linpredvec[i] = linpred[i+1];
 */
 
-  distrp_mu[distrp_mu.size()-1]->compute_mu_mult(linpred,&E);
+  distrp_mu[distrp_mu.size()-1]->compute_mu_mult(linpred,response,&E);
 
   *mu = pi*E;
 
@@ -281,7 +281,7 @@ void DISTR_zeroadjusted_mult::compute_deviance_mult(vector<double *> response,
       {
       linpredvec[i] = linpred[i+1];
       weightvec[i] = weight[i+1];
-      responsevec[i] = response[i+1];            
+      responsevec[i] = response[i+1];
       }
 
     distrp_mu[distrp_mu.size()-1]->compute_deviance_mult(responsevec,weightvec,

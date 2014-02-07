@@ -76,7 +76,7 @@ class __EXPORT_TYPE DISTR_zeroadjusted : public DISTR
                              double * deviance,
                              vector<datamatrix*> aux);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   datamatrix * get_auxiliary_parameter(auxiliarytype t = auxcurrent);
 
@@ -98,7 +98,7 @@ class __EXPORT_TYPE DISTR_zeroadjusted_mult : public DISTR
   vector<DISTR*> distrp_mu;
   vector<double*> linpredvec;
   vector<double*> responsevec;
-  vector<double*> weightvec;    
+  vector<double*> weightvec;
 
 
   public:
@@ -132,7 +132,7 @@ class __EXPORT_TYPE DISTR_zeroadjusted_mult : public DISTR
                              double * deviance,
                              vector<datamatrix*> aux);
 
-  void compute_mu_mult(vector<double *> linpred,double * mu);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void outoptions(void);
 

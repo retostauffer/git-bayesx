@@ -150,7 +150,7 @@ void FC_predict_mult::get_predictor(void)
 
       for (j=0;j<likep.size();j++,betap++)
         {
-        likep[j]->compute_mu_mult(worklinp,betap);
+        likep[j]->compute_mu_mult(worklinp,workresponse,betap);
         }
 
 
