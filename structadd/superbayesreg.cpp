@@ -321,6 +321,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_sigma_u");
   families.push_back("sfa2_mu_u");
   families.push_back("sfa2_mu_y");
+  families.push_back("gaussiancopula");
+  families.push_back("gaussiancopula_rho");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -812,6 +814,12 @@ void superbayesreg::clear(void)
   distr_sfa2_sigma_vs.erase(distr_sfa2_sigma_vs.begin(),distr_sfa2_sigma_vs.end());
   distr_sfa2_sigma_vs.reserve(20);
 
+  distr_gaussiancopulas.erase(distr_gaussiancopulas.begin(),distr_gaussiancopulas.end());
+  distr_gaussiancopulas.reserve(20);
+
+  distr_gaussiancopula_rhos.erase(distr_gaussiancopula_rhos.begin(),distr_gaussiancopula_rhos.end());
+  distr_gaussiancopula_rhos.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -1032,6 +1040,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopulas = b.distr_gumbelcopulas;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
+  distr_gaussiancopulas = b.distr_gaussiancopulas;
+  distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
   distr_sfa2_mu_ys = b.distr_sfa2_mu_ys;
   distr_sfa2_mu_us = b.distr_sfa2_mu_us;
   distr_sfa2_sigma_us = b.distr_sfa2_sigma_us;
@@ -1198,6 +1208,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_sfa_sigma_us = b.distr_sfa_sigma_us;
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
+  distr_gaussiancopulas = b.distr_gaussiancopulas;
+  distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -3589,6 +3601,102 @@ bool superbayesreg::create_distribution(void)
      }
  //------------------------------ END: gumbelcopula ---------------------------
 
+//----------------------------- cloglog -------------------------------
+  else if (family.getvalue() == "cloglog") //&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
+    {
+    computemodeforstartingvalues = true;
+
+    distr_cloglogs.push_back(DISTR_cloglog(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_cloglogs[distr_cloglogs.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_cloglogs[distr_cloglogs.size()-1]);
+
+    }
+//-------------------------- END: cloglog -----------------------------
+
+//----------------------------- gaussiancopula_rho ----------------------
+  else if (family.getvalue() == "gaussiancopula_rho" && equationtype.getvalue()=="rho")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_rhos.push_back(DISTR_gaussiancopula_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
+
+    }
+//-------------------------- END: gaussiancopula_rho ---------------------
+
+// ----------------------------------- gaussiancopula ----------------------
+   else if ((family.getvalue() == "gaussiancopula") &&
+            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+           )
+     {
+
+    // computemodeforstartingvalues = true;
+
+     unsigned pos;
+     if (equationtype.getvalue()=="mean")
+       pos = 1;
+     else
+       pos = 0;
+
+     distr_gaussiancopulas.push_back(DISTR_gaussiancopula(&generaloptions,D.getCol(0),pos,w));
+
+     equations[modnr].distrp = &distr_gaussiancopulas[distr_gaussiancopulas.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_gaussiancopula_rhos.size() != 1)
+       {
+       outerror("ERROR: Equation for correlation parameter rho is missing");
+       return true;
+       }
+
+     if ((equationtype.getvalue()=="mean") && (distr_gaussiancopulas.size() != 2))
+       {
+       outerror("ERROR: Two equations for marginal distributions required");
+       return true;
+       }
+
+     if (equationtype.getvalue()=="mean")
+       {
+
+
+       predict_mult_distrs.push_back(&distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
+       predict_mult_distrs.push_back(&distr_gaussiancopulas[distr_gaussiancopulas.size()-2]);
+       predict_mult_distrs.push_back(&distr_gaussiancopulas[distr_gaussiancopulas.size()-1]);
+
+       distr_gaussiancopulas[distr_gaussiancopulas.size()-2].response2 = distr_gaussiancopulas[distr_gaussiancopulas.size()-1].response;
+       distr_gaussiancopulas[distr_gaussiancopulas.size()-1].response2 = distr_gaussiancopulas[distr_gaussiancopulas.size()-2].response;
+       distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].response2 = distr_gaussiancopulas[distr_gaussiancopulas.size()-2].response;
+
+
+	   distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
+       &distr_gaussiancopulas[distr_gaussiancopulas.size()-2]);
+
+       distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
+       &distr_gaussiancopulas[distr_gaussiancopulas.size()-1]);
+
+       distr_gaussiancopulas[distr_gaussiancopulas.size()-2].distrp.push_back(
+       &distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
+
+       distr_gaussiancopulas[distr_gaussiancopulas.size()-2].distrp.push_back(
+       &distr_gaussiancopulas[distr_gaussiancopulas.size()-1]);
+
+       distr_gaussiancopulas[distr_gaussiancopulas.size()-1].distrp.push_back(
+       &distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
+
+       distr_gaussiancopulas[distr_gaussiancopulas.size()-1].distrp.push_back(
+       &distr_gaussiancopulas[distr_gaussiancopulas.size()-2]);
+
+        }
+
+     }
+ //------------------------------ END: gaussiancopula ---------------------------
 
 //---------------------------------- ZIP pi ------------------------------------
   else if (family.getvalue() == "zip_pi" && equationtype.getvalue()=="pi")
