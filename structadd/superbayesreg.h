@@ -169,6 +169,7 @@ using MCMC::DISTR_sfa2_sigma_v;
 using MCMC::DISTR_sfa_alpha;
 using MCMC::DISTR_copula;
 using MCMC::DISTR_gaussiancopula_rho;
+using MCMC::DISTR_gaussiancopula_rhofz;
 using MCMC::DISTR_frankcopula_rho;
 
 
@@ -450,6 +451,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_copula> distr_copulas;
   vector<DISTR_gumbelcopula_rho> distr_gumbelcopula_rhos;
   vector<DISTR_gaussiancopula_rho> distr_gaussiancopula_rhos;
+  vector<DISTR_gaussiancopula_rhofz> distr_gaussiancopula_rhofzs;
   vector<DISTR_frankcopula_rho> distr_frankcopula_rhos;
   vector<DISTR_sfa_mu_y> distr_sfa_mu_ys;
   vector<DISTR_sfa_mu_u> distr_sfa_mu_us;

@@ -324,6 +324,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_mu_y");
   families.push_back("copula");
   families.push_back("gaussiancopula_rho");
+  families.push_back("gaussiancopula_rhofz");
   families.push_back("frankcopula_rho");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
@@ -827,6 +828,9 @@ void superbayesreg::clear(void)
   distr_gaussiancopula_rhos.erase(distr_gaussiancopula_rhos.begin(),distr_gaussiancopula_rhos.end());
   distr_gaussiancopula_rhos.reserve(20);
 
+  distr_gaussiancopula_rhofzs.erase(distr_gaussiancopula_rhofzs.begin(),distr_gaussiancopula_rhofzs.end());
+  distr_gaussiancopula_rhofzs.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -1050,6 +1054,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_copulas = b.distr_copulas;
   distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
+  distr_gaussiancopula_rhofzs = b.distr_gaussiancopula_rhofzs;
   distr_sfa2_mu_ys = b.distr_sfa2_mu_ys;
   distr_sfa2_mu_us = b.distr_sfa2_mu_us;
   distr_sfa2_sigma_us = b.distr_sfa2_sigma_us;
@@ -1210,6 +1215,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_copulas = b.distr_copulas;
   distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
+  distr_gaussiancopula_rhofzs = b.distr_gaussiancopula_rhofzs;
   distr_sfa2_mu_ys = b.distr_sfa2_mu_ys;
   distr_sfa2_mu_us = b.distr_sfa2_mu_us;
   distr_sfa2_sigma_us = b.distr_sfa2_sigma_us;
@@ -3754,6 +3760,55 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: gaussiancopula_rho ---------------------
+
+//----------------------------- gaussiancopula_rhofz ----------------------
+  else if (family.getvalue() == "gaussiancopula_rhofz")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_rhofzs.push_back(DISTR_gaussiancopula_rhofz(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((distr_copulas.size() != 2))
+       {
+       outerror("ERROR: Two equations for marginal distributions required");
+       return true;
+       }
+
+
+            predict_mult_distrs.push_back(&distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1]);
+            predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
+            predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
+
+            distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
+            distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
+            distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
+
+
+            distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+            distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
+
+            distr_copulas[distr_copulas.size()-2].distrp.push_back(
+            &distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1]);
+
+            distr_copulas[distr_copulas.size()-2].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
+
+            distr_copulas[distr_copulas.size()-1].distrp.push_back(
+            &distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1]);
+
+            distr_copulas[distr_copulas.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+
+    }
+//-------------------------- END: gaussiancopula_rhofz ---------------------
+
 
 //----------------------------- frankcopula_rho ----------------------
   else if (family.getvalue() == "frankcopula_rho")
