@@ -285,6 +285,7 @@
 		<Unit filename="structadd/distr_mixture.cpp" />
 		<Unit filename="structadd/distr_mixture.h" />
 		<Unit filename="structadd/distr_zeroadjusted.cpp" />
+		<Unit filename="structadd/distr_zeroadjusted.h" />
 		<Unit filename="structadd/mcmcsim.cpp" />
 		<Unit filename="structadd/mcmcsim.h" />
 		<Unit filename="structadd/model_parameters.cpp" />

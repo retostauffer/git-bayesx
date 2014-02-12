@@ -7193,6 +7193,44 @@ void DISTR_cloglog::update_end(void)
 //------------------------- CLASS: DISTR_gumbelcopula_rho ----------------------
 //------------------------------------------------------------------------------
 
+void DISTR_gumbelcopula_rho::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+            if((*workresp) > 1 )
+            {
+                errors=true;
+                errormessages.push_back("ERROR: cdfs of marginals take values inbetween zero and one!\n");
+            }
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
 
 DISTR_gumbelcopula_rho::DISTR_gumbelcopula_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -7264,7 +7302,41 @@ void DISTR_gumbelcopula_rho::modify_worklin(void)
 
   }
 
+void DISTR_gumbelcopula_rho::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
 
+   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
+   // *linpred[0] = eta_rho
+   // *linpred[1] = eta_sigma_2
+   // *linpred[2] = eta_mu_2
+   // *linpred[3] = eta_sigma_1
+   // *linpred[4] = eta_mu_1
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+     double rho = exp((*linpred[2])) + 1;
+     double logu = log((*response[1]));
+     double logv = log((*response[0]));
+     double logurho = pow(-logu, rho);
+     double logvrho = pow(-logv, rho);
+     double arg = logurho + logvrho;
+     double copula = exp(-pow(arg, (1 / rho)));
+     double l;
+
+       l = log(copula) + (rho -1) * (log(-logu) + log(-logv)) - logu - logv +
+                (2 / rho - 2) * log(logurho + logvrho) + log(1 + (rho - 1) * pow((logurho + logvrho), (-1 / rho)));;
+
+
+    *deviance = -2*l;
+    }
+
+  }
 
 double DISTR_gumbelcopula_rho::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -7408,6 +7480,11 @@ void DISTR_gumbelcopula_rho::compute_iwls_wweightschange_weightsone(
 
   }
 
+void DISTR_gumbelcopula_rho::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = 1 - 1 / exp((*linpred[predstart_mumult+2]));
+  }
+
 
 void DISTR_gumbelcopula_rho::outoptions(void)
   {
@@ -7441,9 +7518,9 @@ void DISTR_gumbelcopula_rho::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_gumbelcopula ------------------------
+//------------------------- CLASS: DISTR_gaussiancopula_rho --------------------
 //------------------------------------------------------------------------------
-void DISTR_gumbelcopula::check_errors(void)
+void DISTR_gaussiancopula_rho::check_errors(void)
   {
 
   if (errors==false)
@@ -7483,231 +7560,6 @@ void DISTR_gumbelcopula::check_errors(void)
   }
 
 
-DISTR_gumbelcopula::DISTR_gumbelcopula(GENERAL_OPTIONS * o,
-                                           const datamatrix & r,
-                                           unsigned & p,
-                                           const datamatrix & w)
-  : DISTR_gamlss(o,r,2,w)
-  {
-  pos =p;
-  family = "Gumbel copula";
-  outpredictor = true;
-  outexpectation = true;
-  predictor_name = "mu";
-  updateIWLS = false;
-//    linpredminlimit=-10;
-//  linpredmaxlimit=15;
-  }
-
-
-DISTR_gumbelcopula::DISTR_gumbelcopula(const DISTR_gumbelcopula & nd)
-   : DISTR_gamlss(DISTR_gamlss(nd))
-  {
-  pos = nd.pos;
-  response2 = nd.response2;
-  response2p = nd.response2p;
-  }
-
-
-const DISTR_gumbelcopula & DISTR_gumbelcopula::operator=(
-                            const DISTR_gumbelcopula & nd)
-  {
-  if (this==&nd)
-    return *this;
-  DISTR_gamlss::operator=(DISTR_gamlss(nd));
-  pos = nd.pos;
-  response2 = nd.response2;
-  response2p = nd.response2p;
-  return *this;
-  }
-
-
-void DISTR_gumbelcopula::compute_deviance_mult(vector<double *> response,
-                             vector<double *> weight,
-                             vector<double *> linpred,
-                             double * deviance,
-                             vector<datamatrix*> aux)
-  {
-
-   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
-   // *linpred[0] = eta_rho
-   // *linpred[1] = eta_sigma_2
-   // *linpred[2] = eta_mu_2
-   // *linpred[3] = eta_sigma_1
-   // *linpred[4] = eta_mu_1
-
-   if (*weight[2] == 0)
-     *deviance=0;
-   else
-     {
-
-     double l;
-
-       l = 0;
-
-
-    *deviance = -2*l;
-    }
-
-  }
-
-
-double DISTR_gumbelcopula::get_intercept_start(void)
-  {
-  return 0; // log(response.mean(0));
-  }
-
-void DISTR_gumbelcopula::compute_param(const double * linpred,double * param)
-  {
-  *param = (*linpred);
-  }
-
-void DISTR_gumbelcopula::set_worklin(void)
-  {
-
-  DISTR_gamlss::set_worklin();
-
-  response2p = response2.getV();
-
-  }
-
-
-
-void DISTR_gumbelcopula::modify_worklin(void)
-  {
-
-  DISTR_gamlss::modify_worklin();
-
-  if (counter<nrobs-1)
-    {
-    response2p++;
-    }
-
-  }
-
-
-
-double DISTR_gumbelcopula::loglikelihood_weightsone(double * response,
-                                                 double * linpred)
-  {
-
-  // *worklin[0] = linear predictor of rho equation
-  // *worktransformlin[0] = rho;
-  // *worklin[1] = linear predictor of mu_2 equation
-  // *worktransformlin[1] = mu_2;
-  // *worklin[2] = linear predictor of sigma_1 equation
-  // *worktransformlin[2] = sigma_1;
-  // *worklin[3] = linear predictor of sigma_2 equation
-  // *worktransformlin[3] = sigma_2;
-
-  if (counter==0)
-    {
-    set_worklin();
-    }
-
-  double l;
-
-
-     l = 0;
-
-  modify_worklin();
-
-  return l;
-
-  }
-
-
-void DISTR_gumbelcopula::compute_iwls_wweightschange_weightsone(
-                                              double * response,
-                                              double * linpred,
-                                              double * workingweight,
-                                              double * workingresponse,
-                                              double & like,
-                                              const bool & compute_like)
-  {
-
-  // *worklin[0] = linear predictor of rho equation
-  // *worktransformlin[0] = rho;
-  // *worklin[1] = linear predictor of mu_2 equation
-  // *worktransformlin[1] = mu_2;
-  // *worklin[2] = linear predictor of sigma_1 equation
-  // *worktransformlin[2] = sigma_1;
-  // *worklin[3] = linear predictor of sigma_2 equation
-  // *worktransformlin[3] = sigma_2;
-
-  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
-  // helpmat1.prettyPrint(out);
-  // for (i=0;i<helpmat1.rows();i++)
-  //   out << helpmat1(i,0) << endl;
-
-  if (counter==0)
-    {
-    set_worklin();
-    }
-
-
-    double nu = 0;
-
-    *workingweight = 1;
-
-    *workingresponse = *linpred + nu/(*workingweight);
-
-    if (compute_like)
-      {
-
-        like += 0;
-
-      }
-
-
-  modify_worklin();
-
-  }
-
-
-void DISTR_gumbelcopula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
-  {
-  *mu = 1 - 1 / exp((*linpred[predstart_mumult+2]));
-  }
-
-
-void DISTR_gumbelcopula::outoptions(void)
-  {
-  DISTR::outoptions();
-  optionsp->out("  Response function (mu): identity\n");
-  optionsp->out("\n");
-  optionsp->out("\n");
-  }
-
-
-void DISTR_gumbelcopula::update_end(void)
-  {
-
-
-  // helpmat1 stores (eta_mu)
-
-  double * worklin;
-  if (linpred_current==1)
-    worklin = linearpred1.getV();
-  else
-    worklin = linearpred2.getV();
-
-  double * pmu = helpmat1.getV();
-
-  unsigned i;
-  for (i=0;i<nrobs;i++,pmu++,worklin++)
-    {
-    *pmu = (*worklin);
-//    double t = 0;
-    }
-
-  }
-
-//------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_gaussiancopula_rho ----------------------
-//------------------------------------------------------------------------------
-
-
 DISTR_gaussiancopula_rho::DISTR_gaussiancopula_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
@@ -7718,8 +7570,8 @@ DISTR_gaussiancopula_rho::DISTR_gaussiancopula_rho(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "rho";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+    linpredminlimit=-100;
+  linpredmaxlimit=100;
 
   }
 
@@ -7777,7 +7629,37 @@ void DISTR_gaussiancopula_rho::modify_worklin(void)
 
   }
 
+void DISTR_gaussiancopula_rho::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
 
+
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+     double rho = (*linpred[0]) / pow(1 + pow((*linpred[0]), 2), 0.5);
+     if (*linpred[0] <= -100)
+        rho  = -0.99995;
+     else if (*linpred[0] >= 100)
+        rho  = 0.99995;
+
+     double orho = 1 - pow(rho, 2);
+     double phinvu = randnumbers::invPhi2((*response[2]));
+     double phinvv = randnumbers::invPhi2((*response[1]));
+     double l;
+
+      l = - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+
+
+    *deviance = -2*l;
+    }
+
+  }
 
 double DISTR_gaussiancopula_rho::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -7798,6 +7680,11 @@ double DISTR_gaussiancopula_rho::loglikelihood_weightsone(double * response,
     set_worklin();
     }
     double rho = (*linpred) / pow(1 + pow((*linpred), 2), 0.5);
+    if (*linpred <= -100)
+        rho  = -0.99995;
+    else if (*linpred >= 100)
+        rho  = 0.99995;
+
     double orho = 1 - pow(rho, 2);
     double phinvu = randnumbers::invPhi2((*response));
     double phinvv = randnumbers::invPhi2((*response2p));
@@ -7829,6 +7716,11 @@ void DISTR_gaussiancopula_rho::compute_iwls_wweightschange_weightsone(
     }
     double hilfs = pow(1 + pow((*linpred), 2), 0.5);
     double rho = (*linpred) / hilfs;
+    if (*linpred <= -100)
+        rho  = -0.99995;
+    else if (*linpred >= 100)
+        rho  = 0.99995;
+
     double orho = 1 - pow(rho, 2);
     double phinvu = randnumbers::invPhi2((*response));
     double phinvv = randnumbers::invPhi2((*response2p));
@@ -7852,6 +7744,11 @@ void DISTR_gaussiancopula_rho::compute_iwls_wweightschange_weightsone(
 
   modify_worklin();
 
+  }
+
+void DISTR_gaussiancopula_rho::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = 2 * std::asin((*linpred[predstart_mumult+2]) / (pow(1 + pow((*linpred[predstart_mumult+2]), 2), 0.5))) / PI ;
   }
 
 
@@ -7885,11 +7782,10 @@ void DISTR_gaussiancopula_rho::update_end(void)
 
   }
 
-
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_gaussiancopula ------------------------
+//------------------------- CLASS: DISTR_frankcopula_rho -----------------------
 //------------------------------------------------------------------------------
-void DISTR_gaussiancopula::check_errors(void)
+void DISTR_frankcopula_rho::check_errors(void)
   {
 
   if (errors==false)
@@ -7929,46 +7825,82 @@ void DISTR_gaussiancopula::check_errors(void)
   }
 
 
-DISTR_gaussiancopula::DISTR_gaussiancopula(GENERAL_OPTIONS * o,
+DISTR_frankcopula_rho::DISTR_frankcopula_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
-                                           unsigned & p,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  pos =p;
-  family = "gaussian copula";
+  family = "frank copula - rho";
+
   outpredictor = true;
-  outexpectation = true;
-  predictor_name = "mu";
-  updateIWLS = false;
-//    linpredminlimit=-10;
-//  linpredmaxlimit=15;
+  outexpectation = false;
+  predictor_name = "rho";
+ //   linpredminlimit=-10;
+ // linpredmaxlimit=15;
+ datamatrix d(nrobs,1,0.0001);
+
+  if (linpred_current==1)
+    linearpred1.plus(d);
+  else
+    linearpred2.plus(d);
+
   }
 
 
-DISTR_gaussiancopula::DISTR_gaussiancopula(const DISTR_gaussiancopula & nd)
+DISTR_frankcopula_rho::DISTR_frankcopula_rho(const DISTR_frankcopula_rho & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
-  pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
   }
 
 
-const DISTR_gaussiancopula & DISTR_gaussiancopula::operator=(
-                            const DISTR_gaussiancopula & nd)
+const DISTR_frankcopula_rho & DISTR_frankcopula_rho::operator=(
+                            const DISTR_frankcopula_rho & nd)
   {
   if (this==&nd)
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
-  pos = nd.pos;
   response2 = nd.response2;
   response2p = nd.response2p;
   return *this;
   }
 
 
-void DISTR_gaussiancopula::compute_deviance_mult(vector<double *> response,
+double DISTR_frankcopula_rho::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_frankcopula_rho::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+void DISTR_frankcopula_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_frankcopula_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+void DISTR_frankcopula_rho::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
                              double * deviance,
@@ -7981,13 +7913,15 @@ void DISTR_gaussiancopula::compute_deviance_mult(vector<double *> response,
      *deviance=0;
    else
      {
-     double rho = (*linpred[0]) / pow(1 + pow((*linpred[0]), 2), 0.5);
-     double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2((*response[2]));
-     double phinvv = randnumbers::invPhi2((*response[1]));
+     double e1 = exp(-(*linpred[2]));
+     double e1m1 = 1- e1;
+     double e2 = exp(-(*linpred[2]) * (*response[1]));
+     double e3 = exp(-(*linpred[2]) * (*response[0]));
+     double e2m1 = e2 - 1;
+     double e3m1 = e3 - 1;
      double l;
 
-      l = - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+      l = log((*linpred[2])) + log(e1m1) - (*linpred[2]) * ((*response[1]) + (*response[0])) - 2* log(e1m1 - e2m1 * e3m1);
 
 
     *deviance = -2*l;
@@ -7995,18 +7929,179 @@ void DISTR_gaussiancopula::compute_deviance_mult(vector<double *> response,
 
   }
 
+double DISTR_frankcopula_rho::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
 
-double DISTR_gaussiancopula::get_intercept_start(void)
+  // *worklin[0] = linear predictor of sigma_2 equation
+  // *worktransformlin[0] = sigma_2;
+  // *worklin[1] = linear predictor of sigma_1 equation
+  // *worktransformlin[1] = sigma_1;
+  // *worklin[2] = linear predictor of mu_2 equation
+  // *worktransformlin[2] = mu_2;
+  // *worklin[3] = linear predictor of mu_1 equation
+  // *worktransformlin[3] = mu_1;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double e1m1 = 1 - exp(-(*linpred));
+    double e2 = exp(-(*linpred) * (*response));
+    double e3 = exp(-(*linpred) * (*response2p));
+    double e2m1 = e2 - 1;
+    double e3m1 = e3 - 1;
+    double l;
+
+
+    l =  log((*linpred)) + log(e1m1) - (*linpred) * ((*response) + (*response2p)) - 2* log(e1m1 - e2m1 * e3m1);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_frankcopula_rho::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double e1 = exp(-(*linpred));
+    double e1m1 = 1 - e1;
+    double e2 = exp(-(*linpred) * (*response));
+    double e3 = exp(-(*linpred) * (*response2p));
+    double e2m1 = e2 - 1;
+    double e3m1 = e3 - 1;
+
+    double nu =  1 / (*linpred) + e1 / e1m1 - ((*response) + (*response2p))
+                - (e1 + ((*response) + (*response2p)) * e2 * e3 - (*response) * e2 - (*response2p) * e3) / (2 * (e1m1 - e2m1 * e3m1));
+
+
+    *workingweight =  1 / pow((*linpred), 2) + e1 / pow(e1m1, 2)
+                    - (e1 + pow(((*response) + (*response2p)), 2) * e2 * e3 - pow((*response), 2) * e2 - pow((*response2p), 2) * e3) / (2 * (e1m1 - e2m1 * e3m1))
+                    - pow(((e1 + ((*response) + (*response2p)) * e2 * e3 - (*response) * e2 - (*response2p) * e3) / (2 * (e1m1 - e2m1 * e3m1))), 2);
+
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+          like +=  log((*linpred)) + log(e1m1) - (*linpred) * ((*response) + (*response2p)) -  2* log(e1m1 - e2m1 * e3m1);
+      }
+
+  modify_worklin();
+
+  }
+
+void DISTR_frankcopula_rho::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = 1 - 4 * ((*linpred[predstart_mumult+2]) - 1) / (*linpred[predstart_mumult+2]);
+  }
+
+
+void DISTR_frankcopula_rho::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (rho): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_frankcopula_rho::update_end(void)
+  {
+
+  // helpmat1 stores rho
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_copula ------------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_copula::DISTR_copula(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  pos =p;
+  family = "copula";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "u";
+  updateIWLS = false;
+//    linpredminlimit=-10;
+//  linpredmaxlimit=15;
+  }
+
+
+DISTR_copula::DISTR_copula(const DISTR_copula & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_copula & DISTR_copula::operator=(
+                            const DISTR_copula & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+
+
+
+double DISTR_copula::get_intercept_start(void)
   {
   return 0; // log(response.mean(0));
   }
 
-void DISTR_gaussiancopula::compute_param(const double * linpred,double * param)
+void DISTR_copula::compute_param(const double * linpred,double * param)
   {
   *param = (*linpred);
   }
 
-void DISTR_gaussiancopula::set_worklin(void)
+void DISTR_copula::set_worklin(void)
   {
 
   DISTR_gamlss::set_worklin();
@@ -8017,7 +8112,7 @@ void DISTR_gaussiancopula::set_worklin(void)
 
 
 
-void DISTR_gaussiancopula::modify_worklin(void)
+void DISTR_copula::modify_worklin(void)
   {
 
   DISTR_gamlss::modify_worklin();
@@ -8031,7 +8126,7 @@ void DISTR_gaussiancopula::modify_worklin(void)
 
 
 
-double DISTR_gaussiancopula::loglikelihood_weightsone(double * response,
+double DISTR_copula::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
@@ -8053,7 +8148,7 @@ double DISTR_gaussiancopula::loglikelihood_weightsone(double * response,
   }
 
 
-void DISTR_gaussiancopula::compute_iwls_wweightschange_weightsone(
+void DISTR_copula::compute_iwls_wweightschange_weightsone(
                                               double * response,
                                               double * linpred,
                                               double * workingweight,
@@ -8089,13 +8184,9 @@ void DISTR_gaussiancopula::compute_iwls_wweightschange_weightsone(
   }
 
 
-void DISTR_gaussiancopula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
-  {
-  *mu = 2 * std::asin((*linpred[predstart_mumult+2]) / (pow(1 + pow((*linpred[predstart_mumult+2]), 2), 0.5))) / PI ;
-  }
 
 
-void DISTR_gaussiancopula::outoptions(void)
+void DISTR_copula::outoptions(void)
   {
   DISTR::outoptions();
   optionsp->out("  Response function (mu): identity\n");
@@ -8104,7 +8195,7 @@ void DISTR_gaussiancopula::outoptions(void)
   }
 
 
-void DISTR_gaussiancopula::update_end(void)
+void DISTR_copula::update_end(void)
   {
 
 
@@ -9301,6 +9392,520 @@ void DISTR_bivt_mu::update_end(void)
 
   }
 
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_bivnormal_rhofz ----------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_bivnormal_rhofz::DISTR_bivnormal_rhofz(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "bivariate normal - rho";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "rho";
+    linpredminlimit=-20.6;
+  linpredmaxlimit=20.6;
+
+  }
+
+
+DISTR_bivnormal_rhofz::DISTR_bivnormal_rhofz(const DISTR_bivnormal_rhofz & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_bivnormal_rhofz & DISTR_bivnormal_rhofz::operator=(
+                            const DISTR_bivnormal_rhofz & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+double DISTR_bivnormal_rhofz::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_bivnormal_rhofz::compute_param(const double * linpred,double * param)
+  {
+   double arg = exp(2 * (*linpred));
+  *param = (arg - 1) / (arg + 1);
+  }
+
+void DISTR_bivnormal_rhofz::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_bivnormal_rhofz::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+
+
+double DISTR_bivnormal_rhofz::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma_2 equation
+  // *worktransformlin[0] = sigma_2;
+  // *worklin[1] = linear predictor of sigma_1 equation
+  // *worktransformlin[1] = sigma_1;
+  // *worklin[2] = linear predictor of mu_2 equation
+  // *worktransformlin[2] = mu_2;
+  // *worklin[3] = linear predictor of mu_1 equation
+  // *worktransformlin[3] = mu_1;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double rho;
+
+ /* if (*linpred <= -10.6)
+    rho  = -0.99995;
+  else if (*linpred >= 10.6)
+   rho  = 0.99995;
+  else*/
+    rho = (exp(2 * (*linpred)) - 1) / (exp(2 * (*linpred)) + 1);
+
+  double rho2 = pow(rho,2);
+  double oneminusrho2 = 1- rho2;
+  double l;
+
+
+     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
+                                 2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
+                                +  pow((((*response2p))-(*worklin[2])),2)/pow((*worktransformlin[0]),2) );
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_bivnormal_rhofz::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma_2 equation
+  // *worktransformlin[0] = sigma_2;
+  // *worklin[1] = linear predictor of sigma_1 equation
+  // *worktransformlin[1] = sigma_1;
+  // *worklin[2] = linear predictor of mu_2 equation
+  // *worktransformlin[2] = mu_2;
+  // *worklin[3] = linear predictor of mu_1 equation
+  // *worktransformlin[3] = mu_1;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double rho;
+   /* if (*linpred <= -10.6)
+    rho  = -0.99995;
+  else if (*linpred >= 10.6)
+   rho  = 0.99995;
+  else*/
+    rho = (exp(2 * (*linpred)) - 1) / (exp(2 * (*linpred)) + 1);
+
+
+  double rho2 = pow(rho,2);
+  double oneminusrho2 = 1- rho2;
+
+
+  double nu = rho - (rho / oneminusrho2) *( pow((((*response))-(*worktransformlin[3])),2)/pow((*worktransformlin[1]),2)
+                                                      +  pow((((*response2p))-(*worktransformlin[2])),2)/pow((*worktransformlin[0]),2) )
+                + 2 * (1 / oneminusrho2 - 0.5)*( (((*response)-(*worktransformlin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worktransformlin[2]))/((*worktransformlin[0]))) );
+
+
+
+    *workingweight =  (rho2) + 1;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worklin[3])),2)/pow((*worktransformlin[1]),2) -
+                                 2*rho*(((*response)-(*worklin[3]))/((*worktransformlin[1])))*(((*response2p)-(*worklin[2]))/((*worktransformlin[0])))
+                                +  pow((((*response2p))-(*worklin[2])),2)/pow((*worktransformlin[0]),2) );
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_bivnormal_rhofz::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (rho): fishers z-transformation\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_bivnormal_rhofz::update_end(void)
+  {
+
+  // helpmat1 stores rho2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+ /*  if (*worklin <= -10.6)
+     *pmu  = -0.99995;
+   else if (*worklin >= 10.6)
+     *pmu  = 0.99995;
+   else*/
+    *pmu = (exp(2 * (*worklin)) - 1) / (exp(2 *(*worklin)) + 1);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_bivnormal_mufz ------------------------
+//------------------------------------------------------------------------------
+void DISTR_bivnormal_mufz::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_bivnormal_mufz::DISTR_bivnormal_mufz(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  pos =p;
+  family = "bivariate normal - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+  updateIWLS = false;
+//    linpredminlimit=-10;
+//  linpredmaxlimit=15;
+  }
+
+
+DISTR_bivnormal_mufz::DISTR_bivnormal_mufz(const DISTR_bivnormal_mufz & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_bivnormal_mufz & DISTR_bivnormal_mufz::operator=(
+                            const DISTR_bivnormal_mufz & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+void DISTR_bivnormal_mufz::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
+   // *linpred[0] = eta_rho
+   // *linpred[1] = eta_sigma_2
+   // *linpred[2] = eta_mu_2
+   // *linpred[3] = eta_sigma_1
+   // *linpred[4] = eta_mu_1
+
+   if (*weight[4] == 0)
+     *deviance=0;
+   else
+     {
+     double rho = (exp(2 * (*linpred[0])) - 1)/(exp(2 * (*linpred[0])) + 1);
+     double sigma_2 = exp(*linpred[1]);
+     double mu_2 = (*linpred[3]);
+     double sigma_1 = exp(*linpred[2]);
+     double mu_1 = (*linpred[4]);
+     double hilfs1 = 1-pow(rho,2);
+     double l;
+
+       l = -log(2*PI)-log(sigma_1)-log(sigma_2)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[4]))-mu_1),2)/pow(sigma_1,2) -
+                                                                                2*rho*(((*response[4])-mu_1)/(sigma_1))*(((*response[3])-mu_2)/(sigma_2))
+                                                                                + pow((((*response[3]))-mu_2),2)/pow(sigma_2,2) );
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_bivnormal_mufz::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_bivnormal_mufz::compute_param(const double * linpred,double * param)
+  {
+  *param = (*linpred);
+  }
+
+void DISTR_bivnormal_mufz::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_bivnormal_mufz::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+
+
+double DISTR_bivnormal_mufz::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+  // *worklin[2] = linear predictor of sigma_1 equation
+  // *worktransformlin[2] = sigma_1;
+  // *worklin[3] = linear predictor of sigma_2 equation
+  // *worktransformlin[3] = sigma_2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = (*linpred);
+  double rho2 = pow((*worktransformlin[0]),2);
+  double oneminusrho2 = 1- rho2;
+  double l;
+
+
+     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
+                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_bivnormal_mufz::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+  // *worklin[2] = linear predictor of sigma_1 equation
+  // *worktransformlin[2] = sigma_1;
+  // *worklin[3] = linear predictor of sigma_2 equation
+  // *worktransformlin[3] = sigma_2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = (*linpred);
+    double rho2 = pow((*worktransformlin[0]),2);
+   double oneminusrho2 = 1- rho2;
+
+
+    double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
+                                 ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+
+    *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
+                                 2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_bivnormal_mufz::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = ((*linpred[predstart_mumult+3+pos]));
+  }
+
+
+void DISTR_bivnormal_mufz::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+void DISTR_bivnormal_mufz::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinr;
+  double * worktransformlins;
+  double * workweight;
+
+  worktransformlinr = distrp[0]->helpmat1.getV();
+  worktransformlins = distrp[2]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++)
+    {
+        *workweight = 1/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+    }
+
+  }
+
+void DISTR_bivnormal_mufz::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_bivnormal_rho -------------------------
@@ -9493,7 +10098,7 @@ void DISTR_bivnormal_rho::compute_iwls_wweightschange_weightsone(
 void DISTR_bivnormal_rho::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (rho): fisher z-transformation\n");
+  optionsp->out("  Link function (rho): rhogit\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
