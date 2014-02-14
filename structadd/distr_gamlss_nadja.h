@@ -2374,6 +2374,73 @@ class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
   };
 
 //------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gumbelcopula2_rho ------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gumbelcopula2_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gumbelcopula2_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gumbelcopula2_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gumbelcopula2_rho(const DISTR_gumbelcopula2_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gumbelcopula2_rho & operator=(const DISTR_gumbelcopula2_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gumbelcopula2_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+//------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_gumbelcopula_rho ------------------------
 //------------------------------------------------------------------------------
 
