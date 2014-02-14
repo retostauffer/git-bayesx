@@ -33,7 +33,7 @@ DISTR_betainf1_tau::DISTR_betainf1_tau(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,0,w)
   {
-  family = "Beta One Inflated - tau";
+  family = "Beta One Inflated Distribution - tau";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "tau";
@@ -274,10 +274,10 @@ DISTR_betainf0_nu::DISTR_betainf0_nu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,0,w)
   {
-  family = "Beta Zero Inflated - nu";
+  family = "Beta Zero Inflated Distribution - nu";
     outpredictor = true;
   outexpectation = true;
-  predictor_name = "tau";
+  predictor_name = "nu";
     linpredminlimit=-10;
   linpredmaxlimit=15;
   }
@@ -515,7 +515,7 @@ DISTR_t_df::DISTR_t_df(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "t-distribution - degrees of freedom";
+  family = "t-Distribution - Degrees of Freedom";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "df";
@@ -624,7 +624,7 @@ void DISTR_t_df::compute_iwls_wweightschange_weightsone(
 void DISTR_t_df::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (df): exponential\n");
+  optionsp->out("  Link function (df): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -662,7 +662,7 @@ DISTR_t_sigma2::DISTR_t_sigma2(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "t-distribution - sigma2";
+  family = "t-Distribution - sigma2";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma2";
@@ -773,7 +773,7 @@ void DISTR_t_sigma2::compute_iwls_wweightschange_weightsone(
 void DISTR_t_sigma2::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma2): exponential\n");
+  optionsp->out("  Link function (sigma2): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -848,7 +848,7 @@ DISTR_t_mu::DISTR_t_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "t - mu";
+  family = "t Distribution - mu";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -1078,7 +1078,7 @@ DISTR_invgaussian_sigma2::DISTR_invgaussian_sigma2(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Inverse Gaussian - sigma2";
+  family = "Inverse Gaussian Distribution - sigma2";
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma2";
@@ -1183,7 +1183,7 @@ void DISTR_invgaussian_sigma2::compute_iwls_wweightschange_weightsone(
 void DISTR_invgaussian_sigma2::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma2): exponential\n");
+  optionsp->out("  Link function (sigma2): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -1261,7 +1261,7 @@ DISTR_invgaussian_mu::DISTR_invgaussian_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Inverse Gaussian - mu";
+  family = "Inverse Gaussian Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -1426,7 +1426,7 @@ void DISTR_invgaussian_mu::compute_mu_mult(vector<double *> linpred,vector<doubl
 void DISTR_invgaussian_mu::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("  Link function (mu): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -1466,7 +1466,7 @@ DISTR_betainf_mu::DISTR_betainf_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Beta Inflated - mu";
+  family = "Beta Zero One Inflated Distribution - mu";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "mu";
@@ -1629,7 +1629,7 @@ DISTR_betainf_sigma2::DISTR_betainf_sigma2(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Beta Inflated - sigma2";
+  family = "Beta Zero One Inflated Distribution - sigma2";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma2";
@@ -1795,7 +1795,7 @@ DISTR_betainf_nu::DISTR_betainf_nu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Beta Inflated - nu";
+  family = "Beta Zero One Inflated Distribution - nu";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "nu";
@@ -1960,7 +1960,7 @@ DISTR_betainf_tau::DISTR_betainf_tau(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Beta Inflated - tau";
+  family = "Beta Zero One Inflated Distribution - tau";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "tau";
@@ -2207,7 +2207,7 @@ DISTR_pareto_p::DISTR_pareto_p(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Pareto - p";
+  family = "Pareto Distribution - p";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "p";
@@ -2306,7 +2306,7 @@ void DISTR_pareto_p::compute_iwls_wweightschange_weightsone(
 void DISTR_pareto_p::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (p): exponential\n");
+  optionsp->out("  Link function (p): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2384,7 +2384,7 @@ DISTR_pareto_b::DISTR_pareto_b(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Pareto - b";
+  family = "Pareto Distribution - b";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "b";
@@ -2547,7 +2547,7 @@ void DISTR_pareto_b::compute_mu_mult(vector<double *> linpred,vector<double *> r
 void DISTR_pareto_b::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (b): exponential\n");
+  optionsp->out("  Link function (b): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2587,7 +2587,7 @@ DISTR_dagum_p::DISTR_dagum_p(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Dagum - p";
+  family = "Dagum Distribution - p";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "p";
@@ -2696,7 +2696,7 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
 void DISTR_dagum_p::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (p): exponential\n");
+  optionsp->out("  Link function (p): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2734,7 +2734,7 @@ DISTR_dagum_b::DISTR_dagum_b(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Dagum - b";
+  family = "Dagum Distribution - b";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "b";
@@ -2838,7 +2838,7 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
 void DISTR_dagum_b::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (b): exponential\n");
+  optionsp->out("  Link function (b): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2918,7 +2918,7 @@ DISTR_dagum_a::DISTR_dagum_a(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Dagum - a";
+  family = "Dagum Distribution - a";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "a";
@@ -3099,7 +3099,7 @@ void DISTR_dagum_a::compute_mu_mult(vector<double *> linpred,vector<double *> re
 void DISTR_dagum_a::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (a): exponential\n");
+  optionsp->out("  Link function (a): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -3141,7 +3141,7 @@ DISTR_weibull_alpha::DISTR_weibull_alpha(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Weibull - alpha";
+  family = "Weibull Distribution - alpha";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "alpha";
@@ -3242,7 +3242,7 @@ void DISTR_weibull_alpha::compute_iwls_wweightschange_weightsone(
 void DISTR_weibull_alpha::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (alpha): exponential\n");
+  optionsp->out("  Link function (alpha): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -3321,7 +3321,7 @@ DISTR_weibull_lambda::DISTR_weibull_lambda(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Weibull - lambda";
+  family = "Weibull Distribution - lambda";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "lambda";
@@ -3485,7 +3485,7 @@ void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,vector<doubl
 void DISTR_weibull_lambda::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (lambda): exponential\n");
+  optionsp->out("  Link function (lambda): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -3527,7 +3527,7 @@ DISTR_gengamma_tau::DISTR_gengamma_tau(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Generalized gamma - tau";
+  family = "Generalized Gamma Distribution - tau";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "tau";
@@ -3636,7 +3636,7 @@ void DISTR_gengamma_tau::compute_iwls_wweightschange_weightsone(
 void DISTR_gengamma_tau::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (tau): exponential\n");
+  optionsp->out("  Link function (tau): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -3674,7 +3674,7 @@ DISTR_gengamma_sigma::DISTR_gengamma_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Generalized gamma - sigma";
+  family = "Generalized Gamma Distribution - sigma";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
@@ -3781,7 +3781,7 @@ void DISTR_gengamma_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_gengamma_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -3859,7 +3859,7 @@ DISTR_gengamma_mu::DISTR_gengamma_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Generalized gamma - mu";
+  family = "Generalized Gamma Distribution - mu";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -4029,7 +4029,7 @@ void DISTR_gengamma_mu::compute_mu_mult(vector<double *> linpred,vector<double *
 void DISTR_gengamma_mu::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("  Link function (mu): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -4070,7 +4070,7 @@ DISTR_gamma_sigma::DISTR_gamma_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "gamma - sigma";
+  family = "Gamma Distribution - sigma";
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
@@ -4176,7 +4176,7 @@ void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_gamma_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -4254,7 +4254,7 @@ DISTR_gamma_mu::DISTR_gamma_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "gamma - mu";
+  family = "Gamma Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -4411,7 +4411,7 @@ void DISTR_gamma_mu::compute_mu_mult(vector<double *> linpred,vector<double *> r
 void DISTR_gamma_mu::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu): exponential\n");
+  optionsp->out("  Link function (mu): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -4451,7 +4451,7 @@ DISTR_lognormal2_sigma::DISTR_lognormal2_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Lognormal - sigma";
+  family = "Lognormal Distribution - sigma";
 
   outpredictor = true;
   outexpectation = false;
@@ -4553,7 +4553,7 @@ void DISTR_lognormal2_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_lognormal2_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -4632,7 +4632,7 @@ DISTR_lognormal2_mu::DISTR_lognormal2_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Lognormal - mu";
+  family = "Lognormal Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -4856,7 +4856,7 @@ DISTR_lognormal_sigma2::DISTR_lognormal_sigma2(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Lognormal - sigma2";
+  family = "Lognormal Distribution - sigma2";
 
   outpredictor = true;
   outexpectation = false;
@@ -4963,7 +4963,7 @@ void DISTR_lognormal_sigma2::compute_iwls_wweightschange_weightsone(
 void DISTR_lognormal_sigma2::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma2): exponential\n");
+  optionsp->out("  Link function (sigma2): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -5041,7 +5041,7 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Lognormal - mu";
+  family = "Lognormal Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -5266,7 +5266,7 @@ DISTR_truncnormal2_sigma::DISTR_truncnormal2_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "truncnormal2 - sigma";
+  family = "Truncated normal2 Distribution - sigma";
 
   outpredictor = true;
   outexpectation = false;
@@ -5371,7 +5371,7 @@ void DISTR_truncnormal2_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_truncnormal2_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -5442,7 +5442,7 @@ DISTR_truncnormal2_mu::DISTR_truncnormal2_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "truncnormal2 - mu";
+  family = "Truncated normal2 Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -5650,7 +5650,7 @@ DISTR_normal2_sigma::DISTR_normal2_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "normal2 - sigma";
+  family = "Normal2 Distribution - sigma";
 
   outpredictor = true;
   outexpectation = false;
@@ -5753,7 +5753,7 @@ void DISTR_normal2_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_normal2_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -5824,7 +5824,7 @@ DISTR_normal2_mu::DISTR_normal2_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "normal2 - mu";
+  family = "Normal2 Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -6049,7 +6049,7 @@ DISTR_normal_sigma2::DISTR_normal_sigma2(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "normal - sigma2";
+  family = "Normal Distribution - sigma2";
 
   outpredictor = true;
   outexpectation = false;
@@ -6155,7 +6155,7 @@ void DISTR_normal_sigma2::compute_iwls_wweightschange_weightsone(
 void DISTR_normal_sigma2::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma2): exponential\n");
+  optionsp->out("  Link function (sigma2): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -6227,7 +6227,7 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "normal - mu";
+  family = "Normal Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -6459,7 +6459,7 @@ DISTR_beta_sigma2::DISTR_beta_sigma2(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Beta - sigma2";
+  family = "Beta Distribution - sigma2";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma2";
@@ -6674,7 +6674,7 @@ DISTR_beta_mu::DISTR_beta_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Beta - mu";
+  family = "Beta Distribution - mu";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -6958,7 +6958,7 @@ DISTR_cloglog::DISTR_cloglog(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,0,w)
   {
-  family = "binomial-cloglog";
+  family = "Binomial Distribution - cloglog";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -7237,7 +7237,7 @@ DISTR_gumbelcopula_rho::DISTR_gumbelcopula_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Gumbel copula - rho";
+  family = "Gumbel Copula - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -7565,7 +7565,7 @@ DISTR_gaussiancopula_rho::DISTR_gaussiancopula_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "gaussian copula - rho";
+  family = "Gaussian Copula - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -7831,7 +7831,7 @@ DISTR_gaussiancopula_rhofz::DISTR_gaussiancopula_rhofz(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "gaussian copula - rho";
+  family = "Gaussian Copula - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -8107,7 +8107,7 @@ DISTR_frankcopula_rho::DISTR_frankcopula_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "frank copula - rho";
+  family = "Frank Copula - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -8333,7 +8333,7 @@ DISTR_copula::DISTR_copula(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   pos =p;
-  family = "copula";
+  family = "Copula";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "u";
@@ -8466,7 +8466,7 @@ void DISTR_copula::compute_iwls_wweightschange_weightsone(
 void DISTR_copula::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -8547,7 +8547,7 @@ DISTR_dirichlet::DISTR_dirichlet(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,nrc-1,w)
   {
-  family = "dirichlet";
+  family = "Dirichlet Distribution";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "alpha";
@@ -8732,7 +8732,7 @@ void DISTR_dirichlet::compute_mu_mult(vector<double *> linpred,vector<double *> 
 void DISTR_dirichlet::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (alpha): exponential\n");
+  optionsp->out("  Link function (alpha): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -8773,7 +8773,7 @@ DISTR_bivt_df::DISTR_bivt_df(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,5,w)
   {
-  family = "bivariate t - degrees of freedom";
+  family = "Bivariate t-Distribution - Degrees of Freedom";
 
   outpredictor = true;
   outexpectation = false;
@@ -8931,7 +8931,7 @@ void DISTR_bivt_df::compute_iwls_wweightschange_weightsone(
 void DISTR_bivt_df::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (df): exponential\n");
+  optionsp->out("  Link function (df): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -8969,7 +8969,7 @@ DISTR_bivt_rho::DISTR_bivt_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,5,w)
   {
-  family = "bivariate t - rho";
+  family = "Bivariate t-Distribution - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -9187,7 +9187,7 @@ DISTR_bivt_sigma::DISTR_bivt_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,5,w)
   {
-  family = "bivariate t - sigma";
+  family = "Bivariate t-Distribution - sigma";
 
   pos = p;
   outpredictor = true;
@@ -9346,7 +9346,7 @@ void DISTR_bivt_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_bivt_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -9419,7 +9419,7 @@ DISTR_bivt_mu::DISTR_bivt_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,5,w)
   {
   pos =p;
-  family = "bivariate t - mu";
+  family = "Bivariate t-Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -9679,7 +9679,7 @@ DISTR_bivnormal_rhofz::DISTR_bivnormal_rhofz(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,4,w)
   {
-  family = "bivariate normal - rho";
+  family = "Bivariate Normal Distribution - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -9931,7 +9931,7 @@ DISTR_bivnormal_mufz::DISTR_bivnormal_mufz(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,4,w)
   {
   pos =p;
-  family = "bivariate normal - mu";
+  family = "Bivariate Normal Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -10194,7 +10194,7 @@ DISTR_bivnormal_rho::DISTR_bivnormal_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,4,w)
   {
-  family = "bivariate normal - rho";
+  family = "Bivariate Normal Distribution - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -10412,7 +10412,7 @@ DISTR_bivnormal_sigma::DISTR_bivnormal_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,4,w)
   {
-  family = "bivariate normal - sigma";
+  family = "Bivariate Normal Distribution - sigma";
 
   pos = p;
   outpredictor = true;
@@ -10567,7 +10567,7 @@ void DISTR_bivnormal_sigma::compute_iwls_wweightschange_weightsone(
 void DISTR_bivnormal_sigma::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma): exponential\n");
+  optionsp->out("  Link function (sigma): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -10640,7 +10640,7 @@ DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,4,w)
   {
   pos =p;
-  family = "bivariate normal - mu";
+  family = "Bivariate Normal Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -10902,7 +10902,7 @@ DISTR_bivprobit_rho::DISTR_bivprobit_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "bivariate probit - rho";
+  family = "Bivariate Probit Distribution - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -11175,7 +11175,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   pos =p;
-  family = "bivariate probit - mu";
+  family = "Bivariate Probit Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -11461,7 +11461,7 @@ DISTR_bivlogit_or::DISTR_bivlogit_or(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Bivariate logit - odds ratio";
+  family = "Bivariate Logit Distribution - Odds Ratio";
 
   outpredictor = true;
   outexpectation = false;
@@ -11749,7 +11749,7 @@ DISTR_bivlogit_mu::DISTR_bivlogit_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   pos =p;
-  family = "Bivariate logit - mu";
+  family = "Bivariate Logit Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -12067,7 +12067,7 @@ DISTR_BCCG_nu::DISTR_BCCG_nu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "BCCG distribution - nu";
+  family = "BCCG Distribution - nu";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "nu";
@@ -12255,7 +12255,7 @@ DISTR_BCCG_sigma::DISTR_BCCG_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "BCCG distribution - sigma";
+  family = "BCCG Distribution - sigma";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
@@ -12444,7 +12444,7 @@ DISTR_BCCG_mu::DISTR_BCCG_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-    family = "BCCG distribution - mu";
+    family = "BCCG Distribution - mu";
     outpredictor = true;
     outexpectation = true;
     predictor_name = "mu";
@@ -12821,7 +12821,7 @@ void DISTR_sfa_alpha::compute_iwls_wweightschange_weightsone(
 void DISTR_sfa_alpha::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (alpha): exponential\n");
+  optionsp->out("  Link function (alpha): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -13001,7 +13001,7 @@ void DISTR_sfa_sigma_v::compute_iwls_wweightschange_weightsone(
 void DISTR_sfa_sigma_v::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma_v): exponential\n");
+  optionsp->out("  Link function (sigma_v): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -13186,7 +13186,7 @@ void DISTR_sfa_sigma_u::compute_iwls_wweightschange_weightsone(
 void DISTR_sfa_sigma_u::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma_u): exponential\n");
+  optionsp->out("  Link function (sigma_u): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -13371,7 +13371,7 @@ void DISTR_sfa_mu_u::compute_iwls_wweightschange_weightsone(
 void DISTR_sfa_mu_u::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu_u): exponential\n");
+  optionsp->out("  Link function (mu_u): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -13832,7 +13832,7 @@ void DISTR_sfa2_sigma_v::compute_iwls_wweightschange_weightsone(
 void DISTR_sfa2_sigma_v::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma_v): exponential\n");
+  optionsp->out("  Link function (sigma_v): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -14017,7 +14017,7 @@ void DISTR_sfa2_sigma_u::compute_iwls_wweightschange_weightsone(
 void DISTR_sfa2_sigma_u::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (sigma_u): exponential\n");
+  optionsp->out("  Link function (sigma_u): log\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
