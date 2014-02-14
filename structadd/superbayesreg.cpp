@@ -3682,21 +3682,14 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-            predict_mult_distrs.push_back(&distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
+			predict_mult_distrs.push_back(&distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
 
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
             distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
 
-
-            distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-2]);
-
-            distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-1]);
-
             distr_copulas[distr_copulas.size()-2].distrp.push_back(
             &distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
 
@@ -3708,6 +3701,12 @@ bool superbayesreg::create_distribution(void)
 
             distr_copulas[distr_copulas.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-2]);
+			
+			distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+            distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
 
     }
 //-------------------------- END: gumbelcopula_rho ---------------------
@@ -3729,22 +3728,14 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-
-            predict_mult_distrs.push_back(&distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
+			predict_mult_distrs.push_back(&distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
 
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
             distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
 
-
-            distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-2]);
-
-            distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-1]);
-
             distr_copulas[distr_copulas.size()-2].distrp.push_back(
             &distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
 
@@ -3756,6 +3747,12 @@ bool superbayesreg::create_distribution(void)
 
             distr_copulas[distr_copulas.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-2]);
+			
+			distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+            distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
 
 
     }
@@ -3777,22 +3774,14 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-
-            predict_mult_distrs.push_back(&distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
+			predict_mult_distrs.push_back(&distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1]);
 
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
             distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
 
-
-            distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-2]);
-
-            distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-1]);
-
             distr_copulas[distr_copulas.size()-2].distrp.push_back(
             &distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1]);
 
@@ -3804,6 +3793,12 @@ bool superbayesreg::create_distribution(void)
 
             distr_copulas[distr_copulas.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-2]);
+			
+			distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+            distr_gaussiancopula_rhofzs[distr_gaussiancopula_rhofzs.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
 
 
     }
@@ -3827,21 +3822,14 @@ bool superbayesreg::create_distribution(void)
        }
 
 
-            predict_mult_distrs.push_back(&distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
+			predict_mult_distrs.push_back(&distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1]);
 
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
             distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
 
-
-            distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-2]);
-
-            distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1].distrp.push_back(
-            &distr_copulas[distr_copulas.size()-1]);
-
             distr_copulas[distr_copulas.size()-2].distrp.push_back(
             &distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1]);
 
@@ -3853,6 +3841,12 @@ bool superbayesreg::create_distribution(void)
 
             distr_copulas[distr_copulas.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-2]);
+			
+			distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+            distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
 
 
     }
