@@ -7189,10 +7189,259 @@ void DISTR_cloglog::update_end(void)
   }
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_gumbelcopula2_rho ----------------------
+//------------------------- CLASS: DISTR_claytoncopula2_rho ----------------------
 //------------------------------------------------------------------------------
 
-void DISTR_gumbelcopula2_rho::check_errors(void)
+void DISTR_claytoncopula2_rho::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+DISTR_claytoncopula2_rho::DISTR_claytoncopula2_rho(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,4,w)
+  {
+  family = "Clayton Copula - rho";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "rho";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_claytoncopula2_rho::DISTR_claytoncopula2_rho(const DISTR_claytoncopula2_rho & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_claytoncopula2_rho & DISTR_claytoncopula2_rho::operator=(
+                            const DISTR_claytoncopula2_rho & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+double DISTR_claytoncopula2_rho::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_claytoncopula2_rho::compute_param(const double * linpred,double * param)
+  {
+   double arg = exp(*linpred);
+  *param = arg;
+  }
+
+void DISTR_claytoncopula2_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_claytoncopula2_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+void DISTR_claytoncopula2_rho::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+
+   if (*weight[4] == 0)
+     *deviance=0;
+   else
+     {
+     double rho = exp((*linpred[4]));
+     double u = randnumbers::Phi2(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5));
+     double v = randnumbers::Phi2(((*response[4]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5));
+     double urho = pow(u, -rho);
+     double vrho = pow(v, -rho);
+     double arg = urho + vrho - 1;
+     double l;
+
+       l = log(rho + 1) - (1 + rho) * (log(u) + log(v)) - (2 + 1 / rho) * log(arg) +
+                log(randnumbers::phi(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5))) +
+                log(randnumbers::phi(((*response[0]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5)));
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+double DISTR_claytoncopula2_rho::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double rho = exp((*linpred));
+    double u = randnumbers::Phi2(((*response2p) - (*worktransformlin[3])) / pow((*worktransformlin[2]), 0.5));
+    double v = randnumbers::Phi2(((*response) - (*worktransformlin[1])) / pow((*worktransformlin[0]), 0.5));
+    double logu = log(u);
+    double logv = log(v);
+    double urho = pow(u, -rho);
+    double vrho = pow(v, -rho);
+    double arg = urho + vrho - 1;
+    double l;
+
+    l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_claytoncopula2_rho::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double rho = exp((*linpred));
+    double u = randnumbers::Phi2(((*response2p) - (*worktransformlin[3])) / pow((*worktransformlin[2]), 0.5));
+    double v = randnumbers::Phi2(((*response) - (*worktransformlin[1])) / pow((*worktransformlin[0]), 0.5));
+    double logu = log(u);
+    double logv = log(v);
+    double urho = pow(u, -rho);
+    double vrho = pow(v, -rho);
+    double arg = urho + vrho - 1;
+
+    double nu = rho / (rho + 1) - rho * (logu + logv) + log(arg) / rho + (2 * rho + 1) * (logu * urho + logv * vrho) / arg;
+
+    *workingweight = -rho / pow(rho + 1, 2) + rho * (logu + logv) + log(arg) / rho + (1 - 2 * rho) * (logu * urho + logv * vrho) / arg
+                        - ((pow(rho, 2) * (2 + 1 / rho)) / (arg)) * (pow((logu * urho + logv * vrho), 2) / arg - pow(logu, 2) * urho - pow(logv, 2) * vrho );
+
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+          like += log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+      }
+
+
+  modify_worklin();
+
+  }
+
+void DISTR_claytoncopula2_rho::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  double arg = exp((*linpred[predstart_mumult+2]));
+  *mu = arg / (arg + 2);
+  }
+
+
+void DISTR_claytoncopula2_rho::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (rho): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_claytoncopula2_rho::update_end(void)
+  {
+
+  // helpmat1 stores rho2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_claytoncopula_rho ----------------------
+//------------------------------------------------------------------------------
+
+void DISTR_claytoncopula_rho::check_errors(void)
   {
 
   if (errors==false)
@@ -7211,6 +7460,242 @@ void DISTR_gumbelcopula2_rho::check_errors(void)
                 errors=true;
                 errormessages.push_back("ERROR: cdfs of marginals take values inbetween zero and one!\n");
             }
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+DISTR_claytoncopula_rho::DISTR_claytoncopula_rho(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Clayton Copula - rho";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "rho";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_claytoncopula_rho::DISTR_claytoncopula_rho(const DISTR_claytoncopula_rho & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_claytoncopula_rho & DISTR_claytoncopula_rho::operator=(
+                            const DISTR_claytoncopula_rho & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+double DISTR_claytoncopula_rho::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+
+void DISTR_claytoncopula_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_claytoncopula_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+void DISTR_claytoncopula_rho::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+     double rho = exp((*linpred[2]));
+     double logu = log((*response[1]));
+     double logv = log((*response[0]));
+     double urho = pow((*response[1]), -rho);
+     double vrho = pow((*response[0]), -rho);
+     double arg = urho + vrho - 1;
+     double l;
+
+       l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+double DISTR_claytoncopula_rho::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double rho = exp((*linpred));
+    double logu = log((*response));
+    double logv = log((*response2p));
+    double urho = pow((*response), -rho);
+    double vrho = pow((*response2p), -rho);
+    double arg = urho + vrho - 1;
+    double l;
+
+    l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_claytoncopula_rho::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double rho = exp((*linpred));
+    double logu = log((*response));
+    double logv = log((*response2p));
+    double urho = pow((*response), -rho);
+    double vrho = pow((*response2p), -rho);
+    double arg = urho + vrho - 1;
+
+    double nu = rho / (rho + 1) - rho * (logu + logv) + log(arg) / rho + (2 * rho + 1) * (logu * urho + logv * vrho) / arg;
+
+    *workingweight = -rho / pow(rho + 1, 2) + rho * (logu + logv) + log(arg) / rho + (1 - 2 * rho) * (logu * urho + logv * vrho) / arg
+                        - ((pow(rho, 2) * (2 + 1 / rho)) / (arg)) * (pow((logu * urho + logv * vrho), 2) / arg - pow(logu, 2) * urho - pow(logv, 2) * vrho );
+
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+          like += log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+      }
+
+  modify_worklin();
+
+  }
+
+void DISTR_claytoncopula_rho::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  double arg = exp((*linpred[predstart_mumult+2]));
+  *mu = arg / (arg + 2);
+  }
+
+
+void DISTR_claytoncopula_rho::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (rho): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_claytoncopula_rho::update_end(void)
+  {
+
+  // helpmat1 stores rho2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_gumbelcopula2_rho ---------------------
+//------------------------------------------------------------------------------
+
+void DISTR_gumbelcopula2_rho::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
         }
       else if (*workweight == 0)
         {
@@ -7332,8 +7817,8 @@ void DISTR_gumbelcopula2_rho::compute_deviance_mult(vector<double *> response,
 
        l = log(copula) + (rho -1) * (log(-logu) + log(-logv)) - logu - logv +
                 (2 / rho - 2) * log(logurho + logvrho) + log(1 + (rho - 1) * pow((logurho + logvrho), (-1 / rho))) +
-                log(randnumbers::Phi2(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5))) +
-                log(randnumbers::Phi2(((*response[0]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5)));
+                log(randnumbers::phi(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5))) +
+                log(randnumbers::phi(((*response[0]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5)));
 
 
     *deviance = -2*l;
@@ -7612,13 +8097,6 @@ void DISTR_gumbelcopula_rho::compute_deviance_mult(vector<double *> response,
                              vector<datamatrix*> aux)
   {
 
-   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
-   // *linpred[0] = eta_rho
-   // *linpred[1] = eta_sigma_2
-   // *linpred[2] = eta_mu_2
-   // *linpred[3] = eta_sigma_1
-   // *linpred[4] = eta_mu_1
-
    if (*weight[2] == 0)
      *deviance=0;
    else
@@ -7690,14 +8168,6 @@ void DISTR_gumbelcopula_rho::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
-  // *worklin[0] = linear predictor of sigma_2 equation
-  // *worktransformlin[0] = sigma_2;
-  // *worklin[1] = linear predictor of sigma_1 equation
-  // *worktransformlin[1] = sigma_1;
-  // *worklin[2] = linear predictor of mu_2 equation
-  // *worktransformlin[2] = mu_2;
-  // *worklin[3] = linear predictor of mu_1 equation
-  // *worktransformlin[3] = mu_1;
 
   if (counter==0)
     {
@@ -7968,15 +8438,6 @@ double DISTR_gaussiancopula_rho::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
-  // *worklin[0] = linear predictor of sigma_2 equation
-  // *worktransformlin[0] = sigma_2;
-  // *worklin[1] = linear predictor of sigma_1 equation
-  // *worktransformlin[1] = sigma_1;
-  // *worklin[2] = linear predictor of mu_2 equation
-  // *worktransformlin[2] = mu_2;
-  // *worklin[3] = linear predictor of mu_1 equation
-  // *worktransformlin[3] = mu_1;
-
 
   if (counter==0)
     {
@@ -8087,7 +8548,7 @@ void DISTR_gaussiancopula_rho::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_gaussiancopula_rhofz --------------------
+//------------------------- CLASS: DISTR_gaussiancopula_rhofz ------------------
 //------------------------------------------------------------------------------
 void DISTR_gaussiancopula_rhofz::check_errors(void)
   {
@@ -8237,14 +8698,6 @@ double DISTR_gaussiancopula_rhofz::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
-  // *worklin[0] = linear predictor of sigma_2 equation
-  // *worktransformlin[0] = sigma_2;
-  // *worklin[1] = linear predictor of sigma_1 equation
-  // *worktransformlin[1] = sigma_1;
-  // *worklin[2] = linear predictor of mu_2 equation
-  // *worktransformlin[2] = mu_2;
-  // *worklin[3] = linear predictor of mu_1 equation
-  // *worktransformlin[3] = mu_1;
 
 
   if (counter==0)
@@ -8513,14 +8966,6 @@ double DISTR_frankcopula_rho::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
-  // *worklin[0] = linear predictor of sigma_2 equation
-  // *worktransformlin[0] = sigma_2;
-  // *worklin[1] = linear predictor of sigma_1 equation
-  // *worktransformlin[1] = sigma_1;
-  // *worklin[2] = linear predictor of mu_2 equation
-  // *worktransformlin[2] = mu_2;
-  // *worklin[3] = linear predictor of mu_1 equation
-  // *worktransformlin[3] = mu_1;
 
 
   if (counter==0)

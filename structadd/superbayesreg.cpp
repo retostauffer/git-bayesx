@@ -313,6 +313,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("BCCG_nu");
   families.push_back("gumbelcopula_rho");
   families.push_back("gumbelcopula2_rho");
+  families.push_back("claytoncopula_rho");
+  families.push_back("claytoncopula2_rho");
   families.push_back("sfa_sigma_v");
   families.push_back("sfa_sigma_u");
   families.push_back("sfa_mu_y");
@@ -799,6 +801,12 @@ void superbayesreg::clear(void)
   distr_gumbelcopula2_rhos.erase(distr_gumbelcopula2_rhos.begin(),distr_gumbelcopula2_rhos.end());
   distr_gumbelcopula2_rhos.reserve(20);
 
+  distr_claytoncopula_rhos.erase(distr_claytoncopula_rhos.begin(),distr_claytoncopula_rhos.end());
+  distr_claytoncopula_rhos.reserve(20);
+
+  distr_claytoncopula2_rhos.erase(distr_claytoncopula2_rhos.begin(),distr_claytoncopula2_rhos.end());
+  distr_claytoncopula2_rhos.reserve(20);
+
   distr_sfa_mu_ys.erase(distr_sfa_mu_ys.begin(),distr_sfa_mu_ys.end());
   distr_sfa_mu_ys.reserve(20);
 
@@ -1057,6 +1065,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
+  distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
+  distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_copulas = b.distr_copulas;
   distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
   distr_gaussiancopula_rhofzs = b.distr_gaussiancopula_rhofzs;
@@ -1219,6 +1229,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
+  distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
+  distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_copulas = b.distr_copulas;
   distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
   distr_gaussiancopula_rhofzs = b.distr_gaussiancopula_rhofzs;
@@ -3669,6 +3681,105 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: cloglog -----------------------------
+
+//----------------------------- claytoncopula2_rho ----------------------
+  else if (family.getvalue() == "claytoncopula2_rho")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_claytoncopula2_rhos.push_back(DISTR_claytoncopula2_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((distr_normal_mus.size() != 2) || (distr_normal_sigma2s.size() != 2))
+       {
+       outerror("ERROR: Two equations for marginal distributions required");
+       return true;
+       }
+
+            predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-2]);
+            predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-2]);
+            predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+            predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
+            predict_mult_distrs.push_back(&distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-1].response;
+
+            distr_normal_sigma2s[distr_normal_sigma2s.size()-2].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-2]);
+
+            distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-1]);
+
+            distr_normal_mus[distr_normal_mus.size()-2].distrp.push_back(
+            &distr_normal_sigma2s[distr_normal_sigma2s.size()-2]);
+
+            distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back(
+            &distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_sigma2s[distr_normal_sigma2s.size()-2]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-2]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-1]);
+
+    }
+//-------------------------- END: claytoncopula2_rho ---------------------
+
+
+//----------------------------- claytoncopula_rho ----------------------
+  else if (family.getvalue() == "claytoncopula_rho")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_claytoncopula_rhos.push_back(DISTR_claytoncopula_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((distr_copulas.size() != 2))
+       {
+       outerror("ERROR: Two equations for marginal distributions required");
+       return true;
+       }
+
+            predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
+            predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
+			predict_mult_distrs.push_back(&distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1]);
+
+            distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
+            distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
+            distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
+
+            distr_copulas[distr_copulas.size()-2].distrp.push_back(
+            &distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1]);
+
+            distr_copulas[distr_copulas.size()-2].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
+
+            distr_copulas[distr_copulas.size()-1].distrp.push_back(
+            &distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1]);
+
+            distr_copulas[distr_copulas.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+			distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-2]);
+
+            distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1].distrp.push_back(
+            &distr_copulas[distr_copulas.size()-1]);
+
+    }
+//-------------------------- END: claytoncopula_rho ---------------------
+
 
 //----------------------------- gumbelcopula2_rho ----------------------
   else if (family.getvalue() == "gumbelcopula2_rho")
