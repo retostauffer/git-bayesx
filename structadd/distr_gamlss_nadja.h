@@ -4043,6 +4043,190 @@ class __EXPORT_TYPE DISTR_BCCG_mu : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa0_sigma_v ------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa0_sigma_v : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa0_sigma_v(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa0_sigma_v(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa0_sigma_v(const DISTR_sfa0_sigma_v & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa0_sigma_v & operator=(const DISTR_sfa0_sigma_v & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa0_sigma_v() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa0_sigma_u --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa0_sigma_u : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa0_sigma_u(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa0_sigma_u(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa0_sigma_u(const DISTR_sfa0_sigma_u & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa0_sigma_u & operator=(const DISTR_sfa0_sigma_u & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa0_sigma_u() {}
+
+  double get_intercept_start(void);
+
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa0_mu_y ------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa0_mu_y : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa0_mu_y(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa0_mu_y(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa0_mu_y(const DISTR_sfa0_mu_y & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa0_mu_y & operator=(const DISTR_sfa0_mu_y & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa0_mu_y() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_sfa_alpha -------------------------------
@@ -4338,6 +4522,134 @@ class __EXPORT_TYPE DISTR_sfa_mu_y : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa_mu_u_id -----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa_mu_u_id : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa_mu_u_id(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa_mu_u_id(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa_mu_u_id(const DISTR_sfa_mu_u_id & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa_mu_u_id & operator=(const DISTR_sfa_mu_u_id & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa_mu_u_id() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa_mu_y_id --------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa_mu_y_id : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa_mu_y_id(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa_mu_y_id(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa_mu_y_id(const DISTR_sfa_mu_y_id & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa_mu_y_id & operator=(const DISTR_sfa_mu_y_id & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa_mu_y_id() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_sfa2_sigma_v -----------------------------
@@ -4579,6 +4891,135 @@ class __EXPORT_TYPE DISTR_sfa2_mu_y : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa2_mu_u_id --------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa2_mu_u_id : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa2_mu_u_id(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa2_mu_u_id(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa2_mu_u_id(const DISTR_sfa2_mu_u_id & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa2_mu_u_id & operator=(const DISTR_sfa2_mu_u_id & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa2_mu_u_id() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_sfa2_mu_y_id --------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_sfa2_mu_y_id : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_sfa2_mu_y_id(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_sfa2_mu_y_id(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_sfa2_mu_y_id(const DISTR_sfa2_mu_y_id & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_sfa2_mu_y_id & operator=(const DISTR_sfa2_mu_y_id & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_sfa2_mu_y_id() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
 
 } // end: namespace MCMC
 
