@@ -7189,7 +7189,7 @@ void DISTR_cloglog::update_end(void)
   }
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_claytoncopula2_rho ----------------------
+//------------------------- CLASS: DISTR_claytoncopula2_rho --------------------
 //------------------------------------------------------------------------------
 
 void DISTR_claytoncopula2_rho::check_errors(void)
@@ -7310,7 +7310,7 @@ void DISTR_claytoncopula2_rho::compute_deviance_mult(vector<double *> response,
      {
      double rho = exp((*linpred[4]));
      double u = randnumbers::Phi2(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5));
-     double v = randnumbers::Phi2(((*response[4]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5));
+     double v = randnumbers::Phi2(((*response[0]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5));
      double urho = pow(u, -rho);
      double vrho = pow(v, -rho);
      double arg = urho + vrho - 1;
@@ -7438,7 +7438,7 @@ void DISTR_claytoncopula2_rho::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_claytoncopula_rho ----------------------
+//------------------------- CLASS: DISTR_claytoncopula_rho ---------------------
 //------------------------------------------------------------------------------
 
 void DISTR_claytoncopula_rho::check_errors(void)
@@ -7806,7 +7806,7 @@ void DISTR_gumbelcopula2_rho::compute_deviance_mult(vector<double *> response,
      {
      double rho = exp((*linpred[4])) + 1;
      double u = randnumbers::Phi2(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5));
-     double v = randnumbers::Phi2(((*response[4]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5));
+     double v = randnumbers::Phi2(((*response[0]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5));
      double logu = log(u);
      double logv = log(v);
      double logurho = pow(-logu, rho);
@@ -8422,7 +8422,7 @@ void DISTR_gaussiancopula_rho::compute_deviance_mult(vector<double *> response,
         rho  = 0.99995;
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2((*response[2]));
+     double phinvu = randnumbers::invPhi2((*response[1]));
      double phinvv = randnumbers::invPhi2((*response[0]));
      double l;
 
@@ -8682,7 +8682,7 @@ void DISTR_gaussiancopula_rhofz::compute_deviance_mult(vector<double *> response
     rho = (exp(2 * (*linpred[2])) - 1) / (exp(2 * (*linpred[2])) + 1);
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2((*response[2]));
+     double phinvu = randnumbers::invPhi2((*response[1]));
      double phinvv = randnumbers::invPhi2((*response[0]));
      double l;
 
@@ -8948,13 +8948,13 @@ void DISTR_frankcopula_rho::compute_deviance_mult(vector<double *> response,
      {
      double e1 = exp(-(*linpred[2]));
      double e1m1 = 1- e1;
-     double e2 = exp(-(*linpred[2]) * (*response[2]));
+     double e2 = exp(-(*linpred[2]) * (*response[1]));
      double e3 = exp(-(*linpred[2]) * (*response[0]));
      double e2m1 = e2 - 1;
      double e3m1 = e3 - 1;
      double l;
 
-      l = log((*linpred[2])) + log(e1m1) - (*linpred[2]) * ((*response[2]) + (*response[0])) - 2* log(e1m1 - e2m1 * e3m1);
+      l = log((*linpred[2])) + log(e1m1) - (*linpred[2]) * ((*response[1]) + (*response[0])) - 2* log(e1m1 - e2m1 * e3m1);
 
 
     *deviance = -2*l;

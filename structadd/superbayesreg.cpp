@@ -3745,7 +3745,7 @@ bool superbayesreg::create_distribution(void)
             predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
             predict_mult_distrs.push_back(&distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
 
-            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-1].response;
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-2].response;
 
             distr_normal_sigma2s[distr_normal_sigma2s.size()-2].distrp.push_back(
             &distr_normal_mus[distr_normal_mus.size()-2]);
@@ -3844,7 +3844,7 @@ bool superbayesreg::create_distribution(void)
             predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
             predict_mult_distrs.push_back(&distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1]);
 
-            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-1].response;
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-2].response;
 
             distr_normal_sigma2s[distr_normal_sigma2s.size()-2].distrp.push_back(
             &distr_normal_mus[distr_normal_mus.size()-2]);
@@ -4082,7 +4082,7 @@ bool superbayesreg::create_distribution(void)
 
 
      }
- //------------------------------ END: gaussiancopula ---------------------------
+ //------------------------------ END: copula ---------------------------
 
 //---------------------------------- ZIP pi ------------------------------------
   else if (family.getvalue() == "zip_pi" && equationtype.getvalue()=="pi")
