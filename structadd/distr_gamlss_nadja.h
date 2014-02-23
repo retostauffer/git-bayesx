@@ -2373,8 +2373,148 @@ class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
 
   };
 
+
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_claytoncopula2_rho ------------------------
+//----------------- CLASS: DISTR_claytoncopula2_normal_sigma2 ------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_claytoncopula2_normal_sigma2 : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_claytoncopula2_normal_sigma2(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_claytoncopula2_normal_sigma2(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_claytoncopula2_normal_sigma2(const DISTR_claytoncopula2_normal_sigma2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_claytoncopula2_normal_sigma2 & operator=(const DISTR_claytoncopula2_normal_sigma2 & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_claytoncopula2_normal_sigma2() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_claytoncopula2_normal_mu ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_claytoncopula2_normal_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_claytoncopula2_normal_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_claytoncopula2_normal_mu(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_claytoncopula2_normal_mu(const DISTR_claytoncopula2_normal_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_claytoncopula2_normal_mu & operator=(const DISTR_claytoncopula2_normal_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_claytoncopula2_normal_mu() {}
+
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+ // void update(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_claytoncopula2_rho ----------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_claytoncopula2_rho : public DISTR_gamlss
@@ -3365,7 +3505,7 @@ class __EXPORT_TYPE DISTR_bivnormal_rho : public DISTR_gamlss
   };
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_bivnormal_mufz -------------------------------
+//----------------------- CLASS: DISTR_bivnormal_mufz --------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_bivnormal_mufz : public DISTR_gamlss
@@ -4149,6 +4289,8 @@ class __EXPORT_TYPE DISTR_sfa0_sigma_u : public DISTR_gamlss
 
   void outoptions(void);
 
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
   void update_end(void);
 
   };
@@ -4388,6 +4530,8 @@ class __EXPORT_TYPE DISTR_sfa_sigma_u : public DISTR_gamlss
 
 
   void outoptions(void);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void update_end(void);
 

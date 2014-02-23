@@ -161,6 +161,8 @@ using MCMC::DISTR_gumbelcopula_rho;
 using MCMC::DISTR_gumbelcopula2_rho;
 using MCMC::DISTR_claytoncopula_rho;
 using MCMC::DISTR_claytoncopula2_rho;
+using MCMC::DISTR_claytoncopula2_normal_mu;
+using MCMC::DISTR_claytoncopula2_normal_sigma2;
 using MCMC::DISTR_sfa0_mu_y;
 using MCMC::DISTR_sfa0_sigma_u;
 using MCMC::DISTR_sfa0_sigma_v;
@@ -463,6 +465,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gumbelcopula2_rho> distr_gumbelcopula2_rhos;
   vector<DISTR_claytoncopula_rho> distr_claytoncopula_rhos;
   vector<DISTR_claytoncopula2_rho> distr_claytoncopula2_rhos;
+  vector<DISTR_claytoncopula2_normal_mu> distr_claytoncopula2_normal_mus;
+  vector<DISTR_claytoncopula2_normal_sigma2> distr_claytoncopula2_normal_sigma2s;
   vector<DISTR_gaussiancopula_rho> distr_gaussiancopula_rhos;
   vector<DISTR_gaussiancopula_rhofz> distr_gaussiancopula_rhofzs;
   vector<DISTR_frankcopula_rho> distr_frankcopula_rhos;
@@ -476,7 +480,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_sfa_sigma_u> distr_sfa_sigma_us;
   vector<DISTR_sfa_sigma_v> distr_sfa_sigma_vs;
   vector<DISTR_sfa_alpha> distr_sfa_alphas;
-vector<DISTR_sfa2_mu_y_id> distr_sfa2_mu_y_ids;
+  vector<DISTR_sfa2_mu_y_id> distr_sfa2_mu_y_ids;
   vector<DISTR_sfa2_mu_u_id> distr_sfa2_mu_u_ids;
   vector<DISTR_sfa2_mu_y> distr_sfa2_mu_ys;
   vector<DISTR_sfa2_mu_u> distr_sfa2_mu_us;

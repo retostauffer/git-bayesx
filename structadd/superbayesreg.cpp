@@ -315,6 +315,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("gumbelcopula2_rho");
   families.push_back("claytoncopula_rho");
   families.push_back("claytoncopula2_rho");
+  families.push_back("claytoncopula2_normal_mu");
+  families.push_back("claytoncopula2_normal_sigma2");
   families.push_back("sfa0_sigma_v");
   families.push_back("sfa0_sigma_u");
   families.push_back("sfa0_mu_y");
@@ -813,6 +815,12 @@ void superbayesreg::clear(void)
   distr_claytoncopula2_rhos.erase(distr_claytoncopula2_rhos.begin(),distr_claytoncopula2_rhos.end());
   distr_claytoncopula2_rhos.reserve(20);
 
+  distr_claytoncopula2_normal_mus.erase(distr_claytoncopula2_normal_mus.begin(),distr_claytoncopula2_normal_mus.end());
+  distr_claytoncopula2_normal_mus.reserve(20);
+
+  distr_claytoncopula2_normal_sigma2s.erase(distr_claytoncopula2_normal_sigma2s.begin(),distr_claytoncopula2_normal_sigma2s.end());
+  distr_claytoncopula2_normal_sigma2s.reserve(20);
+
   distr_sfa0_mu_ys.erase(distr_sfa0_mu_ys.begin(),distr_sfa0_mu_ys.end());
   distr_sfa0_mu_ys.reserve(20);
 
@@ -1094,6 +1102,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
+  distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
+  distr_claytoncopula2_normal_sigma2s = b.distr_claytoncopula2_normal_sigma2s;
   distr_copulas = b.distr_copulas;
   distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
   distr_gaussiancopula_rhofzs = b.distr_gaussiancopula_rhofzs;
@@ -1265,6 +1275,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
+  distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
+  distr_claytoncopula2_normal_sigma2s = b.distr_claytoncopula2_normal_sigma2s;
   distr_copulas = b.distr_copulas;
   distr_gaussiancopula_rhos = b.distr_gaussiancopula_rhos;
   distr_gaussiancopula_rhofzs = b.distr_gaussiancopula_rhofzs;
@@ -3723,6 +3735,59 @@ bool superbayesreg::create_distribution(void)
     }
 //-------------------------- END: cloglog -----------------------------
 
+//-------------------------------- claytoncopula2_normal sigma2 ---------------------------------
+  else if (family.getvalue() == "claytoncopula2_normal_sigma2" && equationtype.getvalue()=="scale")
+    {
+
+	unsigned pos;
+      if (distr_claytoncopula2_normal_sigma2s.size()==0)
+        pos=0;
+      else
+        pos=1;
+
+    computemodeforstartingvalues = true;
+
+    distr_claytoncopula2_normal_sigma2s.push_back(DISTR_claytoncopula2_normal_sigma2(&generaloptions,D.getCol(0),pos,w));
+
+    equations[modnr].distrp = &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1];
+    equations[modnr].pathd = "";
+
+/*	if (distr_claytoncopula2_normal_sigma2s.size() == 2)
+       {
+       distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].response2 = distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].response;
+       distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].response2 = distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].response;
+       }*/
+
+
+    }
+//---------------------------- END: claytoncopula2_normal sigma2 -------------------------------
+
+//------------------------------- claytoncopula2_normal mu ------------------------------------
+  else if ((family.getvalue() == "claytoncopula2_normal_mu") && equationtype.getvalue()=="mu")
+    {
+
+	unsigned pos;
+      if (distr_claytoncopula2_normal_mus.size()==0)
+        pos=0;
+      else
+        pos=1;
+
+    computemodeforstartingvalues = true;
+
+    distr_claytoncopula2_normal_mus.push_back(DISTR_claytoncopula2_normal_mu(&generaloptions,D.getCol(0),pos,w));
+
+    equations[modnr].distrp = &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1];
+    equations[modnr].pathd = "";
+
+	/*if (distr_claytoncopula2_normal_mus.size() == 2)
+       {
+       distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].response2 = distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].response;
+       distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].response2 = distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].response;
+       }*/
+
+    }
+//------------------------------- END: claytoncopula2_normal mu -------------------------------
+
 //----------------------------- claytoncopula2_rho ----------------------
   else if (family.getvalue() == "claytoncopula2_rho")
     {
@@ -3733,12 +3798,13 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1];
     equations[modnr].pathd = "";
 
-    if ((distr_normal_mus.size() != 2) || (distr_normal_sigma2s.size() != 2))
+    if (((distr_normal_mus.size() != 2) || (distr_normal_sigma2s.size() != 2)) && ((distr_claytoncopula2_normal_mus.size() != 2) || (distr_claytoncopula2_normal_sigma2s.size() != 2)))
        {
        outerror("ERROR: Two equations for marginal distributions required");
        return true;
        }
-
+		if ((distr_normal_mus.size() == 2))
+		{
             predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-2]);
             predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-2]);
             predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
@@ -3746,6 +3812,7 @@ bool superbayesreg::create_distribution(void)
             predict_mult_distrs.push_back(&distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
 
             distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-2].response;
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response = distr_normal_mus[distr_normal_mus.size()-1].response;
 
             distr_normal_sigma2s[distr_normal_sigma2s.size()-2].distrp.push_back(
             &distr_normal_mus[distr_normal_mus.size()-2]);
@@ -3771,6 +3838,83 @@ bool superbayesreg::create_distribution(void)
 
             distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
             &distr_normal_mus[distr_normal_mus.size()-1]);
+		}
+		else
+		{
+            predict_mult_distrs.push_back(&distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2]);
+            predict_mult_distrs.push_back(&distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2]);
+            predict_mult_distrs.push_back(&distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1]);
+            predict_mult_distrs.push_back(&distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1]);
+            predict_mult_distrs.push_back(&distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response2 = distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].response;
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].response = distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].response;
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].response2 = distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].response;
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].response2 = distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].response;
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].response2 = distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].response;
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].response2 = distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].response;
+
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].distrp.push_back(
+            &distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].distrp.push_back(
+            &distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1]);
+
+            distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].distrp.push_back(
+            &distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].distrp.push_back(
+            &distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1]);
+
+            distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-2]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-2]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_sigma2s[distr_claytoncopula2_normal_sigma2s.size()-1]);
+
+            distr_claytoncopula2_rhos[distr_claytoncopula2_rhos.size()-1].distrp.push_back(
+            &distr_claytoncopula2_normal_mus[distr_claytoncopula2_normal_mus.size()-1]);
+		}
 
     }
 //-------------------------- END: claytoncopula2_rho ---------------------
@@ -3799,6 +3943,7 @@ bool superbayesreg::create_distribution(void)
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
             distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
+            distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1].response = distr_copulas[distr_copulas.size()-1].response;
 
             distr_copulas[distr_copulas.size()-2].distrp.push_back(
             &distr_claytoncopula_rhos[distr_claytoncopula_rhos.size()-1]);
@@ -3845,6 +3990,7 @@ bool superbayesreg::create_distribution(void)
             predict_mult_distrs.push_back(&distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1]);
 
             distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-2].response;
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].response = distr_normal_mus[distr_normal_mus.size()-1].response;
 
             distr_normal_sigma2s[distr_normal_sigma2s.size()-2].distrp.push_back(
             &distr_normal_mus[distr_normal_mus.size()-2]);
@@ -3898,6 +4044,7 @@ bool superbayesreg::create_distribution(void)
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
             distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
+            distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1].response = distr_copulas[distr_copulas.size()-1].response;
 
             distr_copulas[distr_copulas.size()-2].distrp.push_back(
             &distr_gumbelcopula_rhos[distr_gumbelcopula_rhos.size()-1]);
