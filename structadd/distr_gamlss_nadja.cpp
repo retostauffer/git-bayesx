@@ -15434,16 +15434,18 @@ void DISTR_sfa_mu_y::compute_iwls_wweightschange_weightsone(
 
 void DISTR_sfa_mu_y::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  double muu = exp((*linpred[predstart_mumult])) * exp(*linpred[predstart_mumult+3]);
+ // double muu = exp((*linpred[predstart_mumult])) * exp(*linpred[predstart_mumult+3]);
   double sigu2 = pow(exp((*linpred[predstart_mumult+2])) * exp((*linpred[predstart_mumult])), 2);
   double sigv2 = pow(exp((*linpred[predstart_mumult+1])), 2);
   double sig2 = sigu2 + sigv2;
-  double ga = sigu2/sig2;
-  double sigast = pow(ga * (1 - ga)*sig2, 0.5);
-  double epsi = (*response[4]) - (*linpred[predstart_mumult+4]);
-  double muast = (1 - ga) * muu - ga * epsi;
 
-  *mu = randnumbers::Phi2(muast / sigast - sigast) * exp(-muast + 0.5 * pow(sigast, 2)) / randnumbers::Phi2(muast / sigast);
+  *mu = sigu2/sig2;
+//  double ga = sigu2/sig2;
+ // double sigast = pow(ga * (1 - ga)*sig2, 0.5);
+ // double epsi = (*response[4]) - (*linpred[predstart_mumult+4]);
+ // double muast = (1 - ga) * muu - ga * epsi;
+
+ // *mu = randnumbers::Phi2(muast / sigast - sigast) * exp(-muast + 0.5 * pow(sigast, 2)) / randnumbers::Phi2(muast / sigast);
   }
 
 
