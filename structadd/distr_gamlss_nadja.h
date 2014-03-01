@@ -3056,6 +3056,333 @@ class __EXPORT_TYPE DISTR_gaussiancopula_rhofz : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_tcopula_df ---------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_tcopula_df : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_tcopula_df(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_tcopula_df(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_tcopula_df(const DISTR_tcopula_df & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_tcopula_df & operator=(const DISTR_tcopula_df & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_tcopula_df() {}
+
+  double get_intercept_start(void);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_tcopula_rho --------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_tcopula_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_tcopula_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_tcopula_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_tcopula_rho(const DISTR_tcopula_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_tcopula_rho & operator=(const DISTR_tcopula_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_tcopula_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_frankcopula2_normal_sigma2 ------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_frankcopula2_normal_sigma2 : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_frankcopula2_normal_sigma2(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_frankcopula2_normal_sigma2(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_frankcopula2_normal_sigma2(const DISTR_frankcopula2_normal_sigma2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_frankcopula2_normal_sigma2 & operator=(const DISTR_frankcopula2_normal_sigma2 & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_frankcopula2_normal_sigma2() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_frankcopula2_normal_mu ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_frankcopula2_normal_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_frankcopula2_normal_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_frankcopula2_normal_mu(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_frankcopula2_normal_mu(const DISTR_frankcopula2_normal_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_frankcopula2_normal_mu & operator=(const DISTR_frankcopula2_normal_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_frankcopula2_normal_mu() {}
+
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+ // void update(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_frankcopula2_rho ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_frankcopula2_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_frankcopula2_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_frankcopula2_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_frankcopula2_rho(const DISTR_frankcopula2_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_frankcopula2_rho & operator=(const DISTR_frankcopula2_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_frankcopula2_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param(const double * linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_frankcopula_rho -------------------------

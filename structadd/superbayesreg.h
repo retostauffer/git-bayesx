@@ -185,8 +185,11 @@ using MCMC::DISTR_copula;
 using MCMC::DISTR_gaussiancopula_rho;
 using MCMC::DISTR_gaussiancopula_rhofz;
 using MCMC::DISTR_frankcopula_rho;
-
-
+using MCMC::DISTR_frankcopula2_rho;
+using MCMC::DISTR_frankcopula2_normal_mu;
+using MCMC::DISTR_frankcopula2_normal_sigma2;
+using MCMC::DISTR_tcopula_df;
+using MCMC::DISTR_tcopula_rho;
 
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
@@ -464,6 +467,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_BCCG_sigma> distr_BCCG_sigmas;
   vector<DISTR_BCCG_nu> distr_BCCG_nus;
   vector<DISTR_copula> distr_copulas;
+  vector<DISTR_tcopula_df> distr_tcopula_dfs;
+  vector<DISTR_tcopula_rho> distr_tcopula_rhos;
   vector<DISTR_gumbelcopula_rho> distr_gumbelcopula_rhos;
   vector<DISTR_gumbelcopula2_rho> distr_gumbelcopula2_rhos;
   vector<DISTR_gumbelcopula2_normal_mu> distr_gumbelcopula2_normal_mus;
@@ -475,6 +480,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gaussiancopula_rho> distr_gaussiancopula_rhos;
   vector<DISTR_gaussiancopula_rhofz> distr_gaussiancopula_rhofzs;
   vector<DISTR_frankcopula_rho> distr_frankcopula_rhos;
+  vector<DISTR_frankcopula2_rho> distr_frankcopula2_rhos;
+  vector<DISTR_frankcopula2_normal_mu> distr_frankcopula2_normal_mus;
+  vector<DISTR_frankcopula2_normal_sigma2> distr_frankcopula2_normal_sigma2s;
   vector<DISTR_sfa0_mu_y> distr_sfa0_mu_ys;
   vector<DISTR_sfa0_sigma_u> distr_sfa0_sigma_us;
   vector<DISTR_sfa0_sigma_v> distr_sfa0_sigma_vs;
