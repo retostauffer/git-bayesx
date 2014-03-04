@@ -4031,6 +4031,13 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_gumbelcopula2_normal_sigma2s[distr_gumbelcopula2_normal_sigma2s.size()-1];
     equations[modnr].pathd = "";
 
+/*	if (distr_gumbelcopula2_normal_sigma2s.size() == 2)
+       {
+       distr_gumbelcopula2_normal_sigma2s[distr_gumbelcopula2_normal_sigma2s.size()-2].response2 = distr_gumbelcopula2_normal_sigma2s[distr_gumbelcopula2_normal_sigma2s.size()-1].response;
+       distr_gumbelcopula2_normal_sigma2s[distr_gumbelcopula2_normal_sigma2s.size()-1].response2 = distr_gumbelcopula2_normal_sigma2s[distr_gumbelcopula2_normal_sigma2s.size()-2].response;
+       }*/
+
+
     }
 //---------------------------- END: gumbelcopula2_normal sigma2 -------------------------------
 
@@ -4051,10 +4058,14 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_gumbelcopula2_normal_mus[distr_gumbelcopula2_normal_mus.size()-1];
     equations[modnr].pathd = "";
 
+	/*if (distr_gumbelcopula2_normal_mus.size() == 2)
+       {
+       distr_gumbelcopula2_normal_mus[distr_gumbelcopula2_normal_mus.size()-2].response2 = distr_gumbelcopula2_normal_mus[distr_gumbelcopula2_normal_mus.size()-1].response;
+       distr_gumbelcopula2_normal_mus[distr_gumbelcopula2_normal_mus.size()-1].response2 = distr_gumbelcopula2_normal_mus[distr_gumbelcopula2_normal_mus.size()-2].response;
+       }*/
+
     }
 //------------------------------- END: gumbelcopula2_normal mu -------------------------------
-
-
 
 //----------------------------- gumbelcopula2_rho ----------------------
   else if (family.getvalue() == "gumbelcopula2_rho")
@@ -4066,7 +4077,7 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1];
     equations[modnr].pathd = "";
 
-  if (((distr_normal_mus.size() != 2) || (distr_normal_sigma2s.size() != 2)) && ((distr_gumbelcopula2_normal_mus.size() != 2) || (distr_gumbelcopula2_normal_sigma2s.size() != 2)))
+    if (((distr_normal_mus.size() != 2) || (distr_normal_sigma2s.size() != 2)) && ((distr_gumbelcopula2_normal_mus.size() != 2) || (distr_gumbelcopula2_normal_sigma2s.size() != 2)))
        {
        outerror("ERROR: Two equations for marginal distributions required");
        return true;
@@ -4186,6 +4197,7 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: gumbelcopula2_rho ---------------------
+
 
 
 //----------------------------- gumbelcopula_rho ----------------------

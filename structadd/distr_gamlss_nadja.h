@@ -367,7 +367,7 @@ class __EXPORT_TYPE DISTR_t_mu : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_invgaussian_sigma2 ------------------------
+//----------------------- CLASS: DISTR_invgaussian_sigma2 -----------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_invgaussian_sigma2 : public DISTR_gamlss
@@ -2644,7 +2644,6 @@ class __EXPORT_TYPE DISTR_claytoncopula_rho : public DISTR_gamlss
   void update_end(void);
 
   };
-
 
 //------------------------------------------------------------------------------
 //----------------- CLASS: DISTR_gumbelcopula2_normal_sigma2 ------------------
