@@ -359,6 +359,8 @@ class __EXPORT_TYPE DISTR
 
   virtual void compute_param(const double * linpred,double * param);
 
+  virtual void compute_param_mult(vector<double *>  linpred,double * param);
+
   //----------------------------------------------------------------------------
   //------------------------------- COMPUTE deviance ---------------------------
   //----------------------------------------------------------------------------

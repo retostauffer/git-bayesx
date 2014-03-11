@@ -624,7 +624,10 @@ void DISTR::compute_param(const double * linpred,double * param)
   }
 
 
+void DISTR::compute_param_mult(vector<double *> linpred,double * param)
+  {
 
+  }
 
 double DISTR::compute_MSE(const double * response, const double * weight,
                           const double * linpred, msetype t, double v)

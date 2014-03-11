@@ -104,7 +104,7 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   void outoptions(void);
 
@@ -174,6 +174,8 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -234,6 +236,8 @@ class __EXPORT_TYPE DISTR_negbin_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -309,6 +313,8 @@ class __EXPORT_TYPE DISTR_zip_cloglog_mu : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
@@ -374,7 +380,7 @@ class __EXPORT_TYPE DISTR_zip_cloglog_pi : public DISTR_gamlss
 
   double get_intercept_start(void);
 
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -463,7 +469,7 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
                           vector<double *> weight,
                           vector<datamatrix *> aux);
 
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double loglikelihood(double * response, double * linpred,
                                          double * weight);
@@ -544,7 +550,7 @@ class __EXPORT_TYPE DISTR_negbinzip_pi : public DISTR
 
   double get_intercept_start(void);
 
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -647,7 +653,7 @@ class __EXPORT_TYPE DISTR_negbinzip_delta : public DISTR
 
   double get_intercept_start(void);
 
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
@@ -730,7 +736,7 @@ class __EXPORT_TYPE DISTR_ziplambda : public DISTR
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -818,7 +824,7 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
 
   double get_intercept_start(void);
 
-  void compute_param(const double * linpred,double * param);
+  void compute_param_mult(vector<double *>  linpred,double * param);
 
   double loglikelihood(double * response, double * linpred,
                        double * weight);
