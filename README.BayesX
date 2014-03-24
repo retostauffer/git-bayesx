@@ -28,7 +28,7 @@ For compiling the source code, we provide support for two different versions:
 - A basic makefile that has to be adapted manually to your OS.
 
 The advantage of cmake is that it provides automated support for adapting the
-makefile to you local computing environment (automatic detection of java and other
+makefile to your local computing environment (automatic detection of java and other
 required components) and also allows to compile both a command line and a GUI
 version of BayesX across a variety of platforms. The ordinary makefile makes
 less requirement for your system but only compiles the source code version
@@ -130,7 +130,7 @@ following components:
 - when working in a unix-type environment (linux, Mac OS), you will need the
   readline library. This is not required for windows platforms.
 
-The directories containind cmake as well as the C and C++ compiler have to be in
+The directories containing cmake as well as the C and C++ compiler have to be in
 your search path when executing the cmake command. For windows systems,
 you can temporarily add a directory to the path by specifying for example
 
