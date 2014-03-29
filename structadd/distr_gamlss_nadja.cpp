@@ -11516,8 +11516,7 @@ void DISTR_dirichlet::compute_deviance_mult(vector<double *> response,
 
   void DISTR_dirichlet::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  double el = exp(*linpred[pos]);
-  *param = el/(1+el);
+  *param = exp(*linpred[pos]);
   }
 
  double DISTR_dirichlet::pdf_mult(vector<double *> response,
