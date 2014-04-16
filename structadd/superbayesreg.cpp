@@ -102,6 +102,12 @@ bool superbayesreg::find_continuous_multparam(vector<DISTR*> & m)
     m.push_back(&distr_lognormal_sigma2s[0]);
     m.push_back(&distr_lognormal_mus[0]);
     }
+  if (distr_lognormal2_mus.size()==1)
+    {
+    found = true;
+    m.push_back(&distr_lognormal2_sigmas[0]);
+    m.push_back(&distr_lognormal2_mus[0]);
+    }
   if (distr_invgaussian_mus.size()==1)
     {
     found = true;
