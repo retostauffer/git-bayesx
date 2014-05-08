@@ -382,6 +382,7 @@ double compute_quadform_prec(const datamatrix & beta,const datamatrix & prop,
      return "2 dimensional first order random walk";
    else if (type==mrfkronecker)
      return "Kronecker product interaction";
+   else return "";
    }
 
 
@@ -399,6 +400,7 @@ double compute_quadform_prec(const datamatrix & beta,const datamatrix & prop,
      return "2dimrw1";
    else if (type==mrfkronecker)
      return "kronecker";
+   else return "";
    }
 
   bool get_polex(void)

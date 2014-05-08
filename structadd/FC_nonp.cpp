@@ -951,7 +951,7 @@ bool FC_nonp::posteriormode(void)
   {
 
   if (orthogonal)
-    posteriormode_transform();
+    return posteriormode_transform();
   else
     {
 

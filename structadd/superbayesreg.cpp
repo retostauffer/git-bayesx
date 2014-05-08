@@ -416,18 +416,22 @@ void superbayesreg::create_hregress(void)
 
   stopsum = doubleoption("stopsum",0.999,0.9,1);
   stoprmax = intoption("stoprmax",5,1,100000);
-  fraclimit = doubleoption("fraclimit",0.001,0,1);
+
+  fraclimit = doubleoption("fraclimit",0.001,0,1);
 
   scaleconst = simpleoption("scaleconst",false);
 
   utilities = simpleoption("utilities",false);
 
-  aexp = doubleoption("aexp",0,0.00000000001,100000000);
-  bexp = doubleoption("bexp",1,0.00000000001,100000000);
+
+  aexp = doubleoption("aexp",0,0.00000000001,100000000);
+
+  bexp = doubleoption("bexp",1,0.00000000001,100000000);
 
   adaptexp = simpleoption("adaptexp",false);
 
-  slow = simpleoption("slow",false);
+
+  slow = simpleoption("slow",false);
 
   nrbetween = intoption("nrbetween",1000000,1,2000000);
 
@@ -1398,6 +1402,7 @@ int superbayesreg::parse(const ST::string & c)
   if (pos >= 0)
 	 (*functions[pos])(*this);
 
+  return(pos);
   }
 
 
