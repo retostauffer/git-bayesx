@@ -208,7 +208,7 @@ class __EXPORT_TYPE fullcond_merror : public FULLCOND
 
   void reset(void);
 
-  vector<ST::string> & get_results_latex(void);
+//  vector<ST::string> & get_results_latex(void);
 
   };
 

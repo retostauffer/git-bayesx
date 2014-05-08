@@ -430,6 +430,7 @@ class region
       return xcenter < p2.xcenter;
     else if(orderrelation == yvalues)
       return ycenter < p2.ycenter;
+    else return 0;
     }
 
 

@@ -847,10 +847,12 @@ namespace MCMC
 
   bool fullcond_merror::posteriormode(void)
     {
+      return true;
     }
 
   bool fullcond_merror::posteriormode_converged(const unsigned & itnr)
     {
+      return true;
     }
 
   void fullcond_merror::posteriormode_set_beta_mode(void)
@@ -1131,9 +1133,10 @@ namespace MCMC
     {
     }
 
-  vector<ST::string> & fullcond_merror::get_results_latex(void)
-    {
-    }
+//  vector<ST::string> & fullcond_merror::get_results_latex(void)
+//    {
+//      return vector<ST::string>();
+//    }
 
 } // end: namespace MCMC
 
