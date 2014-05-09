@@ -181,11 +181,11 @@ void FULLCOND_mult::get_effectmatrix(datamatrix & e,vector<ST::string> & enames,
   }
 
 
-unsigned FULLCOND_mult::get_nreffects(effecttype t)
-  {
+// unsigned FULLCOND_mult::get_nreffects(effecttype t)
+//  {
 
 
-  }
+//  }
 
 
 void FULLCOND_mult::outoptions(void)

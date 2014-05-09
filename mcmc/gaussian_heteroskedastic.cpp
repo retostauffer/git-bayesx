@@ -205,7 +205,7 @@ double DISTRIBUTION_gaussianh::compute_weight(double * linpred, double * weight,
     {
     return   1.0/s;//1/exp(eta)
     }
-  else if(col == 1) //Berechnung für den Prädiktor der Varianz
+  else  //Berechnung für den Prädiktor der Varianz if(col == 1)
     {
     return 0.5;
     }
