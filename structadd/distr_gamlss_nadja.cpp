@@ -19054,10 +19054,10 @@ double DISTR_hurdle_pi::loglikelihood_weightsone(double * response,
     double l;
     if((*response) == 0)
     {
-        l = pi;
+        l = log(pi);
     } else
     {
-        l = 1-pi;
+        l = log(1-pi);
     }
 
 
@@ -19102,10 +19102,10 @@ void DISTR_hurdle_pi::compute_iwls_wweightschange_weightsone(
       {
         if((*response)==0)
         {
-            like += pi;
+            like += log(pi);
         }
         else{
-            like += 1-pi;
+            like += log(1-pi);
         }
 
       }
@@ -19391,7 +19391,7 @@ void DISTR_hurdle_lambda::compute_iwls_wweightschange_weightsone(
 void DISTR_hurdle_lambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
-  *mu = exp((*linpred[predstart_mumult+1]));
+  *mu = (1-exp((*linpred[predstart_mumult])))*exp((*linpred[predstart_mumult+1]))/(1-exp(-exp((*linpred[predstart_mumult+1]))));
 
   }
 
