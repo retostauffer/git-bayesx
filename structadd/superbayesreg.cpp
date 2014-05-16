@@ -257,6 +257,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("multinom_logit");
   families.push_back("zip_lambda");
   families.push_back("zip_pi");
+  families.push_back("hurdle_lambda");
+  families.push_back("hurdle_pi");
   families.push_back("zinb_mu");
   families.push_back("zinb_pi");
   families.push_back("zinb_delta");
@@ -636,6 +638,12 @@ void superbayesreg::clear(void)
 
   distr_zippis.erase(distr_zippis.begin(),distr_zippis.end());
   distr_zippis.reserve(20);
+
+  distr_hurdle_lambdas.erase(distr_hurdle_lambdas.begin(),distr_hurdle_lambdas.end());
+  distr_hurdle_lambdas.reserve(20);
+
+  distr_hurdle_pis.erase(distr_hurdle_pis.begin(),distr_hurdle_pis.end());
+  distr_hurdle_pis.reserve(20);
 
   distr_negbinzip_mus.erase(distr_negbinzip_mus.begin(),distr_negbinzip_mus.end());
   distr_negbinzip_mus.reserve(20);
@@ -1078,6 +1086,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
   distr_ziplambdas = b.distr_ziplambdas;
   distr_zippis = b.distr_zippis;
+  distr_hurdle_lambdas = b.distr_hurdle_lambdas;
+  distr_hurdle_pis = b.distr_hurdle_pis;
   distr_negbinzip_mus = b.distr_negbinzip_mus;
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
@@ -1259,6 +1269,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_logit_fruehwirths = b.distr_logit_fruehwirths;
   distr_ziplambdas = b.distr_ziplambdas;
   distr_zippis = b.distr_zippis;
+  distr_hurdle_lambdas = b.distr_hurdle_lambdas;
+  distr_hurdle_pis = b.distr_hurdle_pis;
   distr_negbinzip_mus = b.distr_negbinzip_mus;
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
@@ -4705,6 +4717,53 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: ZIP lambda ------------------------------
+
+//---------------------------------- hurdle_pi ------------------------------------
+  else if (family.getvalue() == "hurdle_pi" && equationtype.getvalue()=="pi")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_hurdle_pis.push_back(DISTR_hurdle_pi(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_hurdle_pis[distr_hurdle_pis.size()-1];
+    equations[modnr].pathd = "";
+
+
+
+    }
+//------------------------------- END: hurdle_ pi ----------------------------------
+
+//-------------------------------- hurdle_lambda ----------------------------------
+  else if (family.getvalue() == "hurdle_lambda" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_hurdle_lambdas.push_back(DISTR_hurdle_lambda(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1];
+    equations[modnr].pathd = "";
+    predict_mult_distrs.push_back(&distr_hurdle_pis[distr_hurdle_pis.size()-1]);
+    predict_mult_distrs.push_back(&distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1]);
+
+    if (distr_hurdle_pis.size() != 1)
+      {
+      outerror("ERROR: Equation for pi is missing");
+      return true;
+      }
+    else
+      {
+      distr_hurdle_pis[distr_hurdle_pis.size()-1].distrp.push_back(
+      &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1]);
+
+      distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1].distrp.push_back(
+      &distr_hurdle_pis[distr_hurdle_pis.size()-1]);
+
+      }
+
+    }
+//------------------------------- END: hurdle_lambda ------------------------------
 
 //------------------------------  Zero adjusted --------------------------------
 

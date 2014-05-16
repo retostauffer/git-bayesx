@@ -18,7 +18,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 #include "distr_gamlss_nadja.h"
-
+//#include "gsl_randist.h"
+//#include "gsl_cdf.h"
 
 namespace MCMC
 {
@@ -945,8 +946,8 @@ double DISTR_t_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double a = 0.5*(*param[0]);
-    double b = 0.5;
+   // double x = ((*response[2])-(*param[2]))/pow((*param[1]),0.5);
+  //  double u = gsl_cdf_tdist_P(x, (*param[0]));
    // double x = (*param[0])/(pow((((*response[2])-(*param[2]))/pow((*param[1]))),2)+(*param[0]));
     return 0;
 //    return ( 1- 0.5*randnumbers::incomplete_beta(a,b,x));
@@ -16893,6 +16894,23 @@ void DISTR_sfa_mu_u::compute_iwls_wweightschange_weightsone(
 
   }
 
+  void DISTR_sfa_mu_u::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+
+
+  double muu = exp((*linpred[predstart_mumult])) * exp(*linpred[predstart_mumult+3]);
+  double sigu2 = pow(exp((*linpred[predstart_mumult+2])) * exp((*linpred[predstart_mumult])), 2);
+  double sigv2 = pow(exp((*linpred[predstart_mumult+1])), 2);
+  double sig2 = sigu2 + sigv2;
+  double ga = sigu2/sig2;
+  double sigast = pow(ga * (1 - ga)*sig2, 0.5);
+  double epsi = (*response[4]) - (*linpred[predstart_mumult+4]);
+  double muast = (1 - ga) * muu - ga * epsi;
+
+  *mu = randnumbers::Phi2(muast / sigast - sigast) * exp(-muast + 0.5 * pow(sigast, 2)) / randnumbers::Phi2(muast / sigast);
+  }
+
+
 
 void DISTR_sfa_mu_u::outoptions(void)
   {
@@ -18971,6 +18989,444 @@ void DISTR_sfa2_mu_y_id::update_end(void)
 
   }
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_hurdle_pi ----------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_hurdle_pi::DISTR_hurdle_pi(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "hurdle - pi";
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "pi";
+    linpredminlimit=-10;
+  linpredmaxlimit=10;
+
+  }
+
+
+DISTR_hurdle_pi::DISTR_hurdle_pi(const DISTR_hurdle_pi & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_hurdle_pi & DISTR_hurdle_pi::operator=(
+                            const DISTR_hurdle_pi & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_hurdle_pi::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_hurdle_pi::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp((*linpred[0]))/(1+exp((*linpred[0])));
+  }
+
+double DISTR_hurdle_pi::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double explinpi = exp((*linpred));
+    double pi = explinpi/(1+explinpi);
+
+    double l;
+    if((*response) == 0)
+    {
+        l = pi;
+    } else
+    {
+        l = 1-pi;
+    }
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_hurdle_pi::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double explinpi = exp((*linpred));
+    double pi = explinpi/(1+explinpi);
+
+
+    double nu = -pi;
+    if((*response)==0) {
+        nu = 1-pi;
+    }
+
+
+    *workingweight = pi*(1-pi);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+        if((*response)==0)
+        {
+            like += pi;
+        }
+        else{
+            like += 1-pi;
+        }
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_hurdle_pi::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (pi): logit\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_hurdle_pi::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin)/(1+exp(*worklin));
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_hurdle_lambda ----------------------
+//------------------------------------------------------------------------------
+void DISTR_hurdle_lambda::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_hurdle_lambda::DISTR_hurdle_lambda(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Hurdle - lambda";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "lamba";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+  }
+
+
+DISTR_hurdle_lambda::DISTR_hurdle_lambda(const DISTR_hurdle_lambda & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_hurdle_lambda & DISTR_hurdle_lambda::operator=(
+                            const DISTR_hurdle_lambda & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_hurdle_lambda::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_pi
+   // *linpred[1] = eta_lamba
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+    double lambda;
+    double expminuslambda;
+    double l;
+     double explinpi = exp(*linpred[0]);
+     double p =  explinpi / (1 + explinpi);
+     if (*linpred[1] <= linpredminlimit)
+       lambda = exp(linpredminlimit);
+//     else if (*linpred[1] >= linpredmaxlimit)
+//       lambda = exp(linpredmaxlimit);
+     else
+       lambda = exp(*linpred[1]);
+
+     expminuslambda = exp(-lambda);
+
+      if (*response[1]==0)
+         {
+         l= -log(1+ explinpi) + (*linpred[0]);
+         }
+       else // response > 0
+         {
+         double help1 = *response[1]+1;
+         l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda
+            - randnumbers::lngamma_exact(help1);
+         }
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_hurdle_lambda::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_hurdle_lambda::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp(*linpred[1]);
+  }
+ double DISTR_hurdle_lambda::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_hurdle_lambda::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+
+    return 0;
+    }
+
+
+double DISTR_hurdle_lambda::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double lambda;
+  double expminuslambda;
+
+  if (*linpred <= linpredminlimit)
+    lambda = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    lambda = exp(linpredmaxlimit);
+  else
+    lambda = exp(*linpred);
+
+  expminuslambda = exp(-lambda);
+
+  double l;
+
+            l= -log(1-exp(-lambda)) + (*response)*(*linpred)-lambda;
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_hurdle_lambda::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double lambda;
+  double expminuslambda;
+
+    lambda = exp(*linpred);
+
+    expminuslambda = exp(-lambda);
+
+    double nu = (*response) - lambda  - lambda*expminuslambda/(1-expminuslambda);
+
+
+  *workingweight = -((1-(*worktransformlin[0]))*lambda*(-1+expminuslambda*(1+lambda)))/pow((1-expminuslambda), 2);
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+
+    if (compute_like)
+      {
+
+            like += -log(1-exp(-lambda)) + (*response)*(*linpred)-lambda;
+
+
+      }
+  modify_worklin();
+
+  }
+
+
+void DISTR_hurdle_lambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+
+  *mu = exp((*linpred[predstart_mumult+1]));
+
+  }
+
+
+void DISTR_hurdle_lambda::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (lambda): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_hurdle_lambda::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
 
 
 } // end: namespace MCMC
