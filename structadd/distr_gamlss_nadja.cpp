@@ -19090,7 +19090,7 @@ void DISTR_hurdle_pi::compute_iwls_wweightschange_weightsone(
 
     double nu = -pi;
     if((*response)==0) {
-        nu = 1-pi;
+        nu += 1;
     }
 
 
@@ -19315,21 +19315,11 @@ double DISTR_hurdle_lambda::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-  double lambda;
-  double expminuslambda;
+  double lambda = exp(*linpred);
 
-  if (*linpred <= linpredminlimit)
-    lambda = exp(linpredminlimit);
-//  else if (*linpred >= linpredmaxlimit)
-//    lambda = exp(linpredmaxlimit);
-  else
-    lambda = exp(*linpred);
+  double expminuslambda = exp(-lambda);
 
-  expminuslambda = exp(-lambda);
-
-  double l;
-
-            l= -log(1-exp(-lambda)) + (*response)*(*linpred)-lambda;
+  double l = -log(1-exp(-lambda)) + (*response)*(*linpred)-lambda;
 
 
   modify_worklin();
@@ -19361,25 +19351,50 @@ void DISTR_hurdle_lambda::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double lambda;
-  double expminuslambda;
+   // double w = (*linpred);
+   // double w0 = exp(*linpred);
 
-    lambda = exp(*linpred);
-
-    expminuslambda = exp(-lambda);
+    double lambda = exp(w);
+    double expminuslambda = exp(-lambda);
 
     double nu = (*response) - lambda  - lambda*expminuslambda/(1-expminuslambda);
 
+ /*   double w1 = expminuslambda;
+    double w2 = nu;
+    double w3   = -((1-(*worktransformlin[0]))*lambda*(-1+expminuslambda*(1+lambda)))/pow((1-expminuslambda), 2);
+    double w4 = *linpred + nu/(*workingweight);
+    double w5 = (*worktransformlin[0]);
 
-  *workingweight = -((1-(*worktransformlin[0]))*lambda*(-1+expminuslambda*(1+lambda)))/pow((1-expminuslambda), 2);
+    std::ofstream out;
+  // helpmat1.prettyPrint(out);
+   out.open ("C:\\tmp\\2.raw", std::ofstream::out | std::ofstream::app);
+   out << w ;
+    out << " " ;
+    out << w0 ;
+    out << " " ;
+    out << w1 ;
+    out << " " ;
+    out << w2 ;
+    out << " " ;
+    out << w3 ;
+    out << " " ;
+    out << w4 ;
+    out << " " ;
+    out << w5 << endl;
+    out.close(); */
+
+
+  *workingweight = -lambda*(-1+expminuslambda*(1+lambda))/pow((1-expminuslambda), 2); //((1-(*worktransformlin[0]))*
 
   *workingresponse = *linpred + nu/(*workingweight);
+
+
 
 
     if (compute_like)
       {
 
-            like += -log(1-exp(-lambda)) + (*response)*(*linpred)-lambda;
+            like += -log(1-expminuslambda) + (*response)*(*linpred)-lambda;
 
 
       }
