@@ -19351,37 +19351,13 @@ void DISTR_hurdle_lambda::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-   // double w = (*linpred);
+    double w = (*linpred);
    // double w0 = exp(*linpred);
 
     double lambda = exp(w);
     double expminuslambda = exp(-lambda);
 
     double nu = (*response) - lambda  - lambda*expminuslambda/(1-expminuslambda);
-
- /*   double w1 = expminuslambda;
-    double w2 = nu;
-    double w3   = -((1-(*worktransformlin[0]))*lambda*(-1+expminuslambda*(1+lambda)))/pow((1-expminuslambda), 2);
-    double w4 = *linpred + nu/(*workingweight);
-    double w5 = (*worktransformlin[0]);
-
-    std::ofstream out;
-  // helpmat1.prettyPrint(out);
-   out.open ("C:\\tmp\\2.raw", std::ofstream::out | std::ofstream::app);
-   out << w ;
-    out << " " ;
-    out << w0 ;
-    out << " " ;
-    out << w1 ;
-    out << " " ;
-    out << w2 ;
-    out << " " ;
-    out << w3 ;
-    out << " " ;
-    out << w4 ;
-    out << " " ;
-    out << w5 << endl;
-    out.close(); */
 
 
   *workingweight = -lambda*(-1+expminuslambda*(1+lambda))/pow((1-expminuslambda), 2); //((1-(*worktransformlin[0]))*
