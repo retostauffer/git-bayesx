@@ -19264,7 +19264,7 @@ void DISTR_hurdle_lambda::compute_deviance_mult(vector<double *> response,
          {
          double help1 = *response[1]+1;
          l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda
-            - randnumbers::lngamma_exact(help1);
+            - randnumbers::lngamma_exact(help1)-log(1-exp(-lambda));
          }
 
 
@@ -19381,8 +19381,9 @@ void DISTR_hurdle_lambda::compute_iwls_wweightschange_weightsone(
 
 void DISTR_hurdle_lambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-
-  *mu = (1-exp((*linpred[predstart_mumult])))*exp((*linpred[predstart_mumult+1]))/(1-exp(-exp((*linpred[predstart_mumult+1]))));
+   double lambda = exp((*linpred[predstart_mumult+1]));
+   double p = exp((*linpred[predstart_mumult])) / (1 + exp((*linpred[predstart_mumult])));
+  *mu = (1-p)*lambda/(1-exp(-lambda));
 
   }
 
