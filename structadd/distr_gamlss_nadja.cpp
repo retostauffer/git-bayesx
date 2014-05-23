@@ -16754,7 +16754,7 @@ DISTR_sfa_mu_u::DISTR_sfa_mu_u(GENERAL_OPTIONS * o,
   family = "Stochastic Frontier Analysis - mu_u";
 
   outpredictor = true;
-  outexpectation = false;
+  outexpectation = true;
   predictor_name = "mu_u";
    linpredminlimit=-10;
   linpredmaxlimit=15;
