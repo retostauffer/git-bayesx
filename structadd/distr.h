@@ -302,10 +302,15 @@ class __EXPORT_TYPE DISTR
                                          vector<double *> weight,
                                           vector<datamatrix *> aux);
 
+
    double compute_quadr(void);
    double compute_quadr_mult(void);
-   double compute_log(void);
-   double compute_log_mult(void);
+   double compute_log(double * res,double * param,double * weight,
+                                        double * scale);
+   double compute_log_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
    double compute_spherical(void);
    double compute_spherical_mult(void);
    double compute_CRPS(void);

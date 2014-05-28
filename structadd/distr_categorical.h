@@ -437,6 +437,10 @@ class __EXPORT_TYPE DISTR_poisson : public DISTR
 
   double get_intercept_start(void);
 
+  double cdf(double * res,double * param,double * weight,double * scale);
+
+  double pdf(double * res,double * param,double * weight,double * scale);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 

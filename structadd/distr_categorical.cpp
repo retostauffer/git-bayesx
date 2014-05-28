@@ -18,9 +18,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 
-
-
 #include "distr_categorical.h"
+#include "gsl/gsl_randist.h"
+#include "gsl/gsl_cdf.h"
+
 
 namespace MCMC
 {
@@ -1215,11 +1216,34 @@ double DISTR_poisson::get_intercept_start(void)
   return 0;
   }
 
-/*double DISTR_poisson::cdf(double * res,double * param,double * weight,double * scale)
+double DISTR_poisson::cdf(double * res,double * param,double * weight,double * scale)
     {
-    return 0;
+   double cl = gsl_cdf_poisson_P(((*res)-1), *param);
+    if ((*res) == 0)
+    {
+        cl = 0;
     }
-*/
+    double cr = gsl_cdf_poisson_P((*res), *param);
+    double u = randnumbers::uniform_ab(cl, cr);
+
+    return u;
+    }
+
+double DISTR_poisson::pdf(double * res,double * param,double * weight,double * scale)
+    {
+    double p = gsl_ran_poisson_pdf((*res), (*param));
+//    std::ofstream out;
+////  // helpmat1.prettyPrint(out);
+//    out.open ("C:\\tmp\\p.raw", std::ofstream::out | std::ofstream::app);
+//
+//    out << p ;
+//    out << " " ;
+//    out << *res ;
+//    out << " " ;
+//    out << *param << endl;
+    return p;
+    }
+
 
 double DISTR_poisson::loglikelihood(double * response, double * linpred,
                                      double * weight)

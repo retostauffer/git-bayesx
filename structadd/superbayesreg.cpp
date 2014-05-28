@@ -738,6 +738,15 @@ void superbayesreg::clear(void)
   distr_t_dfs.erase(distr_t_dfs.begin(),distr_t_dfs.end());
   distr_t_dfs.reserve(20);
 
+  distr_BCCG_mus.erase(distr_BCCG_mus.begin(),distr_BCCG_mus.end());
+  distr_BCCG_mus.reserve(20);
+
+  distr_BCCG_sigmas.erase(distr_BCCG_sigmas.begin(),distr_BCCG_sigmas.end());
+  distr_BCCG_sigmas.reserve(20);
+
+  distr_BCCG_nus.erase(distr_BCCG_nus.begin(),distr_BCCG_nus.end());
+  distr_BCCG_nus.reserve(20);
+
   distr_bivt_mus.erase(distr_bivt_mus.begin(),distr_bivt_mus.end());
   distr_bivt_mus.reserve(20);
 
@@ -1119,6 +1128,9 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
   distr_t_dfs = b.distr_t_dfs;
+  distr_BCCG_mus = b.distr_BCCG_mus;
+  distr_BCCG_sigmas = b.distr_BCCG_sigmas;
+  distr_BCCG_nus = b.distr_BCCG_nus;
   distr_bivt_mus = b.distr_bivt_mus;
   distr_bivt_sigmas = b.distr_bivt_sigmas;
   distr_bivt_dfs = b.distr_bivt_dfs;
@@ -1302,6 +1314,9 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_t_mus = b.distr_t_mus;
   distr_t_sigma2s = b.distr_t_sigma2s;
   distr_t_dfs = b.distr_t_dfs;
+  distr_BCCG_mus = b.distr_BCCG_mus;
+  distr_BCCG_sigmas = b.distr_BCCG_sigmas;
+  distr_BCCG_nus = b.distr_BCCG_nus;
   distr_bivnormal_mus = b.distr_bivnormal_mus;
   distr_bivnormal_sigmas = b.distr_bivnormal_sigmas;
   distr_bivnormal_rhos = b.distr_bivnormal_rhos;
@@ -2472,6 +2487,83 @@ bool superbayesreg::create_distribution(void)
 
      }
  //------------------------------ END: t_mu ----------------------------------
+
+  //---------------------------------- BCCG_nu -----------------------------------
+   else if (family.getvalue() == "BCCG_nu" && equationtype.getvalue()=="nu")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_BCCG_nus.push_back(DISTR_BCCG_nu(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_BCCG_nus[distr_BCCG_nus.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: BCCG_nu ---------------------------------
+
+ //---------------------------------- BCCG_sigma --------------------------------
+   else if (family.getvalue() == "BCCG_sigma" && equationtype.getvalue()=="scale")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_BCCG_sigmas.push_back(DISTR_BCCG_sigma(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_BCCG_sigmas[distr_BCCG_sigmas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: BCCG_sigma -------------------------------
+
+
+ // ----------------------------------- BCCG_mu ----------------------------------
+   else if (family.getvalue() == "BCCG_mu" && equationtype.getvalue()=="mean")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_BCCG_mus.push_back(DISTR_BCCG_mu(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_BCCG_mus[distr_BCCG_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_BCCG_nus.size() != 1)
+       {
+       outerror("ERROR: Equation for degrees of freedom is missing");
+       return true;
+       }
+
+     if (distr_BCCG_sigmas.size() != 1)
+       {
+       outerror("ERROR: Equation for sigma2 is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_BCCG_nus[distr_BCCG_nus.size()-1]);
+     predict_mult_distrs.push_back(&distr_BCCG_sigmas[distr_BCCG_sigmas.size()-1]);
+     predict_mult_distrs.push_back(&distr_BCCG_mus[distr_BCCG_mus.size()-1]);
+
+     distr_BCCG_nus[distr_BCCG_nus.size()-1].distrp.push_back(
+     &distr_BCCG_sigmas[distr_BCCG_sigmas.size()-1]);
+
+	 distr_BCCG_nus[distr_BCCG_nus.size()-1].distrp.push_back(
+     &distr_BCCG_mus[distr_BCCG_mus.size()-1]);
+
+     distr_BCCG_sigmas[distr_BCCG_sigmas.size()-1].distrp.push_back(
+     &distr_BCCG_nus[distr_BCCG_nus.size()-1]);
+
+     distr_BCCG_sigmas[distr_BCCG_sigmas.size()-1].distrp.push_back(
+     &distr_BCCG_mus[distr_BCCG_mus.size()-1]);
+
+     distr_BCCG_mus[distr_BCCG_mus.size()-1].distrp.push_back(
+     &distr_BCCG_nus[distr_BCCG_nus.size()-1]);
+
+     distr_BCCG_mus[distr_BCCG_mus.size()-1].distrp.push_back(
+     &distr_BCCG_sigmas[distr_BCCG_sigmas.size()-1]);
+
+     }
+ //------------------------------ END: BCCG_mu ----------------------------------
 
 
  //---------------------------------- bivt_rho -----------------------------------
@@ -3720,7 +3812,6 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: normal mu -------------------------------
 
 
-
 //-------------------------------- beta sigma2 ---------------------------------
   else if (family.getvalue() == "beta_sigma2" && equationtype.getvalue()=="scale")
     {
@@ -4268,6 +4359,51 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: gumbelcopula_rho ---------------------
+
+//----------------------------- gumbelcopula2_rho ----------------------
+  else if (family.getvalue() == "gumbelcopula2_rho")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_gumbelcopula2_rhos.push_back(DISTR_gumbelcopula2_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((distr_normal_mus.size() != 2) || (distr_normal_sigma2s.size() != 2))
+       {
+       outerror("ERROR: Two equations for marginal distributions required");
+       return true;
+       }
+
+            predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-2]);
+            predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+            predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-2]);
+            predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
+            predict_mult_distrs.push_back(&distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1]);
+
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].response2 = distr_normal_mus[distr_normal_mus.size()-1].response;
+
+            distr_normal_sigma2s[distr_normal_sigma2s.size()-2].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-2]);
+
+            distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-1]);
+
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_sigma2s[distr_normal_sigma2s.size()-2]);
+
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-2]);
+
+            distr_gumbelcopula2_rhos[distr_gumbelcopula2_rhos.size()-1].distrp.push_back(
+            &distr_normal_mus[distr_normal_mus.size()-1]);
+
+    }
+//-------------------------- END: gumbelcopula2_rho ---------------------
 
 
 //----------------------------- gaussiancopula_rho ----------------------

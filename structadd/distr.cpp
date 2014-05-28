@@ -348,9 +348,17 @@ double DISTR::get_intercept_start(void)
 double DISTR::compute_quantile_residual(double * res,double * param,double * weight,
                                         double * scale)
   {
+  if ((*weight) == 0)
+  {
+    return  0;
+  }
+  else
+  {
   double u_est = cdf(res,param,weight,scale);
   double res_est = randnumbers::invPhi2(u_est);
   return res_est;
+  }
+
   }
 
 
@@ -359,9 +367,11 @@ double DISTR::compute_quantile_residual_mult(vector<double *> response,
                                              vector<double *> weight,
                                              vector<datamatrix *> aux)
   {
-  double u_est = cdf_mult(response,param,weight,aux);
-  double res_est = randnumbers::invPhi2(u_est);
-  return res_est;
+
+    double u_est = cdf_mult(response,param,weight,aux);
+    double res_est = randnumbers::invPhi2(u_est);
+    return res_est;
+
   }
 
 
@@ -376,15 +386,27 @@ double DISTR::compute_quadr_mult(void)
   return 0;
   }
 
-double DISTR::compute_log(void)
+double DISTR::compute_log(double * res,double * param,double * weight,
+                                        double * scale)
   {
-  return 0;
+
+        double result = log(pdf(res,param,weight,scale));
+        return result;
+
+
   }
 
 
-double DISTR::compute_log_mult(void)
+double DISTR::compute_log_mult(vector<double *> response,
+                               vector<double *> param,
+                               vector<double *> weight,
+                               vector<datamatrix *> aux)
   {
-  return 0;
+
+    double result = log(pdf_mult(response,param,weight,aux));
+    return result;
+
+
   }
 double DISTR::compute_spherical(void)
   {

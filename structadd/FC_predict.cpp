@@ -598,7 +598,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
         outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
         outres << likep->compute_quadr()    << "   ";
-        outres << likep->compute_log()    << "   ";
+        outres << likep->compute_log(responsep,workmean,weightp,&scalehelp)    << "   ";
         outres << likep->compute_spherical()    << "   ";
         outres << likep->compute_CRPS()    << "   ";
 
@@ -608,7 +608,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     else
       {
 
-      for(i=0;i<designmatrix.rows();i++,
+      for(i=0;i<designmatrix.rows();i++,responsep++,weightp++,
             workmean++)
         {
 
@@ -629,11 +629,19 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
 
         outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
         outres << likep->compute_quadr()    << "   ";
-        outres << likep->compute_log()    << "   ";
+        outres << likep->compute_log(responsep,workmean,weightp,&scalehelp)    << "   ";
         outres << likep->compute_spherical()    << "   ";
         outres << likep->compute_CRPS()    << "   ";
 
         outres << endl;
+
+//            std::ofstream out;
+////  // helpmat1.prettyPrint(out);
+//    out.open ("C:\\tmp\\resp.raw", std::ofstream::out | std::ofstream::app);
+//    out << " " ;
+//    out << *responsep ;
+//    out << " " ;
+//    out << *workmean << endl;
         }
 
       }

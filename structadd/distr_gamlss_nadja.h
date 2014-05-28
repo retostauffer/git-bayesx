@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"distr_gamlss.h"
 
 
+
 namespace MCMC
 {
 
@@ -2829,6 +2830,7 @@ class __EXPORT_TYPE DISTR_gumbelcopula2_normal_mu : public DISTR_gamlss
 //----------------------- CLASS: DISTR_gumbelcopula2_rho ------------------------
 //------------------------------------------------------------------------------
 
+
 class __EXPORT_TYPE DISTR_gumbelcopula2_rho : public DISTR_gamlss
   {
 
@@ -2891,6 +2893,7 @@ class __EXPORT_TYPE DISTR_gumbelcopula2_rho : public DISTR_gamlss
   void update_end(void);
 
   };
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_gumbelcopula_rho ------------------------
@@ -3878,6 +3881,16 @@ class __EXPORT_TYPE DISTR_bivt_mu : public DISTR_gamlss
 
   void compute_param_mult(vector<double *>  linpred,double * param);
 
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -4211,6 +4224,16 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
   double get_intercept_start(void);
 
   void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
