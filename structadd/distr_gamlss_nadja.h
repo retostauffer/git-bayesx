@@ -5844,6 +5844,157 @@ class __EXPORT_TYPE DISTR_hurdle_lambda : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_hurdle_delta ----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_hurdle_delta : public DISTR_gamlss
+  {
+
+  protected:
+
+  double E_dig_y_delta;
+  double E_trig_y_delta;
+  double delta;
+  double log_delta_div_delta_plus_mu;
+  double lngamma_delta;
+  double delta_plus_mu;
+
+  datamatrix E_dig_y_delta_m;
+  datamatrix E_trig_y_delta_m;
+  double * Ep;
+  double * Ep_trig;
+
+
+  double stopsum;
+  int stoprmax;
+  int nrbetween;
+
+  bool slow;
+
+  void compute_expectation(void);
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_hurdle_delta(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_hurdle_delta(GENERAL_OPTIONS * o, const datamatrix & r,
+                     double & ss, int & strmax, int & sts, bool & sl,
+                     const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_hurdle_delta(const DISTR_hurdle_delta & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_hurdle_delta & operator=(const DISTR_hurdle_delta & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_hurdle_delta() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_hurdle_mu -------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_hurdle_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_hurdle_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_hurdle_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_hurdle_mu(const DISTR_hurdle_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_hurdle_mu & operator=(const DISTR_hurdle_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_hurdle_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
 } // end: namespace MCMC
 
 

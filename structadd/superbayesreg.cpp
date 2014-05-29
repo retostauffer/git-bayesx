@@ -259,6 +259,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("zip_pi");
   families.push_back("hurdle_lambda");
   families.push_back("hurdle_pi");
+  families.push_back("hurdle_delta");
+  families.push_back("hurdle_mu");
   families.push_back("zinb_mu");
   families.push_back("zinb_pi");
   families.push_back("zinb_delta");
@@ -645,6 +647,12 @@ void superbayesreg::clear(void)
   distr_hurdle_pis.erase(distr_hurdle_pis.begin(),distr_hurdle_pis.end());
   distr_hurdle_pis.reserve(20);
 
+  distr_hurdle_mus.erase(distr_hurdle_mus.begin(),distr_hurdle_mus.end());
+  distr_hurdle_mus.reserve(20);
+
+  distr_hurdle_deltas.erase(distr_hurdle_deltas.begin(),distr_hurdle_deltas.end());
+  distr_hurdle_deltas.reserve(20);
+
   distr_negbinzip_mus.erase(distr_negbinzip_mus.begin(),distr_negbinzip_mus.end());
   distr_negbinzip_mus.reserve(20);
 
@@ -827,15 +835,6 @@ void superbayesreg::clear(void)
 
   distr_betainf1_taus.erase(distr_betainf1_taus.begin(),distr_betainf1_taus.end());
   distr_betainf1_taus.reserve(20);
-
-  distr_BCCG_mus.erase(distr_BCCG_mus.begin(),distr_BCCG_mus.end());
-  distr_BCCG_mus.reserve(20);
-
-  distr_BCCG_sigmas.erase(distr_BCCG_sigmas.begin(),distr_BCCG_sigmas.end());
-  distr_BCCG_sigmas.reserve(20);
-
-  distr_BCCG_nus.erase(distr_BCCG_nus.begin(),distr_BCCG_nus.end());
-  distr_BCCG_nus.reserve(20);
 
   distr_gumbelcopula_rhos.erase(distr_gumbelcopula_rhos.begin(),distr_gumbelcopula_rhos.end());
   distr_gumbelcopula_rhos.reserve(20);
@@ -1097,6 +1096,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_zippis = b.distr_zippis;
   distr_hurdle_lambdas = b.distr_hurdle_lambdas;
   distr_hurdle_pis = b.distr_hurdle_pis;
+  distr_hurdle_mus = b.distr_hurdle_mus;
+  distr_hurdle_deltas = b.distr_hurdle_deltas;
   distr_negbinzip_mus = b.distr_negbinzip_mus;
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
@@ -1158,9 +1159,6 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_betainf_taus = b.distr_betainf_taus;
   distr_betainf0_nus = b.distr_betainf0_nus;
   distr_betainf1_taus = b.distr_betainf1_taus;
-  distr_BCCG_mus = b.distr_BCCG_mus;
-  distr_BCCG_sigmas = b.distr_BCCG_sigmas;
-  distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_gumbelcopula2_normal_mus = b.distr_gumbelcopula2_normal_mus;
@@ -1283,6 +1281,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_zippis = b.distr_zippis;
   distr_hurdle_lambdas = b.distr_hurdle_lambdas;
   distr_hurdle_pis = b.distr_hurdle_pis;
+  distr_hurdle_mus = b.distr_hurdle_mus;
+  distr_hurdle_deltas = b.distr_hurdle_deltas;
   distr_negbinzip_mus = b.distr_negbinzip_mus;
   distr_negbinzip_pis = b.distr_negbinzip_pis;
   distr_negbinzip_deltas = b.distr_negbinzip_deltas;
@@ -1344,9 +1344,6 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_betainf_taus = b.distr_betainf_taus;
   distr_betainf0_nus = b.distr_betainf0_nus;
   distr_betainf1_taus = b.distr_betainf1_taus;
-  distr_BCCG_mus = b.distr_BCCG_mus;
-  distr_BCCG_sigmas = b.distr_BCCG_sigmas;
-  distr_BCCG_nus = b.distr_BCCG_nus;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_gumbelcopula2_normal_mus = b.distr_gumbelcopula2_normal_mus;
@@ -4890,8 +4887,8 @@ bool superbayesreg::create_distribution(void)
       }
     else
       {
-      distr_hurdle_pis[distr_hurdle_pis.size()-1].distrp.push_back(
-      &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1]);
+   //   distr_hurdle_pis[distr_hurdle_pis.size()-1].distrp.push_back(
+    //  &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1]);
 
       distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1].distrp.push_back(
       &distr_hurdle_pis[distr_hurdle_pis.size()-1]);
@@ -4900,6 +4897,63 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: hurdle_lambda ------------------------------
+
+//-------------------------------- hurdle delta --------------------------------
+  else if (family.getvalue() == "hurdle_delta" && equationtype.getvalue()=="delta")
+    {
+
+    computemodeforstartingvalues = true;
+
+//    double flimit = fraclimit.getvalue();
+    int strmax = stoprmax.getvalue();
+    bool sl = slow.getvalue();
+    int nb = nrbetween.getvalue();
+    double sts = stopsum.getvalue();
+
+    distr_hurdle_deltas.push_back(DISTR_hurdle_delta(&generaloptions,D.getCol(0),
+    sts,strmax,nb,sl,w));
+
+    equations[modnr].distrp = &distr_hurdle_deltas[distr_hurdle_deltas.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//---------------------------- END: hurdle delta -------------------------------
+
+//------------------------------- hurdle mu ------------------------------------
+  else if (family.getvalue() == "hurdle_mu" && equationtype.getvalue()=="mean")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_hurdle_mus.push_back(DISTR_hurdle_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_hurdle_mus[distr_hurdle_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_hurdle_pis[distr_hurdle_pis.size()-1]);
+    predict_mult_distrs.push_back(&distr_hurdle_deltas[distr_hurdle_deltas.size()-1]);
+    predict_mult_distrs.push_back(&distr_hurdle_mus[distr_hurdle_mus.size()-1]);
+
+    if (distr_hurdle_deltas.size() != 1)
+      {
+      outerror("ERROR: Equation for delta is missing");
+      return true;
+      }usefile C:/tmp/test2.txt
+    if (distr_hurdle_pis.size() != 1)
+      {
+      outerror("ERROR: Equation for pi is missing");
+      return true;
+      }
+
+      distr_hurdle_deltas[distr_hurdle_deltas.size()-1].distrp.push_back
+      (&distr_hurdle_mus[distr_hurdle_mus.size()-1]);
+
+      distr_hurdle_mus[distr_hurdle_mus.size()-1].distrp.push_back
+      (&distr_hurdle_deltas[distr_hurdle_deltas.size()-1]);
+
+
+    }
+//------------------------------- END: hurdle mu -------------------------------
 
 //------------------------------  Zero adjusted --------------------------------
 

@@ -19038,7 +19038,7 @@ void DISTR_sfa2_mu_y_id::update_end(void)
 DISTR_hurdle_pi::DISTR_hurdle_pi(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
                                            const datamatrix & w)
-  : DISTR_gamlss(o,r,1,w)
+  : DISTR_gamlss(o,r,0,w)
   {
   family = "hurdle - pi";
   outpredictor = true;
@@ -19241,7 +19241,7 @@ DISTR_hurdle_lambda::DISTR_hurdle_lambda(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Hurdle - lambda";
+  family = "hurdle poisson - lambda";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "lamba";
@@ -19296,7 +19296,7 @@ void DISTR_hurdle_lambda::compute_deviance_mult(vector<double *> response,
 
      expminuslambda = exp(-lambda);
 
-      if (*response[1]==0)
+      if (*response[0]==0)
          {
          l= -log(1+ explinpi) + (*linpred[0]);
          }
@@ -19459,6 +19459,569 @@ void DISTR_hurdle_lambda::update_end(void)
     }
 
   }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_hurdle_delta --------------------------
+//------------------------------------------------------------------------------
+
+DISTR_hurdle_delta::DISTR_hurdle_delta(GENERAL_OPTIONS * o,
+                                       const datamatrix & r,
+                                       double & ss, int & strmax,
+                                       int & sts,
+                                       bool & sl,
+                                       const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+
+  predictor_name = "delta";
+  outpredictor = true;
+  outexpectation = false;
+
+
+  family = "hurdle negative binomial - delta";
+
+  double responsemax = response.max(0);
+
+  stopsum = ss;
+  stoprmax = strmax;
+  if (stoprmax < responsemax)
+    stoprmax = responsemax;
+  nrbetween = sts;
+
+  slow=sl;
+
+  E_dig_y_delta_m = datamatrix(nrobs,1,0);
+  E_trig_y_delta_m = datamatrix(nrobs,1,0);
+
+  linpredminlimit=-10;
+  linpredmaxlimit=10;
+  }
+
+
+DISTR_hurdle_delta::DISTR_hurdle_delta(const DISTR_hurdle_delta & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  E_dig_y_delta = nd.E_dig_y_delta;
+  E_trig_y_delta = nd.E_trig_y_delta;
+  delta = nd.delta;
+  log_delta_div_delta_plus_mu = nd.log_delta_div_delta_plus_mu;
+  lngamma_delta = nd.lngamma_delta;
+  delta_plus_mu = nd.lngamma_delta;
+
+  stopsum = nd.stopsum;
+  stoprmax = nd.stoprmax;
+  nrbetween = nd.nrbetween;
+
+  slow = nd.slow;
+
+  E_dig_y_delta_m = nd.E_dig_y_delta_m;
+  E_trig_y_delta_m = nd.E_trig_y_delta_m;
+  Ep = nd.Ep;
+  Ep_trig = nd.Ep_trig;
+  }
+
+
+const DISTR_hurdle_delta & DISTR_hurdle_delta::operator=(
+                            const DISTR_hurdle_delta & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  E_dig_y_delta = nd.E_dig_y_delta;
+  E_trig_y_delta = nd.E_trig_y_delta;
+  delta = nd.delta;
+  log_delta_div_delta_plus_mu = nd.log_delta_div_delta_plus_mu;
+  lngamma_delta = nd.lngamma_delta;
+  delta_plus_mu = nd.lngamma_delta;
+
+  stopsum = nd.stopsum;
+  stoprmax = nd.stoprmax;
+  nrbetween = nd.nrbetween;
+
+  slow = nd.slow;
+
+  E_dig_y_delta_m = nd.E_dig_y_delta_m;
+  E_trig_y_delta_m = nd.E_trig_y_delta_m;
+  Ep = nd.Ep;
+  Ep_trig = nd.Ep_trig;
+  return *this;
+  }
+
+
+
+double DISTR_hurdle_delta::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_hurdle_delta::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp(*linpred[1]);
+  }
+
+double DISTR_hurdle_delta::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double delta;
+  double l;
+
+  if (*linpred <= linpredminlimit)
+    delta = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    delta = exp(linpredmaxlimit);
+  else
+    delta = exp(*linpred);
+
+  double log_mu_plus_delta = log((*worktransformlin[0]) + delta);
+
+    double resp_plus_delta = (*response) + delta;
+
+    l = randnumbers::lngamma_exact(resp_plus_delta) -
+        randnumbers::lngamma_exact(delta) -
+        (*response)* log_mu_plus_delta
+        -log(pow((delta+(*worktransformlin[0]))/delta, delta)-1);
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_hurdle_delta::compute_expectation(void)
+  {
+
+  int k=1;
+  double k_delta;
+  double kplus1;
+  double psum;
+
+  double L = 0;
+  E_dig_y_delta = 0;
+  E_trig_y_delta = 0;
+
+  psum = L;
+
+  while ((psum < stopsum) && (k <=stoprmax))
+    {
+    k_delta = k + delta;
+    kplus1 = k + 1;
+
+    L = exp(randnumbers::lngamma_exact(k_delta) -
+            randnumbers::lngamma_exact(kplus1) -
+            lngamma_delta -log(pow(delta_plus_mu/delta, delta)-1) +
+            k* log(*worktransformlin[0]/delta_plus_mu)
+           );
+
+    psum += L;
+
+    E_dig_y_delta += randnumbers::digamma_exact(k_delta)*L;
+
+    E_trig_y_delta += randnumbers::trigamma_exact(k_delta)*L;
+
+    k++;
+    }
+
+  E_dig_y_delta -=  randnumbers::digamma_exact(delta);
+
+  E_trig_y_delta -= randnumbers::trigamma_exact(delta);
+
+  E_dig_y_delta *=  delta;
+
+  E_trig_y_delta *= delta*delta;
+
+  *Ep = E_dig_y_delta;
+  *Ep_trig = E_trig_y_delta;
+
+  }
+
+
+void DISTR_hurdle_delta::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    Ep = E_dig_y_delta_m.getV();
+    Ep_trig = E_trig_y_delta_m.getV();
+    }
+
+  if (*linpred <= linpredminlimit)
+    delta = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    delta = exp(linpredmaxlimit);
+  else
+    delta = exp(*linpred);
+
+  delta_plus_mu = delta + (*worktransformlin[0]);
+
+  lngamma_delta = randnumbers::lngamma_exact(delta);
+
+  double delta_plus_response = delta + (*response);
+  double hilfs = pow(delta/delta_plus_mu, delta);
+
+  double nu = delta*(randnumbers::digamma_exact(delta_plus_response) -
+                    randnumbers::digamma_exact(delta))
+                    -delta*(*response)*log(delta_plus_mu)-
+                    delta*hilfs*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu)/(hilfs-1);
+
+  if ((optionsp->nriter < 1) ||
+      slow ||
+      (optionsp->nriter % nrbetween == 0)
+      )
+    compute_expectation();
+  else
+    {
+    E_dig_y_delta = (*Ep);
+    E_trig_y_delta = (*Ep_trig);
+    }
+
+  *workingweight = delta*(*worktransformlin[0])*log(delta_plus_mu)
+                   +delta*delta*(*worktransformlin[0])/delta_plus_mu
+                   +delta*hilfs*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu+pow((*worktransformlin[0])/delta_plus_mu, 2))/(hilfs-1)+pow(delta*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu), 2)/pow(hilfs-1,2)
+                   -E_dig_y_delta-E_trig_y_delta;
+
+  if (*workingweight <= 0)
+    *workingweight = 0.0001;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    double resp_plus_delta = (*response) + delta;
+    double log_mu_plus_delta = log((*worktransformlin[0]) + delta);
+    like += randnumbers::lngamma_exact(resp_plus_delta) -
+        randnumbers::lngamma_exact(delta) -
+        (*response)* log_mu_plus_delta
+        -log(pow((delta+(*worktransformlin[0]))/delta, delta)-1);
+
+    }
+
+  modify_worklin();
+  Ep++;
+  Ep_trig++;
+
+  }
+
+
+void DISTR_hurdle_delta::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (delta): exponential\n");
+  optionsp->out("  Stop criteria for approximating expected values\n");
+  optionsp->out("  in working weights of delta equation:\n");
+  optionsp->out("    cumulative probability:"  + ST::doubletostring(stopsum) +  "\n");
+  optionsp->out("    Maximum values:"  + ST::inttostring(stoprmax) +  "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_hurdle_delta::update_end(void)
+  {
+  DISTR_gamlss::update_end();
+  }
+
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_hurdle_mu -----------------------------
+//------------------------------------------------------------------------------
+
+void DISTR_hurdle_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+        if (*workresp != int(*workresp))
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response must be integer values\n");
+          }
+
+        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_hurdle_mu::DISTR_hurdle_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+
+  predictor_name = "mu";
+  outpredictor = true;
+  outexpectation = true;
+
+  family = "Hurdle negative binomial - mu";
+
+  linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  check_errors();
+  }
+
+
+DISTR_hurdle_mu::DISTR_hurdle_mu(const DISTR_hurdle_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  }
+
+
+const DISTR_hurdle_mu & DISTR_hurdle_mu::operator=(
+                            const DISTR_hurdle_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_hurdle_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_delta
+   // *linpred[1] = eta_pi
+   // *linpred[2] = eta_mu
+
+   if (*weight[0] == 0)
+     *deviance=0;
+   else
+     {
+     double explinpi = exp(*linpred[0]);
+     double delta = exp(*linpred[1]);
+     double mu = exp(*linpred[2]);
+     double delta_plus_mu = delta + mu;
+     double resp_plus_one = (*response[0]) + 1;
+
+     double l;
+
+     if (*response[1]==0)
+         {
+         l= -log(1+ explinpi) + (*linpred[1]);
+         }
+       else // response > 0
+         {
+       double delta_plus_response = delta+(*response[0]);
+
+       l = randnumbers::lngamma_exact(delta_plus_response) -
+           randnumbers::lngamma_exact(resp_plus_one) -
+           randnumbers::lngamma_exact(delta) +
+           delta*log(delta/delta_plus_mu)+
+           (*response[0])*log(mu/delta_plus_mu)-log(1+ explinpi) - log(pow(delta_plus_mu/delta, delta)-1);
+
+       }
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_hurdle_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_hurdle_mu::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp(*linpred[2]);
+  }
+
+
+double DISTR_hurdle_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+ //   double p =  (*param[1])/((*param[0])+(*param[1]));
+ //   double r = (*param[0]);
+ //   double u = gsl_ran_negative_binomial_pdf(*response[1], p, r);
+ //   return u;
+      return 0;
+    }
+
+double DISTR_hurdle_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+  //  double p =  (*param[1])/((*param[0])+(*param[1]));
+  //  double r = (*param[0]);
+  //  double u = gsl_cdf_negative_binomial_P(*response[1], p, r);
+  //  return u;
+ //   return 0;
+    }
+
+
+double DISTR_hurdle_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = exp(eta_delta);
+  // *worklin[1] = linear predictor of pi equation
+  // *worktransformlin[1] = pi;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu;
+  if (*linpred <= linpredminlimit)
+    mu = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    mu = exp(linpredmaxlimit);
+  else
+    mu = exp(*linpred);
+
+  double l;
+     l = - ((*worktransformlin[0]) + (*response))*
+           log((*worktransformlin[0])+mu) +(*response)*log(mu)
+           - log(pow((mu + (*worktransformlin[0])) / mu, (*worktransformlin[0])) - 1);
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_hurdle_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+   // *worklin[0] = linear predictor of delta equation
+  // *worktransformlin[0] = exp(eta_delta);
+  // *worklin[1] = linear predictor of pi equation
+  // *worktransformlin[1] = pi;
+
+  if (counter==0)
+    set_worklin();
+
+   double mu;
+  if (*linpred <= linpredminlimit)
+    mu = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    mu = exp(linpredmaxlimit);
+  else
+    mu = exp(*linpred);
+
+  double delta_plus_mu = (*worktransformlin[0]) + mu;
+  double hilfs = pow((*worktransformlin[0])/delta_plus_mu,(*worktransformlin[0]));
+
+  double nu = (*worktransformlin[0])*((*response))/delta_plus_mu
+                - mu*(*worktransformlin[0])/ (delta_plus_mu*(1-hilfs));
+
+  *workingweight = (*worktransformlin[0])*mu*mu/(pow(delta_plus_mu, 2)*(1-hilfs))+
+                    mu*pow((*worktransformlin[0]), 2)/(pow(delta_plus_mu,2)*pow(1-hilfs, 2))
+                    -pow(mu*(*worktransformlin[0]), 2)*hilfs/(pow(delta_plus_mu,2)*(1-hilfs)*(1-hilfs));
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+
+    like += - ((*worktransformlin[0]) + (*response))*
+           log((*worktransformlin[0])+mu) +(*response)*log(mu)
+           - log(pow((mu + (*worktransformlin[0])) / mu, (*worktransformlin[0])) - 1);
+
+    }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_hurdle_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  double delta = exp(*linpred[predstart_mumult+1]);
+  double p = exp(*linpred[predstart_mumult])/(1+exp(*linpred[predstart_mumult]));
+  double m = exp(*linpred[predstart_mumult+2]);
+  *mu = (1-p)*m/(1-pow(delta/(m+delta), delta));
+  }
+
+
+void DISTR_hurdle_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_hurdle_mu::update_end(void)
+  {
+  DISTR_gamlss::update_end();
+  }
+
+
 
 
 } // end: namespace MCMC

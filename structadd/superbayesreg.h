@@ -97,6 +97,8 @@ using MCMC::DISTR_ziplambda;
 using MCMC::DISTR_zippi;
 using MCMC::DISTR_hurdle_lambda;
 using MCMC::DISTR_hurdle_pi;
+using MCMC::DISTR_hurdle_mu;
+using MCMC::DISTR_hurdle_delta;
 using MCMC::DISTR_negbinzip_mu;
 using MCMC::DISTR_negbinzip_pi;
 using MCMC::DISTR_negbinzip_delta;
@@ -409,6 +411,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_zippi> distr_zippis;
   vector<DISTR_hurdle_lambda> distr_hurdle_lambdas;
   vector<DISTR_hurdle_pi> distr_hurdle_pis;
+  vector<DISTR_hurdle_mu> distr_hurdle_mus;
+  vector<DISTR_hurdle_delta> distr_hurdle_deltas;
   vector<DISTR_negbinzip_mu> distr_negbinzip_mus;
   vector<DISTR_negbinzip_pi> distr_negbinzip_pis;
   vector<DISTR_negbinzip_delta> distr_negbinzip_deltas;
