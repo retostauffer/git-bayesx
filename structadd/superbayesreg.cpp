@@ -4851,7 +4851,8 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: ZIP lambda ------------------------------
 
-//---------------------------------- hurdle_pi ------------------------------------
+
+ //-------------------------------- hurdle_pi ---------------------------------
   else if (family.getvalue() == "hurdle_pi" && equationtype.getvalue()=="pi")
     {
 
@@ -4865,9 +4866,10 @@ bool superbayesreg::create_distribution(void)
 
 
     }
-//------------------------------- END: hurdle_ pi ----------------------------------
+//---------------------------- END: hurdle_pi -------------------------------
 
-//-------------------------------- hurdle_lambda ----------------------------------
+
+//------------------------------- hurdle_lambda ------------------------------------
   else if (family.getvalue() == "hurdle_lambda" && equationtype.getvalue()=="mean")
     {
 
@@ -4877,6 +4879,7 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1];
     equations[modnr].pathd = "";
+
     predict_mult_distrs.push_back(&distr_hurdle_pis[distr_hurdle_pis.size()-1]);
     predict_mult_distrs.push_back(&distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1]);
 
@@ -4890,13 +4893,12 @@ bool superbayesreg::create_distribution(void)
    //   distr_hurdle_pis[distr_hurdle_pis.size()-1].distrp.push_back(
     //  &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1]);
 
-      distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1].distrp.push_back(
-      &distr_hurdle_pis[distr_hurdle_pis.size()-1]);
-
+      distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1].distrp.push_back
+      (&distr_hurdle_pis[distr_hurdle_pis.size()-1]);
       }
 
     }
-//------------------------------- END: hurdle_lambda ------------------------------
+//------------------------------- END: hurdle_lambda -------------------------------
 
 //-------------------------------- hurdle delta --------------------------------
   else if (family.getvalue() == "hurdle_delta" && equationtype.getvalue()=="delta")

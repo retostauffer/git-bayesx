@@ -19088,7 +19088,13 @@ double DISTR_hurdle_pi::loglikelihood_weightsone(double * response,
     {
     set_worklin();
     }
-    double explinpi = exp((*linpred));
+    double explinpi;
+   if (*linpred <= linpredminlimit)
+    explinpi = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    exptildeeta = exp(linpredmaxlimit);
+   else
+    explinpi = exp(*linpred);
     double pi = explinpi/(1+explinpi);
 
     double l;
@@ -19124,7 +19130,13 @@ void DISTR_hurdle_pi::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double explinpi = exp((*linpred));
+  double explinpi;
+  if (*linpred <= linpredminlimit)
+    explinpi = exp(linpredminlimit);
+//  else if (*linpred >= linpredmaxlimit)
+//    exptildeeta = exp(linpredmaxlimit);
+  else
+    explinpi = exp(*linpred);
     double pi = explinpi/(1+explinpi);
 
 
@@ -19495,7 +19507,7 @@ DISTR_hurdle_delta::DISTR_hurdle_delta(GENERAL_OPTIONS * o,
   E_trig_y_delta_m = datamatrix(nrobs,1,0);
 
   linpredminlimit=-10;
-  linpredmaxlimit=10;
+  linpredmaxlimit=15;
   }
 
 
@@ -19621,7 +19633,7 @@ void DISTR_hurdle_delta::compute_expectation(void)
     L = exp(randnumbers::lngamma_exact(k_delta) -
             randnumbers::lngamma_exact(kplus1) -
             lngamma_delta -log(pow(delta_plus_mu/delta, delta)-1) +
-            k* log(*worktransformlin[0]/delta_plus_mu)
+            k* log((*worktransformlin[0])/delta_plus_mu)
            );
 
     psum += L;
@@ -19682,8 +19694,8 @@ void DISTR_hurdle_delta::compute_iwls_wweightschange_weightsone(
 
   double nu = delta*(randnumbers::digamma_exact(delta_plus_response) -
                     randnumbers::digamma_exact(delta))
-                    -delta*(*response)*log(delta_plus_mu)-
-                    delta*hilfs*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu)/(hilfs-1);
+                    -delta*(*response)/(delta_plus_mu)-
+                    delta*(log(delta_plus_mu/delta)-(*worktransformlin[0])/delta_plus_mu)/(1-hilfs);
 
   if ((optionsp->nriter < 1) ||
       slow ||
@@ -19696,10 +19708,9 @@ void DISTR_hurdle_delta::compute_iwls_wweightschange_weightsone(
     E_trig_y_delta = (*Ep_trig);
     }
 
-  *workingweight = delta*(*worktransformlin[0])*log(delta_plus_mu)
-                   +delta*delta*(*worktransformlin[0])/delta_plus_mu
-                   +delta*hilfs*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu+pow((*worktransformlin[0])/delta_plus_mu, 2))/(hilfs-1)+pow(delta*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu), 2)/pow(hilfs-1,2)
-                   -E_dig_y_delta-E_trig_y_delta;
+  *workingweight = delta*(log(delta_plus_mu/delta)-(*worktransformlin[0])/delta_plus_mu)/(1-hilfs) - pow(((*worktransformlin[0])/delta_plus_mu), 2)*delta/(1-hilfs)
+                   -pow((delta*hilfs*(log(delta/delta_plus_mu)+(*worktransformlin[0])/delta_plus_mu)/(1-hilfs)),2)
+                   -E_dig_y_delta-E_trig_y_delta + delta*pow((*worktransformlin[0]),2)/(pow(delta+(*worktransformlin[0]),2)*(1-hilfs));
 
   if (*workingweight <= 0)
     *workingweight = 0.0001;
@@ -19854,9 +19865,9 @@ void DISTR_hurdle_mu::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-     if (*response[1]==0)
+     if (*response[0]==0)
          {
-         l= -log(1+ explinpi) + (*linpred[1]);
+         l= -log(1+ explinpi) + (*linpred[0]);
          }
        else // response > 0
          {
@@ -19865,7 +19876,6 @@ void DISTR_hurdle_mu::compute_deviance_mult(vector<double *> response,
        l = randnumbers::lngamma_exact(delta_plus_response) -
            randnumbers::lngamma_exact(resp_plus_one) -
            randnumbers::lngamma_exact(delta) +
-           delta*log(delta/delta_plus_mu)+
            (*response[0])*log(mu/delta_plus_mu)-log(1+ explinpi) - log(pow(delta_plus_mu/delta, delta)-1);
 
        }
@@ -19936,9 +19946,8 @@ double DISTR_hurdle_mu::loglikelihood_weightsone(double * response,
     mu = exp(*linpred);
 
   double l;
-     l = - ((*worktransformlin[0]) + (*response))*
-           log((*worktransformlin[0])+mu) +(*response)*log(mu)
-           - log(pow((mu + (*worktransformlin[0])) / mu, (*worktransformlin[0])) - 1);
+     l = -(*response)*log((*worktransformlin[0])+mu) +(*response)*log(mu)
+           - log(pow((mu + (*worktransformlin[0])) / (*worktransformlin[0]), (*worktransformlin[0])) - 1);
 
   modify_worklin();
 
@@ -19965,31 +19974,32 @@ void DISTR_hurdle_mu::compute_iwls_wweightschange_weightsone(
     set_worklin();
 
    double mu;
-  if (*linpred <= linpredminlimit)
-    mu = exp(linpredminlimit);
+    if (*linpred <= linpredminlimit)
+        mu = exp(linpredminlimit);
 //  else if (*linpred >= linpredmaxlimit)
 //    mu = exp(linpredmaxlimit);
-  else
-    mu = exp(*linpred);
+    else
+        mu = exp(*linpred);
 
-  double delta_plus_mu = (*worktransformlin[0]) + mu;
-  double hilfs = pow((*worktransformlin[0])/delta_plus_mu,(*worktransformlin[0]));
+    double delta_plus_mu = (*worktransformlin[0]) + mu;
+    double hilfs = pow((*worktransformlin[0])/delta_plus_mu,(*worktransformlin[0]));
 
-  double nu = (*worktransformlin[0])*((*response))/delta_plus_mu
-                - mu*(*worktransformlin[0])/ (delta_plus_mu*(1-hilfs));
+    double nu = (*worktransformlin[0])*((*response))/delta_plus_mu
+                    - mu*(*worktransformlin[0])/ (delta_plus_mu*(1-hilfs));
 
-  *workingweight = (*worktransformlin[0])*mu*mu/(pow(delta_plus_mu, 2)*(1-hilfs))+
-                    mu*pow((*worktransformlin[0]), 2)/(pow(delta_plus_mu,2)*pow(1-hilfs, 2))
-                    -pow(mu*(*worktransformlin[0]), 2)*hilfs/(pow(delta_plus_mu,2)*(1-hilfs)*(1-hilfs));
+  *workingweight = (*worktransformlin[0])*mu*(mu+(*worktransformlin[0]))/(pow(delta_plus_mu, 2)*(1-hilfs))+
+                    -pow(mu*(*worktransformlin[0]), 2)*hilfs/(pow(delta_plus_mu*(1-hilfs),2));
+
+  if (*workingweight <= 0)
+    *workingweight = 0.0001;
 
   *workingresponse = *linpred + nu/(*workingweight);
 
   if (compute_like)
     {
 
-    like += - ((*worktransformlin[0]) + (*response))*
-           log((*worktransformlin[0])+mu) +(*response)*log(mu)
-           - log(pow((mu + (*worktransformlin[0])) / mu, (*worktransformlin[0])) - 1);
+    like += -(*response)*log((*worktransformlin[0])+mu) +(*response)*log(mu)
+           - log(pow((mu + (*worktransformlin[0])) / (*worktransformlin[0]), (*worktransformlin[0])) - 1);
 
     }
 
