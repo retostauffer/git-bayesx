@@ -4938,7 +4938,7 @@ bool superbayesreg::create_distribution(void)
       {
       outerror("ERROR: Equation for delta is missing");
       return true;
-      }usefile C:/tmp/test2.txt
+      }
     if (distr_hurdle_pis.size() != 1)
       {
       outerror("ERROR: Equation for pi is missing");
