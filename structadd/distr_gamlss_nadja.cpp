@@ -7417,6 +7417,9 @@ void DISTR_claytoncopula2_normal_sigma2::compute_iwls_wweightschange_weightsone(
                     - hilfs2 * pow(prop1, -(*worktransformlin[0])-1) * d2 / hilfs
                     - (*worktransformlin[0]) * hilfs2 * pow(pow(prop1, -(*worktransformlin[0])-1) * d1 / hilfs, 2);
 
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -7639,6 +7642,9 @@ void DISTR_claytoncopula2_normal_mu::compute_iwls_wweightschange_weightsone(
                     + (1 + (*worktransformlin[0])) * d2 / prop1 + hilfs2 * ((*worktransformlin[0]) + 1) * pow(prop1, (-(*worktransformlin[0])-2)) * pow(d1, 2) / hilfs
                     - hilfs2 * pow(prop1, -(*worktransformlin[0])-1) * d2 / hilfs
                     - (*worktransformlin[0]) * hilfs2 * pow(pow(prop1, -(*worktransformlin[0])-1) * d1 / hilfs, 2);
+
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -10408,6 +10414,9 @@ void DISTR_frankcopula2_normal_sigma2::compute_iwls_wweightschange_weightsone(
 
     *workingweight = 0.5 + (*worktransformlin[0]) * d2 * (rest - 2 * (*worktransformlin[0]) * hilfs2 * (1 + hilfs2 / nenner) / nenner);
 
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -10630,6 +10639,9 @@ void DISTR_frankcopula2_normal_mu::compute_iwls_wweightschange_weightsone(
     *workingweight = 1/(*worktransformlin[2])
                      + (*worktransformlin[0]) * d2 * (rest - 2 * (*worktransformlin[0]) * hilfs2 * (1 + hilfs2 / nenner) / nenner);
 
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -10840,6 +10852,7 @@ void DISTR_frankcopula2_rho::compute_deviance_mult(vector<double *> response,
        l = log((*linpred[4]) * e1m1 * exp(- (*linpred[4]) * (u + v)) /  pow((e1m1 - e2m1 * e3m1), 2))
             +log(randnumbers::phi(((*response[3]) - (*linpred[3])) / pow(exp(*linpred[2]), 0.5))) +
                 log(randnumbers::phi(((*response[0]) - (*linpred[1])) / pow(exp(*linpred[0]), 0.5)));
+
 
 
     *deviance = -2*l;
