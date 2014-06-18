@@ -196,7 +196,7 @@ void FULLCOND_mult::outoptions(void)
 
 ST::string FULLCOND_mult::getinfo(void)
   {
-
+    return "";
   }
 
 
