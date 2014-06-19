@@ -19305,7 +19305,7 @@ void DISTR_hurdle_lambda::compute_deviance_mult(vector<double *> response,
    // *linpred[0] = eta_pi
    // *linpred[1] = eta_lamba
 
-   if (*weight[1] == 0)
+   if (*weight[0] == 0)
      *deviance=0;
    else
      {
@@ -19329,7 +19329,7 @@ void DISTR_hurdle_lambda::compute_deviance_mult(vector<double *> response,
          }
        else // response > 0
          {
-         double help1 = *response[1]+1;
+         double help1 = (*response[1])+1;
          l= -log(1+ explinpi) + (*response[1])*(*linpred[1])- lambda
             - randnumbers::lngamma_exact(help1)-log(1-exp(-lambda));
          }
