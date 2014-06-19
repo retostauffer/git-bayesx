@@ -19,8 +19,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 
 #include "distr_categorical.h"
-#include "gsl/gsl_randist.h"
-#include "gsl/gsl_cdf.h"
+//#include "gsl/gsl_randist.h"
+//#include "gsl/gsl_cdf.h"
 
 
 namespace MCMC
@@ -1218,7 +1218,7 @@ double DISTR_poisson::get_intercept_start(void)
 
 double DISTR_poisson::cdf(double * res,double * param,double * weight,double * scale)
     {
-   double cl = gsl_cdf_poisson_P(((*res)-1), *param);
+  /* double cl = gsl_cdf_poisson_P(((*res)-1), *param);
     if ((*res) == 0)
     {
         cl = 0;
@@ -1227,11 +1227,13 @@ double DISTR_poisson::cdf(double * res,double * param,double * weight,double * s
     double u = randnumbers::uniform_ab(cl, cr);
 
     return u;
+    */
+    return 0;
     }
 
 double DISTR_poisson::pdf(double * res,double * param,double * weight,double * scale)
     {
-    double p = gsl_ran_poisson_pdf((*res), (*param));
+ //   double p = gsl_ran_poisson_pdf((*res), (*param));
 //    std::ofstream out;
 ////  // helpmat1.prettyPrint(out);
 //    out.open ("C:\\tmp\\p.raw", std::ofstream::out | std::ofstream::app);
@@ -1241,7 +1243,8 @@ double DISTR_poisson::pdf(double * res,double * param,double * weight,double * s
 //    out << *res ;
 //    out << " " ;
 //    out << *param << endl;
-    return p;
+ //   return p;
+      return 0;
     }
 
 

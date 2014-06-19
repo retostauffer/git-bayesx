@@ -18,8 +18,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 #include "distr_gamlss_nadja.h"
-#include "gsl/gsl_randist.h"
-#include "gsl/gsl_cdf.h"
+//#include "gsl/gsl_randist.h"
+//#include "gsl/gsl_cdf.h"
 
 namespace MCMC
 {
@@ -946,8 +946,8 @@ double DISTR_t_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double x = ((*response[2])-(*param[2]))/pow((*param[1]),0.5);
-    double u = gsl_cdf_tdist_P(x, (*param[0]));
+ //   double x = ((*response[2])-(*param[2]))/pow((*param[1]),0.5);
+ //   double u = gsl_cdf_tdist_P(x, (*param[0]));
    // double x = (*param[0])/(pow((((*response[2])-(*param[2]))/pow((*param[1]))),2)+(*param[0]));
     return 0;
 //    return ( 1- 0.5*randnumbers::incomplete_beta(a,b,x));
@@ -12435,9 +12435,10 @@ double DISTR_bivt_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg = ((*response[5])-(*param[5]))/pow((*param[3]),0.5) ;
-    double u = gsl_cdf_tdist_P(arg, (*param[0]));
-    return (u);
+  //  double arg = ((*response[5])-(*param[5]))/pow((*param[3]),0.5) ;
+  //  double u = gsl_cdf_tdist_P(arg, (*param[0]));
+   // return (u);
+   return 0;
     }
 
 void DISTR_bivt_mu::set_worklin(void)
@@ -13674,9 +13675,10 @@ double DISTR_bivnormal_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg = ((*response[4])-(*param[4]))/pow((*param[2]),0.5) ;
-    double u = gsl_cdf_ugaussian_P(arg);
-    return u;
+ //   double arg = ((*response[4])-(*param[4]))/pow((*param[2]),0.5) ;
+ //   double u = gsl_cdf_ugaussian_P(arg);
+ //   return u;
+      return 0;
     }
 
 void DISTR_bivnormal_mu::set_worklin(void)

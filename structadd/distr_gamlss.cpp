@@ -18,9 +18,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 #include "distr_gamlss.h"
-#include "gsl/gsl_randist.h"
-#include "gsl/gsl_cdf.h"
-#include "gsl/gsl_rng.h"
+//#include "gsl/gsl_randist.h"
+//#include "gsl/gsl_cdf.h"
+//#include "gsl/gsl_rng.h"
 
 namespace MCMC
 {
@@ -459,8 +459,9 @@ double DISTR_negbin_mu::pdf_mult(vector<double *> response,
     {
     double p =  (*param[1])/((*param[0])+(*param[1]));
     double r = (*param[0]);
-    double u = gsl_ran_negative_binomial_pdf(*response[1], p, r);
-    return u;
+  //  double u = gsl_ran_negative_binomial_pdf(*response[1], p, r);
+   // return u;
+      return 0;
     }
 
 double DISTR_negbin_mu::cdf_mult(vector<double *> response,
@@ -472,8 +473,9 @@ double DISTR_negbin_mu::cdf_mult(vector<double *> response,
     {
     double p =  (*param[1])/((*param[0])+(*param[1]));
     double r = (*param[0]);
-    double u = gsl_cdf_negative_binomial_P(*response[1], p, r);
-    return u;
+  //  double u = gsl_cdf_negative_binomial_P(*response[1], p, r);
+  //  return u;
+      return 0;
     }
 
 
@@ -2579,13 +2581,15 @@ double DISTR_ziplambda::pdf_mult(vector<double *> response,
     {
     if((*response[1]) == 0)
     {
-        double p = (*param[0])+(1-(*param[0]))*gsl_ran_poisson_pdf((*response[1]), (*param[1])) ;
-        return p;
+    //    double p = (*param[0])+(1-(*param[0]))*gsl_ran_poisson_pdf((*response[1]), (*param[1])) ;
+    //    return p;
+        return 0;
     }
     else
     {
-        double p = (1-(*param[0]))*gsl_ran_poisson_pdf((*response[1]), (*param[1]));
-        return p;
+        //double p = (1-(*param[0]))*gsl_ran_poisson_pdf((*response[1]), (*param[1]));
+        //return p;
+        return 0;
     }
 
     }
@@ -2596,14 +2600,15 @@ double DISTR_ziplambda::cdf_mult(vector<double *> response,
                           vector<datamatrix *> aux)
     {
     unsigned int y = int (*response[1]);
-    double cl = (*param[0]) + (1-(*param[0]))*gsl_cdf_poisson_P(((*response[1])-1), *param[1]);
+  /*  double cl = (*param[0]) + (1-(*param[0]))*gsl_cdf_poisson_P(((*response[1])-1), *param[1]);
     if ((*response[1]) == 0)
     {
         cl = 0;
     }
     double cr = (*param[0]) + (1-(*param[0]))*gsl_cdf_poisson_P((*response[1]), *param[1]);
     double u = randnumbers::uniform_ab(cl, cr);
-    return u;
+    return u;*/
+    return 0;
     }
 
 void DISTR_ziplambda::compute_param_mult(vector<double *>  linpred,double * param)
