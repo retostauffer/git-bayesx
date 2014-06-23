@@ -3229,7 +3229,9 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: bivlogit_mu ----------------------------------
 
 //----------------------------- dirichlet -------------------------------
-  else if ((family.getvalue() == "dirichlet") && ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="alpha")))
+  else if ((family.getvalue() == "dirichlet") && ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="alpha")
+                                || (equationtype.getvalue()=="alpha2")|| (equationtype.getvalue()=="alpha3")|| (equationtype.getvalue()=="alpha4")
+                                || (equationtype.getvalue()=="alpha5")|| (equationtype.getvalue()=="alpha6")|| (equationtype.getvalue()=="alpha7")))
     {
     computemodeforstartingvalues = true;
 
