@@ -381,6 +381,13 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("df");
   equationtypes.push_back("rho");
   equationtypes.push_back("alpha");
+  equationtypes.push_back("alpha1");
+  equationtypes.push_back("alpha2");
+  equationtypes.push_back("alpha3");
+  equationtypes.push_back("alpha4");
+  equationtypes.push_back("alpha5");
+  equationtypes.push_back("alpha6");
+  equationtypes.push_back("alpha7");
   equationtypes.push_back("oddsratio");
   equationtypes.push_back("u1");
   equationtypes.push_back("u2");
