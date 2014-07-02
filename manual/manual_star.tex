@@ -1030,7 +1030,7 @@ of scaled inverse Gamma distributions
 \[
 \pi \left(\tau _{j}^{2} |\nu _{0} ,\nu _{1} ,\omega ,a ,b \right)=
 \left(1-\omega \right)\cdot InvGamma\left(\tau _{j}^{2} |a ,\nu _{0} b
-\right)+\omega \cdot InvGamma\left(\tau _{j}^{2} | a ,\nu _{1} b \right). 
+\right)+\omega \cdot InvGamma\left(\tau _{j}^{2} | a ,\nu _{1} b \right).
 \]
 
 We assume a beta prior for the parameter $\omega $, i.e. $\omega \sim  Beta \left( a_{\omega} ,b_{\omega} \right)$,
@@ -2465,9 +2465,253 @@ of entrance to the study to the survival or censoring time.
 
 More details on multi-state models, including an exemplary analysis on human sleep, can be found in \citeasnoun{KneHen06}.
 
+\section{Multilevel structured additive disributional regression}
+
+\subsection{Distributional regression}
+
+
+
+Structured additive regression models assume that the distribution of the response variable $y$, given covariates $\xvec$ and $\uvec$, belongs to an exponential family. The conditional mean $\mu_i = E(y_i|\xvec,\uvec)$ is linked to a structured additive predictor
+\begin{align*}
+\eta_i = f_1(x_{i1}) + \ldots + f_q(x_{ip}) + \uvec_i' \gammavec, \,\,\,\,\,\,\,\, i = 1, \ldots, n,
+\end{align*}
+by $\mu_i = h(\eta_i)$, see Chapter \ref{obsmodel}. In matrix notation we obtain 
+$$
+\etavec = \Xvec_1 \betavec_1 + \ldots + \Xvec_p \betavec_p + \Uvec \gammavec,
+$$
+for the predictor, see again Chapter \ref{obsmodel} for details.
+For the most basic model with Gaussian responses  and the  identity response function we have
+\begin{align*}
+y_i \sim  \mathcal{N}(\eta_i, \sigma^2) = \mathcal{N}(f_1(x_{i1}) + \ldots + f_p(x_{ip}) + \uvec_i' \gammavec,\sigma^2)
+\end{align*}
+or
+$$
+\yvec = \mathcal{N}(\etavec, \sigma^2 \Ivec) = \mathcal{N}(\Xvec_1 \betavec_1 + \ldots + \Xvec_p \betavec_p + \Uvec \gammavec,\sigma^2 \Ivec).
+$$
+
+
+Here and in other convential STAR models only the conditional mean is modeled in dependence of covariates.
+
+A more flexible approach is given by distributional regression as introduced in  \citeasnoun{kleknelan14a} and \citeasnoun{kleknelan14b}. On the one hand, the class of distributions that can be estimated with distributional regression is not restricted to the exponential family. On the other hand, distributional regression allows to model not only the conditional mean of the response variable but the whole set of distribution parameters, i.e.~all parameters for the location, scale and shape of a distribution can be related to a set of predictor variables, which of course may vary between the different parameters.
+
+For most distribution families a location parameter $\muvec$, a scale parameter $\sigmavec$ (or $\sigmavec^2$) and a maximum of two shape parameters $\nuvec$ and $\tauvec$ are sufficient to fully characterize the respective distribution. Using response functions $h_1, \ldots, h_4$ each of these parameters can be linked to a structured additive predictor
+\begin{align}
+\begin{array}{lllll}
+\muvec & = & h_1(\etavec_1) & = &    h_1(\Xvec_{11} \betavec_{11} + \ldots + \Xvec_{q1} \betavec_{q1} + \Uvec_1 \gammavec_1), \\ [0.2cm]
+\sigmavec & = & h_2(\etavec_2) & = & h_2(\Xvec_{12} \betavec_{12} + \ldots + \Xvec_{q2} \betavec_{q2} + \Uvec_2 \gammavec_2), \\ [0.2cm]
+\nuvec & = & h_3(\etavec_3) & = &    h_3(\Xvec_{13} \betavec_{13} + \ldots + \Xvec_{q3} \betavec_{q3} + \Uvec_3 \gammavec_3), \\ [0.2cm]
+\tauvec & = & h_4(\etavec_4) & = &   h_4(\Xvec_{14} \betavec_{14} + \ldots + \Xvec_{q4} \betavec_{q4} + \Uvec_4 \gammavec_4).
+\end{array}
+\label{eq:gamlss}
+\end{align}
+Usually, the response functions are chosen to ensure appropriate restrictions on the parameter spaces. We use, for example, the exponential function to ensure positivity of the scale parameter, i.e.~$\sigmavec = \exp(\etavec_2)$.
+
+Presumably the most simple distributional regression model is obtained with Gaussian responses where both the mean $\mu$ and the variance
+$\sigma^2$ is modeled in terms of covariates.
+Thus, we consider a regression model with
+\begin{align*}
+\begin{array}{lllll}
+\muvec & = & h_1(\etavec_1) & = & \etavec_1, \\ [0.2cm]
+\sigmavec^2 & = & h_2(\etavec_2) & = & \exp(\etavec_2).
+\end{array}
+\end{align*}
+
+A possible generalization of the normal distribution is given by the three-parameter Student's t distribution with location parameter $\mu$, scale parameter $\sigma^2>0$ and degrees of freedom $\texttt{df}>0$. The probability density function is given by
+\begin{align*}
+f(y|\mu, \sigma, df) = \frac{\Gamma\left( \frac{df +1 }{2}\right)}{\sigma \Gamma\left( \frac{1}{2}\right) \Gamma\left(
+\frac{df}{2}\right)\sqrt{df}} \cdot \left( 1+ \frac{(y-\mu)^2}{\sigma^2 df}\right)^{-\frac{df+1}{2}},
+\end{align*}
+where $\Gamma(x) = \int_0^{\infty} u^{x-1} \exp(-u) \mathrm{d}u$ for $x>0$ is the gamma function. Similar to the normal distribution the t distribution is symmetric and bell-shaped but it has heavier tails, offering a robust alternative to the normal distribution. For $\texttt{df} \rightarrow \infty$ it collapses to the normal distribution.
+
+Regarding the positivity of $\sigma^2$ and $\texttt{df}$ we consider the model
+\begin{align*}
+\begin{array}{lllll}
+\muvec & = & h_1(\etavec_1) & = & \etavec_1, \\ [0.2cm]
+\sigmavec^2 & = & h_2(\etavec_2) & = & \exp(\etavec_2), \\ [0.2cm]
+\boldsymbol{\texttt{df}} & = & h_3(\etavec_3) & = & \exp(\etavec_3). \\ [0.2cm]
+\end{array}
+\end{align*}
+
+A popular two parameter distribution for modeling skewed distributions is the gamma distribution with mean parameter $\mu>0$ and shape parameter $\sigma>0$. The probability density function is given by
+\begin{equation*}
+f(y_i|\mu_i, \sigma_i) = \left( \frac{\sigma_i}{\mu_i} \right)^{\sigma_i} \cdot \frac{y_i^{\sigma_i-1}}{\Gamma(\sigma_i)} \cdot \exp\left(- \frac{\sigma_i}{\mu_i} \cdot y_i \right),
+\end{equation*}
+with $\Gamma(x) = \int_0^{\infty} u^{x-1} \exp(-u) \mathrm{d}u$ for $x>0$ being the gamma function. The mean of the gamma distribution corresponds to $\mu$, the variance is given by $\mu^2/\sigma$.
+Setting up a regression model both the mean and the shape parameter are linked to a STAR predictor via the exponential function due to the positivity constraints:
+\begin{align*}
+\begin{array}{lllll}
+\muvec & = & h_1(\etavec_1) & = & \exp(\etavec_1), \\ [0.2cm]
+\sigmavec & = & h_2(\etavec_2) & = & \exp(\etavec_2).
+\end{array}
+\end{align*}
+
+A comprehensive list of all distributional regression models available in BayesX can be found in ??
+
+
+\subsection{Quantile Regression} \label{sec:quantreg}
+
+ Distributional regression assumes a specific parametric probability distribution of the response (like the normal, lognormal or gamma distribution) and models some or all of its parameters in dependence of covariates. Quantile regression, in contrast, is a distribution-free approach, trying to directly model the different quantiles of the response as a function of covariates.
+
+In linear quantile regression (see  \citeasnoun{Koe05}), we assume
+\begin{align*}
+q_{\varphi,i} = \beta_{\varphi,0} + \beta_{\varphi,1}x_{i1} + \ldots + \beta_{\varphi,p}x_{ip}
+\end{align*}
+
+where $q_\varphi$, for $\varphi \in (0,1)$, is the $\varphi$-quantile of the response distribution. Estimation of the quantile-specific regression coefficients $\betavec_{\varphi}$ relies on minimizing the asymmetrically weighted error (AWE) criterion
+\begin{align}
+\hat{\betavec}_{\varphi} = \mbox{argmin}_{\betavec_{\varphi}} \left\{ \sum_{i=1}^{n} \rho_{\varphi}(y_i - \xvec_i' \betavec_{\varphi})\right\},
+\label{eq:quantmin}
+\end{align}
+
+with the loss function $\rho_{\varphi}$ defined by
+\begin{align*}
+\rho_{\varphi}(u) = \begin{cases} u \varphi & \textnormal{if $u \geq 0$} \\ u (\varphi - 1) & \textnormal{if $u < 0$,} \end{cases}
+\end{align*}
+which is also known as the check function. Since there exists no closed form solution for this minimization problem, estimates are typically obtained based on linear programming and modifications of the simplex algorithm, see \citeasnoun{Koe05} for details. The distribution of the response is implicitly determined by the estimated quantiles $q_{\varphi}$ provided that quantiles for a reasonable dense grid of $\varphi$-values are estimated. Generalizations to structured additive predictors are conceptually straightforward. However, estimation is highly challenging and almost impossible for complex hierarchical models, revealing the limits of frequentist quantile regression.
+
+Bayesian quantile regression requires a distributional assumption for the responses to be able to set up a likelihood. Following \citeasnoun{WalKneLanYue12} we will assume independent and identically distributed observations following an asymmetric Laplace distribution with location parameter $\xvec_i' \betavec_{\varphi}$, scale parameter $\sigma^2$ and skewness parameter $\varphi$,
+\begin{align*}
+y_{i} | \betavec_{\varphi}, \sigma^2, \varphi \overset{\textnormal{iid}}{\sim} \textnormal{ALD}(\xvec_i' \betavec_{\varphi},\sigma^2,\varphi).
+\end{align*}
+Then, the density of the responses is given by
+\begin{align*}
+p(y_i | \betavec_{\varphi},\sigma^2,\varphi) = \frac{\varphi(1-\varphi)}{\sigma^2} \exp\left(-\frac{\rho_{\varphi}(y_i - \xvec_i' \betavec_{\varphi})}{\sigma^2}\right).
+\end{align*}
+Maximizing the corresponding posterior (for fixed $\sigma^2$ and $\varphi$)
+\begin{align*}
+p(\betavec_{\varphi} | \yvec, \sigma^2, \varphi) & \propto \prod_{i=1}^n p(y_i | \betavec_{\varphi}, \sigma^2) \\
+& \propto \exp \left(-\frac{1}{\sigma^2}\sum_{i=1}^n \rho_{\varphi}(y_i - \xvec_i' \betavec_{\varphi})\right)
+\end{align*}
+with respect to $\betavec_{\varphi}$ obviously is equivalent to minimizing the AWE criterion (\ref{eq:quantmin}). However, in contrast to frequentist quantile regression the linear predictor $\eta_{i,\varphi} = \xvec_i' \betavec_{\varphi}$ can be replaced by a hierarchical structured additive predictor without any further difficulties, see \citeasnoun{WalKneLanYue12} for details.
+
+Since the check function $\rho_{\varphi}$ is non-differentiable, inference based on Markov chain Monte Carlo (MCMC) simulations at a first glance seems to be complicated. However, the asymmetric Laplace distribution can be represented as a scaled mixture of normals:
+\begin{align*}
+Y = \eta + \xi W + \delta Z \sqrt{\sigma^2 W}
+\end{align*}
+with $\xi = \frac{1-2\varphi}{\varphi(1-\varphi)}$ and $\delta^2 = \frac{2}{\varphi(1-\varphi)}$.  $W \sim \textnormal{Exp}(\frac{1}{\sigma^2})$ and $Z \sim \mathcal{N}(0,1)$ are independent random variables following an exponential distribution with mean $\sigma^2$ and a standard normal distribution, respectively. Thus, using offsets $\xi W$ and weights $\delta \sqrt{\sigma^2 W}$ the Bayesian quantile regression problem can be interpreted as a conditionally Gaussian regression model after imputing $W$ as a part of the MCMC sampler.
+
+
+\subsection{Multilevel models}
+
+
+
+%In a multilevel STAR model (\shortciteN{lanuml14}) the regression coefficients $\betavec_j$ of a function $f_j$ may themselves obey a regression model with a structured additive predictor, i.e.
+%\begin{align}
+%\betavec_j \sim  \mathcal{N}(\boldsymbol{\eta}_j,\tau^2_j \mathbf{I}) =
+%\mathcal{N}(\Zvec_{j1} \betavec_{j1} + \ldots + \Zvec_{jq_j} \betavec_{jq_j} + \Xvec_j \gammavec_j, \tau^2_j \mathbf{I})
+%\label{eq:compprior}
+%\end{align}
+%where the terms $\mathbf{Z}_{j1} \boldsymbol{\beta}_{j1},\dots,\mathbf{Z}_{jq_j} \boldsymbol{\beta}_{jq_j}$ represent additional nonlinear functions $f_{j1},\dots,f_{jq_j}$, and  $\mathbf{X}_j \boldsymbol{\gamma}_j$ comprises additional linear effects.
+%Further levels are possible by assuming that the second level regression parameters $\boldsymbol{\beta}_{jl}$, \linebreak $l=1,\dots,q_j$, again obey a STAR model.
+%
+%In this paper we use the compound prior (\ref{eq:compprior}) if a covariate $z_j \in \{1,\dots,K\}$ is a spatial index and $z_{ij}$ indicates the region observation $i$ pertains to. Then, the design matrix $\mathbf{Z}_j$ is a $n \times K$ incidence matrix with $\mathbf{Z}_j[i,k] = 1$ if the $i$-th observation belongs to region $k$ and zero else. The $K \times 1$ parameter vector $\boldsymbol{\beta}_j$ is the vector of regression parameters, i.e.~the $k$-th element in $\boldsymbol{\beta}$ corresponds to the regression coefficient of the $k$-th region. The use of the compound prior (\ref{eq:compprior}) allows for further explaining the region specific effect by spatial covariates.
+%
+%The hierarchical structure of the Austrian political-administrative units suggests a four level regression model: Single-family homes (level-1) belong to municipalities (level-2), which are nested in districts (level-3), which are themselves nested in counties (level-4). Assuming house prices per square meter to be normally distributed leads to the following four level STAR model, see also  \shortciteN{brulan11}:
+%\begin{align}
+%\begin{array}{llll}
+%\mbox{level-1:} & \mathit{\boldsymbol{p_{qm}}} &  = & \fvec_1(\mathit{area}) + \fvec_2(\mathit{area\_plot}) + \fvec_3(\mathit{age}) + \fvec_4(\mathit{time\_index}) + \\
+%                &              &    & \fvec_5(\mathit{muni}) + \Xvec \gammavec + \varepsilonvec \\
+%                &              &  = & \Zvec_1 \betavec_1 + \Zvec_2 \betavec_2 + \Zvec_3 \betavec_3 + \Zvec_4 \betavec_4 + \Zvec_5 \betavec_5 + \Xvec \gammavec + \varepsilonvec  \\ [0.2cm]
+%\mbox{level-2:} & \betavec_5   &  = & \fvec_{5,1}(\mathit{pp\_ind}) + \fvec_{5,2}(\mathit{ln\_educ}) +  \fvec_{5,3}(\mathit{age\_ind}) + \fvec_{5,4}(\mathit{comm}) + \\
+%                &              &    & \fvec_{5,5}(\mathit{ln\_den}) + \fvec_{5,6}(\mathit{dist}) + \varepsilonvec_5      \\
+%                &              &  = & \Zvec_{5,1} \betavec_{5,1} + \Zvec_{5,2} \betavec_{5,2} + \Zvec_{5,3} \betavec_{5,3} + \Zvec_{5,4} \betavec_{5,4} +  \\
+%                &              &    & \Zvec_{5,5} \betavec_{5,5} + \Zvec_{5,6} \betavec_{5,6} + \varepsilonvec_5  \\ [0.2cm]
+%\mbox{level-3:} & \betavec_{5,6} & = & \fvec_{5,6,1}(\mathit{wko\_ind}) + \fvec_{5,6,2}^{mrf}(\mathit{dist}) + \fvec_{5,6,3}(\mathit{county}) + \varepsilonvec_{5,6} \\
+%                &                & = & \Zvec_{5,6,1} \betavec_{5,6,1} + \Zvec_{5,6,2} \betavec_{5,6,2} + \Zvec_{5,6,3} \betavec_{5,6,3} + \varepsilonvec_{5,6} \\ [0.2cm]
+%\mbox{level-4:} & \betavec_{5,6,3} & = & \mathds{1} \gamma_0 + \varepsilonvec_{5,6,3}. \\
+%\end{array}
+%\label{eq:model}
+%\end{align}
+%
+%The categorical covariates on level-1, describing the quality and equipment of the house, are encoded as dummy variables and subsumed in the design matrix $\Xvec$ with estimated parameters $\gammavec$. The possibly nonlinear functions $\fvec_1,\fvec_2,\dots$ are modeled by P-splines.
+%
+%The level-1 equation contains an uncorrelated random municipality effect $f_5(\emph{muni})$, controlling for unordered spatial heterogeneity. This municipality-specific heterogeneity is modeled through the level-2 equation and is further decomposed into a district and finally into a county level effect (levels 3 and 4). Furthermore, district specific spatial heterogeneity is modeled through a correlated spatial effect $f_{5,6}(\emph{dist})$ in the level-3 equation by Markov random fields, denoted by the superscript "\emph{mrf}", see \shortciteN{fahkne13} for details regarding MRF's.
+%
+%From model (\ref{eq:model}) we immediately get the conditional mean of the house price per square meter $p_{qm}$. The $\varphi$-th conditional quantile of the house price per square meter is given by
+%\begin{equation}
+%Q_{\varphi}(p_{qm}) = \EV(p_{qm}) + \sigma \cdot \Phi^{-1}(\varphi),
+%\label{eq:quantnormal}
+%\end{equation}
+%with $\Phi^{-1}(\varphi)$ being the $\varphi$-th quantile of the standard normal distribution. The variance parameter $\sigma^2$ (and so the standard deviation $\sigma$) can be replaced by a suitable estimator.
+%%by the sample variance
+%%\begin{align*}
+%%\widehat{\sigma^2} = S^2 = \frac{\sum_{i=1}^n (p_{qm_i}-\widehat{p_{qm_i}})^2}{n-k},
+%%\end{align*}
+%%where $k$ denotes the total degrees of freedom.
+%Equation (\ref{eq:quantnormal}) shows that the quantiles can be received by simply shifting the mean according to the estimated variance.
+%
+%Due to the additive structure of our model the conditional quantiles of the house price per square meter change additively with changes in values of covariates. Subsequently, the conditional quantiles of the total house price $p$ change proportionally to the floor area of the building:
+%\begin{align*}
+%\begin{array}{lll}
+%Q_{\varphi}(p) & = & area \cdot \left(\eta + \sigma \cdot \Phi^{-1}(\varphi)\right)\\ [0.2cm]
+%     & = & area \cdot \left(f_1(area)+ \ldots + f_5(muni)+\gamma_1 x_1 + \ldots  +\gamma_p x_p + \sigma \cdot \Phi^{-1}(\varphi)\right).
+%\end{array}
+%\end{align*}
+%
+%Therefore, if for example covariate $x_1$ changes by one unit, the predictor $\eta$ -- and so the considered quantile of the price per square meter -- changes additively by $\gamma_1$. The quantile of the total price then changes by $area \cdot \gamma_1$. Thus, the change in the quantiles of the price is proportional to the floor area of the building. Turning to the nonlinear effects, let $f(z)$ be the nonlinear effect of a covariate $z$, and let $\mathrm{d}f(z) = f(z+1) - f(z)$. Then, analogously, the quantile of the price per square meter changes by $\mathrm{d}f(z)$ and the quantile of the total price changes by $area \cdot \mathrm{d}f(z)$, again being proportional to the size of the house. Furthermore, since $f(.)$ is a nonlinear function, the change differs over the range of $z$. For the conditional mean we get analog results.
+%%\subsubsection*{Lognormally distributed prices}
+%%
+%%In Section \ref{sec:data} we have seen that the empirical house prices per square meter seem to be approximately lognormally distributed instead of being Gaussian. Assuming the response \emph{$p_{qm}$} to be lognormally distributed, i.e.
+%%\begin{align*}
+%%\mathit{p_{qm}} \sim \mathcal{LN}(\mu, \sigma^2),
+%%\end{align*}
+%%leads to normally distributed logged house prices per square meter. Thus, one could guess to improve model (\ref{eq:model}) by replacing the response \emph{$p_{qm}$} by the logged house price per square meter \emph{$lnp_{qm}$}, i.e.
+%%\begin{align}
+%%\mathit{\boldsymbol{lnp_{qm}}} = \boldsymbol{\eta} + \varepsilonvec,
+%%\label{eq:model2}
+%%\end{align}
+%%which we will call the \emph{Loggaussian model}, with the same hierarchical predictor $\boldsymbol{\eta}$ as before and the errors again being mutually independent normally distributed with mean $0$ and variance $\sigma^2$.
+%
+%For the loggausian model (\ref{loggaussianm})
+%We receive the conditional quantiles of the house price per square meter by
+%$$
+%\begin{array}{lll}
+%Q_{\varphi}(p_{qm}) & = & \exp\left(\eta + \sigma \cdot \Phi^{-1}(\varphi)\right) \\ [0.2cm]
+%     & = & \exp\left(f_1(area)+ \ldots + f_5(muni)+\gamma_1 x_1 + \ldots  + \gamma_p x_p + \sigma \cdot \Phi^{-1}(\varphi)\right) \\ [0.2cm]
+%     & = & \exp\left(f_1(area)\right) \ldots \exp\left(f_5(muni)\right) \exp(\gamma_1 x_1)  \ldots  \exp(\gamma_p x_p) \exp(\sigma \cdot \Phi^{-1}(\varphi)).
+%\end{array}
+%$$
+%
+%Obviously, the conditional quantiles of the house price per square meter $p_{qm}$ now change multiplicatively with changes in values of covariates. If for example covariate $x_1$ changes by one unit, the predictor $\eta$ again changes by $\gamma_1$, but the quantiles of the price per square meter now change multiplicatively by the factor $\exp(\gamma_1)$, yielding
+%$$
+%\begin{array}{lll}
+%\Delta Q_{\varphi}(p_{qm}) & = & \exp(\eta + \sigma \cdot \Phi^{-1}(\varphi)) \cdot \exp(\gamma_1) - \exp(\eta + \sigma \cdot \Phi^{-1}(\varphi))\\ [0.2cm]
+%     & = & \exp(\eta + \sigma \cdot \Phi^{-1}(\varphi)) \cdot \left(\exp(\gamma_1)-1\right).
+%\end{array}
+%$$
+%For the conditional quantiles of the total prices we get:
+%$$
+%\begin{array}{lll}
+%Q_{\varphi}(p) & = & area \cdot \exp(\eta + \sigma \cdot \Phi^{-1}(\varphi)) \\ [0.2cm]
+%     & = & area \cdot \exp\left(f_1(area)\right) \ldots \exp\left(f_5(muni)\right) \exp(\gamma_1 x_1)  \ldots  \exp(\gamma_p x_p) \exp(\sigma \cdot \Phi^{-1}(\varphi)).
+%\end{array}
+%$$
+%
+%So, the quantiles of the total price change multiplicatively with changes in values of covariates too. If for example covariate $x_1$ changes by one unit, the quantiles of the total price change by
+%\begin{align*}
+%\Delta Q_{\varphi}(p) = area \cdot \exp(\eta + \sigma \cdot \Phi^{-1}(\varphi)) \cdot \left(\exp(\gamma_1)-1\right),
+%\end{align*}
+%making the change again proportional to the floor area. Similarly, if covariate $z$ (representing a nonlinear effect) changes by one unit, both the conditional quantiles of prices per square meter and the conditional quantiles of total prices multiplicatively change by the factor $\exp\left(\mathrm{d}f(z)\right)$, since
+%$$
+%\exp\left(f(z+1)\right) = \exp\left(f(z+1)-f(z)+f(z)\right) = \exp\left(\mathrm{d}f(z)\right)\exp\left(f(z)\right).
+%$$
+%Therefore, the change in the quantiles of total prices caused by a change in any covariate again is proportional to the floor area of the building.
+%
+%
+%For the conditional mean of the house price per square meter
+%\begin{align*}
+%\EV(p_{qm}) = \exp(\eta + \sigma^2/2)
+%\end{align*}
+%we get analog results.
+%
+
+
+
+
 \addcontentsline{toc}{section}{Bibliography}
 
 \begin{thebibliography}{99}
+
 
 \harvarditem{Albert \& Chib}{1993}{AlbChi93}
  {\scshape Albert, J. \& Chib, S.} (1993).
@@ -2523,6 +2767,12 @@ More details on multi-state models, including an exemplary analysis on human sle
  {\scshape Fahrmeir, L., Kneib, T. \& Lang, S.} (2004).
  Penalized structured additive regression for space-time data: A Bayesian perspective.
  {\it Statistica Sinica}, {\bf 14}, 715--745.
+
+\harvarditem{Fahrmeir et al.}(2013){fahkne13}
+{\scshape Fahrmeir, L.,  Kneib, T., Lang, S. \& Marx, B.}{2013}
+{\it Regression: Models, Methods and Applications.}
+ New York: Springer-Verlag.
+
 
 \harvarditem{Fahrmeir \& Lang}{2001}{FahLan01a}
  {\scshape Fahrmeir, L. \& Lang, S.} (2001a).
@@ -2643,6 +2893,38 @@ More details on multi-state models, including an exemplary analysis on human sle
  Geoadditive Models.
  {\it Journal of the Royal Statistical Society C}, {\bf 52}, 1--18.
 
+
+\harvarditem{Klein et al.}{2014}{KleDenKneLan14}
+{\scshape Klein, N., Denuit, M., Kneib, T. \& Lang, S.}(2014).
+Nonlife ratemaking and risk management with Bayesian additive models for location, scale and shape.
+{\it Insurance: Mathematics and Economics}, {\bf 55}, 225--249.
+
+
+\harvarditem{Klein, Kneib \& Lang}{2014}{kleknelan14a}
+{\scshape Klein, N., Kneib, T. \& Lang, S.}(2014).
+Bayesian structured additive distributional regression.
+{\it Under revision for Annals of Applied Statistics}.
+
+
+\harvarditem{Klein, Kneib \& Lang}{2014}{kleknelan14b}
+{\scshape Klein, N., Kneib, T. \& Lang, S.}(2014).
+Bayesian Generalized Additive Models for Location, Scale and Shape for Zero-Inflated and Overdispersed Count Data.
+{\it To appear in Journal of the American Statistical Association}.
+
+
+\harvarditem{Klein, Kneib \& Lang}{2014}{KleKneLan14c}
+{\scshape Klein, N., Kneib, T. \& Lang, S.}(2014).
+Bayesian structured additive distributional regression.
+{\it Revised for Journal of the Royal Statistical Society C}.
+
+
+\harvarditem{Koenker}{2005}{Koe05}
+{\scshape Koenker, R.}(2005).
+{\it Quantile Regression.}
+Cambridge University Press, New York.
+
+
+
 \harvarditem{Kneib}{2006}{Kne06}
  {\scshape Kneib, T.} (2006).
  Geoadditive hazard regression for interval censored survival times.
@@ -2726,6 +3008,13 @@ More details on multi-state models, including an exemplary analysis on human sle
  {\scshape Spiegelhalter, D. J., Best, N. G., Carlin, B. P. \& van der Linde, A.} (2002).
  Bayesian measures of model complexity and fit.
  {\it Journal of the Royal Statistical Society B}, {\bf 65}, 583--639.
+
+\harvarditem {Waldmann et al.}{2013}{WalKneLanYue12}
+{\scshape Waldmann, E. and Kneib, T. and Lang, S. and Yue, Y.}(2013)
+Bayesian semiparametric additive  quantile regression.
+{\it Statistical Modelling}, {\bf 13}, 223--252.
+
+
 
 \end{thebibliography}
 
