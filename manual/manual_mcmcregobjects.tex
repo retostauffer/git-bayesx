@@ -797,56 +797,66 @@ JETZT ERKLÄREN
 
 
 \begin{sidewaystable}[htbp]
-\begin{center}\scriptsize
-\begin{tabular}{l l l l l}
+\begin{center} %\footnotesize
+\begin{tabular}{l l c l l}
 \hline\hline
 % \multicolumn{5}{l}
-{1. Continuous distributions on $\dsR$}&Density&Parameters&#family#&#equationtype#\\\hline
- Normal &$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$ &#normal#&#sigma2#\\
- &&&#normal#&#mu#\\
- Normal &$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$ &#normal2#&#sigma#\\
-  &&&#normal2#&#mu#\\
- t& $p(y|\mu,\sigma^2,\mathit{df})=\frac{\Gamma\left((\mathit{df}+1)/2\right)}{\Gamma(1/2)\Gamma(\mathit{df}/2)\sqrt{\mathit{df}\sigma^2}}\left(1+\frac{(y-\mu)^2}{\mathit{df}\sigma^2}\right)^{-\frac{\mathit{df}+1}{2}}$&$\mu\in\dsR,\mathit{df},\sigma^2>0$&#t#&#df#\\
- &&&#t#&#sigma2#\\
- &&&#t#&#mu#\\
+{1. Continuous distributions on $\dsR$}&Density&Parameter&#family#&#equationtype#\\\hline
+ Normal &$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\sigma^2>0$ &#normal#&#sigma2#\\
+ &&$\mu\in\dsR$&#normal#&#mu#\\\hline
+ Normal &$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\sigma>0$ &#normal2#&#sigma#\\
+  &&$\mu\in\dsR$&#normal2#&#mu#\\\hline
+ t& $p(y|\mu,\sigma^2,\mathit{df})=\frac{\Gamma\left((\mathit{df}+1)/2\right)}{\Gamma(1/2)\Gamma(\mathit{df}/2)\sqrt{\mathit{df}\sigma^2}}\left(1+\frac{(y-\mu)^2}{\mathit{df}\sigma^2}\right)^{-\frac{\mathit{df}+1}{2}}$&$\mathit{df}>0$&#t#&#df#\\
+ &&$\sigma^2>0$&#t#&#sigma2#\\
+ &&$\mu\in\dsR$&#t#&#mu#\\
 % Skew normal & $p(y|\mu,\sigma^2,\alpha) = \frac{2}{\sigma^2}\phi\left(\frac{y-\mu}{\sigma^2}\right)\Phi\left(\alpha\frac{y-\mu}{\sigma^2}\right)$&$\mu,\alpha\in\dsR,\sigma^2>0$\\
  %& $\phi$, $\Phi$ density and cdf of the standard normal distribution & \\
  \hline
  \multicolumn{5}{l}{2. Continuous distributions on $\dsR^+$} \\\hline
-Log-normal & 	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$&#lognormal#&#sigma2# \\
-&&&#lognormal#&#mu#\\
-Log-normal & 	$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$&#lognormal2#&#sigma# \\
-&&&#lognormal2#&#mu#\\
-Inverse Gaussian &	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y^{3/2}}\exp\left(-\frac{(y-\mu)^2}{2 y\mu^2\sigma^2}\right)$&$\mu,\sigma^2>0$&#invgaussian# &#sigma2#\\
-&&&#invgaussian#&#mu#\\
-Gamma & $p(y|\mu,\sigma)=\left(\frac{\sigma}{\mu}\right)^{\sigma}\frac{y^{\sigma-1}}{\Gamma(\sigma)}\exp\left(-\frac{\sigma}{\mu}y\right)$&$\mu,\sigma>0$&#gamma#&#sigma# \\
-&&&#gamma#&#mu#\\
-Weibull & $	p(y|\lambda,\alpha)=\frac{\alpha y^{\alpha-1}\exp\left(-\left(y/\lambda\right)^{\alpha}\right)}{\lambda^{\alpha}}$&$\alpha,\lambda>0$&#weibull#&#alpha# \\
-&&&#weibull#&#lambda#\\
-Pareto & $p(y|b,c)=c b^{c}(y+c)^{-c-1}$&$b,c>0$&#pareto#&#p#\\
-&&&#pareto#&#b#\\
-Truncated normal &&&&\\
-Generalized gamma & $p(y|\mu,\sigma,\tau)=\left(\frac{\sigma}{\mu}\right)^{\sigma\tau}\frac{\tau y^{\sigma\tau-1}}{\Gamma(\sigma)}\exp\left(-\left(\frac{\sigma}{\mu}y\right)^{\tau}\right)$&$\mu,\sigma,\tau>0$&#gengamma#&#tau#\\
-&&&#gengamma#&#sigma#\\
-&&&#gengamma#&#mu#\\
-Dagum & $p(y|a,b,c)=\frac{a c y^{a c-1}}{b^{a c}\left(1+\left(y/b\right)^{a}\right)^{c+1}}$&$a,b,c>0$&#dagum#&#p# \\
-&&&#dagum#&#b#\\
-&&&#dagum#&#a#\\\hline
-\multicolumn{5}{l}{3. Discrete distributions}\\\hline
-Poisson & $g_1(y|\lambda)=\frac{\lambda^{y}\exp(-\lambda)}{y!}$ & $\lambda>0$&#poisson#&#lambda#\\
-Negative binomial &  $g_2(y|\mu,\delta) = \frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$ &$\mu,\delta>0$&#negbin#&#delta#\\
-&&&#negbin#&#mu#\\
+Log-normal & 	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\sigma^2>0$&#lognormal#&#sigma2# \\
+&&$\mu\in\dsR$&#lognormal#&#mu#\\\hline
+Log-normal & 	$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\sigma>0$&#lognormal2#&#sigma# \\
+&&$\mu\in\dsR$&#lognormal2#&#mu#\\\hline
+Inverse Gaussian &	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y^{3/2}}\exp\left(-\frac{(y-\mu)^2}{2 y\mu^2\sigma^2}\right)$&$\sigma^2>0$&#invgaussian# &#sigma2#\\
+&&$\mu>0$&#invgaussian#&#mu#\\\hline
+Gamma & $p(y|\mu,\sigma)=\left(\frac{\sigma}{\mu}\right)^{\sigma}\frac{y^{\sigma-1}}{\Gamma(\sigma)}\exp\left(-\frac{\sigma}{\mu}y\right)$&$\sigma>0$&#gamma#&#sigma# \\
+&&$\mu>0$&#gamma#&#mu#\\\hline
+Weibull & $	p(y|\lambda,\alpha)=\frac{\alpha y^{\alpha-1}\exp\left(-\left(y/\lambda\right)^{\alpha}\right)}{\lambda^{\alpha}}$&$\alpha>0$&#weibull#&#alpha# \\
+&&$\lambda>0$&#weibull#&#lambda#\\\hline
+Pareto & $p(y|b,p)=p b^{p}(y+p)^{-p-1}$&$p>0$&#pareto#&#p#\\
+&&$b>0$&#pareto#&#b#\\\hline
+Truncated normal &&&&\\\hline
+Generalized gamma & $p(y|\mu,\sigma,\tau)=\left(\frac{\sigma}{\mu}\right)^{\sigma\tau}\frac{\tau y^{\sigma\tau-1}}{\Gamma(\sigma)}\exp\left(-\left(\frac{\sigma}{\mu}y\right)^{\tau}\right)$&$\tau>0$&#gengamma#&#tau#\\
+&&$\sigma>0$&#gengamma#&#sigma#\\
+&&$\mu>0$&#gengamma#&#mu#\\\hline
+Dagum & $p(y|a,b,p)=\frac{a p y^{a p-1}}{b^{a p}\left(1+\left(y/b\right)^{a}\right)^{p+1}}$&$p>0$&#dagum#&#p# \\
+&&$b>0$&#dagum#&#b#\\
+&&$a>0$&#dagum#&#a#\\\hline\hline
+\end{tabular}
+\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX1}
+\end{sidewaystable}
+\begin{sidewaystable}[htbp]
+\begin{center} %\scriptsize
+\begin{tabular}{l l c l l}
+\hline\hline
+% \multicolumn{5}{l}
+{3. Discrete distributions}&Density&Parameter&#family#&#equationtype#\\\hline
+
+%\multicolumn{5}{l}{3. Discrete distributions}\\\hline
+Poisson & $g_1(y|\lambda)=\frac{\lambda^{y}\exp(-\lambda)}{y!}$ & $\lambda>0$&#poisson#&#lambda#\\\hline
+Negative binomial &  $g_2(y|\mu,\delta) = \frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$ &$\delta>0$&#negbin#&#delta#\\
+&&$\mu>0$&#negbin#&#mu#\\\hline
 Zero-inflated Poisson &$p(y|\lambda,\pi) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_1$& $\pi\in(0,1)$&#zip#&#pi#\\
-&&&#zip#&#lambda#\\
-Zero-inflated negative binomial &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_2$&$\pi\in(0,1)$&#zinb#&#delta#\\
-&&&#zinb#&#pi#\\
-&&&#zinb#&#mu#\\
+&&$\lambda>0$&#zip#&#lambda#\\\hline
+Zero-inflated negative binomial &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_2$&$\delta>0$&#zinb#&#delta#\\
+&&$\pi\in(0,1)$&#zinb#&#pi#\\
+&&$\mu>0$&#zinb#&#mu#\\\hline
 Hurdle Poisson &&&#hurdle#&#pi#\\
-&&&#hurdle#&#lambda#\\
+&&&#hurdle#&#lambda#\\\hline
 Hurdle negative binomial &&&#hurdle#&#pi#\\
 &&&#hurdle#&#delta#\\
-&&&#hurdle#&#mu#\\
-Binomial &&&#binomial#&\\
+&&&#hurdle#&#mu#\\\hline
+Binomial &&&#binomial#&\\\hline
 Cloglog &&&#cloglog#&\\\hline
 \multicolumn{5}{l}{4. Mixed discrete-continuous distributions}  \\\hline
 Zero-adjusted & $p(y|\pi,g(y)) = \begin{cases} 1-\pi & y = 0\\
@@ -855,46 +865,64 @@ Zero-adjusted & $p(y|\pi,g(y)) = \begin{cases} 1-\pi & y = 0\\
 & $g(y)$ a distribution from 2. &\\\hline
 \multicolumn{5}{l}{5. Distributions with compact support} \\\hline
 Beta & $p(y|\mu,\sigma^2)=\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)}$&$\mu,\sigma^2\in(0,1)$&#beta#&#sigma2#\\
-&$\mu=\frac{p}{p+q}$, $\sigma^2=\frac{1}{p+q+1}$&&#beta#&#mu#\\
+&$\mu=\frac{p}{p+q}$, $\sigma^2=\frac{1}{p+q+1}$&&#beta#&#mu#\\\hline
 Zero-One-inflated Beta & $p(y|\mu,\sigma^2,\upsilon,\tau)=\begin{cases}
 \frac{\upsilon}{1+\upsilon+\tau} & y=0\\\left(1-\frac{\upsilon+\tau}{1+\upsilon+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
 \frac{\tau}{1+\upsilon+\tau} & y=1\\
-	\end{cases}$&$\upsilon,\tau>0$&&\\
+	\end{cases}$&$\upsilon,\tau>0$&&\\\hline
 Zero-inflated Beta & $p(y|\mu,\sigma^2,\upsilon)=\begin{cases}
 	\frac{\upsilon}{1+\upsilon} & y=0\\\left(1-\frac{\upsilon}{1+\upsilon}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
-		\end{cases}$&$\upsilon>0$&&\\
+		\end{cases}$&$\upsilon>0$&&\\\hline
 One-inflated Beta & $p(y|\mu,\sigma^2,\tau)=\begin{cases}
 		\left(1-\frac{\tau}{1+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
 		\frac{\tau}{1+\tau} & y=1\\
 			\end{cases}$&$\tau>0$&&\\
-\hline
-\multicolumn{5}{l}{6. Multivariate distributions} \\\hline	
-Bivariate normal& &&#bivnormal#&#rho#\\
-&&&#bivnormal#&#sigma#\\
-&&&#bivnormal#&#sigma#\\
-&&&#bivnormal#&#mu#\\
-&&&#bivnormal#&#mu#\\
-Bivariate normal (Fishers-$z$)& &&#bivnormal_fz#&#rho#\\
-&&&#bivnormal_fz#&#sigma#\\
-&&&#bivnormal_fz#&#sigma#\\
-&&&#bivnormal_fz#&#mu#\\
-&&&#bivnormal_fz#&#mu#\\
-Bivariate t &&&#bivt#&#df#\\
- &&&#bivt#&#rho#\\
- &&&#bivt#&#sigma#\\
- &&&#bivt#&#sigma#\\
- &&&#bivt#&#mu#\\
- &&&#bivt#&#mu#\\
-Bivariate probit &&&#bivprobit#&#rho#\\
-&&&#bivprobit#&#mu#\\
-&&&#bivprobit#&#mu#\\
-Bivariate logit &&&#bivlogit#&#oddsratio#\\
-&&&#bivlogit#&#mu#\\
-&&&#bivlogit#&#mu#\\	
-Dirichlet &&&#dirichlet#&#alpha#\\	
 \hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX}
+\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX3}
+\end{sidewaystable}
+
+\begin{sidewaystable}[htbp]
+\begin{center} %\scriptsize
+\begin{tabular}{l l c l l}
+\hline\hline
+% \multicolumn{5}{l}
+{6. Multivariate distributions}&Density&Parameter&#family#&#equationtype#\\\hline
+%\multicolumn{5}{l}{6. Multivariate distributions} \\\hline	
+Bivariate normal& $f(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left(-\frac{1}{2}\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right)$&$\rho\in[-1,1]$&#bivnormal#&#rho#\\
+&$\yvec=(y_1,y_2)'$&$\sigma_2>0$&#bivnormal#&#sigma#\\
+&$\muvec=(\mu_1,\mu_2)'$&$\sigma_1>0$&#bivnormal#&#sigma#\\
+&$\mSigma = \left(\begin{matrix}
+\sigma_1^2 & \rho\sigma_1\sigma_2\\
+\rho\sigma_1\sigma_2& \sigma_2^2 \\
+\end{matrix}\right)$&$\mu_2>0$&#bivnormal#&#mu#\\
+&&$\mu_1>0$&#bivnormal#&#mu#\\\hline
+Bivariate normal (Fishers-$z$)&$f(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left(-\frac{1}{2}\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right)$ &$\rho\in[-1,1]$&#bivnormal_fz#&#rho#\\
+&&$\sigma_2>0$&#bivnormal_fz#&#sigma#\\
+&&$\sigma_1>0$&#bivnormal_fz#&#sigma#\\
+&&$\mu_2>0$&#bivnormal_fz#&#mu#\\
+&&$\mu_1>0$&#bivnormal_fz#&#mu#\\\hline
+Bivariate t &$f(y_1,y_2) = \frac{\Gamma\left(\frac{\mathit{df}+D}{2}\right)}{\Gamma\left(\frac{\mathit{df}}{2}\right)\left(\mathit{df}\pi\right)}\left(\det\left(\mSigma\right)\right)^{-\frac12}\left[1+\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right]^{-\frac{\mathit{df}+2}{2}}$&$\mathit{df}>0$&#bivt#&#df#\\
+ &&$\rho\in[-1,1]$&#bivt#&#rho#\\
+ &&$\sigma_2>0$&#bivt#&#sigma#\\
+ &&$\sigma_1>0$&#bivt#&#sigma#\\
+ &&$\mu_2>0$&#bivt#&#mu#\\
+ &&$\mu_1>0$&#bivt#&#mu#\\\hline
+Bivariate probit &$\yvec^\ast=\etavec^{\mu}+\meps, \qquad \meps\sim\N\left(\nullvec,\mSigma\right)$, 
+$\mSigma = \left(\begin{matrix}
+1 & \rho\\
+\rho& 1\\
+\end{matrix}\right)$&$\rho\in[-1,1]$&#bivprobit#&#rho#\\
+&$y_{d}=1 \Longleftrightarrow y_{d}^\ast	> 0$&$\mu_2>0$&#bivprobit#&#mu#\\
+&$d=1,2$&$\mu_1>0$&#bivprobit#&#mu#\\\hline
+Bivariate logit &&$\psi>0$&#bivlogit#&#oddsratio#\\
+&&$p_2\in(0,1)$&#bivlogit#&#pi#\\
+&&$p_1\in(0,1)$&#bivlogit#&#pi#\\	\hline
+Dirichlet &$f(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\alpha_d-1},\;\B{(\alphavec)}=\frac{\prod_{d=1}^{D}\Gamma(\alpha_d)}{\Gamma\left(\sum_{d=1}^{D}\alpha_d\right)}$&$\alpha_d>0$&#dirichlet#&#alpha#\\	
+&$\sum_{d=1}^D y_d = 1$&$D\geq 2$&&\\
+\hline\hline
+\end{tabular}
+\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX4}
 \end{sidewaystable}
 
 
