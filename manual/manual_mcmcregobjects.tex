@@ -800,34 +800,56 @@ JETZT ERKLÄREN
 \begin{center}\scriptsize
 \begin{tabular}{l l l l l}
 \hline\hline
- \multicolumn{1}{l}{1. Continuous distributions on $\dsR$}&Density&Parameters&#family#&#equationtype#\\\hline
- Normal &$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$ &#normal#&sigma2\\
- &&&#normal#&#main#\\
- t& $p(y|\mu,\sigma^2,\mathit{df})=\frac{\Gamma\left((\mathit{df}+1)/2\right)}{\Gamma(1/2)\Gamma(\mathit{df}/2)\sqrt{\mathit{df}\sigma^2}}\left(1+\frac{(y-\mu)^2}{\mathit{df}\sigma^2}\right)^{-\frac{\mathit{df}+1}{2}}$&$\mu\in\dsR,\mathit{df},\sigma^2>0$\\
+ \multicolumn{3}{l}{1. Continuous distributions on $\dsR$}&Density&Parameters&#family#&#equationtype#\\\hline
+ Normal &$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$ &#normal#&#sigma2#\\
+ &&&#normal#&#mu#\\
+ Normal &$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$ &#normal2#&#sigma#\\
+  &&&#normal2#&#mu#\\
+ t& $p(y|\mu,\sigma^2,\mathit{df})=\frac{\Gamma\left((\mathit{df}+1)/2\right)}{\Gamma(1/2)\Gamma(\mathit{df}/2)\sqrt{\mathit{df}\sigma^2}}\left(1+\frac{(y-\mu)^2}{\mathit{df}\sigma^2}\right)^{-\frac{\mathit{df}+1}{2}}$&$\mu\in\dsR,\mathit{df},\sigma^2>0$&#t#&#df#\\
+ &&&#t#&#sigma2#\\
+ &&&#t#&#mu#\\
 % Skew normal & $p(y|\mu,\sigma^2,\alpha) = \frac{2}{\sigma^2}\phi\left(\frac{y-\mu}{\sigma^2}\right)\Phi\left(\alpha\frac{y-\mu}{\sigma^2}\right)$&$\mu,\alpha\in\dsR,\sigma^2>0$\\
  %& $\phi$, $\Phi$ density and cdf of the standard normal distribution & \\
  \hline
  \multicolumn{3}{l}{2. Continuous distributions on $\dsR^+$} \\\hline
-Log-normal & 	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$ \\
-Inverse Gaussian &	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y^{3/2}}\exp\left(-\frac{(y-\mu)^2}{2 y\mu^2\sigma^2}\right)$&$\mu,\sigma^2>0$ \\
-Gamma & $p(y|\mu,\sigma)=\left(\frac{\sigma}{\mu}\right)^{\sigma}\frac{y^{\sigma-1}}{\Gamma(\sigma)}\exp\left(-\frac{\sigma}{\mu}y\right)$&$\mu,\sigma>0$ \\
-Weibull & $	p(y|\lambda,\alpha)=\frac{\alpha y^{\alpha-1}\exp\left(-\left(y/\lambda\right)^{\alpha}\right)}{\lambda^{\alpha}}$&$\alpha,\lambda>0$ \\
-Pareto & $p(y|b,c)=c b^{c}(y+c)^{-c-1}$&$b,c>0$\\
-Generalized gamma & $p(y|\mu,\sigma,\tau)=\left(\frac{\sigma}{\mu}\right)^{\sigma\tau}\frac{\tau y^{\sigma\tau-1}}{\Gamma(\sigma)}\exp\left(-\left(\frac{\sigma}{\mu}y\right)^{\tau}\right)$&$\mu,\sigma,\tau>0$\\
-Dagum & $p(y|a,b,c)=\frac{a c y^{a c-1}}{b^{a c}\left(1+\left(y/b\right)^{a}\right)^{c+1}}$&$a,b,c>0$\\\hline
-\multicolumn{3}{l}{3. Discrete distributions} \\\hline
-Poisson & $g_1(y|\lambda)=\frac{\lambda^{y}\exp(-\lambda)}{y!}$ & $\lambda>0$\\
-Negative binomial &  $g_2(y|\mu,\delta) = \frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$ &$\mu,\delta>0$\\
-Zero-inflated Poisson &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_1$& $\pi\in(0,1)$\\
-Zero-inflated negative binomial &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_2$&$\pi\in(0,1)$\\\hline
+Log-normal & 	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$&#lognormal#&#sigma2# \\
+&&&#lognormal#&#mu#\\
+Log-normal & 	$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2} y}\exp\left(-\frac{(\log(y)-\mu)^2}{2\sigma^2}\right)$ &$\mu\in\dsR,\sigma^2>0$&#lognormal2#&#sigma2# \\
+&&&#lognormal2#&#mu#\\
+Inverse Gaussian &	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y^{3/2}}\exp\left(-\frac{(y-\mu)^2}{2 y\mu^2\sigma^2}\right)$&$\mu,\sigma^2>0$&#invgaussian# &#sigma2#\\
+&&&#invgaussian#&#mu#\\
+Gamma & $p(y|\mu,\sigma)=\left(\frac{\sigma}{\mu}\right)^{\sigma}\frac{y^{\sigma-1}}{\Gamma(\sigma)}\exp\left(-\frac{\sigma}{\mu}y\right)$&$\mu,\sigma>0$&#gamma#&#sigma# \\
+&&&#gamma#&#mu#\\
+Weibull & $	p(y|\lambda,\alpha)=\frac{\alpha y^{\alpha-1}\exp\left(-\left(y/\lambda\right)^{\alpha}\right)}{\lambda^{\alpha}}$&$\alpha,\lambda>0$&#weibull#&#alpha# \\
+&&&#weibull#&#lambda#\\
+Pareto & $p(y|b,c)=c b^{c}(y+c)^{-c-1}$&$b,c>0$&#pareto#&#p#\\
+&&&#pareto#&#b#\\
+Truncated normal &&&&\\
+Generalized gamma & $p(y|\mu,\sigma,\tau)=\left(\frac{\sigma}{\mu}\right)^{\sigma\tau}\frac{\tau y^{\sigma\tau-1}}{\Gamma(\sigma)}\exp\left(-\left(\frac{\sigma}{\mu}y\right)^{\tau}\right)$&$\mu,\sigma,\tau>0$&#gengamma#&#tau#\\
+&&&#gengamma#&#sigma#\\
+&&&#gengamma#&#mu#\\
+Dagum & $p(y|a,b,c)=\frac{a c y^{a c-1}}{b^{a c}\left(1+\left(y/b\right)^{a}\right)^{c+1}}$&$a,b,c>0$&#dagum#&#p# \\
+&&&#dagum#&#b#\\
+&&&#dagum#&#a#\\\hline
+\multicolumn{3}{l}{3. Discrete distributions}\\\hline
+Poisson & $g_1(y|\lambda)=\frac{\lambda^{y}\exp(-\lambda)}{y!}$ & $\lambda>0$&#poisson#&#lambda#\\
+Negative binomial &  $g_2(y|\mu,\delta) = \frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$ &$\mu,\delta>0$&#negbin#&#delta#\\
+&&&#negbin#&#mu#\\
+Zero-inflated Poisson &$p(y|\lambda,\pi) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_1$& $\pi\in(0,1)$&#zip#&#pi#\\
+&&&#zip#&#lambda#\\
+Zero-inflated negative binomial &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_2$&$\pi\in(0,1)$&#zinb#&#delta#\\
+&&&#zinb#&#pi#\\
+&&&#zinb#&#mu#\\
+Hurdle Poisson &&&&\\
+Hurdle negative binomial &&&&\\\hline
 \multicolumn{3}{l}{4. Mixed discrete-continuous distributions}  \\\hline
 Zero-adjusted & $p(y|\pi,g(y)) = \begin{cases} 1-\pi & y = 0\\
 									\pi g(y) & y>0
 								 \end{cases}$\\
 & $g(y)$ a distribution from 2. &\\\hline
 \multicolumn{3}{l}{5. Distributions with compact support} \\\hline
-Beta & $p(y|\mu,\sigma^2)=\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)}$&$\mu,\sigma^2\in(0,1)$\\
-&$\mu=\frac{p}{p+q}$, $\sigma^2=\frac{1}{p+q+1}$&\\
+Beta & $p(y|\mu,\sigma^2)=\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)}$&$\mu,\sigma^2\in(0,1)$&#beta#&#sigma2#\\
+&$\mu=\frac{p}{p+q}$, $\sigma^2=\frac{1}{p+q+1}$&&#beta#&#mu#\\
 Zero-One-inflated Beta & $p(y|\mu,\sigma^2,\upsilon,\tau)=\begin{cases}
 \frac{\upsilon}{1+\upsilon+\tau} & y=0\\\left(1-\frac{\upsilon+\tau}{1+\upsilon+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
 \frac{\tau}{1+\upsilon+\tau} & y=1\\
@@ -838,7 +860,24 @@ Zero-inflated Beta & $p(y|\mu,\sigma^2,\upsilon)=\begin{cases}
 One-inflated Beta & $p(y|\mu,\sigma^2,\tau)=\begin{cases}
 		\left(1-\frac{\tau}{1+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
 		\frac{\tau}{1+\tau} & y=1\\
-			\end{cases}$&$\tau>0$\\\hline\hline
+			\end{cases}$&$\tau>0$\\
+\hline
+\multicolumn{3}{l}{5. Multivariate distributions} \\\hline	
+Bivariate normal& &&#bivnormal#&#rho#\\
+&&&#bivnormal#&#sigma#\\
+&&&#bivnormal#&#sigma#\\
+&&&#bivnormal#&#mu#\\
+&&&#bivnormal#&#mu#\\
+Bivariate t &&&#bivt#&#df#\\
+ &&&#bivt#&#rho#\\
+ &&&#bivt#&#sigma#\\
+ &&&#bivt#&#sigma#\\
+ &&&#bivt#&#mu#\\
+ &&&#bivt#&#mu#\\
+Bivariate probit &&&&\\
+Bivariate logit &&&&\\	
+Dirichlet &&&&\\	
+\hline\hline
 \end{tabular}
 \end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX}
 \end{sidewaystable}
