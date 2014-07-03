@@ -211,7 +211,7 @@ second order random walk penalty for the parameters of the spline.
 
 \item[] {\em Predictor}: $\eta =  \cdots + f_1(X1) + \cdots$
 
-\item[] {\em Syntax}: 
+\item[] {\em Syntax}:
 #X1(psplinerw1#[{\em , options}]#) #
 
 #X1(psplinerw2#[{\em , options}]#) #
@@ -433,7 +433,7 @@ Defines a varying coefficient term where the effect of #X1# varies
 over the range of the group indicator #grvar#. Models of this type
 are usually referred to as models with random slopes. A Gaussian
 i.i.d.~random effect with respect to grouping variable #grvar# is
-assumed for $f(grvar)$. 
+assumed for $f(grvar)$.
 {\em Syntax}:
 
 #X1*grvar(random#[, {\em options}]#) #
@@ -453,7 +453,7 @@ estimators}\index{Two-dimensional P-spline}\index{Kriging}
 
 \item[] {\em Description}:
 
-Defines a two dimensional Gaussian field (kriging term) 
+Defines a two dimensional Gaussian field (kriging term)
 
 \item[] {\em Predictor}: $\eta= \cdots + f(X1,X2) + \cdots$
 \item[] {\em Syntax}:
@@ -465,7 +465,7 @@ The model term
 
 #Y = X1*X2(kriging)#
 
-specifies a two-dimensional Gaussian field. 
+specifies a two-dimensional Gaussian field.
 
 
 
@@ -549,7 +549,7 @@ neighborhood structure are stored in the {\em map object}
 #m#. \\
 \hline Two dimensional \newline kriging term &
 #region(geospline,map=m)# & Spatial effect of #region#. Estimates
-a two dimensional kriging term 
+a two dimensional kriging term
 based on the centroids of the regions. The centroids are obtained from the {\em map object} #m#. \\
 \hline Random intercept &  #grvar(random)# & I.i.d. Gaussian
 (random) effect of the group indicator #grvar#,
@@ -568,8 +568,8 @@ for mcmcreg objects.}}
 \begin{tabular}{|p{3.5cm}|p{3.8cm}|p{5.9cm}|}
 \hline
 {\bf Type of interaction} & {\bf Syntax example} & {\bf Description} \\
-\hline 
-\hline 
+\hline
+\hline
 Varying coefficient term &  #X1*X2(pspline)#
  & Effect of
 #X1# varies smoothly over the range of the continuous covariate #X2# or #time#. \\
@@ -603,7 +603,7 @@ covariates #X1# and #X2#. \\
 
 
 
- 
+
 
 
 % STEFAN: noch beschreiben
@@ -644,7 +644,7 @@ covariates #X1# and #X2#. \\
 
 \begin{table}[ht] \footnotesize \centering
 \begin{tabular}{|l|p{0.6\linewidth}|c|}
-\hline Option & Description & Default\\ 
+\hline Option & Description & Default\\
 \hline
 \hline
 #a#,#b# & The options #a# and #b# specify the hyperparameters of
@@ -672,10 +672,10 @@ the inverse Gamma prior for the variance $\tau^2$ of random effects (random or h
 increasing nonlinear functions and #constraints=decreasing# yields decreasing functions. &
 #constraints = unrestricted# \\
 \hline
-#degree# & Specifies the degree of B-spline basis functions. & #degree=3# \\ 
+#degree# & Specifies the degree of B-spline basis functions. & #degree=3# \\
 \hline
 #derivative# & If specified, first order derivatives of the
-function estimate are computed (for P-splines only). & - \\ 
+function estimate are computed (for P-splines only). & - \\
 \hline
 #difforder# & Specifies the difference order (1 or 2) of random walks for P-spline priors & 2 \\
 \hline
@@ -685,21 +685,21 @@ function estimate are computed (for P-splines only). & - \\
 #lambda_re#
 & Provides a starting value for the smoothing parameter $\lambda$ for random effects (random o hrandom). & #lambda_re=0.1# \\
 \hline
-#nocenter# & Indicates that a nonlinear term should not be centered. & - \\ 
+#nocenter# & Indicates that a nonlinear term should not be centered. & - \\
 
 #nu# & FEHLT kriging & nu=1.5 \\
 
 #nrknots# & Specifies the number of inner knots for a P-spline
-term. & #nrknots=20# \\ 
+term. & #nrknots=20# \\
 \hline
-#maxdist# & FEHLT (kriging) & maxdist=-1 \\ 
+#maxdist# & FEHLT (kriging) & maxdist=-1 \\
 \hline
-#meaneffect# & FEHLT &  - \\ 
+#meaneffect# & FEHLT &  - \\
 \hline
-#meaneffectconst# & FEHLT & \\ 
+#meaneffectconst# & FEHLT & \\
 
 \hline
-#round# & FEHLT & round=-1 (no rounding) \\ 
+#round# & FEHLT & round=-1 (no rounding) \\
 \hline
 \end{tabular}
 {\em\caption{\label{options1} Optional arguments for mcmcreg
@@ -714,15 +714,15 @@ object terms in alphabetical order (1).}}
 
 \begin{table}[ht] \footnotesize \centering
 \begin{tabular}{|l|p{0.6\linewidth}|c|}
-\hline 
-Option & Description & Default \\ 
 \hline
-#samplederivative# & FEHLT & - \\ 
+Option & Description & Default \\
+\hline
+#samplederivative# & FEHLT & - \\
 \hline
 #samplef# & FEHLT & - \\
 \hline
-#updatem# & Specifies the method for updating regression coefficients in the MCMC sampler. #update=direct# uses direct updating 
-by sampling from the full conditionals in case of gaussian responses or by IWLS proposals in case of nongaussian responses  , #update=orthogonal# uses orthogonal bases as described in \citeasnoun{LanUml14}  \\ 
+#updatem# & Specifies the method for updating regression coefficients in the MCMC sampler. #update=direct# uses direct updating
+by sampling from the full conditionals in case of gaussian responses or by IWLS proposals in case of nongaussian responses  , #update=orthogonal# uses orthogonal bases as described in \citeasnoun{LanUml14}  \\
 \hline
 \end{tabular}
 {\em\caption{\label{options2} Optional arguments for mcmcreg
@@ -791,19 +791,19 @@ $\triangle$   & \multicolumn{8}{l|}{available as boolean option (specified witho
 
 An overview of supported univariate distributions are given in Table ?. {\em mcmcreg objects}
 allow to define for every parameter of a specific distribution a full STAR predictor. This is done
-defining for every parameter of the distribution a separate model equation. To define the equation 
-type the user has to specify the (global) options #family# and #equationtype#. 
+defining for every parameter of the distribution a separate model equation. To define the equation
+type the user has to specify the (global) options #family# and #equationtype#.
 JETZT ERKLÄREN
 
 
 Detailed examples for Gaussian and Gamma responses
-show how this is done in practise. 
+show how this is done in practise.
 
-  
+
 
 
 Supported
-multivariate models are summaized in ?.  
+multivariate models are summarized in ?.
 
 In some cases, one or more additional
 options associated with the specified response distribution can be
