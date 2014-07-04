@@ -898,13 +898,13 @@ Zero-One-inflated Beta & $p(y|\mu,\sigma^2,\upsilon,\tau)=\begin{cases}
 \frac{\upsilon}{1+\upsilon+\tau} & y=0\\\left(1-\frac{\upsilon+\tau}{1+\upsilon+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
 \frac{\tau}{1+\upsilon+\tau}
  & y=1
- 	\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\nu>0\\\tau>0
+ 	\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\\upsilon>0\\\tau>0
  	\end{matrix}$ &$\begin{matrix} \text{#betainf#}\\\text{#betainf#}\\\text{#betainf#}\\\text{#betainf#}
 \end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#nu#}\\\text{#tau#}
 \end{matrix}$\\\hline
 Zero-inflated Beta & $p(y|\mu,\sigma^2,\upsilon)=\begin{cases}
 	\frac{\upsilon}{1+\upsilon} & y=0\\\left(1-\frac{\upsilon}{1+\upsilon}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
-		\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\nu>0
+		\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\\upsilon>0
 		 	\end{matrix}$ &$\begin{matrix} \text{#betainf0#}\\\text{#betainf0#}\\\text{#betainf0#}
 		\end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#nu#}
 		\end{matrix}$\\\hline
@@ -926,7 +926,7 @@ One-inflated Beta & $p(y|\mu,\sigma^2,\tau)=\begin{cases}
 % \multicolumn{5}{l}
 {6. Multivariate distributions}&Density&Parameter&#family#&#equationtype#\\\hline
 %\multicolumn{5}{l}{6. Multivariate distributions} \\\hline	
-Bivariate normal& $f(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left(-\frac{1}{2}\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right)$&$\rho\in[-1,1]$&#bivnormal#&#rho#\\
+Bivariate normal& $p(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left(-\frac{1}{2}\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right)$&$\rho\in[-1,1]$&#bivnormal#&#rho#\\
 &$\yvec=(y_1,y_2)'$&$\sigma_2>0$&#bivnormal#&#sigma#\\
 &$\muvec=(\mu_1,\mu_2)'$&$\sigma_1>0$&#bivnormal#&#sigma#\\
 &$\mSigma = \left(\begin{matrix}
@@ -934,7 +934,7 @@ Bivariate normal& $f(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left
 \rho\sigma_1\sigma_2& \sigma_2^2 \\
 \end{matrix}\right)$&$\mu_2>0$&#bivnormal#&#mu#\\
 &&$\mu_1>0$&#bivnormal#&#mu#\\\hline
-Bivariate normal (Fishers-$z$)&$f(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left(-\frac{1}{2}\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right)$ &$\rho\in[-1,1]$&#bivnormal_fz#&#rho#\\
+Bivariate normal (Fishers-$z$)&$p(y_1,y_2) = \frac{1}{\sqrt{(2\pi)^2 \det(\mSigma)}}\exp\left(-\frac{1}{2}\left(\yvec-\muvec\right)'\mSigma^{-1}\left(\yvec-\muvec\right)\right)$ &$\rho\in[-1,1]$&#bivnormal_fz#&#rho#\\
 &&$\sigma_2>0$&#bivnormal_fz#&#sigma#\\
 &&$\sigma_1>0$&#bivnormal_fz#&#sigma#\\
 &&$\mu_2>0$&#bivnormal_fz#&#mu#\\
@@ -952,10 +952,15 @@ $\mSigma = \left(\begin{matrix}
 \end{matrix}\right)$&$\rho\in[-1,1]$&#bivprobit#&#rho#\\
 &$y_{d}=1 \Longleftrightarrow y_{d}^\ast	> 0$&$\mu_2>0$&#bivprobit#&#mu#\\
 &$d=1,2$&$\mu_1>0$&#bivprobit#&#mu#\\\hline
-Bivariate logit &&$\psi>0$&#bivlogit#&#oddsratio#\\
-&&$p_2\in(0,1)$&#bivlogit#&#pi#\\
-&&$p_1\in(0,1)$&#bivlogit#&#pi#\\	\hline
-Dirichlet &$f(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\alpha_d-1},\;\B{(\alphavec)}=\frac{\prod_{d=1}^{D}\Gamma(\alpha_d)}{\Gamma\left(\sum_{d=1}^{D}\alpha_d\right)}$&$\alpha_d>0$&#dirichlet#&#alpha#\\	
+Bivariate logit & $p(y|p_1,p_2,\psi)=\begin{cases}
+p_{11}=\psi p_{01}p_{10}/p_{00} & y_1=y_2=1\\p_{10}=p_1-p_{11} & y_1=y_2=0\\
+p_{01}=p_2-p_{11} & y_0=y_2=1\\
+p_{00}=1-p_{10}-p_{01}-p_{11} & y_0=y_2=0\\
+ 	\end{cases}$&$\begin{matrix} \psi>0\\p_2\in(0,1)\\p_1>0
+ 	\end{matrix}$ &$\begin{matrix} \text{#bivlogit#}\\\text{#bivlogit#}\\\text{#bivlogit#}
+\end{matrix}$&$\begin{matrix} \text{#oddsratio#}\\\text{#mu#}\\\text{#mu#}
+\end{matrix}$\\\hline
+Dirichlet &$p(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\alpha_d-1},\;\B{(\alphavec)}=\frac{\prod_{d=1}^{D}\Gamma(\alpha_d)}{\Gamma\left(\sum_{d=1}^{D}\alpha_d\right)}$&$\alpha_d>0$&#dirichlet#&#alpha#\\	
 &$\sum_{d=1}^D y_d = 1$&$D\geq 2$&&\\
 \hline\hline
 \end{tabular}
