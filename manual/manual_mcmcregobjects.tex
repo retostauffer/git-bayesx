@@ -825,7 +825,10 @@ Weibull & $	p(y|\lambda,\alpha)=\frac{\alpha y^{\alpha-1}\exp\left(-\left(y/\lam
 &&$\lambda>0$&#weibull#&#lambda#\\\hline
 Pareto & $p(y|b,p)=p b^{p}(y+p)^{-p-1}$&$p>0$&#pareto#&#p#\\
 &&$b>0$&#pareto#&#b#\\\hline
-Truncated normal &&&&\\\hline
+Truncated normal &$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)\frac{1}{\sigma(-\Phi\left(-\mu/\sigma\right))}$&$\sigma^2>0$&#truncnormal2#&#sigma2#\\
+ &&$\mu\in\dsR$&#normal#&#mu#\\\hline
+ Truncated normal &$p(y|\mu,\sigma)=\frac{1}{\sqrt{2\pi\sigma^2}}\exp\left(-\frac{(y-\mu)^2}{2\sigma^2}\right)\frac{1}{\sigma(-\Phi\left(-\mu/\sigma\right))}$&$\sigma>0$&#truncnorma2l#&#sigma2#\\
+  &&$\mu\in\dsR$&#normal#&#mu#\\\hline
 Generalized gamma & $p(y|\mu,\sigma,\tau)=\left(\frac{\sigma}{\mu}\right)^{\sigma\tau}\frac{\tau y^{\sigma\tau-1}}{\Gamma(\sigma)}\exp\left(-\left(\frac{\sigma}{\mu}y\right)^{\tau}\right)$&$\tau>0$&#gengamma#&#tau#\\
 &&$\sigma>0$&#gengamma#&#sigma#\\
 &&$\mu>0$&#gengamma#&#mu#\\\hline
@@ -843,41 +846,75 @@ Dagum & $p(y|a,b,p)=\frac{a p y^{a p-1}}{b^{a p}\left(1+\left(y/b\right)^{a}\rig
 {3. Discrete distributions}&Density&Parameter&#family#&#equationtype#\\\hline
 
 %\multicolumn{5}{l}{3. Discrete distributions}\\\hline
-Poisson & $g_1(y|\lambda)=\frac{\lambda^{y}\exp(-\lambda)}{y!}$ & $\lambda>0$&#poisson#&#lambda#\\\hline
-Negative binomial &  $g_2(y|\mu,\delta) = \frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$ &$\delta>0$&#negbin#&#delta#\\
+Poisson & $p(y|\lambda)=\frac{\lambda^{y}\exp(-\lambda)}{y!}$ & $\lambda>0$&#poisson#&#lambda#\\\hline
+Negative binomial &  $p(y|\mu,\delta) = \frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$ &$\delta>0$&#negbin#&#delta#\\
 &&$\mu>0$&#negbin#&#mu#\\\hline
-Zero-inflated Poisson &$p(y|\lambda,\pi) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_1$& $\pi\in(0,1)$&#zip#&#pi#\\
+Zero-inflated Poisson &$p(y|\lambda,\pi) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)\frac{\lambda^{y}\exp(-\lambda)}{y!}$& $\pi\in(0,1)$&#zip#&#pi#\\
 &&$\lambda>0$&#zip#&#lambda#\\\hline
-Zero-inflated negative binomial &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+(1-\pi)g_2$&$\delta>0$&#zinb#&#delta#\\
+Zero-inflated negative binomial &$p(y|\pi,\mu,\delta) = \pi\mathds{1}_{\lbrace 0\rbrace}(y)+\frac{(1-\pi)\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y}$&$\delta>0$&#zinb#&#delta#\\
 &&$\pi\in(0,1)$&#zinb#&#pi#\\
 &&$\mu>0$&#zinb#&#mu#\\\hline
-Hurdle Poisson &&&#hurdle#&#pi#\\
-&&&#hurdle#&#lambda#\\\hline
-Hurdle negative binomial &&&#hurdle#&#pi#\\
-&&&#hurdle#&#delta#\\
-&&&#hurdle#&#mu#\\\hline
-Binomial &&&#binomial#&\\\hline
-Cloglog &&&#cloglog#&\\\hline
-\multicolumn{5}{l}{4. Mixed discrete-continuous distributions}  \\\hline
+Hurdle Poisson &$p(y|\lambda,\pi)=\begin{cases}
+	\pi & y=0\\
+		\frac{(1-\pi)}{1-\exp(-\lambda)}\frac{\lambda^{y}\exp(-\lambda)}{y!} & y>0\\
+			\end{cases}$&$\begin{matrix} \pi\in(0,1)\\\lambda>0
+					 	\end{matrix}$ &$\begin{matrix} \text{#hurdle#}\\\text{#hurdle#}
+					\end{matrix}$&$\begin{matrix} \text{#pi#}\\\text{#delta#}\\\text{#lambda#}
+					\end{matrix}$\\\hline
+Hurdle negative binomial &$p(y|\mu,\delta,\pi)=\begin{cases}
+	\pi & y=0\\
+		\frac{(1-\pi)}{1-\left(\frac{\delta}{\delta+\mu}\right)^{\delta}}\frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y} & y>0\\
+			\end{cases}$&$\begin{matrix} \pi\in(0,1)\\\delta>0\\\mu>0
+					 	\end{matrix}$ &$\begin{matrix} \text{#hurdle#}\\\text{#hurdle#}\\\text{#hurdle#}
+					\end{matrix}$&$\begin{matrix} \text{#pi#}\\\text{#delta#}\\\text{#mu#}
+					\end{matrix}$\\\hline
+Binomial &$p(y|\pi)=\begin{cases}
+	\pi & y=0\\
+		(1-\pi) & y=1\\
+			\end{cases}$&$\pi\in(0,1)$&#binomial#&#logit#\\\hline
+Cloglog &$p(y|\pi)=\begin{cases}
+	\pi & y=0\\
+		(1-\pi) & y=1\\
+			\end{cases}$&$\pi\in(0,1)$&#binomialglog#&#cloglog#\\
+\hline\hline
+\end{tabular}
+\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX2}
+\end{sidewaystable}
+
+\begin{sidewaystable}[htbp]
+\begin{center} %\scriptsize
+\begin{tabular}{l l c l l}
+\hline\hline
+% \multicolumn{5}{l}
+{4. Mixed discrete-continuous distributions}  \\\hline
 Zero-adjusted & $p(y|\pi,g(y)) = \begin{cases} 1-\pi & y = 0\\
 									\pi g(y) & y>0
 								 \end{cases}$& &#zeroadjusted#&\\
 & $g(y)$ a distribution from 2. &\\\hline
 \multicolumn{5}{l}{5. Distributions with compact support} \\\hline
-Beta & $p(y|\mu,\sigma^2)=\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)}$&$\mu,\sigma^2\in(0,1)$&#beta#&#sigma2#\\
-&$\mu=\frac{p}{p+q}$, $\sigma^2=\frac{1}{p+q+1}$&&#beta#&#mu#\\\hline
+Beta & $p(y|\mu,\sigma^2)=\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)}$&$\sigma^2\in(0,1)$&#beta#&#sigma2#\\
+&$\mu=\frac{p}{p+q}$, $\sigma^2=\frac{1}{p+q+1}$&$\mu\in(0,1)$&#beta#&#mu#\\\hline
 Zero-One-inflated Beta & $p(y|\mu,\sigma^2,\upsilon,\tau)=\begin{cases}
 \frac{\upsilon}{1+\upsilon+\tau} & y=0\\\left(1-\frac{\upsilon+\tau}{1+\upsilon+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
-\frac{\tau}{1+\upsilon+\tau} & y=1\\
-	\end{cases}$&$\upsilon,\tau>0$&&\\\hline
+\frac{\tau}{1+\upsilon+\tau}
+ & y=1
+ 	\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\nu>0\\\tau>0
+ 	\end{matrix}$ &$\begin{matrix} \text{#betainf#}\\\text{#betainf#}\\\text{#betainf#}\\\text{#betainf#}
+\end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#nu#}\\\text{#tau#}
+\end{matrix}$\\\hline
 Zero-inflated Beta & $p(y|\mu,\sigma^2,\upsilon)=\begin{cases}
 	\frac{\upsilon}{1+\upsilon} & y=0\\\left(1-\frac{\upsilon}{1+\upsilon}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
-		\end{cases}$&$\upsilon>0$&&\\\hline
+		\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\nu>0
+		 	\end{matrix}$ &$\begin{matrix} \text{#betainf0#}\\\text{#betainf0#}\\\text{#betainf0#}
+		\end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#nu#}
+		\end{matrix}$\\\hline
 One-inflated Beta & $p(y|\mu,\sigma^2,\tau)=\begin{cases}
 		\left(1-\frac{\tau}{1+\tau}\right)\frac{y^{p-1}\left(1-y\right)^{q-1}}{\B(p,q)} & y\in(0,1)\\
 		\frac{\tau}{1+\tau} & y=1\\
-			\end{cases}$&$\tau>0$&&\\
-\hline\hline
+			\end{cases}$&$\begin{matrix} \sigma^2\in(0,1)\\\mu\in(0,1)\\\tau>0
+					 	\end{matrix}$ &$\begin{matrix} \text{#betainf1#}\\\text{#betainf1#}\\\text{#betainf1#}
+					\end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#tau#}
+					\end{matrix}$\\\hline\hline
 \end{tabular}
 \end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX3}
 \end{sidewaystable}
