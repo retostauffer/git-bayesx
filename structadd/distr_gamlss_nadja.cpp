@@ -11023,6 +11023,8 @@ DISTR_frankcopula2_exp_rho::DISTR_frankcopula2_exp_rho(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "true";
+   linpredminlimit=-10;
+  linpredmaxlimit=15;
   }
 
 
@@ -11480,6 +11482,258 @@ void DISTR_frankcopula_rho::update_end(void)
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
     *pmu = (*worklin);
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_frankcopula_exp_rho -----------------------
+//------------------------------------------------------------------------------
+void DISTR_frankcopula_exp_rho::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+            if((*workresp) > 1 )
+            {
+                errors=true;
+                errormessages.push_back("ERROR: cdfs of marginals take values inbetween zero and one!\n");
+            }
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_frankcopula_exp_rho::DISTR_frankcopula_exp_rho(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Frank Copula - rho";
+
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "rho";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_frankcopula_exp_rho::DISTR_frankcopula_exp_rho(const DISTR_frankcopula_exp_rho & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_frankcopula_exp_rho & DISTR_frankcopula_exp_rho::operator=(
+                            const DISTR_frankcopula_exp_rho & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+
+double DISTR_frankcopula_exp_rho::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_frankcopula_exp_rho::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp(*linpred[2]);
+  }
+
+void DISTR_frankcopula_exp_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_frankcopula_exp_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+void DISTR_frankcopula_exp_rho::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+     double thet = exp((*linpred[2]));
+     double e1 = exp(-thet);
+     double e1m1 = 1- e1;
+     double e2 = exp(-thet * (*response[1]));
+     double e3 = exp(-thet * (*response[0]));
+     double e2m1 = e2 - 1;
+     double e3m1 = e3 - 1;
+     double l;
+
+      l = log(thet * e1m1 * exp(- thet * ((*response[1]) + (*response[0]))) /  pow((e1m1 - e2m1 * e3m1), 2));
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+double DISTR_frankcopula_exp_rho::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double thet = exp((*linpred));
+    double e1m1 = 1 - exp(-thet);
+    double e2 = exp(-thet * (*response));
+    double e3 = exp(-thet * (*response2p));
+    double e2m1 = e2 - 1;
+    double e3m1 = e3 - 1;
+    double l;
+
+
+    l =  log(thet * e1m1 * exp(- thet * ((*response) + (*response2p))) /  pow((e1m1 - e2m1 * e3m1), 2));
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_frankcopula_exp_rho::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+    double thet = exp((*linpred));
+    double e1 = exp(-thet);
+    double e1m1 = 1 - e1;
+    double e2 = exp(-thet * (*response));
+    double e3 = exp(-thet * (*response2p));
+    double e2m1 = e2 - 1;
+    double e3m1 = e3 - 1;
+
+
+    double zaehler = thet * (e1 + ((*response) + (*response2p)) * e2 * e3 - (*response) * e2 - (*response2p) * e3) ;
+    double stars =  (e1 + pow(((*response) + (*response2p)), 2) * e2 * e3 - pow((*response), 2) * e2 - pow((*response2p), 2) * e3);
+    double nenner = e1m1 - e2m1 * e3m1;
+
+    double nu =  1 + thet * e1 / e1m1 - thet * ((*response) + (*response2p)) - 2 * zaehler / nenner;
+
+    *workingweight =  -nu + 1 + thet * e1 / e1m1 * (thet + e1 / e1m1) - 2 * thet * thet * stars / nenner - 2 * pow(zaehler / nenner, 2);
+
+    if((*workingweight) <= 0)
+        *workingweight = 0.0001;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+          like += log(thet * e1m1 * exp(- thet * ((*response) + (*response2p))) /  pow((nenner), 2));
+      }
+
+  modify_worklin();
+
+  }
+
+void DISTR_frankcopula_exp_rho::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = 0;
+  }
+
+
+void DISTR_frankcopula_exp_rho::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (rho): exponential\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_frankcopula_exp_rho::update_end(void)
+  {
+
+  // helpmat1 stores rho
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
     }
 
   }

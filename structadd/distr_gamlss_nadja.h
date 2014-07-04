@@ -3630,6 +3630,77 @@ class __EXPORT_TYPE DISTR_copula : public DISTR_gamlss
   };
 
 
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_frankcopula_exp_rho ---------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_frankcopula_exp_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_frankcopula_exp_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_frankcopula_exp_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_frankcopula_exp_rho(const DISTR_frankcopula_exp_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_frankcopula_exp_rho & operator=(const DISTR_frankcopula_exp_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_frankcopula_exp_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_dirichlet -------------------------------
 //------------------------------------------------------------------------------
