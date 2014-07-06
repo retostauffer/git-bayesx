@@ -11685,7 +11685,7 @@ void DISTR_frankcopula_exp_rho::compute_iwls_wweightschange_weightsone(
 
     double nu =  1 + thet * e1 / e1m1 - thet * ((*response) + (*response2p)) - 2 * zaehler / nenner;
 
-    *workingweight =  -nu + 1 + thet * e1 / e1m1 * (thet + e1 / e1m1) - 2 * thet * thet * stars / nenner - 2 * pow(zaehler / nenner, 2);
+    *workingweight =  -nu + 1 + thet * thet * e1 / e1m1 * (1 + e1 / e1m1) - 2 * thet * thet * stars / nenner - 2 * pow(zaehler / nenner, 2);
 
     if((*workingweight) <= 0)
         *workingweight = 0.0001;
