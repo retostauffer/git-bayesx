@@ -674,6 +674,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   public:
 
 
+  bool mainequation;
+
   //------------------------- PUBLIC FUNCTIONS ---------------------------------
 
   // DEFAULT CONSTRUCTOR
