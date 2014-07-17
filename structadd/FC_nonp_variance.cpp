@@ -612,6 +612,24 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
   }
 
 
+void FC_nonp_variance_varselection::get_samples(
+   const ST::string & filename,ofstream & outg) const
+  {
+  FC_nonp_variance::get_samples(filename,outg);
+
+  ST::string filename_delta = filename.substr(0,filename.length()-4) + "_delta.raw";
+  FC_delta.get_samples(filename_delta,outg);
+
+/*
+  ST::string filename_omega = filename.substr(0,filename.length()-4) + "_omega.raw";
+  FC_omega.get_samples(filename_omega,outg);
+
+  ST::string filename_Q = filename.substr(0,filename.length()-4) + "_Q.raw";
+  FC_Q.get_samples(filename_Q,outg);
+*/
+  }
+
+
 void FC_nonp_variance_varselection::outoptions(void)
   {
   FC_nonp_variance::outoptions();
