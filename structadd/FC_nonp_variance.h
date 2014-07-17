@@ -210,6 +210,9 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
+  void get_samples(const ST::string & filename,ofstream & outg) const;
+
+
   // virtual void transform_beta(void);
 
   };
