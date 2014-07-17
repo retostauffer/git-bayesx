@@ -236,8 +236,6 @@ void superbayesreg::create_hregress(void)
 
   families.reserve(80);
   families.push_back("gaussian");
-  families.push_back("hetgaussian");
-  families.push_back("vargaussian");
   families.push_back("gaussian_mixture");
   families.push_back("loggaussian");
   families.push_back("quantreg");
@@ -245,90 +243,54 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
-  families.push_back("cloglog");
+  families.push_back("binomial_probit");
+  families.push_back("binomial_svm");
+  families.push_back("binomial_cloglog");
   families.push_back("poisson");
   families.push_back("poisson_ext");
   families.push_back("poisson_extlin");
-  families.push_back("binomial_probit");
-  families.push_back("binomial_svm");
   families.push_back("multinom_probit");
   families.push_back("multgaussian");
   families.push_back("binomial_logit_l1");
   families.push_back("multinom_logit");
-  families.push_back("zip_lambda");
-  families.push_back("zip_pi");
-  families.push_back("hurdle_lambda");
-  families.push_back("hurdle_pi");
-  families.push_back("hurdle_delta");
-  families.push_back("hurdle_mu");
-  families.push_back("zinb_mu");
-  families.push_back("zinb_pi");
-  families.push_back("zinb_delta");
-  families.push_back("zip_pi_cloglog");
-  families.push_back("zip_lambda_cloglog");
-  families.push_back("negbin_mu");
-  families.push_back("negbin_delta");
-  families.push_back("beta_mu");
-  families.push_back("beta_sigma2");
-  families.push_back("lognormal_mu");
-  families.push_back("lognormal_sigma2");
-  families.push_back("lognormal2_mu");
-  families.push_back("lognormal2_sigma");
-  families.push_back("normal_mu");
-  families.push_back("normal_sigma2");
-  families.push_back("normal2_mu");
-  families.push_back("normal2_sigma");
-  families.push_back("truncnormal2_mu");
-  families.push_back("truncnormal2_sigma");
-  families.push_back("gamma_mu");
-  families.push_back("gamma_sigma");
-  families.push_back("pareto_b");
-  families.push_back("pareto_p");
-  families.push_back("invgaussian_mu");
-  families.push_back("invgaussian_sigma2");
-  families.push_back("gengamma_mu");
-  families.push_back("gengamma_sigma");
-  families.push_back("gengamma_tau");
-  families.push_back("t_mu");
-  families.push_back("t_sigma2");
-  families.push_back("t_df");
-  families.push_back("bivt_mu");
-  families.push_back("bivt_sigma");
-  families.push_back("bivt_df");
-  families.push_back("bivt_rho");
-  families.push_back("bivnormal_mu");
-  families.push_back("bivnormal_sigma");
-  families.push_back("bivnormal_rho");
-  families.push_back("bivnormal_rhofz");
-  families.push_back("bivnormal_mufz");
-  families.push_back("bivprobit_mu");
-  families.push_back("bivprobit_rho");
-  families.push_back("bivlogit_mu");
-  families.push_back("bivlogit_or");
-  families.push_back("weibull_lambda");
-  families.push_back("weibull_alpha");
-  families.push_back("dagum_a");
-  families.push_back("dagum_b");
-  families.push_back("dagum_p");
-  families.push_back("betainf_mu");
-  families.push_back("betainf_sigma2");
-  families.push_back("betainf_nu");
-  families.push_back("betainf_tau");
-  families.push_back("betainf0_nu");
-  families.push_back("betainf1_tau");
+  families.push_back("zip");
+  families.push_back("hurdle");
+  families.push_back("hurdle_poisson");
+  families.push_back("hurdle_negbin");
+  families.push_back("zinb");
+  families.push_back("zip_cloglog");
+  families.push_back("negbin");
+  families.push_back("beta");
+  families.push_back("lognormal");
+  families.push_back("lognormal2");
+  families.push_back("normal");
+  families.push_back("normal2");
+  families.push_back("truncnormal");
+  families.push_back("truncnormal2");
+  families.push_back("gamma");
+  families.push_back("hetgaussian");
+  families.push_back("pareto");
+  families.push_back("invgaussian");
+  families.push_back("gengamma");
+  families.push_back("t");
+  families.push_back("bivt");
+  families.push_back("bivnormal");
+  families.push_back("bivnormal_fz");
+  families.push_back("bivprobit");
+  families.push_back("bivlogit");
+  families.push_back("weibull");
+  families.push_back("dagum");
+  families.push_back("betainf0");
+  families.push_back("betainf1");
+  families.push_back("betainf2");
   families.push_back("zero_adjusted");
-  families.push_back("dirichlet");
-  families.push_back("BCCG_mu");
-  families.push_back("BCCG_sigma");
-  families.push_back("BCCG_nu");
-  families.push_back("gumbelcopula_rho");
+  families.push_back("BCCG");
+  families.push_back("gumbelcopula");
   families.push_back("gumbelcopula2_rho");
-  families.push_back("gumbelcopula2_normal_mu");
-  families.push_back("gumbelcopula2_normal_sigma2");
-  families.push_back("claytoncopula_rho");
+  families.push_back("gumbelcopula2_normal_rho");
+  families.push_back("claytoncopula2_normal");
   families.push_back("claytoncopula2_rho");
-  families.push_back("claytoncopula2_normal_mu");
-  families.push_back("claytoncopula2_normal_sigma2");
+  families.push_back("claytoncopula");
   families.push_back("sfa0_sigma_v");
   families.push_back("sfa0_sigma_u");
   families.push_back("sfa0_mu_y");
@@ -346,16 +308,13 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_mu_u_id");
   families.push_back("sfa2_mu_y_id");
   families.push_back("copula");
-  families.push_back("tcopula_df");
-  families.push_back("tcopula_rho");
+  families.push_back("tcopula");
+  families.push_back("hurdle_negbin");
   families.push_back("gaussiancopula_rho");
   families.push_back("gaussiancopula_rhofz");
-  families.push_back("frankcopula_rho");
-  families.push_back("frankcopula2_rho");
-  families.push_back("frankcopula2_exp");
-  families.push_back("frankcopula_exp");
-  families.push_back("frankcopula2_normal_mu");
-  families.push_back("frankcopula2_normal_sigma2");
+  families.push_back("frankcopula");
+  families.push_back("frankcopula2");
+  families.push_back("frankcopula2_normal");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -363,22 +322,20 @@ void superbayesreg::create_hregress(void)
 
   hlevel = intoption("hlevel",1,1,3);
   equationnr = intoption("equation",1,1,50);
-  equationtypes.reserve(20);
-  equationtypes.push_back("mean");
-  equationtypes.push_back("meanservant");
-  equationtypes.push_back("variance");
+  equationtypes.reserve(50);
+
+  equationtypes.push_back("main");
+  equationtypes.push_back("servant");
+  equationtypes.push_back("mu");
   equationtypes.push_back("pi");
+  equationtypes.push_back("tau");
+  equationtypes.push_back("lambda");
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
+  equationtypes.push_back("scale");
   equationtypes.push_back("scale1");
   equationtypes.push_back("scale2");
-  equationtypes.push_back("location");
-  equationtypes.push_back("scale");
-  equationtypes.push_back("shape");
-  equationtypes.push_back("shape1");
-  equationtypes.push_back("shape2");
-  equationtypes.push_back("mu");
   equationtypes.push_back("nu");
   equationtypes.push_back("df");
   equationtypes.push_back("rho");
@@ -393,8 +350,11 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("oddsratio");
   equationtypes.push_back("u1");
   equationtypes.push_back("u2");
+  equationtypes.push_back("p");
+  equationtypes.push_back("b");
+  equationtypes.push_back("a");
 
-  equationtype = stroption("equationtype",equationtypes,"mean");
+  equationtype = stroption("equationtype",equationtypes,"mu");
 
   predictop.reserve(20);
   predictop.push_back("no");
@@ -549,6 +509,7 @@ void superbayesreg::create(void)
 
   generaloptions_yes = false;
   run_yes=false;
+  mainequation=false;
 
 #if defined(__BUILDING_LINUX)
   ST::string h = defaultpath+"/output/"+name;
@@ -1055,6 +1016,7 @@ superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
   create();
   resultsyesno = false;
   run_yes = false;
+  mainequation=false;
   posteriormode = false;
   computemodeforstartingvalues = true;
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
@@ -1080,6 +1042,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   modelvarnamesv = b.modelvarnamesv;
 
   equations=b.equations;
+  mainequation=b.mainequation;
   nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
@@ -1267,6 +1230,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   modelvarnamesv = b.modelvarnamesv;
 
   equations=b.equations;
+  mainequation=b.mainequation;
   nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
@@ -1494,227 +1458,19 @@ void superbayesreg::make_header(unsigned & modnr)
     {
 
     ST::string rn = equations[modnr].distrp->responsename;
-    if (equations[modnr].equationtype == "mean")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "variance")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN VARIANCE REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_VARIANCE_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "pi")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN ZERO INFLATION REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_ZERO_INFLATION_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "delta")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN DELTA REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_DELTA_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "sigma2")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN SIGMA2 REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_SIGMA2_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "sigma")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN SIGMA REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_SIGMA_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "location")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN LOCATION REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_LOCATION_REGRESSION_"+ rn;
-      }
-    else if (equations[modnr].equationtype == "scale")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN SCALE REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_SCALE_REGRESSION_"+ rn;
-      }
-   else if (equations[modnr].equationtype == "shape")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN SHAPE REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_SHAPE_REGRESSION_"+ rn;
-      }
-         else if (equations[modnr].equationtype == "shape1")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN SHAPE1 REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_SHAPE1_REGRESSION_"+ rn;
-      }
-   else if (equations[modnr].equationtype == "shape2")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN SHAPE2 REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_SHAPE2_REGRESSION_"+ rn;
-      }
 
-   else if (equations[modnr].equationtype == "mu")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN MU REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_MU_REGRESSION_"+ rn;
-      }
+    equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": MAIN " + equations[modnr].equationtype + " REGRESSION_"+ rn;
+    equations[modnr].paths = "MAIN_" + equations[modnr].equationtype + "_REGRESSION_"+ rn;
 
-   else if (equations[modnr].equationtype == "nu")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN NU REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_NU_REGRESSION_"+ rn;
-      }
-  else if (equations[modnr].equationtype == "df")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN DF REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_DF_REGRESSION_"+ rn;
-      }
-  else if (equations[modnr].equationtype == "rho")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN RHO REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_RHO_REGRESSION_"+ rn;
-      }
-  else if (equations[modnr].equationtype == "alpha")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN ALPHA REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_ALPHA_REGRESSION_"+ rn;
-      }
-  else if (equations[modnr].equationtype == "oddsratio")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN ODDSRATIO REGRESSION_"+ rn;
-      equations[modnr].paths = "MAIN_ODDSRATIO_REGRESSION_"+ rn;
-      }
-  else if (equations[modnr].equationtype == "meanservant")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": MAIN REGRESSION_" + rn;
-      equations[modnr].paths = "MAIN_REGRESSION_" + rn;
-      }
     }
   else if (equations[modnr].hlevel == 2)
     {
-    if (equations[modnr].equationtype == "mean")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS";
-      }
-    else if (equations[modnr].equationtype == "variance")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS VARIANCE REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_VARIANCE";
-      }
-    else if (equations[modnr].equationtype == "pi")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS ZERO INFLATION REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_ZERO_INFLATION";
-      }
-    else if (equations[modnr].equationtype == "sigma2")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SIGMA2 REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SIGMA2";
-      }
-	else if (equations[modnr].equationtype == "delta")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS DELTA REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_DELTA";
-      }
-    else if (equations[modnr].equationtype == "scale")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SCALE REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SCALE";
-      }
-	else if (equations[modnr].equationtype == "scale1")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SCALE1 REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SCALE1";
-      }
-	else if (equations[modnr].equationtype == "scale2")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SCALE2 REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SCALE2";
-      }
-    else if (equations[modnr].equationtype == "location")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS LOCATION REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_LOCATION";
-      }
-    else if (equations[modnr].equationtype == "shape")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SHAPE REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SHAPE";
-      }
-    else if (equations[modnr].equationtype == "shape1")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SHAPE1 REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SHAPE1";
-      }
-    else if (equations[modnr].equationtype == "shape2")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS SHAPE2 REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_SHAPE2";
-      }
-    else if (equations[modnr].equationtype == "mu")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS MU REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_MU";
-      }
-    else if (equations[modnr].equationtype == "nu")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS NU REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_NU";
-      }
-    else if (equations[modnr].equationtype == "df")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS DF REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_DF";
-      }
-    else if (equations[modnr].equationtype == "rho")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS RHO REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_RHO";
-      }
-    else if (equations[modnr].equationtype == "alpha")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS ALPHA REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_ALPHA";
-      }
-    else if (equations[modnr].equationtype == "meanservant")
-      {
-      equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
-                              ": RANDOM EFFECTS MEANSERVANT REGRESSION";
-      equations[modnr].paths = "RANDOM_EFFECTS_MEANSERVANT";
-      }
+
+    equations[modnr].header = "MCMCREG OBJECT " + name.to_bstr() +
+                              ": RANDOM EFFECTS " + equations[modnr].equationtype + " REGRESSION";
+    equations[modnr].paths = "RANDOM_EFFECTS_" + equations[modnr].equationtype;
+
     }
 
   }
@@ -1730,6 +1486,7 @@ void hregressrun(superbayesreg & b)
     b.generaloptions_yes = false;
     b.errors=false;
     b.nrlevel1 = 0;
+    b.mainequation=false;
     }
 
   if (b.errors==false)    // errors from level 2 equations
@@ -1785,7 +1542,7 @@ void hregressrun(superbayesreg & b)
       b.nrlevel1++;
 
     if ((! failure) && (b.hlevel.getvalue() == 1) &&
-        (b.equationtype.getvalue()=="mean"))
+        (b.mainequation==true))
       {
 
       if (!failure)
@@ -1972,9 +1729,14 @@ bool superbayesreg::create_distribution(void)
   // ST::string f = family.getvalue();
 
 //---------------------------- Gaussian response -------------------------------
-  if (family.getvalue() == "gaussian")
+  if (((family.getvalue() == "gaussian") ||  (family.getvalue() == "normal")) && (equationtype.getvalue()=="mu") &&
+      (distr_vargaussians.size()==0) && (distr_normal_sigma2s.size()==0)
+     )
     {
     computemodeforstartingvalues = true;
+
+    mainequation=true;
+
 
 #if defined(__BUILDING_LINUX)
     ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
@@ -1987,12 +1749,54 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_gaussians[distr_gaussians.size()-1];
     equations[modnr].pathd = outfile.getvalue() + "_scale.res";
-
+    mainequation=true;
     }
 //-------------------------- END: Gaussian response ----------------------------
 
+//-------------------------------- normal sigma2 ---------------------------------
+  else if (family.getvalue() == "normal" && equationtype.getvalue()=="sigma2")
+    {
+
+    mainequation=false;
+
+    computemodeforstartingvalues = true;
+
+    distr_normal_sigma2s.push_back(DISTR_normal_sigma2(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_normal_sigma2s[distr_normal_sigma2s.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//---------------------------- END: normal sigma2 -------------------------------
+
+//------------------------------- normal mu ------------------------------------
+  else if ((family.getvalue() == "normal") && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()==1))
+
+    {
+
+     mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_normal_mus.push_back(DISTR_normal_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_normal_mus[distr_normal_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+    predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
+    distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back
+    (&distr_normal_mus[distr_normal_mus.size()-1]);
+
+    distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back
+    (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+
+    }
+//------------------------------- END: normal mu -------------------------------
+
+
 //------------- variance equation of heteroscedastic Gaussian ------------------
-  else if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="variance")
+  else if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="sigma2")
     {
 
     distr_vargaussians.push_back(DISTR_vargaussian(&generaloptions,D.getCol(0)));
@@ -2004,8 +1808,10 @@ bool superbayesreg::create_distribution(void)
 //---------- END: variance equation of heteroscedastic Gaussian ----------------
 
 //---------------------- heteroscedastic Gaussian response ---------------------
-  else if (family.getvalue() == "hetgaussian" && equationtype.getvalue()=="mean")
+  else if ((family.getvalue() == "hetgaussian") && (equationtype.getvalue()=="mu") && (distr_vargaussians.size()==1))
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -2027,21 +1833,116 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = defaultpath + "\\temp\\" + name  + "_scale.res";
 #endif
 
-    if (distr_vargaussians.size() != 1)
-      {
-      outerror("ERROR: Variance equation for heteroscedastic Gausian responses is missing");
-      return true;
-      }
-    else
-      {
-      distr_vargaussians[0].dgaussian = &distr_hetgaussians[distr_hetgaussians.size()-1];
-      }
+    distr_vargaussians[0].dgaussian = &distr_hetgaussians[distr_hetgaussians.size()-1];
 
     }
 //----------------- END: heteroscedastic Gaussian response ---------------------
 
+
+//-------------------------------- lognormal sigma2 ---------------------------------
+  else if (family.getvalue() == "lognormal" && equationtype.getvalue()=="sigma2")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal_sigma2s.push_back(DISTR_lognormal_sigma2(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1]);
+
+    }
+//---------------------------- END: lognormal sigma2 -------------------------------
+
+//------------------------------- lognormal mu ------------------------------------
+  else if ((family.getvalue() == "lognormal") && (equationtype.getvalue()=="mu") &&
+           (distr_lognormal_sigma2s.size()==1) )
+
+    {
+
+     mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal_mus.push_back(DISTR_lognormal_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_lognormal_mus[distr_lognormal_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_lognormal_mus[distr_lognormal_mus.size()-1]);
+
+    if (distr_lognormal_sigma2s.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
+    else
+      {
+      distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1].distrp.push_back
+      (&distr_lognormal_mus[distr_lognormal_mus.size()-1]);
+
+      distr_lognormal_mus[distr_lognormal_mus.size()-1].distrp.push_back
+      (&distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1]);
+      }
+
+    }
+//------------------------------- END: lognormal mu -------------------------------
+
+
+
+//-------------------------------- lognormal2 sigma ---------------------------------
+  else if (family.getvalue() == "lognormal2" && equationtype.getvalue()=="sigma")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal2_sigmas.push_back(DISTR_lognormal2_sigma(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1]);
+
+    }
+//---------------------------- END: lognormal2 sigma -------------------------------
+
+//------------------------------- lognormal2 mu ------------------------------------
+  else if ((family.getvalue() == "lognormal2") && (equationtype.getvalue()=="mu"))
+
+    {
+
+     mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal2_mus.push_back(DISTR_lognormal2_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_lognormal2_mus[distr_lognormal2_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_lognormal2_mus[distr_lognormal2_mus.size()-1]);
+
+    if (distr_lognormal2_sigmas.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma is missing");
+      return true;
+      }
+    else
+      {
+      distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1].distrp.push_back
+      (&distr_lognormal2_mus[distr_lognormal2_mus.size()-1]);
+
+      distr_lognormal2_mus[distr_lognormal2_mus.size()-1].distrp.push_back
+      (&distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1]);
+      }
+
+    }
+//------------------------------- END: lognormal2 mu -------------------------------
+
+
 //---------------------------------- ZINB pi -----------------------------------
-  else if (family.getvalue() == "zinb_pi" && equationtype.getvalue()=="pi")
+  else if (family.getvalue() == "zinb" && equationtype.getvalue()=="pi")
     {
 
     computemodeforstartingvalues = true;
@@ -2055,7 +1956,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: ZINB pi ---------------------------------
 
 //---------------------------------- ZINB delta --------------------------------
-  else if (family.getvalue() == "zinb_delta" && equationtype.getvalue()=="delta")
+  else if (family.getvalue() == "zinb" && equationtype.getvalue()=="delta")
     {
 
     computemodeforstartingvalues = true;
@@ -2076,8 +1977,10 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------------- ZINB mu ----------------------------------
-  else if (family.getvalue() == "zinb_mu" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "zinb" && equationtype.getvalue()=="mu")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -2127,7 +2030,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- negbin delta --------------------------------
-  else if (family.getvalue() == "negbin_delta" && equationtype.getvalue()=="delta")
+  else if (family.getvalue() == "negbin" && equationtype.getvalue()=="delta")
     {
 
     computemodeforstartingvalues = true;
@@ -2150,8 +2053,10 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: negbin delta -------------------------------
 
 //------------------------------- negbin mu ------------------------------------
-  else if (family.getvalue() == "negbin_mu" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "negbin" && equationtype.getvalue()=="mu")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -2180,7 +2085,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: negbin mu -------------------------------
 
 //-------------------------------- betainf_mu ---------------------------------
-  else if (family.getvalue() == "betainf_mu" && equationtype.getvalue()=="location")
+  else if (family.getvalue() == "betainf" && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -2195,7 +2100,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: betainf_mu -------------------------------
 
 //-------------------------------- betainf_sigma2 ---------------------------------
-  else if (family.getvalue() == "betainf_sigma2" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "betainf" && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
@@ -2209,7 +2114,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: betainf_sigma2 -------------------------------
 
 //-------------------------------- betainf_nu ---------------------------------
-  else if (family.getvalue() == "betainf_nu" && equationtype.getvalue()=="shape")
+  else if (family.getvalue() == "betainf" && equationtype.getvalue()=="nu")
     {
 
     computemodeforstartingvalues = true;
@@ -2223,8 +2128,10 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: betainf_nu -------------------------------
 
 //------------------------------- betainf_tau ------------------------------------
-  else if (family.getvalue() == "betainf_tau" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "betainf" && equationtype.getvalue()=="tau")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -2274,8 +2181,10 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: betainf_tau -------------------------------
 
 //------------------------------- betainf0_nu ------------------------------------
-  else if (family.getvalue() == "betainf0_nu" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="nu")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -2312,8 +2221,10 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: betainf0_nu -------------------------------
 
 //------------------------------- betainf1_tau ------------------------------------
-  else if (family.getvalue() == "betainf1_tau" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="tau")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -2351,7 +2262,7 @@ bool superbayesreg::create_distribution(void)
 
 
   //---------------------------------- dagum_p -----------------------------------
-   else if (family.getvalue() == "dagum_p" && equationtype.getvalue()=="shape2")
+   else if (family.getvalue() == "dagum" && equationtype.getvalue()=="p")
      {
 
      computemodeforstartingvalues = true;
@@ -2365,7 +2276,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: dagum_p ---------------------------------
 
  //---------------------------------- dagum_b --------------------------------
-   else if (family.getvalue() == "dagum_b" && equationtype.getvalue()=="scale")
+   else if (family.getvalue() == "dagum" && equationtype.getvalue()=="b")
      {
 
      computemodeforstartingvalues = true;
@@ -2378,10 +2289,11 @@ bool superbayesreg::create_distribution(void)
      }
  //------------------------------ END: dagum_b -------------------------------
 
-
  // ----------------------------------- dagum_a ----------------------------------
-   else if (family.getvalue() == "dagum_a" && equationtype.getvalue()=="mean")
+   else if (family.getvalue() == "dagum" && equationtype.getvalue()=="a")
      {
+
+     mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2428,7 +2340,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: dagum_a ----------------------------------
 
   //---------------------------------- t_df -----------------------------------
-   else if (family.getvalue() == "t_df" && equationtype.getvalue()=="df")
+   else if (family.getvalue() == "t" && equationtype.getvalue()=="df")
      {
 
      computemodeforstartingvalues = true;
@@ -2442,7 +2354,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: t_df ---------------------------------
 
  //---------------------------------- t_sigma2 --------------------------------
-   else if (family.getvalue() == "t_sigma2" && equationtype.getvalue()=="scale")
+   else if (family.getvalue() == "t" && equationtype.getvalue()=="sigma2")
      {
 
      computemodeforstartingvalues = true;
@@ -2457,8 +2369,9 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- t_mu ----------------------------------
-   else if (family.getvalue() == "t_mu" && equationtype.getvalue()=="mean")
+   else if (family.getvalue() == "t" && equationtype.getvalue()=="mu")
      {
+     mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2505,7 +2418,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: t_mu ----------------------------------
 
   //---------------------------------- BCCG_nu -----------------------------------
-   else if (family.getvalue() == "BCCG_nu" && equationtype.getvalue()=="nu")
+   else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="nu")
      {
 
      computemodeforstartingvalues = true;
@@ -2519,7 +2432,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: BCCG_nu ---------------------------------
 
  //---------------------------------- BCCG_sigma --------------------------------
-   else if (family.getvalue() == "BCCG_sigma" && equationtype.getvalue()=="scale")
+   else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="sigma")
      {
 
      computemodeforstartingvalues = true;
@@ -2534,8 +2447,10 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- BCCG_mu ----------------------------------
-   else if (family.getvalue() == "BCCG_mu" && equationtype.getvalue()=="mean")
+   else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="mu")
      {
+
+     mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2583,8 +2498,10 @@ bool superbayesreg::create_distribution(void)
 
 
  //---------------------------------- bivt_rho -----------------------------------
-   else if (family.getvalue() == "bivt_rho" && equationtype.getvalue()=="rho")
+   else if (family.getvalue() == "bivt" && equationtype.getvalue()=="rho")
      {
+
+     mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2597,8 +2514,10 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivt_rho ---------------------------------
 
  //---------------------------------- bivt_df -----------------------------------
-   else if (family.getvalue() == "bivt_df" && equationtype.getvalue()=="df")
+   else if (family.getvalue() == "bivt" && equationtype.getvalue()=="df")
      {
+
+     mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2611,7 +2530,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivt_df ---------------------------------
 
  //---------------------------------- bivt_sigma --------------------------------
-   else if ((family.getvalue() == "bivt_sigma") && ((equationtype.getvalue()=="scale") || (equationtype.getvalue()=="scale1") || (equationtype.getvalue()=="scale2")))
+   else if ((family.getvalue() == "bivt") && ((equationtype.getvalue()=="sigma") || (equationtype.getvalue()=="scale1") || (equationtype.getvalue()=="scale2")))
      {
 
      computemodeforstartingvalues = true;
@@ -2639,18 +2558,23 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- bivt_mu ----------------------------------
-   else if ((family.getvalue() == "bivt_mu") &&
-            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+   else if ((family.getvalue() == "bivt") && ((equationtype.getvalue()=="mu"))
            )
      {
 
-    // computemodeforstartingvalues = true;
+     mainequation=true;
+
+     // computemodeforstartingvalues = true;
 
      unsigned pos;
-     if (equationtype.getvalue()=="mean")
-       pos = 1;
-     else
-       pos = 0;
+      if (distr_bivt_mus.size()==0)
+        pos=0;
+      else
+        {
+        pos=1;
+        mainequation=true;
+        }
+
 
      distr_bivt_mus.push_back(DISTR_bivt_mu(&generaloptions,D.getCol(0),pos,w));
 
@@ -2675,13 +2599,8 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     if ((equationtype.getvalue()=="mean") && (distr_bivt_mus.size() != 2))
-       {
-       outerror("ERROR: Two equations for mus required");
-       return true;
-       }
 
-     if (equationtype.getvalue()=="mean")
+     if (pos==1)
        {
 
        predict_mult_distrs.push_back(&distr_bivt_dfs[distr_bivt_dfs.size()-1]);
@@ -2792,7 +2711,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: bivt_mu ----------------------------------
 
 //---------------------------------- bivnormal_rhofz -----------------------------------
-   else if (family.getvalue() == "bivnormal_rhofz" && equationtype.getvalue()=="rho")
+   else if (family.getvalue() == "bivnormal_fz" && equationtype.getvalue()=="rho")
      {
 
      computemodeforstartingvalues = true;
@@ -2806,7 +2725,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivnormal_rhofz ---------------------------------
 
 //---------------------------------- bivnormal_rho -----------------------------------
-   else if (family.getvalue() == "bivnormal_rho" && equationtype.getvalue()=="rho")
+   else if (family.getvalue() == "bivnormal" && equationtype.getvalue()=="rho")
      {
 
      computemodeforstartingvalues = true;
@@ -2820,7 +2739,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivnormal_rho ---------------------------------
 
  //---------------------------------- bivnormal_sigma --------------------------------
-   else if ((family.getvalue() == "bivnormal_sigma") && ((equationtype.getvalue()=="scale") || (equationtype.getvalue()=="scale1") || (equationtype.getvalue()=="scale2")))
+   else if ((family.getvalue() == "bivnormal") && ((equationtype.getvalue()=="sigma") || (equationtype.getvalue()=="scale1") || (equationtype.getvalue()=="scale2")))
      {
 
      computemodeforstartingvalues = true;
@@ -2848,18 +2767,22 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- bivnormal_mu ----------------------------------
-   else if ((family.getvalue() == "bivnormal_mu") &&
-            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+   else if ((family.getvalue() == "bivnormal") && ((equationtype.getvalue()=="mu"))
            )
      {
 
     // computemodeforstartingvalues = true;
 
      unsigned pos;
-     if (equationtype.getvalue()=="mean")
-       pos = 1;
-     else
+     if (distr_bivnormal_mus.size()==0)
+       {
        pos = 0;
+       }
+     else
+       {
+       pos = 1;
+       mainequation=true;
+       }
 
      distr_bivnormal_mus.push_back(DISTR_bivnormal_mu(&generaloptions,D.getCol(0),pos,w));
 
@@ -2878,15 +2801,9 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     if ((equationtype.getvalue()=="mean") && (distr_bivnormal_mus.size() != 2))
-       {
-       outerror("ERROR: Two equations for mus required");
-       return true;
-       }
 
-     if (equationtype.getvalue()=="mean")
+     if (pos==1)
        {
-
 
        predict_mult_distrs.push_back(&distr_bivnormal_rhos[distr_bivnormal_rhos.size()-1]);
        predict_mult_distrs.push_back(&distr_bivnormal_sigmas[distr_bivnormal_sigmas.size()-2]);
@@ -2966,18 +2883,20 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- bivnormal_mufz ----------------------------------
-   else if ((family.getvalue() == "bivnormal_mufz") &&
-            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
+   else if ((family.getvalue() == "bivnormal_fz") && (equationtype.getvalue()=="mu")
            )
      {
 
     // computemodeforstartingvalues = true;
 
      unsigned pos;
-     if (equationtype.getvalue()=="mean")
-       pos = 1;
-     else
+     if (distr_bivnormal_mufzs.size()==0)
        pos = 0;
+     else
+       {
+       pos = 1;
+       mainequation=true;
+       }
 
      distr_bivnormal_mufzs.push_back(DISTR_bivnormal_mufz(&generaloptions,D.getCol(0),pos,w));
 
@@ -2996,13 +2915,8 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     if ((equationtype.getvalue()=="mean") && (distr_bivnormal_mufzs.size() != 2))
-       {
-       outerror("ERROR: Two equations for mus required");
-       return true;
-       }
 
-     if (equationtype.getvalue()=="mean")
+     if (pos==1)
        {
 
 
@@ -3083,7 +2997,7 @@ bool superbayesreg::create_distribution(void)
 
 
    //---------------------------------- bivprobit_rho -----------------------------------
-   else if (family.getvalue() == "bivprobit_rho" && equationtype.getvalue()=="rho")
+   else if (family.getvalue() == "bivprobit" && equationtype.getvalue()=="rho")
      {
 
      computemodeforstartingvalues = true;
@@ -3097,18 +3011,19 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivprobit_rho ---------------------------------
 
   // ----------------------------------- bivprobit_mu ----------------------------------
-   else if ((family.getvalue() == "bivprobit_mu") &&
-            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
-           )
+   else if ((family.getvalue() == "bivprobit") && (equationtype.getvalue()=="mu"))
      {
 
     // computemodeforstartingvalues = true;
 
      unsigned pos;
-     if (equationtype.getvalue()=="mean")
-       pos = 1;
-     else
+     if (distr_bivprobit_mus.size()==0)
        pos = 0;
+     else
+       {
+       pos = 1;
+       mainequation=true;
+       }
 
      distr_bivprobit_mus.push_back(DISTR_bivprobit_mu(&generaloptions,D.getCol(0),pos,w));
 
@@ -3121,13 +3036,8 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     if ((equationtype.getvalue()=="mean") && (distr_bivprobit_mus.size() != 2))
-       {
-       outerror("ERROR: Two equations for mus required");
-       return true;
-       }
 
-     if (equationtype.getvalue()=="mean")
+     if (pos==1)
        {
 
 
@@ -3167,7 +3077,7 @@ bool superbayesreg::create_distribution(void)
 
 
     //---------------------------------- bivlogit_or -----------------------------------
-   else if (family.getvalue() == "bivlogit_or" && equationtype.getvalue()=="oddsratio")
+   else if (family.getvalue() == "bivlogit" && equationtype.getvalue()=="oddsratio")
      {
 
      computemodeforstartingvalues = true;
@@ -3181,18 +3091,20 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: bivlogit_or ---------------------------------
 
   // ----------------------------------- bivlogit_mu ----------------------------------
-   else if ((family.getvalue() == "bivlogit_mu") &&
-            ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="mu"))
-           )
+   else if ((family.getvalue() == "bivlogit") && (equationtype.getvalue()=="mu"))
+
      {
 
     // computemodeforstartingvalues = true;
 
      unsigned pos;
-     if (equationtype.getvalue()=="mean")
-       pos = 1;
-     else
+     if (distr_bivlogit_mus.size()==0)
        pos = 0;
+     else
+       {
+       pos = 1;
+       mainequation=true;
+       }
 
      distr_bivlogit_mus.push_back(DISTR_bivlogit_mu(&generaloptions,D.getCol(0),pos,w));
 
@@ -3205,13 +3117,8 @@ bool superbayesreg::create_distribution(void)
        return true;
        }
 
-     if ((equationtype.getvalue()=="mean") && (distr_bivlogit_mus.size() != 2))
-       {
-       outerror("ERROR: Two equations for mus required");
-       return true;
-       }
 
-     if (equationtype.getvalue()=="mean")
+     if (pos==1)
        {
 
 
@@ -3248,9 +3155,10 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: bivlogit_mu ----------------------------------
 
 //----------------------------- dirichlet -------------------------------
-  else if ((family.getvalue() == "dirichlet") && ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="alpha")
+  else if ((family.getvalue() == "dirichlet") && (equationtype.getvalue()=="alpha")
                                 || (equationtype.getvalue()=="alpha2")|| (equationtype.getvalue()=="alpha3")|| (equationtype.getvalue()=="alpha4")
-                                || (equationtype.getvalue()=="alpha5")|| (equationtype.getvalue()=="alpha6")|| (equationtype.getvalue()=="alpha7")))
+                                || (equationtype.getvalue()=="alpha5")|| (equationtype.getvalue()=="alpha6")||
+(equationtype.getvalue()=="alpha7"))
     {
     computemodeforstartingvalues = true;
 
@@ -3272,20 +3180,17 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
 
-    if ((equationtype.getvalue()=="mean") && (distr_dirichlets.size() < 2 | distr_dirichlets.size()>10))
+    if (distr_dirichlets.size()>10)
        {
        outerror("ERROR: Number of equations has to be between 2 and 10");
        return true;
        }
 
-   if ((equationtype.getvalue()=="mean") && (distr_dirichlets.size() != (nrc)))
-       {
-       outerror("ERROR: Number of equations has to be equal to number of categories");
-       return true;
-       }
 
-   if (equationtype.getvalue()=="mean")
+   if (distr_dirichlets.size() == nrc)
        {
+
+       mainequation=true;
 
            unsigned i;
            for(i=(nrc);i>0;i--)
@@ -3312,7 +3217,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: dirichlet -----------------------------
 
  //---------------------------------- gengamma tau -----------------------------------
-   else if (family.getvalue() == "gengamma_tau" && equationtype.getvalue()=="shape2")
+   else if (family.getvalue() == "gengamma" && equationtype.getvalue()=="tau")
      {
 
      computemodeforstartingvalues = true;
@@ -3326,7 +3231,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: gengamma tau ---------------------------------
 
  //---------------------------------- gengamma sigma --------------------------------
-   else if (family.getvalue() == "gengamma_sigma" && equationtype.getvalue()=="shape1")
+   else if (family.getvalue() == "gengamma" && equationtype.getvalue()=="sigma")
      {
 
      computemodeforstartingvalues = true;
@@ -3341,9 +3246,10 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- gengamma mu ----------------------------------
-   else if (family.getvalue() == "gengamma_mu" && equationtype.getvalue()=="mean")
+   else if (family.getvalue() == "gengamma" && equationtype.getvalue()=="mu")
      {
 
+     mainequation=true;
      computemodeforstartingvalues = true;
 
      distr_gengamma_mus.push_back(DISTR_gengamma_mu(&generaloptions,D.getCol(0),w));
@@ -3390,7 +3296,7 @@ bool superbayesreg::create_distribution(void)
 
 
   //-------------------------------- pareto_p ---------------------------------
-  else if (family.getvalue() == "pareto_p" && equationtype.getvalue()=="shape")
+  else if (family.getvalue() == "pareto" && equationtype.getvalue()=="p")
     {
 
     computemodeforstartingvalues = true;
@@ -3407,8 +3313,10 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- pareto_b ------------------------------------
-  else if (family.getvalue() == "pareto_b" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "pareto" && equationtype.getvalue()=="b")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3438,7 +3346,7 @@ bool superbayesreg::create_distribution(void)
 
 
  //-------------------------------- weibull_alpha ---------------------------------
-  else if (family.getvalue() == "weibull_alpha" && equationtype.getvalue()=="shape")
+  else if (family.getvalue() == "weibull" && equationtype.getvalue()=="alpha")
     {
 
     computemodeforstartingvalues = true;
@@ -3455,8 +3363,10 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- weibull_lambda ------------------------------------
-  else if (family.getvalue() == "weibull_lambda" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "weibull" && equationtype.getvalue()=="lambda")
     {
+
+     mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3484,11 +3394,8 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: weibull_lambda -------------------------------
 
-
-
-
 //-------------------------------- gamma_sigma ---------------------------------
-  else if (family.getvalue() == "gamma_sigma" && equationtype.getvalue()=="shape")
+  else if (family.getvalue() == "gamma" && equationtype.getvalue()=="sigma")
     {
 
     computemodeforstartingvalues = true;
@@ -3505,10 +3412,11 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- gamma_mu ------------------------------------
-  else if ((family.getvalue() == "gamma_mu") &&
-          ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
+  else if ((family.getvalue() == "gamma") && ((equationtype.getvalue()=="mu"))
           )
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3537,7 +3445,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: gamma_mu -------------------------------
 
 //-------------------------------- invgaussian sigma2 ---------------------------------
-  else if (family.getvalue() == "invgaussian_sigma2" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "invgaussian" && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
@@ -3553,10 +3461,11 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: invgaussian sigma2 -------------------------------
 
 //------------------------------- invgaussian mu ------------------------------------
-  else if ((family.getvalue() == "invgaussian_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
-          )
+  else if ((family.getvalue() == "invgaussian") && (equationtype.getvalue()=="mu"))
+
     {
+
+     mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3585,107 +3494,8 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: invgaussian mu -------------------------------
 
 
-
-//-------------------------------- lognormal2 sigma ---------------------------------
-  else if (family.getvalue() == "lognormal2_sigma" && equationtype.getvalue()=="scale")
-    {
-
-    computemodeforstartingvalues = true;
-
-    distr_lognormal2_sigmas.push_back(DISTR_lognormal2_sigma(&generaloptions,D.getCol(0),w));
-
-    equations[modnr].distrp = &distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1];
-    equations[modnr].pathd = "";
-
-    predict_mult_distrs.push_back(&distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1]);
-
-    }
-//---------------------------- END: lognormal2 sigma -------------------------------
-
-//------------------------------- lognormal2 mu ------------------------------------
-  else if ((family.getvalue() == "lognormal2_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
-          )
-    {
-
-    computemodeforstartingvalues = true;
-
-    distr_lognormal2_mus.push_back(DISTR_lognormal2_mu(&generaloptions,D.getCol(0),w));
-
-    equations[modnr].distrp = &distr_lognormal2_mus[distr_lognormal2_mus.size()-1];
-    equations[modnr].pathd = "";
-
-    predict_mult_distrs.push_back(&distr_lognormal2_mus[distr_lognormal2_mus.size()-1]);
-
-    if (distr_lognormal2_sigmas.size() != 1)
-      {
-      outerror("ERROR: Equation for sigma is missing");
-      return true;
-      }
-    else
-      {
-      distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1].distrp.push_back
-      (&distr_lognormal2_mus[distr_lognormal2_mus.size()-1]);
-
-      distr_lognormal2_mus[distr_lognormal2_mus.size()-1].distrp.push_back
-      (&distr_lognormal2_sigmas[distr_lognormal2_sigmas.size()-1]);
-      }
-
-    }
-//------------------------------- END: lognormal2 mu -------------------------------
-
-
-//-------------------------------- lognormal sigma2 ---------------------------------
-  else if (family.getvalue() == "lognormal_sigma2" && equationtype.getvalue()=="scale")
-    {
-
-    computemodeforstartingvalues = true;
-
-    distr_lognormal_sigma2s.push_back(DISTR_lognormal_sigma2(&generaloptions,D.getCol(0),w));
-
-    equations[modnr].distrp = &distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1];
-    equations[modnr].pathd = "";
-
-    predict_mult_distrs.push_back(&distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1]);
-
-    }
-//---------------------------- END: lognormal sigma2 -------------------------------
-
-//------------------------------- lognormal mu ------------------------------------
-  else if ((family.getvalue() == "lognormal_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
-          )
-    {
-
-    computemodeforstartingvalues = true;
-
-    distr_lognormal_mus.push_back(DISTR_lognormal_mu(&generaloptions,D.getCol(0),w));
-
-    equations[modnr].distrp = &distr_lognormal_mus[distr_lognormal_mus.size()-1];
-    equations[modnr].pathd = "";
-
-    predict_mult_distrs.push_back(&distr_lognormal_mus[distr_lognormal_mus.size()-1]);
-
-    if (distr_lognormal_sigma2s.size() != 1)
-      {
-      outerror("ERROR: Equation for sigma2 is missing");
-      return true;
-      }
-    else
-      {
-      distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1].distrp.push_back
-      (&distr_lognormal_mus[distr_lognormal_mus.size()-1]);
-
-      distr_lognormal_mus[distr_lognormal_mus.size()-1].distrp.push_back
-      (&distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1]);
-      }
-
-    }
-//------------------------------- END: lognormal mu -------------------------------
-
-
 //-------------------------------- truncnormal2 sigma ---------------------------------
-  else if (family.getvalue() == "truncnormal2_sigma" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "truncnormal2" && equationtype.getvalue()=="sigma")
     {
 
     computemodeforstartingvalues = true;
@@ -3701,10 +3511,11 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: truncnormal2 sigma -------------------------------
 
 //------------------------------- truncnormal2 mu ------------------------------------
-  else if ((family.getvalue() == "truncnormal2_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
-          )
+  else if ((family.getvalue() == "truncnormal2") && (equationtype.getvalue()=="mu"))
+
     {
+
+     mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3734,7 +3545,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- normal2 sigma ---------------------------------
-  else if (family.getvalue() == "normal2_sigma" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "normal2" && equationtype.getvalue()=="sigma")
     {
 
     computemodeforstartingvalues = true;
@@ -3750,10 +3561,11 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: normal2 sigma -------------------------------
 
 //------------------------------- normal2 mu ------------------------------------
-  else if ((family.getvalue() == "normal2_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
-          )
+  else if ((family.getvalue() == "normal2") && (equationtype.getvalue()=="mu"))
+
     {
+
+     mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3781,57 +3593,8 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: normal2 mu -------------------------------
 
-
-
-//-------------------------------- normal sigma2 ---------------------------------
-  else if (family.getvalue() == "normal_sigma2" && equationtype.getvalue()=="scale")
-    {
-
-    computemodeforstartingvalues = true;
-
-    distr_normal_sigma2s.push_back(DISTR_normal_sigma2(&generaloptions,D.getCol(0),w));
-
-    equations[modnr].distrp = &distr_normal_sigma2s[distr_normal_sigma2s.size()-1];
-    equations[modnr].pathd = "";
-
-    }
-//---------------------------- END: normal sigma2 -------------------------------
-
-//------------------------------- normal mu ------------------------------------
-  else if ((family.getvalue() == "normal_mu") &&
-           ((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant") || (equationtype.getvalue()=="mu"))
-          )
-    {
-
-    computemodeforstartingvalues = true;
-
-    distr_normal_mus.push_back(DISTR_normal_mu(&generaloptions,D.getCol(0),w));
-
-    equations[modnr].distrp = &distr_normal_mus[distr_normal_mus.size()-1];
-    equations[modnr].pathd = "";
-
-    if ((distr_normal_sigma2s.size() != 1) && (distr_normal_mus.size() == 1))
-      {
-      outerror("ERROR: Equation for sigma2 is missing");
-      return true;
-      }
-    else if((equationtype.getvalue()=="mean") || (equationtype.getvalue()=="meanservant"))
-      {
-      predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
-      predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
-      distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back
-      (&distr_normal_mus[distr_normal_mus.size()-1]);
-
-      distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back
-      (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
-      }
-
-    }
-//------------------------------- END: normal mu -------------------------------
-
-
 //-------------------------------- beta sigma2 ---------------------------------
-  else if (family.getvalue() == "beta_sigma2" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "beta" && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
@@ -3847,61 +3610,43 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: beta sigma2 -------------------------------
 
 //------------------------------- beta mu ------------------------------------
-  else if (family.getvalue() == "beta_mu")
+  else if ( (family.getvalue() == "beta") && (equationtype.getvalue()=="mu"))
     {
 
-    if (equationtype.getvalue()=="mean")
-    {
-        computemodeforstartingvalues = true;
+    mainequation=true;
 
-        distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+    computemodeforstartingvalues = true;
 
-        equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
-        equations[modnr].pathd = "";
+    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
 
-        predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].pathd = "";
 
-        if (distr_beta_sigma2s.size() != 1)
-        {
-        outerror("ERROR: Equation for sigma2 is missing");
-        return true;
-        }
-        else
-        {
-        distr_beta_sigma2s[distr_beta_sigma2s.size()-1].distrp.push_back
-        (&distr_beta_mus[distr_beta_mus.size()-1]);
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
 
-        distr_beta_mus[distr_beta_mus.size()-1].distrp.push_back
-        (&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
-        }
-    }
-    else if (equationtype.getvalue()=="location")
-    {
-        computemodeforstartingvalues = true;
-
-        distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
-
-        equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
-        equations[modnr].pathd = "";
-
-        predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
-
-
-
-    }
+    if (distr_beta_sigma2s.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
     else
-    {
-       outerror("ERROR: Wrong model specification equationtype does not fit with family");
-        return true;
-    }
+      {
+      distr_beta_sigma2s[distr_beta_sigma2s.size()-1].distrp.push_back
+       (&distr_beta_mus[distr_beta_mus.size()-1]);
 
+      distr_beta_mus[distr_beta_mus.size()-1].distrp.push_back
+       (&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+      }
 
     }
 //------------------------------- END: beta mu -------------------------------
 
 //----------------------------- cloglog -------------------------------
-  else if (family.getvalue() == "cloglog") //&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
+  else if (family.getvalue() == "binomial_cloglog") //&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_cloglogs.push_back(DISTR_cloglog(&generaloptions,D.getCol(0),w));
@@ -3915,7 +3660,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: cloglog -----------------------------
 
 //-------------------------------- claytoncopula2_normal sigma2 ---------------------------------
-  else if (family.getvalue() == "claytoncopula2_normal_sigma2" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "claytoncopula2_normal" && equationtype.getvalue()=="sigma2")
     {
 
 	unsigned pos;
@@ -3942,7 +3687,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: claytoncopula2_normal sigma2 -------------------------------
 
 //------------------------------- claytoncopula2_normal mu ------------------------------------
-  else if ((family.getvalue() == "claytoncopula2_normal_mu") && equationtype.getvalue()=="mu")
+  else if ((family.getvalue() == "claytoncopula2_normal") && (equationtype.getvalue()=="mu"))
     {
 
 	unsigned pos;
@@ -3968,8 +3713,11 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: claytoncopula2_normal mu -------------------------------
 
 //----------------------------- claytoncopula2_rho ----------------------
-  else if (family.getvalue() == "claytoncopula2_rho")
+  else if ((family.getvalue() == "claytoncopula2_rho") && ((equationtype.getvalue()=="rho")))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_claytoncopula2_rhos.push_back(DISTR_claytoncopula2_rho(&generaloptions,D.getCol(0),w));
@@ -4100,8 +3848,11 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- claytoncopula_rho ----------------------
-  else if (family.getvalue() == "claytoncopula_rho")
+  else if ( (family.getvalue() == "claytoncopula") && ((equationtype.getvalue()=="rho")))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_claytoncopula_rhos.push_back(DISTR_claytoncopula_rho(&generaloptions,D.getCol(0),w));
@@ -4147,7 +3898,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- gumbelcopula2_normal sigma2 ---------------------------------
-  else if (family.getvalue() == "gumbelcopula2_normal_sigma2" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "gumbelcopula2_normal" && equationtype.getvalue()=="sigma2")
     {
 
 	unsigned pos;
@@ -4174,7 +3925,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: gumbelcopula2_normal sigma2 -------------------------------
 
 //------------------------------- gumbelcopula2_normal mu ------------------------------------
-  else if ((family.getvalue() == "gumbelcopula2_normal_mu") && equationtype.getvalue()=="mu")
+  else if ((family.getvalue() == "gumbelcopula2_normal") && equationtype.getvalue()=="mu")
     {
 
 	unsigned pos;
@@ -4200,8 +3951,11 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: gumbelcopula2_normal mu -------------------------------
 
 //----------------------------- gumbelcopula2_rho ----------------------
-  else if (family.getvalue() == "gumbelcopula2_rho")
+  else if ((family.getvalue() == "gumbelcopula2_normal") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_gumbelcopula2_rhos.push_back(DISTR_gumbelcopula2_rho(&generaloptions,D.getCol(0),w));
@@ -4333,8 +4087,11 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- gumbelcopula_rho ----------------------
-  else if (family.getvalue() == "gumbelcopula_rho")
+  else if ((family.getvalue() == "gumbelcopula") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_gumbelcopula_rhos.push_back(DISTR_gumbelcopula_rho(&generaloptions,D.getCol(0),w));
@@ -4379,8 +4136,11 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: gumbelcopula_rho ---------------------
 
 //----------------------------- gumbelcopula2_rho ----------------------
-  else if (family.getvalue() == "gumbelcopula2_rho")
+  else if ((family.getvalue() == "gumbelcopula2_rho") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_gumbelcopula2_rhos.push_back(DISTR_gumbelcopula2_rho(&generaloptions,D.getCol(0),w));
@@ -4425,8 +4185,11 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- gaussiancopula_rho ----------------------
-  else if (family.getvalue() == "gaussiancopula_rho")
+  else if ((family.getvalue() == "gaussiancopula_rho") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_gaussiancopula_rhos.push_back(DISTR_gaussiancopula_rho(&generaloptions,D.getCol(0),w));
@@ -4471,8 +4234,10 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: gaussiancopula_rho ---------------------
 
 //----------------------------- gaussiancopula_rhofz ----------------------
-  else if (family.getvalue() == "gaussiancopula_rhofz")
+  else if ((family.getvalue() == "gaussiancopula_rhofz") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
     computemodeforstartingvalues = true;
 
     distr_gaussiancopula_rhofzs.push_back(DISTR_gaussiancopula_rhofz(&generaloptions,D.getCol(0),w));
@@ -4518,7 +4283,7 @@ bool superbayesreg::create_distribution(void)
 
 
 // ----------------------------------- tcopula_df ----------------------
-   else if ((family.getvalue() == "tcopula_df"))
+   else if ((family.getvalue() == "tcopula") && (equationtype.getvalue()=="df"))
      {
 
     // computemodeforstartingvalues = true;
@@ -4539,8 +4304,10 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: tcopula_df ---------------------------
 
 //----------------------------- tcopula_rho ----------------------
-  else if (family.getvalue() == "tcopula_rho")
+  else if ((family.getvalue() == "tcopula") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
     computemodeforstartingvalues = true;
 
     distr_tcopula_rhos.push_back(DISTR_tcopula_rho(&generaloptions,D.getCol(0),w));
@@ -4572,7 +4339,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- frankcopula2_normal sigma2 ---------------------------------
-  else if (family.getvalue() == "frankcopula2_normal_sigma2" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "frankcopula2_normal" && equationtype.getvalue()=="sigma2")
     {
 
 	unsigned pos;
@@ -4599,7 +4366,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: frankcopula2_normal sigma2 -------------------------------
 
 //------------------------------- frankcopula2_normal mu ------------------------------------
-  else if ((family.getvalue() == "frankcopula2_normal_mu") && equationtype.getvalue()=="mu")
+  else if ((family.getvalue() == "frankcopula2_normal") && equationtype.getvalue()=="mu")
     {
 
 	unsigned pos;
@@ -4625,8 +4392,10 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: frankcopula2_normal mu -------------------------------
 
 //----------------------------- frankcopula2_rho ----------------------
-  else if (family.getvalue() == "frankcopula2_rho")
+  else if ((family.getvalue() == "frankcopula2") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
     computemodeforstartingvalues = true;
 
     distr_frankcopula2_rhos.push_back(DISTR_frankcopula2_rho(&generaloptions,D.getCol(0),w));
@@ -4890,8 +4659,11 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- frankcopula_rho ----------------------
-  else if (family.getvalue() == "frankcopula_rho")
+  else if ((family.getvalue() == "frankcopula") && (equationtype.getvalue()=="rho"))
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_frankcopula_rhos.push_back(DISTR_frankcopula_rho(&generaloptions,D.getCol(0),w));
@@ -5007,7 +4779,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: copula ---------------------------
 
 //---------------------------------- ZIP pi ------------------------------------
-  else if (family.getvalue() == "zip_pi" && equationtype.getvalue()=="pi")
+  else if (family.getvalue() == "zip" && equationtype.getvalue()=="pi")
     {
 
     computemodeforstartingvalues = true;
@@ -5023,8 +4795,10 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: ZIP pi ----------------------------------
 
 //-------------------------------- ZIP lambda ----------------------------------
-  else if (family.getvalue() == "zip_lambda" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "zip" && equationtype.getvalue()=="lambda")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -5055,7 +4829,7 @@ bool superbayesreg::create_distribution(void)
 
 
  //-------------------------------- hurdle_pi ---------------------------------
-  else if (family.getvalue() == "hurdle_pi" && equationtype.getvalue()=="pi")
+  else if (family.getvalue() == "hurdle" && equationtype.getvalue()=="pi")
     {
 
     computemodeforstartingvalues = true;
@@ -5072,8 +4846,10 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- hurdle_lambda ------------------------------------
-  else if (family.getvalue() == "hurdle_lambda" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "hurdle_poisson" && equationtype.getvalue()=="lambda")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -5103,7 +4879,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: hurdle_lambda -------------------------------
 
 //-------------------------------- hurdle delta --------------------------------
-  else if (family.getvalue() == "hurdle_delta" && equationtype.getvalue()=="delta")
+  else if (family.getvalue() == "hurdle_negbin" && equationtype.getvalue()=="delta")
     {
 
     computemodeforstartingvalues = true;
@@ -5124,8 +4900,10 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: hurdle delta -------------------------------
 
 //------------------------------- hurdle mu ------------------------------------
-  else if (family.getvalue() == "hurdle_mu" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "hurdle_negbin" && equationtype.getvalue()=="mu")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -5222,7 +5000,7 @@ bool superbayesreg::create_distribution(void)
 
 
  //---------------------------------- BCCG_nu -----------------------------------
-   else if (family.getvalue() == "BCCG_nu" && equationtype.getvalue()=="nu")
+   else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="nu")
      {
 
      computemodeforstartingvalues = true;
@@ -5236,7 +5014,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------- END: BCCG_nu ---------------------------------
 
  //---------------------------------- BCCG_sigma --------------------------------
-   else if (family.getvalue() == "BCCG_sigma" && equationtype.getvalue()=="scale")
+   else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="sigma")
      {
 
      computemodeforstartingvalues = true;
@@ -5251,8 +5029,11 @@ bool superbayesreg::create_distribution(void)
 
 
  // ----------------------------------- BCCG_mu ----------------------------------
-   else if (family.getvalue() == "BCCG_mu" && equationtype.getvalue()=="mean")
+   else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="mu")
      {
+
+    mainequation=true;
+
 
      computemodeforstartingvalues = true;
 
@@ -5333,7 +5114,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- sfa0_mu_y ------------------------------------
-  else if (family.getvalue() == "sfa0_mu_y" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "sfa0_mu_y" && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -5455,7 +5236,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- sfa_mu_y ------------------------------------
-  else if (family.getvalue() == "sfa_mu_y" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "sfa_mu_y" && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -5579,7 +5360,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- sfa_mu_y_id ------------------------------------
-  else if (family.getvalue() == "sfa_mu_y_id" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "sfa_mu_y_id" && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -5736,7 +5517,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- sfa2_mu_y ------------------------------------
-  else if (family.getvalue() == "sfa2_mu_y" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "sfa2_mu_y" && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -5831,7 +5612,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- sfa2_mu_y_id ------------------------------------
-  else if (family.getvalue() == "sfa2_mu_y_id" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "sfa2_mu_y_id" && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -5907,7 +5688,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: sfa2_mu_y_id -------------------------------
 
 //-------------------------------- ZIP pi cloglog ------------------------------
-  else if (family.getvalue() == "zip_pi_cloglog" && equationtype.getvalue()=="pi")
+  else if (family.getvalue() == "zip_cloglog" && equationtype.getvalue()=="pi")
     {
 
     computemodeforstartingvalues = true;
@@ -5924,8 +5705,10 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------ ZIP lambda cloglog ----------------------------
-  else if (family.getvalue() == "zip_lambda_cloglog" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "zip_cloglog" && equationtype.getvalue()=="lambda")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -5955,7 +5738,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------- multinomial probit response --------------------------
-  else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="meanservant")
+  else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="servant")
     {
 
     computemodeforstartingvalues = true;
@@ -5967,8 +5750,10 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
     }
-  else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "multinom_probit" && equationtype.getvalue()=="main")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
     unsigned cat = distr_multinomprobits.size();
@@ -5994,7 +5779,7 @@ bool superbayesreg::create_distribution(void)
 //--------------------- END: multinomial probit response -----------------------
 
 //----------------------- multivariate gaussian response -----------------------
-  else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="meanservant")
+  else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="servant")
     {
 
     computemodeforstartingvalues = true;
@@ -6015,8 +5800,10 @@ bool superbayesreg::create_distribution(void)
     predict_mult_distrs.push_back(&distr_multgaussians[distr_multgaussians.size()-1]);
 
     }
-  else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "multgaussian" && equationtype.getvalue()=="main")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
     unsigned cat = distr_multgaussians.size();
@@ -6051,7 +5838,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------- multinomial logit response ---------------------------
-  else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="meanservant")
+  else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="servant")
     {
 
     computemodeforstartingvalues = true;
@@ -6063,8 +5850,10 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].pathd = "";
 
     }
-  else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "multinom_logit" && equationtype.getvalue()=="main")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
     unsigned cat = distr_multinomlogits.size();
@@ -6093,6 +5882,9 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- Poisson response -------------------------------
   else if (family.getvalue() == "poisson")
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_poissons.push_back(DISTR_poisson(&generaloptions,D.getCol(0),w));
@@ -6106,6 +5898,9 @@ bool superbayesreg::create_distribution(void)
 //-------------- Poisson response with extended response function---------------
   else if (family.getvalue() == "poisson_ext")
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_poisson_exts.push_back(DISTR_poisson_ext(
@@ -6121,6 +5916,9 @@ bool superbayesreg::create_distribution(void)
 //---- Poisson response with extended response function, linear for eta > 0-----
   else if (family.getvalue() == "poisson_extlin")
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_poisson_extlins.push_back(DISTR_poisson_extlin(
@@ -6134,8 +5932,11 @@ bool superbayesreg::create_distribution(void)
 //-- End: Poisson response with extended response function, linear for eta > 0--
 
 //-------------------------- log-Gaussian response -----------------------------
-  else if (family.getvalue() == "loggaussian")
+  else if (((family.getvalue() == "loggaussian") || (family.getvalue() == "lognormal"))
+           && (distr_lognormal_sigma2s.size()==0) )
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -6158,6 +5959,8 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- quantreg response ------------------------------
   else if (family.getvalue() == "quantreg")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -6182,6 +5985,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "gaussian_mixture")
     {
 
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
 #if defined(__BUILDING_LINUX)
@@ -6203,6 +6008,8 @@ bool superbayesreg::create_distribution(void)
 //--------------- Gaussian response, exponential response function -------------
   else if (family.getvalue() == "gaussian_exp")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -6260,6 +6067,8 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "binomial_logit")
     {
 
+    mainequation=true;
+
     computemodeforstartingvalues = true;
 
     distr_binomials.push_back(DISTR_binomial(&generaloptions,D.getCol(0),w));
@@ -6272,6 +6081,8 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- Binomial response probit-------------------------
   else if (family.getvalue() == "binomial_probit")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -6292,6 +6103,9 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- Binomial response SVM ---------------------------
   else if (family.getvalue() == "binomial_svm")
     {
+
+    mainequation=true;
+
     computemodeforstartingvalues = false;
 
     distr_binomialsvms.push_back(DISTR_binomialsvm(
@@ -6305,6 +6119,8 @@ bool superbayesreg::create_distribution(void)
 //----------------------- Binomial response logit fruehwirth--------------------
   else if (family.getvalue() == "binomial_logit_l1")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
