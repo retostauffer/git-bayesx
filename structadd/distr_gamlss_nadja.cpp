@@ -5730,7 +5730,7 @@ DISTR_normal2_sigma::DISTR_normal2_sigma(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Normal2 Distribution - sigma";
+  family = "Normal Distribution - sigma";
 
   outpredictor = true;
   outexpectation = false;
@@ -5907,7 +5907,7 @@ DISTR_normal2_mu::DISTR_normal2_mu(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "Normal2 Distribution - mu";
+  family = "Normal Distribution - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
