@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"GENERAL_OPTIONS.h"
 #include"FC.h"
 #include"distr.h"
-
+#include "gsl_randist.h"
 
 namespace MCMC
 {
