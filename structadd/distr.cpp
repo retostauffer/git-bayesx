@@ -1074,7 +1074,7 @@ DISTR_gaussian::DISTR_gaussian(const double & a,
   double h = sqrt(response.var(0,weight));
   b_invgamma = b*h;
   trmult = h;
-  family = "Gaussian";
+  family = "Normal distribution with homoscedastic variance";
 
   FCsigma2 = FC(o,"",1,1,ps);
 
