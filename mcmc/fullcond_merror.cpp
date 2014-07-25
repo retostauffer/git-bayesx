@@ -511,8 +511,8 @@ namespace MCMC
 
         logold += likep->loglikelihood(k,k,inde,true);
 
- 	    help = e(k,0);
-        help = help/=drows;
+ 	      help = e(k,0);
+        help = help/drows;
 
         propold = proposalold(k,0);
         propold = propold*help;
