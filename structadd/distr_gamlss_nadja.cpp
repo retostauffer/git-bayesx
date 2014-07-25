@@ -20441,7 +20441,7 @@ double DISTR_hurdle_mu::cdf_mult(vector<double *> response,
   //  double r = (*param[0]);
   //  double u = gsl_cdf_negative_binomial_P(*response[1], p, r);
   //  return u;
- //   return 0;
+      return 0.0;
     }
 
 
