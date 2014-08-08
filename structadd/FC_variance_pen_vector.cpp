@@ -145,11 +145,15 @@ void FC_variance_pen_vector::add_variable(datamatrix & x,vector<ST::string> & op
 FC_variance_pen_vector::FC_variance_pen_vector(MASTER_OBJ * mp,
                         GENERAL_OPTIONS * o, FC_linear_pen * p,
                         DISTR * d,const ST::string & ti,
-                        const ST::string & fp, bool isr)
+                        const ST::string & fp, shrinktype sh)
                         :FC(o,ti,1,1,fp)
   {
 
-  is_ridge = isr;
+  shtype = sh;
+  if (shtype==ridge)
+    is_ridge = true;
+  else
+    is_ridge = false;
 
   update_sigma2 = true;
 
@@ -589,6 +593,161 @@ void FC_variance_pen_vector::outoptions(void)
     }
 
   }
+
+
+
+
+//--------------------------------------------------------------------------------------------------------------
+//-------------------------------------- FC_variance_pen_vector_ssvs -------------------------------------------
+//--------------------------------------------------------------------------------------------------------------
+
+
+
+void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string> & op,
+                                               vector<ST::string> & vn)
+  {
+
+  int f;
+  double a,b;
+
+  f = op[5].strtodouble(a);
+  f = op[6].strtodouble(b);
+  atau2.push_back(a);
+  btau2.push_back(b);
+  tau2.push_back(FC(optionsp,"",1,1,""));
+  tau2[tau2.size()-1].setbeta(1,1,0.1);
+
+  delta.push_back(FC(optionsp,"",1,1,""));
+  delta[delta.size()-1].setbeta(1,1,1);
+
+  nrpen++;
+
+  Cp->tau2 = datamatrix(nrpen,1,0);
+  Cp->tau2oldinv = datamatrix(nrpen,1,0);
+  for(int i=0;i<nrpen;i++)
+    {
+    Cp->tau2(i,0) = tau2[i].beta(0,0);
+    }
+  }
+
+
+
+FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
+                        GENERAL_OPTIONS * o, FC_linear_pen * p,
+                        DISTR * d,const ST::string & ti,
+                        const ST::string & fp)
+                        :FC(o,ti,1,1,fp)
+  {
+
+  Cp = p;
+
+  distrp = d;
+
+  nrpen = 0;
+
+  }
+//______________________________________________________________________________
+//
+// COPY CONSTRUCTOR
+//______________________________________________________________________________
+
+FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_vector_ssvs & t)
+    : FC(FC(t))
+  {
+
+  nrpen = t.nrpen;
+
+  distrp = t.distrp;
+  Cp = t.Cp;
+
+  tau2 = t.tau2;
+  delta = t.delta;
+  atau2 = t.atau2;
+  btau2 = t.btau2;
+  theta = t.theta;
+  atheta = t.atheta;
+  btheta = t.btheta;
+
+  }
+
+
+const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const FC_variance_pen_vector_ssvs & t)
+  {
+  if (this == &t)
+    return *this;
+  FC::operator=(FC(t));
+
+  nrpen = t.nrpen;
+
+  distrp = t.distrp;
+  Cp = t.Cp;
+
+  tau2 = t.tau2;
+  delta = t.delta;
+  atau2 = t.atau2;
+  btau2 = t.btau2;
+  theta = t.theta;
+  atheta = t.atheta;
+  btheta = t.btheta;
+
+  return *this;
+  }
+
+
+bool FC_variance_pen_vector_ssvs::posteriormode(void)
+  {
+
+  /*
+  shelp(1,0) = double(tau2.size());
+
+  datamatrix tau2inv(tau2.size(),1,0);
+  unsigned i;
+  for (i=0;i<tau2inv.rows();i++)
+    tau2inv(i,0) = 1/tau2[i];
+
+  setbeta(tau2inv);
+  */
+
+  return true;
+  }
+
+
+void FC_variance_pen_vector_ssvs::update(void)
+  {
+
+
+  }
+
+
+
+void FC_variance_pen_vector_ssvs::get_samples(const ST::string & filename,ofstream & outg) const
+  {
+
+  /*
+  FC::get_samples(filename,outg);
+
+  ST::string pathhelp = filename.substr(0,filename.length()-14)+"shrinkage_sample.raw";
+
+  FC_shrinkage.get_samples(pathhelp,outg);
+  */
+
+  }
+
+
+void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & out_R,
+                                             const ST::string & pathresults)
+  {
+
+
+  }
+
+
+void FC_variance_pen_vector_ssvs::outoptions(void)
+  {
+
+
+  }
+
 
 
 } // end: namespace MCMC

@@ -211,6 +211,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("hrandomexp_pspline");
   tnames.push_back("ridge");
   tnames.push_back("lasso");
+  tnames.push_back("ssvs");
   tnames.push_back("offset");
 
 
@@ -1190,9 +1191,12 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   ridge = b.ridge;
   lasso = b.lasso;
+  ssvs  = b.ssvs;
   ridge_linear = b.ridge_linear;
   lasso_linear = b.lasso_linear;
+  ssvs_linear = b.ssvs_linear;
   FC_variance_pen_vectors = b.FC_variance_pen_vectors;
+  FC_variance_pen_vector_ssvss = b.FC_variance_pen_vector_ssvss;
   FC_linear_pens = b.FC_linear_pens;
 
   design_hrandoms = b.design_hrandoms;
@@ -1379,9 +1383,12 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   ridge = b.ridge;
   lasso = b.lasso;
+  ssvs = b.ssvs;
   ridge_linear = b.ridge_linear;
   lasso_linear = b.lasso_linear;
+  ssvs_linear = b.ssvs_linear;
   FC_variance_pen_vectors = b.FC_variance_pen_vectors;
+  FC_variance_pen_vector_ssvss = b.FC_variance_pen_vector_ssvss;
   FC_linear_pens = b.FC_linear_pens;
 
   design_hrandoms = b.design_hrandoms;
@@ -6988,14 +6995,20 @@ bool superbayesreg::create_geokriging(unsigned i)
 
 bool superbayesreg::create_ridge_lasso(unsigned i)
   {
-  bool isridge;
-  if (terms[i].options[0] == "ridge")
-    isridge = true;
+  MCMC::shrinktype sh;
+
+
+  if (terms[i].options[0]=="ridge")
+    sh = MCMC::ridge;
+  else if (terms[i].options[0]=="lasso")
+    sh = MCMC::lasso;
   else
-    isridge = false;
+    sh = MCMC::ssvs;
+
 
   if ( ( (ridge == -1) && (terms[i].options[0] == "ridge")  ) ||
-       ( (lasso == -1) && (terms[i].options[0] == "lasso")  )
+       ( (lasso == -1) && (terms[i].options[0] == "lasso")  ) ||
+       ( (ssvs == -1) && (terms[i].options[0] == "ssvs")  )
      )
     {
 
@@ -7012,7 +7025,7 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
 
     ST::string h = equations[modnr].paths;
 
-    if (isridge)
+    if (terms[i].options[0] == "ridge")
       {
 
       title = h + ": linear effects with ridge penalty";
@@ -7046,7 +7059,7 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
                    "_LinearEffects_ridgepenalty_var.res";
 
       }
-    else
+    else if (terms[i].options[0] == "lasso")
       {
       title = h + ": linear effects with lasso penalty";
 
@@ -7079,6 +7092,40 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
                    "_LinearEffects_lassopenalty_var.res";
 
       }
+    else
+      {
+      title = h + ": linear effects with ssvs prior";
+
+#if defined(__BUILDING_LINUX)
+      pathpen = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty"  +
+                             "_" + h + ".raw";
+#else
+      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_ssvs"  +
+                             "_" + h + ".raw";
+#endif
+
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ssvs.res";
+
+      titlevar = h + ": linear effects with ssvs prior (var)";
+
+#if defined(__BUILDING_LINUX)
+      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty_var"  +
+                             "_" + h + ".raw";
+#else
+      pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_ssvs_var"  +
+                             "_" + h + ".raw";
+#endif
+
+      pathpenresvar = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ssvs_var.res";
+
+      }
+
 
 
     if (pathpen.isvalidfile() == 1)
@@ -7098,29 +7145,57 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
 
     equations[modnr].add_FC(&FC_linear_pens[FC_linear_pens.size()-1],pathpenres);
 
-    FC_variance_pen_vectors.push_back(
-    FC_variance_pen_vector(&master,&generaloptions,
-                            &(FC_linear_pens[FC_linear_pens.size()-1])  ,
-                            equations[modnr].distrp,titlevar, pathpenvar,
-                            isridge));
+    if (terms[i].options[0] != "ssvs")
+      {
 
-    if (isridge)
+      FC_variance_pen_vectors.push_back(
+      FC_variance_pen_vector(&master,&generaloptions,
+                              &(FC_linear_pens[FC_linear_pens.size()-1])  ,
+                              equations[modnr].distrp,titlevar, pathpenvar,
+                              sh));
+      }
+    else
+      {
+      FC_variance_pen_vector_ssvss.push_back(
+      FC_variance_pen_vector_ssvs(&master,&generaloptions,
+                              &(FC_linear_pens[FC_linear_pens.size()-1])  ,
+                              equations[modnr].distrp,titlevar, pathpenvar));
+      }
+
+
+    if (terms[i].options[0] == "ridge")
       {
       ridge_linear = FC_linear_pens.size()-1;
       ridge = FC_variance_pen_vectors.size()-1;
       FC_variance_pen_vectors[ridge].add_variable(d,terms[i].options,
                                                   terms[i].varnames);
       }
-    else
+    else if (terms[i].options[0] == "lasso")
       {
       lasso_linear = FC_linear_pens.size()-1;
       lasso = FC_variance_pen_vectors.size()-1;
       FC_variance_pen_vectors[lasso].add_variable(d,terms[i].options,
                                                   terms[i].varnames);
       }
+    else
+      {
+      ssvs_linear = FC_linear_pens.size()-1;
+      ssvs = FC_variance_pen_vector_ssvss.size()-1;
+      FC_variance_pen_vector_ssvss[ssvs].add_variable(d,terms[i].options,
+                                                  terms[i].varnames);
+      }
 
-    equations[modnr].add_FC(&FC_variance_pen_vectors[
-    FC_variance_pen_vectors.size()-1],pathpenresvar);
+    if (terms[i].options[0] != "ssvs")
+      {
+      equations[modnr].add_FC(&FC_variance_pen_vectors[
+      FC_variance_pen_vectors.size()-1],pathpenresvar);
+      }
+    else
+      {
+      equations[modnr].add_FC(&FC_variance_pen_vector_ssvss[
+      FC_variance_pen_vector_ssvss.size()-1],pathpenresvar);
+      }
+
 
     }
   else
@@ -7128,16 +7203,22 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
     datamatrix d,iv;
     extract_data(i,d,iv,1);
 
-    if (isridge)
+    if (terms[i].options[0] == "ridge")
       {
       FC_linear_pens[ridge_linear].add_variable(d,terms[i].varnames[0]);
       FC_variance_pen_vectors[ridge].add_variable(d,terms[i].options,
                                                   terms[i].varnames);
       }
-    else
+    else if (terms[i].options[0] == "lasso")
       {
       FC_linear_pens[lasso_linear].add_variable(d,terms[i].varnames[0]);
       FC_variance_pen_vectors[lasso].add_variable(d,terms[i].options,
+                                                  terms[i].varnames);
+      }
+    else
+      {
+      FC_linear_pens[ssvs_linear].add_variable(d,terms[i].varnames[0]);
+      FC_variance_pen_vector_ssvss[ssvs].add_variable(d,terms[i].options,
                                                   terms[i].varnames);
       }
 
@@ -7156,8 +7237,10 @@ bool superbayesreg::create_nonp(void)
 
   lasso = -1;
   ridge = -1;
+  ssvs = -1;
   lasso_linear = -1;
   ridge_linear = -1;
+  ssvs_linear = -1;
 
   for(i=0;i<terms.size();i++)
     {
@@ -7181,6 +7264,8 @@ bool superbayesreg::create_nonp(void)
       if (terms[i].options[0] == "ridge")
         error = create_ridge_lasso(i);
       if (terms[i].options[0] == "lasso")
+        error = create_ridge_lasso(i);
+      if (terms[i].options[0] == "ssvs")
         error = create_ridge_lasso(i);
       }
 

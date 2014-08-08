@@ -218,6 +218,7 @@ using MCMC::FC_nonp_variance;
 using MCMC::FC_nonp_variance_varselection;
 using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
+using MCMC::FC_variance_pen_vector_ssvs;
 using MCMC::FC_nonp_variance_vec;
 using MCMC::FC_hrandom_variance_vec;
 using MCMC::FC_hrandom_variance_vec_nmig;
@@ -577,11 +578,14 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   int ridge;
   int lasso;
+  int ssvs;
   int ridge_linear;
   int lasso_linear;
+  int ssvs_linear;
 
   vector<FC_linear_pen> FC_linear_pens;
   vector<FC_variance_pen_vector> FC_variance_pen_vectors;
+  vector<FC_variance_pen_vector_ssvs> FC_variance_pen_vector_ssvss;
 
   bool create_ridge_lasso(unsigned i);
 

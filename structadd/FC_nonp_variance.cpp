@@ -381,6 +381,9 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
 
   int f;
 
+  f = op[39].strtodouble(a_omega);
+  f = op[40].strtodouble(b_omega);
+
   f = op[41].strtodouble(r);
   }
 
@@ -412,12 +415,6 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
   FC_omega = FC(o,"",1,1,"");
 
   FC_omega.setbeta(1,1,0.5);
-
-
-  a_omega = 1;
-
-  b_omega = 1;
-
 
   v = 5;
 
