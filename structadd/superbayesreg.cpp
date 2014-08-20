@@ -289,9 +289,13 @@ void superbayesreg::create_hregress(void)
   families.push_back("gumbelcopula");
   families.push_back("gumbelcopula2_rho");
   families.push_back("gumbelcopula2_normal_rho");
+  families.push_back("gumbelcopula2_normal_mu");
+  families.push_back("gumbelcopula2_normal_sigma2");
   families.push_back("claytoncopula2_normal");
   families.push_back("claytoncopula2_rho");
   families.push_back("claytoncopula");
+  families.push_back("claytoncopula2_normal_mu");
+  families.push_back("claytoncopula2_normal_sigma2");
   families.push_back("sfa0_sigma_v");
   families.push_back("sfa0_sigma_u");
   families.push_back("sfa0_mu_y");
@@ -309,13 +313,16 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_mu_u_id");
   families.push_back("sfa2_mu_y_id");
   families.push_back("copula");
-  families.push_back("tcopula");
-  families.push_back("hurdle_negbin");
+  families.push_back("tcopula_df");
+  families.push_back("tcopula_rho");
   families.push_back("gaussiancopula_rho");
   families.push_back("gaussiancopula_rhofz");
-  families.push_back("frankcopula");
-  families.push_back("frankcopula2");
-  families.push_back("frankcopula2_normal");
+  families.push_back("frankcopula_rho");
+  families.push_back("frankcopula2_rho");
+  families.push_back("frankcopula2_exp");
+  families.push_back("frankcopula_exp");
+  families.push_back("frankcopula2_normal_mu");
+  families.push_back("frankcopula2_normal_sigma2");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -2187,6 +2194,39 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: betainf_tau -------------------------------
 
+
+//-------------------------------- betainf0_mu ---------------------------------
+  else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="mu")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+
+    }
+//---------------------------- END: betainf_1mu -------------------------------
+
+//-------------------------------- betainf0_mu ---------------------------------
+  else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="mu")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+
+    }
+//---------------------------- END: betainf_1mu -------------------------------
+
 //------------------------------- betainf0_nu ------------------------------------
   else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="nu")
     {
@@ -2226,6 +2266,38 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: betainf0_nu -------------------------------
+
+//-------------------------------- betainf1_mu ---------------------------------
+  else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="mu")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+
+    }
+//---------------------------- END: betainf_1mu -------------------------------
+
+//-------------------------------- betainf1_mu ---------------------------------
+  else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="mu")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+
+    }
+//---------------------------- END: betainf_1mu -------------------------------
 
 //------------------------------- betainf1_tau ------------------------------------
   else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="tau")
@@ -3667,7 +3739,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: cloglog -----------------------------
 
 //-------------------------------- claytoncopula2_normal sigma2 ---------------------------------
-  else if (family.getvalue() == "claytoncopula2_normal" && equationtype.getvalue()=="sigma2")
+  else if (family.getvalue() == "claytoncopula2_normal_sigma2" && equationtype.getvalue()=="sigma2")
     {
 
 	unsigned pos;
@@ -3694,7 +3766,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: claytoncopula2_normal sigma2 -------------------------------
 
 //------------------------------- claytoncopula2_normal mu ------------------------------------
-  else if ((family.getvalue() == "claytoncopula2_normal") && (equationtype.getvalue()=="mu"))
+  else if ((family.getvalue() == "claytoncopula2_normal_mu") && (equationtype.getvalue()=="mu"))
     {
 
 	unsigned pos;
@@ -3855,7 +3927,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- claytoncopula_rho ----------------------
-  else if ( (family.getvalue() == "claytoncopula") && ((equationtype.getvalue()=="rho")))
+  else if ( (family.getvalue() == "claytoncopula_rho") && ((equationtype.getvalue()=="rho")))
     {
 
     mainequation=true;
@@ -3905,7 +3977,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- gumbelcopula2_normal sigma2 ---------------------------------
-  else if (family.getvalue() == "gumbelcopula2_normal" && equationtype.getvalue()=="sigma2")
+  else if (family.getvalue() == "gumbelcopula2_normal_sigma2" && equationtype.getvalue()=="sigma2")
     {
 
 	unsigned pos;
@@ -3932,7 +4004,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: gumbelcopula2_normal sigma2 -------------------------------
 
 //------------------------------- gumbelcopula2_normal mu ------------------------------------
-  else if ((family.getvalue() == "gumbelcopula2_normal") && equationtype.getvalue()=="mu")
+  else if ((family.getvalue() == "gumbelcopula2_normal_mu") && equationtype.getvalue()=="mu")
     {
 
 	unsigned pos;
@@ -3958,7 +4030,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: gumbelcopula2_normal mu -------------------------------
 
 //----------------------------- gumbelcopula2_rho ----------------------
-  else if ((family.getvalue() == "gumbelcopula2_normal") && (equationtype.getvalue()=="rho"))
+  else if ((family.getvalue() == "gumbelcopula2_normal_rho") && (equationtype.getvalue()=="rho"))
     {
 
     mainequation=true;
@@ -4094,7 +4166,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- gumbelcopula_rho ----------------------
-  else if ((family.getvalue() == "gumbelcopula") && (equationtype.getvalue()=="rho"))
+  else if ((family.getvalue() == "gumbelcopula_rho") && (equationtype.getvalue()=="rho"))
     {
 
     mainequation=true;
@@ -4311,7 +4383,7 @@ bool superbayesreg::create_distribution(void)
  //------------------------------ END: tcopula_df ---------------------------
 
 //----------------------------- tcopula_rho ----------------------
-  else if ((family.getvalue() == "tcopula") && (equationtype.getvalue()=="rho"))
+  else if ((family.getvalue() == "tcopula_rho") && (equationtype.getvalue()=="rho"))
     {
 
     mainequation=true;
@@ -4346,7 +4418,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- frankcopula2_normal sigma2 ---------------------------------
-  else if (family.getvalue() == "frankcopula2_normal" && equationtype.getvalue()=="sigma2")
+  else if (family.getvalue() == "frankcopula2_normal_sigma2" && equationtype.getvalue()=="sigma2")
     {
 
 	unsigned pos;
@@ -4373,7 +4445,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: frankcopula2_normal sigma2 -------------------------------
 
 //------------------------------- frankcopula2_normal mu ------------------------------------
-  else if ((family.getvalue() == "frankcopula2_normal") && equationtype.getvalue()=="mu")
+  else if ((family.getvalue() == "frankcopula2_normal_mu") && equationtype.getvalue()=="mu")
     {
 
 	unsigned pos;
@@ -4399,7 +4471,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: frankcopula2_normal mu -------------------------------
 
 //----------------------------- frankcopula2_rho ----------------------
-  else if ((family.getvalue() == "frankcopula2") && (equationtype.getvalue()=="rho"))
+  else if ((family.getvalue() == "frankcopula2_rho") && (equationtype.getvalue()=="rho"))
     {
 
     mainequation=true;
@@ -4533,7 +4605,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- frankcopula2_exp_rho ----------------------
-  else if (family.getvalue() == "frankcopula2_exp" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "frankcopula2_exp_rho" && equationtype.getvalue()=="mean")
     {
     computemodeforstartingvalues = true;
 
@@ -4666,7 +4738,7 @@ bool superbayesreg::create_distribution(void)
 
 
 //----------------------------- frankcopula_rho ----------------------
-  else if ((family.getvalue() == "frankcopula") && (equationtype.getvalue()=="rho"))
+  else if ((family.getvalue() == "frankcopula_rho") && (equationtype.getvalue()=="rho"))
     {
 
     mainequation=true;
@@ -4711,12 +4783,13 @@ bool superbayesreg::create_distribution(void)
             distr_frankcopula_rhos[distr_frankcopula_rhos.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-1]);
 
+
     }
 //-------------------------- END: frankcopula_rho ---------------------
 
 
 //----------------------------- frankcopula_exp_rho ----------------------
-  else if (family.getvalue() == "frankcopula_exp")
+  else if (family.getvalue() == "frankcopula_exp_rho")
     {
     computemodeforstartingvalues = true;
 
