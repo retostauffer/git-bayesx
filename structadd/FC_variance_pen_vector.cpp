@@ -501,7 +501,7 @@ void FC_variance_pen_vector::outresults_shrinkage(const ST::string & pathresults
   if(is_fix==false)
     {
     optionsp->out("\n");
-    optionsp->out("  MAIN_REGRESSOIN: linear effects (shrinkage) \n");
+    optionsp->out("  MAIN_REGRESSION: linear effects (shrinkage) \n");
     optionsp->out("\n");
     ST::string shrinkage_pathresults = pathresults;
     vector<ST::string> vnames;
