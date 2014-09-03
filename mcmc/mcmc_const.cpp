@@ -141,6 +141,9 @@ FULLCOND_const::FULLCOND_const(MCMCoptions * op,const datamatrix & d,
                                const bool & ismcatsp)
                   : FULLCOND(op,t)
   {
+  // ASAN/UBSAN checks
+  interceptyes = false;
+  // end: ASAN/UBSAN checks
 
   // BEGIN: shrinkage
   shrinkage = false;
