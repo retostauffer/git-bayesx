@@ -1619,7 +1619,8 @@ bool remlest::estimate_glm_dispers(const datamatrix resp,
     out("\n");
 
     // test criterion
-    test=((crit1>eps) || (crit2>eps) && (it<(unsigned)maxit));
+    test=(crit1>eps) || (crit2>eps);
+    test = test && (it<(unsigned)maxit);
     if(it>2)
       {
       test = test && crit1<maxchange;
@@ -5495,7 +5496,7 @@ for(i=0; i<nrobs; i++)
                   for(l=ttrunc[i]; l<tright[i]; l++)
                     {
                     help += 0.5*tsteps(l,0) * interactvar(i,fc_pos[xcols+k]) *
-                                (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + (l+1,dm_pos[xcols+k])*baseline(i,l+1));
+                                (t_Z(l,dm_pos[xcols+k])*baseline(i,l) + t_Z(l+1,dm_pos[xcols+k])*baseline(i,l+1));
                     }
                   H(xcols+j,xcols+k) += -help*Z(i,j)*mult_hazard(i,0);
                   }

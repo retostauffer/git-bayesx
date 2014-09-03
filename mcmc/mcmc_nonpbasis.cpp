@@ -400,6 +400,13 @@ void FULLCOND_nonp_basis::set_adaptiv(void)
 
   }
 
+FULLCOND_nonp_basis::FULLCOND_nonp_basis(MCMCoptions * o, const ST::string & ti)
+  : FULLCOND(o,ti)
+  {
+  changingweight = false;
+  interaction=false;
+  polex = false;
+}
 
 
 FULLCOND_nonp_basis::FULLCOND_nonp_basis(MCMCoptions * o,DISTRIBUTION * dp,

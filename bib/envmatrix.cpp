@@ -31,6 +31,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 //----------------------------- Constructor------------------------------------
 //-----------------------------------------------------------------------------
 
+
+template<class T>
+envmatrix<T>::envmatrix(void)
+  {
+  dim = 0;
+
+  // ASAN/UBSAN checks
+  decomposed = false;
+  rational_decomposed = false;
+  // end: ASAN/UBSAN checks
+  }
+
 template<class T>
 envmatrix<T>::envmatrix(const vector<unsigned> &xe, const T v, const unsigned d)
   {
@@ -84,10 +96,10 @@ envmatrix<T>::envmatrix(const statmatrix<T> & X, const double epsilon)
     {
     diag.push_back(X(i,i));
     k=0;
-    for(k; (k<i) && (fabs(X(i,k))<=epsilon); k++)
+    for(; (k<i) && (fabs(X(i,k))<=epsilon); k++)
       {
       }
-    for(k; k<i; k++)
+    for(; k<i; k++)
       {
       env.push_back(X(i,k));
       c++;
@@ -1557,7 +1569,7 @@ void envmatrix<T>::solveL(vector<T> & b)
       if((iband>0) && (last>=l))
         {
         kstop=xenv[i+1]-1;
-        k;
+//        k;
          for(k=xenv[i+1]-iband; k<=kstop; k++)
           {
           s=s-lenv[k]*b[l];
@@ -1915,7 +1927,7 @@ void envmatrix<T>::solveU(vector<T> &b)
         if(iband>0)
           {
           l = xenv[i+1]-iband;
-          k;
+//          k;
           for(k=i-iband; k<i; k++)
             {
             b[k] = b[k] - s*lenv[l];

@@ -83,11 +83,9 @@ class envmatrix
 //----------------------------- Constructor------------------------------------
 //-----------------------------------------------------------------------------
 
-
   // DEFAULT CONSTRUCTOR
 
-  envmatrix(void) { dim = 0; }
-
+  envmatrix(void);
 
   // CONSTRUCTOR1
   // Initializes an enevelope-matrix with dimension d, envelope-structure xenv

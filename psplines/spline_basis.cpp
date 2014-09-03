@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 namespace MCMC
 {
-                            
+
 
 void spline_basis::change_K(void)
   {
@@ -331,6 +331,12 @@ spline_basis::spline_basis(MCMCoptions * o,
   : FULLCOND_nonp_basis(o,ti)
   {
   catspecific = catsp;
+
+  // ASAN/UBSAN checks
+  predictleft=false;
+  predictright=false;
+  approx = false;
+  // end: ASAN/UBSAN checks
 
   pseudocontourprob = false;
 
@@ -3945,7 +3951,7 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
           j++;
           }
         }
-      }  
+      }
     for(j=0; j<nr; j++)
       {
 //      betarefmean(j,0)=betarefmean(j,0)-mean;

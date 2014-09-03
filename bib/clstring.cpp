@@ -545,7 +545,7 @@ int string::lowestprecedencepos(string & sign) const
 		  }
 		i++;
 		}
-	 else if ( (str[i] == '^') )
+	 else if (str[i] == '^')
 		{
 		if (minp >= 5)
 		  {

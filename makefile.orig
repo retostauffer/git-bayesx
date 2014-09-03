@@ -144,7 +144,7 @@ SRC = \
 
 OBJ = $(patsubst %.cpp,%.o,$(SRC))
 
-INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"
+INCS =  -I. -I"bib"  -I"alex"  -I"adaptiv"  -I"andrea"  -I"dag"  -I"graph"  -I"mcmc"  -I"psplines"  -I"samson"  -I"leyre"  -I"structadd"  -I"/usr/local/include"
 CXXINCS = $(INCS)
 
 WARNINGS = -Wcomment -Wdeprecated -Woverflow -Wpointer-arith\
@@ -203,25 +203,25 @@ SYSTEM := $(shell uname -s)
 DEFINES = -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC
 ifeq ($(SYSTEM),Linux)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
-    LIBS := ${LIBS} -lreadline
+    LIBS := ${LIBS} -lreadline -lgsl -lgslcblas -lm
 endif
 ifeq ($(SYSTEM),CYGWIN_NT-5.1)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
-    LIBS := ${LIBS} -lreadline
+    LIBS := ${LIBS} -lreadline -lgsl -lgslcblas -lm
 endif
 ifeq ($(SYSTEM),Darwin)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
-    LIBS := ${LIBS} -lreadline
+    LIBS := ${LIBS} -lreadline -lgsl -lgslcblas -lm
     # Building Universal Binaries..
     #TARGET_ARCH = -arch i386 -arch x86_64
 endif
 ifeq ($(SYSTEM),FreeBSD)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
-    LIBS := ${LIBS} -lreadline
+    LIBS := ${LIBS} -lreadline -lgsl -lgslcblas -lm
 endif
 ifeq ($(SYSTEM),OpenBSD)
     DEFINES := $(DEFINES) -D__BUILDING_LINUX
-    LIBS := ${LIBS} -lreadline -lncurses
+    LIBS := ${LIBS} -lreadline -lncurses -lgsl -lgslcblas -lm
 endif
 CFLAGS = $(WARNINGS) $(INCS) $(DEFINES) -O3 -ansi
 CXXFLAGS = $(CFLAGS)
