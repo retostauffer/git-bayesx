@@ -15659,7 +15659,7 @@ void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
     if (compute_like)
       {
 
-        like +=  (nup)*log((*response)) - nup*log((*worktransformlin[1]));
+        like +=  (nup)*log((*response)) - nup*log((*worktransformlin[1]))
                 -((1)/(2*pow((*worktransformlin[0])*nup, 2)))*pow((hilfs-1) ,2);// - log(randnumbers::Phi2(1 / (abs(nup) * (*worktransformlin[0]))));
       }
 
@@ -16869,7 +16869,7 @@ void DISTR_sfa_alpha::compute_iwls_wweightschange_weightsone(
 
 
     *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigv,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
-                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + ( muu*(epsi+muu) + pow(muu, 2) )/hilfs ;
+                        (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + ( muu*(epsi+muu) + pow(muu, 2) )/hilfs
                         -( 2*(epsi+muu)*muu*pow(sigu, 2) )/pow(hilfs, 2);
  /*   *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigu,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
                         (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + (  pow(muu, 2) )/hilfs ;
