@@ -9232,7 +9232,7 @@ void DISTR_gumbelcopula_rho::compute_iwls_wweightschange_weightsone(
     double arg2 = pow(arg, hilfs2);
     double arg3 = pow(arg, hilfs);
     double divi = (rho - 1) / rho;
- /*   double abl = logurho * (rho - 1) * log(-logu) + logvrho * (rho - 1) * log(-logv);
+    double abl = logurho * (rho - 1) * log(-logu) + logvrho * (rho - 1) * log(-logv);
     double abl2 = abl2 = abl + pow(rho - 1, 2) * (logurho * pow(log(-logu), 2) + logvrho * pow(log(-logv), 2));
     double nenner = arg2 + (rho -1) *  arg3;
     double zaehler1 = arg2 * (abl * (2 / rho - 2) / arg + log(arg) * (-2 * (rho - 1) / pow(rho, 2)));
