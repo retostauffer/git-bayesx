@@ -545,7 +545,6 @@ bool MCMCsimulate::posteriormode(const vector<ST::string> & header,
                                  const bool & presim)
   {
 
-
   unsigned i,j;
 
   unsigned nrmodels = genoptions_mult.size();
@@ -632,7 +631,6 @@ bool MCMCsimulate::posteriormode(const vector<ST::string> & header,
           if (fullcondp[j]->posteriormode() == false)
             allconverged = false;
           } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
-
 
         if (allconverged)
           converged = true;

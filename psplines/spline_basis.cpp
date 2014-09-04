@@ -1462,8 +1462,10 @@ void spline_basis::add_linearpred_multBS(const bool & current)
   while (k<nrpar)
     {
     stop = lastnonzero[k];
-//    while (i<lastnonzero[k]+1)
-    while (i <= stop)
+// ASAN / UBSAN checks
+//    while (i <= stop)
+    while (i < stop)
+// end: ASAN / UBSAN checks
       {
       workbeta = beta.getV() + k;
       for(j=0;j<col;j++,workBS++,workbeta++)
@@ -2535,6 +2537,8 @@ void spline_basis::compute_XWX(const datamatrix & weight)
           else
             *workupper += *(workBS+j) * *workweight * *(workBS+k);
           l++;
+          if ( l >= stop ) break;
+
           freqwork++;
           workBS += BScols*(*freqwork-*(freqwork-1));
           workindex2++;
@@ -2706,6 +2710,7 @@ void spline_basis::compute_XWXenv_XWtildey(const datamatrix & weight, const doub
               *workupper += *(workBS+j) * *workweight * *(workBS+k);
               }
             l++;
+            if ( l >= stop ) break;
             freqwork++;
             workBS += BScols*(*freqwork-*(freqwork-1));
             workindex2++;
@@ -2800,6 +2805,7 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const double & sc
           {
           *workmuy2 += *workBS * *workweight * *workmu;
           l++;
+          if ( l >= stop ) break;
           freqwork++;
           workindex2++;
           workweight += *workindex2;
@@ -2863,6 +2869,7 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const datamatrix 
           {
           *workmuy2 += *workBS * *workweight * *workmu;
           l++;
+          if ( l >= stop ) break;
           freqwork++;
           workindex2++;
           workweight += *workindex2*weightcols;
@@ -3733,7 +3740,7 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
 
   if(varcoeff || X.rows()<X_VCM.rows())
     {
-    for(i=0,j=0;i<Z_VCM.rows();i++,indexit++,freqwork++,k+=*indexit)
+    for(i=0,j=0;i<Z_VCM.rows();)
       {
       if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
         {
@@ -3787,6 +3794,13 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
                              );
           }
         j++;
+        }
+      i++;
+      if(i<Z_VCM.rows())
+        {
+         indexit++;
+         freqwork++;
+         k+=*indexit;
         }
       }
     }
@@ -3866,7 +3880,7 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
     {
     if(varcoeff || X.rows()<X_VCM.rows())
       {
-      for(i=0,j=0;i<Z_VCM.rows();i++,indexit++,freqwork++,k+=*indexit)
+      for(i=0,j=0;i<Z_VCM.rows();)
         {
         if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
           {
@@ -3921,11 +3935,18 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
             }
           j++;
           }
+        i++;
+        if(i<Z_VCM.rows())
+          {
+          indexit++;
+          freqwork++;
+          k+=*indexit;
+          }
         }
       }
     else
       {
-      for(i=0,j=0;i<X.rows();i++,indexit++,freqwork++,k+=*indexit)
+      for(i=0,j=0;i<X.rows();)
         {
         if(freqwork==freqoutput.begin() || *freqwork!=*(freqwork-1))
           {
@@ -3956,6 +3977,13 @@ double spline_basis::outresultsreml(datamatrix & X,datamatrix & Z,
                                );
             }
           j++;
+          }
+        i++;
+        if(i<X.rows())
+          {
+          indexit++;
+          freqwork++;
+          k+=*indexit;
           }
         }
       }

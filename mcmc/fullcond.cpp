@@ -1216,7 +1216,6 @@ void FULLCOND::updatemult(void)
 
 bool FULLCOND::posteriormode(void)
   {
-
   double diffmean;
   double normold;
 
