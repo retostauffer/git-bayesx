@@ -201,7 +201,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   parammode = m.parammode;
   paramold = m.paramold;
   paramhelp = m.paramhelp;
-  paramKparam = paramKparam;
+  paramKparam = m.paramKparam;
   betaold = m.betaold;
   betadiff = m.betadiff;
   partres = m.partres;
@@ -253,7 +253,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   designp = m.designp;
   param = m.param;
   paramlin = m.paramlin;
-  paramKparam = paramKparam;
+  paramKparam = m.paramKparam;
   parammode = m.parammode;
   paramold = m.paramold;
   paramhelp = m.paramhelp;
