@@ -629,7 +629,7 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
     for (i=0;i<likep->nrobs;i++,workingweightp++,workingresponsep++,
                                 residualp++,linpredp++,predictorp++)
       if (*workingweightp==0)
-        *residualp==0;
+        *residualp=0;
       else
         *residualp = *workingweightp * ((*workingresponsep)  - (*predictorp)
                      + (*linpredp));

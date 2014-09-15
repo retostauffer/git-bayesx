@@ -1565,7 +1565,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
     }
 
   if(hierarchical == false)
-    possible == "alles";
+    possible = "alles";
 
   fullcondp[0]->safe_const();
   bool interact = false;

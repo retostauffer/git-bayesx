@@ -1793,7 +1793,7 @@ void STEPMULTIrun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,dou
     }
 
   if(hierarchical == false)
-    possible == "alles";
+    possible = "alles";
 
   fullcond_alle[ind_fullc]->safe_const();
   bool interact = false;

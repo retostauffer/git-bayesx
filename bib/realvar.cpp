@@ -175,7 +175,7 @@ realvar cumul(realvar & v,vector<int> & index)
 	 if (v[helpindex[j]] == NA)
 		{
 		n--;
-		h[helpindex[j]] == NA;
+		h[helpindex[j]] = NA;
 		}
 	 else
 		break;
