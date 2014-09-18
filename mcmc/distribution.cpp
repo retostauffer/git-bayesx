@@ -8296,7 +8296,7 @@ void DISTRIBUTION_poisson::compute_bootstrap_data(const double * linpred,const d
       pres += 1;
       }
     pres -= 1;
-    pres / *weight;
+    pres /= *weight;
     }
   *wresp = pres;
   }
