@@ -25,7 +25,7 @@ function}\index{hregress function}
 \subsection{Description}
 \label{mcmcregregressdescr}
 
-Method #hregress# estimates distributional structured additive regression models.
+Method #hregress# estimates (hierarchical) distributional structured additive regression models.
 
 \index{Generalized linear models} \index{Generalized additive
 models} \index{Varying coefficients} \index{Bayesian semiparametric
@@ -44,10 +44,10 @@ has to be the name of a {\em dataset object} created before. The
 details of correct models are covered in \autoref{mcmcregmodelsyntax}.
 The distribution of the response variable can be chosen from a wide
 range of uni- and multivariate distributions. It is
-specified using option
-#family#, see \autoref{mcmcregfamilysyntax} below and the options list in
-\autoref{mcmcregregressoptions}. The default value is #family=gaussian#
-with an identity link. An #if# statement may be specified to analyze
+specified using options
+#family# and #equationtype#, see \autoref{mcmcregfamilysyntax} below and the options list in
+\autoref{mcmcregregressoptions}. The default value is #family=gaussian# and #equationtype=mu#
+with an identity link.  An #if# statement may be specified to analyze
 only parts of the data set, i.e.~the observations where {\em
 expression} is true.
 
@@ -101,12 +101,11 @@ effects on the dependent variable. The different terms have to be
 separated by '+' signs. A constant intercept is (in contrast to
 {\em bayesreg objects}) NOT automatically
 included in the models and must be specified by the
-user. This section reviews all possible model terms that are
+analyst using the term #const#. This section reviews all possible model terms that are
 currently supported by {\em mcmcreg objects} and provides some
 specific examples. Note that all described terms may be combined
 in arbitrary order. An overview about the capabilities of {\em
 mcmcreg objects} is given in \autoref{mcmcterms}.
-
 \autoref{mcmcreginteractions} shows how interactions between
 covariates are specified. Full details about all available options
 are given in \autoref{mcmclocaloptions}.
@@ -138,15 +137,17 @@ effects (if #family=poisson# is specified in addition):
 \item[] {\em Example}:
 
 The following model statement specified a model with $q$ fixed
-(linear) effects:
+(linear) effects and an intercept:
 
-\texttt{Y = W1 + W2 + $\cdots$ + Wq}
+\texttt{Y = const + W1 + W2 + $\cdots$ + Wq}
 \end{itemize}
 
 % NEW_START: Susanne.Konrath@stat.uni-muenchen.de %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-STEFAN: NOCHMAL CHECKEN
 \subsubsection*{Shrinkage of fixed effects}
 \index{Shrinkage of fixed Effects}
+
+STEFAN: NOCHMAL CHECKEN
+
 
 \begin{itemize}
 \item[] {\em Description}: Defines a shrinkage-prior for the corresponding
@@ -212,9 +213,7 @@ second order random walk penalty for the parameters of the spline.
 \item[] {\em Predictor}: $\eta =  \cdots + f_1(X1) + \cdots$
 
 \item[] {\em Syntax}:
-#X1(psplinerw1#[{\em , options}]#) #
-
-#X1(psplinerw2#[{\em , options}]#) #
+#X1(pspline#[{\em , options}]#) #
 
 \item[] {\em Example}:
 
@@ -222,7 +221,7 @@ A P-spline with second order random walk penalty is obtained by:
 
 #Y = X1(pspline)#
 
-By default, the degree of the spline is 3 and the number of inner
+By default, a second order random walk penalty is used, the degree of the spline is 3 and the number of inner
 knots is 20. The following model term defines a quadratic P-spline
 with 30 knots and a first order random walk penalty:
 
@@ -338,7 +337,7 @@ random effect is defined by
 #Y = grvar(random)#
 
 Note that {\em BayesX} allows the specification of hierarchical or multilevel models that go far beyond
-the simple random intercept term described above, see section ??.
+the simple random intercept term described above, see section \autoref{mcmcregmultilevelsyntax}.
 \end{itemize}
 
 
@@ -442,6 +441,9 @@ assumed for $f(grvar)$.
 A random slope  is specified as follows:
 
 #Y = X1*grvar(random)#
+
+Note that {\em BayesX} allows the specification of hierarchical or multilevel models that go far beyond
+the simple random intercept term described above, see section \autoref{mcmcregmultilevelsyntax}.
 \end{itemize}
 
 
@@ -512,14 +514,13 @@ adding the option name to the specification of the model term type
 in the parentheses, separated by commas. Boolean options are
 specified by simply adding the option name. For example, a random
 intercept term with #a=b=0.001# as parameters for the inverse
-gamma prior of the variance parameter, with updating according to
-IWLS  is
+gamma prior of the variance parameter is
 specified as follows:
 
-#X1*grvar(random,a=0.001,b=0.001,proposal=iwls)#
+#X1*grvar(random,a=0.001,b=0.001)#
 
 Note that all options may be specified in arbitrary order.
-\autoref{mcmcoptions1} and \autoref{mcmcoptions2} provide explanations and the default values of
+\autoref{mcmcregoptions1} and \autoref{mcmcregoptions2} provide explanations and the default values of
 all possible options. All reasonable combinations of model terms
 and options can be found in \autoref{mcmctermsoptions}.
 
@@ -642,6 +643,7 @@ covariates #X1# and #X2#. \\
 
 
 
+
 \begin{table}[ht] \footnotesize \centering
 \begin{tabular}{|l|p{0.6\linewidth}|c|}
 \hline Option & Description & Default\\
@@ -655,17 +657,21 @@ e#a#,#b# & The options #a# and #b# specify the hyperparameters of
 the inverse Gamma prior for the variance $\tau^2$ of random effects (random or hrandom).
 & #a_re=0.001#, #b_re=0.001# \\
 \hline
-#binning# & FEHLT & binning=-1 (no binning) \\
+#binning# & uses binning of the covariate according to \citeasnoun{LanUml14} & #binning=-1# (no binning) \\
 \hline
-#centermethod# & FEHLT & centermethod=meanfd \\
-%  centermethods.push_back("meancoeff");
+#centermethod# & Defines the method for centering nonlinear terms (e.g. P-splines). & #centermethod=meanfd# \\
+               & #centermethods = meanf# &          \\
+               & Centered sampling such that the sum of the $f(x)$ over {\em all} observations is zero. & \\
+               & #centermethods = meanfd# &          \\
+               & Centered sampling such that the sum of the $f(x)$ over the {\em distinct} observations is zero. & \\
+               & #centermethods = meancoeff# &          \\
+               & Centered sampling such that the sum of the regression coefficients is zero. & \\
+               & #centermethods = meansimple# &          \\
+               & Center the parameters around zero (after they have been sampled). & \\
 %  centermethods.push_back("meanintegral");
 %  centermethods.push_back("meaninvvar");
 %  centermethods.push_back("nullspace");
-%  centermethods.push_back("meansimple");      // subtract mean from parameters
 %  centermethods.push_back("integralsimple");      // subtract mean from parameters
-%  centermethods.push_back("meanf");           // sample centered f
-%  centermethods.push_back("meanfd");           // sample centered f
 %  centermethods.push_back("meansum2");
 \hline
 #constraints# & Defines monotonicity constraints for P-splines. Specifying #constraints=increasing# yields
@@ -686,23 +692,22 @@ function estimate are computed (for P-splines only). & - \\
 & Provides a starting value for the smoothing parameter $\lambda$ for random effects (random o hrandom). & #lambda_re=0.1# \\
 \hline
 #nocenter# & Indicates that a nonlinear term should not be centered. & - \\
-
-#nu# & FEHLT kriging & nu=1.5 \\
-
+\hline
+#nu# & Specifies the parameter #nu# of the Matern family of covariance functions (kriging terms only).  & #nu=1.5# \\
+\hline
 #nrknots# & Specifies the number of inner knots for a P-spline
 term. & #nrknots=20# \\
 \hline
 #maxdist# & FEHLT (kriging) & maxdist=-1 \\
 \hline
-#meaneffect# & FEHLT &  - \\
+#meaneffect# & Indicates that mean effects (expected values) of the response in dependence of the covariate (with other covariates held fixed at mean values) should be computed. &  - \\
 \hline
-#meaneffectconst# & FEHLT & \\
-
+% #meaneffectconst# & FEHLT & \\
 \hline
-#round# & FEHLT & round=-1 (no rounding) \\
+#round# & Rounds the covariate before estimation, e.g. #round=2# rounds to 2 digits after the decimal point. & round=-1 (no rounding) \\
 \hline
 \end{tabular}
-{\em\caption{\label{options1} Optional arguments for mcmcreg
+{\em\caption{\label{mcmcregoptions1} Optional arguments for mcmcreg
 object terms in alphabetical order (1).}}
 \end{table}
 
@@ -717,87 +722,116 @@ object terms in alphabetical order (1).}}
 \hline
 Option & Description & Default \\
 \hline
-#samplederivative# & FEHLT & - \\
+#samplederivative# & Indicates that samples of the derivatives should be stored. If this is the case, credible intervals,
+standard errors etc. for derivatives are computed in addition to mean estimates. This pption is only meaningful in combination with option #derivative#. & - \\
 \hline
-#samplef# & FEHLT & - \\
+#samplef# & Indicates that samples for the nonlinear functions in addition to samples of regression coefficients should be stored. & - \\
 \hline
 #updatem# & Specifies the method for updating regression coefficients in the MCMC sampler. #update=direct# uses direct updating
-by sampling from the full conditionals in case of gaussian responses or by IWLS proposals in case of nongaussian responses  , #update=orthogonal# uses orthogonal bases as described in \citeasnoun{LanUml14}  \\
+by sampling from the full conditionals in case of gaussian responses or by IWLS proposals in case of nongaussian responses  , #update=orthogonal# uses orthogonal bases as described in \citeasnoun{LanUml14}. & #updatem=direct# \\
 \hline
 \end{tabular}
-{\em\caption{\label{options2} Optional arguments for mcmcreg
+{\em\caption{\label{mcmcregoptions2} Optional arguments for mcmcreg
 object terms in alphabetical order (2).}}
 \end{table}
 
 
-STEFAN: Tabelle ändern
+
 \begin{sidewaystable} \footnotesize
-\begin{tabular}{|l||c|c|c|c|c|c|c|c|}
+\begin{tabular}{|l||c|c|c|c|c|}
 
 \hline
-            & rw1/rw2       & season    & psplinerw1/psplinerw2    & spatial & random & geospline & pspline2dimrw1 & baseline \\
+             & pspline     & spatial     & random      & kriging     & geokriging  \\
 \hline\hline
-#a#      & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue & realvalue \\
+#a#          & realvalue   & realvalue   & $\times$     & realvalue   & realvalue  \\
 \hline
-#b#      & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue & realvalue \\
+#b#           & realvalue   & realvalue   & $\times$     & realvalue   & realvalue  \\
 \hline
-#min#         & $\ast$   & $\ast$     & $\ast$    & $\times$ & $\times$ & $\ast$ & $\ast$   & integer \\
+#a_re#       & $\times$     & $\times$     & realvalue   & $\times$     & $\times$   \\
 \hline
-#max#         & $\ast$   & $\ast$     & $\ast$    & $\times$ & $\times$ & $\ast$ & $\ast$   & integer \\
+#b_re#       & $\times$     & $\times$     & realvalue   & $\times$     & $\times$   \\
 \hline
-#lambda#      & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue & realvalue \\
+#binning# & -1, integervalue     & $\times$     & $\times$   & $\times$     & $\times$   \\
 \hline
-#proposal#    &  $\bullet$  &  $\bullet$  & $\bullet$ & $\bullet$ & $\circ$ & $\bullet$ & $\bullet$ & $\times$ \\
+#centermethod# & $\ast$ & $\ast$    & $\times$     & $\times$   & $\times$    \\
 \hline
-#updateW#      & integer   & integer   &  integer   & integer & $\times$ &  integer &  integer &  $\times$\\
+#constraints#  & $\bullet$     & $\times$    & $\times$    & $\times$ &  $\times$ \\
 \hline
-%updatetau      & $\times$   & $\times$   &  $\bullet$   & $\times$ & $\times$ &  $\bullet$ &  $\bullet$ &  $\times$\\
-%\hline
-%f      & $\times$   & $\times$   &  realvalue   & $\times$ & $\times$ &  realvalue &  realvalue &  $\times$\\
-%\hline
-#degree#      & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  integer\\
+#degree#      &  integer    & $\times$    & $\times$    & $\times$ &  $\times$ \\
 \hline
-#nrknots#      & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  integer\\
+#derivative#  & $\triangle$ & $\times$      & $\times$  & $\times$ & $\times$  \\
 \hline
-#gridsize#     & $\times$   & $\times$   &  integer   & $\times$ & $\times$ & $\times$ &  integer &  integer\\
+#lambda#     & realvalue   & realvalue   & realvalue   & realvalue   & realvalue  \\
 \hline
-#derivative#      & $\times$   & $\times$     & $\triangle$ & $\times$      & $\times$  & $\times$ & $\times$ & $\times$ \\
+#nrknots#    &  integer    & $\times$     & $\times$   & $\times$    & $\times$ \\
 \hline
-#period#      & $\times$   & integer     & $\times$  & $\times$      & $\times$  & $\times$ & $\times$ & $\times$ \\
+#nocenter# & $\triangle$  & $\triangle$    & $\times$   & $\times$    & $\times$ \\
 \hline
-#nofixed#   & $\times$   & $\times$   & $\times$ & $\times$ & $\triangle$ & $\times$ & $\times$ & $\times$\\
+#nu# & $\times$   & $\times$     & $\times$   &  0.5,1.5,2.5,3.5    & 0.5,1.5,2.5,3.5 \\
 \hline
-#map#      & $\times$   & $\times$     & $\times$  & {\em map object}  & $\times$  & {\em map object} & $\times$ & $\times$ \\
-\hline \hline
-$\times$    & \multicolumn{8}{l|}{not available} \\
+#map#  & $\times$  & {\em map object}  & $\times$  & $\times$ & {\em map object} \\
 \hline
-$\ast$  & \multicolumn{8}{l|}{available only if #proposal = cp#} \\
+#maxdist# & $\times$ & $\times$   & $\times$  & realvalue & realvalue  \\
 \hline
-$\circ$  & \multicolumn{8}{l|}{admissible values are #iwls,iwlsmode#} \\
+#meaneffect# & $\triangle$ & $\triangle$  & $\triangle$  & $\triangle$ & $\triangle$  \\
 \hline
-$\bullet$  & \multicolumn{8}{l|}{admissible values are #cp,iwls,iwlsmode#} \\
+#round#  & realvalue & $\times$      & $\times$  & $\times$ & $\times$  \\
 \hline
-$\triangle$   & \multicolumn{8}{l|}{available as boolean option (specified without supplying a value)} \\
+#samplederivative#  & $\triangle$ & $\times$      & $\times$  & $\times$ & $\times$  \\
 \hline
-
+#samplef#  & $\triangle$ & $\triangle$  & $\triangle$  & $\triangle$ & $\triangle$  \\
+\hline
+#updatem#  & $\circ$ & $\circ$  & $\circ$  & $\circ$ & $\circ$  \\
+\hline
+$\times$    & \multicolumn{5}{l|}{not available} \\
+\hline
+$\ast$  & \multicolumn{5}{l|}{admissible values are #meanfd,meanf,meanfd,meancoeff,meansimple#} \\
+\hline
+$\circ$  & \multicolumn{5}{l|}{admissible values are #direct,orthogonal#} \\
+\hline
+$\bullet$  & \multicolumn{5}{l|}{admissible values are #unrestricted,increasing,decreasing#} \\
+\hline
+$\triangle$   & \multicolumn{5}{l|}{available as boolean option (specified without supplying a value)} \\
+\hline
 \end{tabular}
 {\em\centering \caption{\label{mcmctermsoptions} Terms and options for mcmcreg objects.}}
 \end{sidewaystable}
+
+
+               
 
 \clearpage
 
 \subsubsection{Specifying the response distribution}
 \index{Response distribution} \label{mcmcregfamilysyntax}
 
-An overview of supported univariate distributions are given in Table~\ref{tab:distrBayesX}. {\em mcmcreg objects}
+An overview of supported univariate distributions are given in Tables~\ref{tab:distrBayesX1}, \ref{tab:distrBayesX2} and \ref{tab:distrBayesX3}. 
+Supported multivariate distributions are presented in Table~\ref{tab:distrBayesX4}.
+{\em mcmcreg objects}
 allow to define for every parameter of a specific distribution a full STAR predictor. This is done
-defining for every parameter of the distribution a separate model equation. To define the equation
+by defining for every parameter of the distribution a separate model equation. To define the equation
 type the user has to specify the (global) options #family# and #equationtype#.
-JETZT ERKLÄREN
+
+
+
+
+In some cases, one or more additional
+options associated with the specified response distribution can be
+specified. An example is the #reference# option for multinomial
+responses, which defines the reference category. In the following
+we give detailed instructions on how to specify the various
+models. (ODER NUR BEISPIEL, REST IN TABELLEN?)
+
+
+Detailed examples for Gaussian and Gamma responses
+show how this is done in practise.
+
+
+
 
 
 \begin{sidewaystable}[htbp]
-\begin{center} %\footnotesize
+D\begin{center} %\footnotesize
 \begin{tabular}{l l c l l}
 \hline\hline
 % \multicolumn{5}{l}
@@ -838,6 +872,7 @@ Dagum & $p(y|a,b,p)=\frac{a p y^{a p-1}}{b^{a p}\left(1+\left(y/b\right)^{a}\rig
 \end{tabular}
 \end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX1}
 \end{sidewaystable}
+
 \begin{sidewaystable}[htbp]
 \begin{center} %\scriptsize
 \begin{tabular}{l l c l l}
@@ -945,7 +980,7 @@ Bivariate t &$f(y_1,y_2) = \frac{\Gamma\left(\frac{\mathit{df}+D}{2}\right)}{\Ga
  &&$\sigma_1>0$&#bivt#&#sigma#\\
  &&$\mu_2>0$&#bivt#&#mu#\\
  &&$\mu_1>0$&#bivt#&#mu#\\\hline
-Bivariate probit &$\yvec^\ast=\etavec^{\mu}+\meps, \qquad \meps\sim\N\left(\nullvec,\mSigma\right)$, 
+Bivariate probit &$\yvec^\ast=\etavec^{\mu}+\meps, \qquad \meps\sim\N\left(\nullvec,\mSigma\right)$,
 $\mSigma = \left(\begin{matrix}
 1 & \rho\\
 \rho& 1\\
@@ -968,21 +1003,6 @@ Dirichlet &$p(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\
 \end{sidewaystable}
 
 
-Detailed examples for Gaussian and Gamma responses
-show how this is done in practise.
-
-
-
-
-Supported
-multivariate models are summarized in ?.
-
-In some cases, one or more additional
-options associated with the specified response distribution can be
-specified. An example is the #reference# option for multinomial
-responses, which defines the reference category. In the following
-we give detailed instructions on how to specify the various
-models. (ODER NUR BEISPIEL, REST IN TABELLEN?)
 
 \subsubsection*{Gaussian responses}
 
@@ -1034,7 +1054,9 @@ be estimated by simply adding the term
 
 to the model statement.
 
-
+\subsubsection{Hierarchical or multilevel models}
+\index{Hierarchical models} \label{mcmcregmultilevelsyntax}
+\index{Multilevel models}
 
 \subsection{Options}
 \label{mcmcregregressoptions}
