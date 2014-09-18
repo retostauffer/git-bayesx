@@ -645,7 +645,7 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
 
   nrpen = 0;
 
-  nu0 = 0.0005;
+  nu0 = 0.000025;
 
   theta = FC(optionsp,"",1,1,"");
   theta.setbeta(1,1,0.5);
@@ -771,17 +771,13 @@ void FC_variance_pen_vector_ssvs::update(void)
     helpIG1 = btau2_pow_atau2*exp(-btau2[j]/beta(j,0));
     helpIG2 = nu0btau2_pow_atau2*exp(-nu0*btau2[j]/beta(j,0));
 
+    double u = uniform();
+    double L = 1/sqrt(nu0)*exp(- beta2/(2*beta(j,0))*(1/nu0-1));
+    double thetanew = 1/(1+ ((1-theta.beta(0,0))/theta.beta(0,0))*L);
+  //  thetanew = (theta.beta(0,0) * helpIG1)/(theta.beta(0,0) * helpIG1 + (1-theta.beta(0,0))*helpIG2);
 
-    thetanew = (theta.beta(0,0) * helpIG1)/(theta.beta(0,0) * helpIG1 + (1-theta.beta(0,0))*helpIG2);
 
-    if (j==2)
-      {
-      cout << "thetanew " << thetanew << endl;
-      cout << "helpIG1 : " << helpIG1 << endl;
-      cout << "helpIG2 : " << helpIG2 << endl;
-      }
-
-    if (uniform() < thetanew)
+    if (u <= thetanew)
       delta.beta(j,0) = 1;
     else
       delta.beta(j,0) = 0;
@@ -799,10 +795,10 @@ void FC_variance_pen_vector_ssvs::update(void)
 
   theta.beta(0,0) = randnumbers::rand_beta(atheta+sumdelta,btheta+nrpen-sumdelta);
 
-//  cout << "atheta: " << atheta << endl;
-//  cout << "btheta: " << btheta << endl;
-//  cout << "nrpen: " << nrpen << endl;
-//  cout << "theta: " << theta.beta(0,0) << endl;
+  cout << "atheta: " << atheta << endl;
+  cout << "btheta: " << btheta << endl;
+  cout << "nrpen: " << nrpen << endl;
+  cout << "theta: " << theta.beta(0,0) << endl;
 
   theta.update();
 
