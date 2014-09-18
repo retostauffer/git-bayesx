@@ -100,6 +100,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   priors.push_back("dirichlet");
   priors.push_back("nmig");
   priors.push_back("ssvs");
+//  priors.push_back("ssvs");
+  priors.push_back("ssvs2");
 
   prior = stroption("prior",priors,"iid");
   knotpath = fileoption("knotpath","");
@@ -110,6 +112,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   abeta = doubleoption("abeta",1,0.00000001,500);
   bbeta = doubleoption("bbeta",1,0.00000001,500);
   r = doubleoption("r",0.000025,0.0000000001,1);
+  r2 = doubleoption("r2",0.00456356,0,1);
   v = doubleoption("v",5,0.0000000001,500);
   aQ = doubleoption("aQ",1,0.00000001,500);
   bQ = doubleoption("bQ",1,0.00000001,500);
@@ -117,9 +120,11 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   center = simpleoption("center",false);
 
-  tildea = doubleoption("tildea",-0.5,-1.0,500);
-  tildeb = doubleoption("tildeb",0,0,500);
+  tildea = doubleoption("tildea",0.001,-1.0,500);
+  tildeb = doubleoption("tildeb",0.001,0,500);
+  scaletau2 = doubleoption("scaletau2",0.00877812,0.0000000001,1000000000);
   cauchy = simpleoption("cauchy",false);
+  wei = simpleoption("wei",false);
 
 
   }
@@ -168,6 +173,7 @@ void term_nonp::setdefault(void)
   abeta.setdefault();
   bbeta.setdefault();
   r.setdefault();
+  r2.setdefault();
   v.setdefault();
   aQ.setdefault();
   bQ.setdefault();
@@ -177,7 +183,8 @@ void term_nonp::setdefault(void)
   tildea.setdefault();
   tildeb.setdefault();
   cauchy.setdefault();
-
+  wei.setdefault();
+  scaletau2.setdefault();
   }
 
 
@@ -270,6 +277,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&abeta);
     optlist.push_back(&bbeta);
     optlist.push_back(&r);
+    optlist.push_back(&r2);
     optlist.push_back(&v);
     optlist.push_back(&aQ);
     optlist.push_back(&bQ);
@@ -278,7 +286,8 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildea);
     optlist.push_back(&tildeb);
     optlist.push_back(&cauchy);
-
+    optlist.push_back(&wei);
+    optlist.push_back(&scaletau2);
 
 
 
@@ -435,7 +444,17 @@ bool term_nonp::check(term & t)
       t.options[49] = "false";
     else
       t.options[49] = "true";
+    if (wei.getvalue() == false)
+      t.options[50] = "false";
+    else
+      t.options[50] = "true";
+  //  if (prior.getvalue() == "ssvs2")
+   //   t.options[50] = "true";
+   // else
+   //   t.options[50] = "false";
 
+    t.options[51] = ST::doubletostring(scaletau2.getvalue());
+    t.options[52] = ST::doubletostring(r2.getvalue());
 
     setdefault();
     return true;

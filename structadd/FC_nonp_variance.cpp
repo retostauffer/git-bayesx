@@ -20,7 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 
 #include "FC_nonp_variance.h"
-
+//#include "gsl_randist.h"
+//#include "gsl_cdf.h"
 
 namespace MCMC
 {
@@ -57,7 +58,7 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
 
   f = op[47].strtodouble(tildea);
   f = op[48].strtodouble(tildeb);
-
+  f = op[51].strtodouble(scaletau2);
   if (op[49] == "true")
     {
     cauchy = true;
@@ -65,7 +66,17 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
   else
     cauchy = false;
 
+  if (op[50] == "true")
+    {
+    wei = true;
+    }
+  else
+    wei = false;
+
   }
+
+
+
 
 
 FC_nonp_variance::FC_nonp_variance(void)
@@ -117,6 +128,8 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   tildea = m.tildea;
   tildeb = m.tildeb;
   cauchy = m.cauchy;
+  wei = m.wei;
+  scaletau2 = m.scaletau2;
   }
 
 
@@ -139,6 +152,8 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   tildea = m.tildea;
   tildeb = m.tildeb;
   cauchy = m.cauchy;
+  wei = m.wei;
+  scaletau2 = m.scaletau2;
   return *this;
   }
 
@@ -165,6 +180,36 @@ void FC_nonp_variance::update(void)
 
       double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-1/(2*beta(0,0))*quadf-log(1+beta(0,0));
       double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-1/(2*gamma)*quadf-log(1+gamma);
+
+      if (u <= (fcnew - fcold ))
+        {
+
+        beta(0,0) = gamma;
+        acceptance++;
+        }
+
+      }
+    else if (wei == true)
+      {
+    //  const gsl_rng_type * T;
+     // gsl_rng * r;
+
+    //  gsl_rng_env_setup();
+    //  T = gsl_rng_default;
+    //  r = gsl_rng_alloc (T);
+      double quadf = designp->penalty_compute_quadform(FCnonpp->param);
+     // double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
+   //   double gamma = gsl_ran_weibull(r,  0.5,  tildea);
+    //  double sde = -(0.5*designp->rankK+0.5)/beta(0,0) - 0.25 * pow(tildea, -0.5) / pow(beta(0,0), 1.5) + quadf / pow(beta(0,0), 3);
+    //  if(sde <= 0) {
+    //    sde = 0.0001;
+    //  }
+      double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
+
+      double u = log(uniform());
+
+      double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-pow(beta(0,0)/scaletau2, 0.5)-1/(2*beta(0,0))*quadf;
+      double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-pow(gamma/scaletau2, 0.5)-1/(2*gamma)*quadf;
 
       if (u <= (fcnew - fcold ))
         {
@@ -329,6 +374,20 @@ void FC_nonp_variance::outoptions(void)
   if (cauchy)
     {
     optionsp->out("  Cauchy prior\n");
+
+    optionsp->out("  Hyperparameter tildea for proposal density: " +
+                ST::doubletostring(tildea) + "\n" );
+
+    optionsp->out("  Hyperparameter tildeb for proposal density: " +
+                ST::doubletostring(tildeb) + "\n" );
+
+    }
+  else if (wei)
+    {
+    optionsp->out("  Weibull prior\n");
+
+    optionsp->out("  Scale parameter: " +
+                ST::doubletostring(scaletau2) + "\n" );
 
     optionsp->out("  Hyperparameter tildea for proposal density: " +
                 ST::doubletostring(tildea) + "\n" );
@@ -617,10 +676,10 @@ void FC_nonp_variance_varselection::get_samples(
   ST::string filename_delta = filename.substr(0,filename.length()-4) + "_delta.raw";
   FC_delta.get_samples(filename_delta,outg);
 
-/*
+
   ST::string filename_omega = filename.substr(0,filename.length()-4) + "_omega.raw";
   FC_omega.get_samples(filename_omega,outg);
-
+/*
   ST::string filename_Q = filename.substr(0,filename.length()-4) + "_Q.raw";
   FC_Q.get_samples(filename_Q,outg);
 */
@@ -640,6 +699,335 @@ void FC_nonp_variance_varselection::reset(void)
 
   }
 
+
+
+//------------------------------------------------------------------------------
+//--- CLASS: FC_nonp_variance_varselection2 implementation of member functions --
+//------------------------------------------------------------------------------
+
+void FC_nonp_variance_varselection2::read_options(vector<ST::string> & op,
+                                   vector<ST::string> & vn)
+  {
+  FC_nonp_variance::read_options(op,vn);
+
+  int f;
+  f = op[39].strtodouble(a_omega);
+  f = op[40].strtodouble(b_omega);
+  f = op[41].strtodouble(r2);
+  }
+
+
+FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(void)
+  {
+
+  }
+
+
+
+FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(MASTER_OBJ * mp,
+                 unsigned & enr, GENERAL_OPTIONS * o,
+                 DISTR * lp, const ST::string & t,const ST::string & fp,
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
+                 vector<ST::string> & vn)
+     : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
+  {
+
+  read_options(op,vn);
+
+  FC_delta = FC(o,"",1,1,"");
+  FC_delta.setbeta(1,1,1);
+
+  FC_psi2 = FC(o,"",1,1,"");
+  FC_psi2.setbeta(1,1,0.5);
+
+
+  FC_omega = FC(o,"",1,1,"");
+
+  FC_omega.setbeta(1,1,0.5);
+
+
+  v = 10.5;
+
+  Q = 1;
+
+
+  }
+
+
+FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(const FC_nonp_variance_varselection2 & m)
+    : FC_nonp_variance(FC_nonp_variance(m))
+  {
+  FC_delta = m.FC_delta;
+  FC_psi2 = m.FC_psi2;
+  FC_omega = m.FC_omega;
+  a_omega = m.a_omega;
+  b_omega = m.b_omega;
+  v = m.v;
+  Q = m.Q;
+  r2 = m.r2;
+  X = m.X;
+  }
+
+
+const FC_nonp_variance_varselection2 & FC_nonp_variance_varselection2::operator=(const FC_nonp_variance_varselection2 & m)
+  {
+
+  if (this==&m)
+	 return *this;
+  FC::operator=(FC(m));
+  FC_delta = m.FC_delta;
+  FC_psi2 = m.FC_psi2;
+  FC_omega = m.FC_omega;
+  a_omega = m.a_omega;
+  b_omega = m.b_omega;
+  v = m.v;
+  Q = m.Q;
+  r2 = m.r2;
+  X = m.X;
+  return *this;
+  }
+
+
+void FC_nonp_variance_varselection2::update(void)
+  {
+
+  unsigned i;
+
+  // updating psi2
+
+  double r_delta;
+  if (FC_delta.beta(0,0) == 0)
+    r_delta = r2;
+  else
+    r_delta = 1;
+
+ // FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)*r_delta);
+
+  double gamma = rand_invgamma(v+0.5,Q+0.5*FC_psi2.beta(0,0)*r_delta);
+
+      double logu = log(uniform());
+
+      double fcold = -log(FC_psi2.beta(0,0))-pow(FC_psi2.beta(0,0)/scaletau2, 0.5)-beta(0,0)/(2*r_delta*FC_psi2.beta(0,0));
+      double fcnew = -log(gamma)-pow(gamma/scaletau2, 0.5)-beta(0,0)/(2*r_delta*gamma);
+
+      if (logu <= (fcnew - fcold ))
+        {
+
+        FC_psi2.beta(0,0) = gamma;
+        FC_psi2.acceptance++;
+        }
+
+  FC_psi2.update();
+
+  // end: updating psi2
+
+  // updating delta
+
+  double u = uniform();
+  double L = 1/sqrt(r2)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r2-1));
+  double pr1 = 1/(1+ ((1-FC_omega.beta(0,0))/FC_omega.beta(0,0))*L);
+  if (u <=pr1)
+    {
+    FC_delta.beta(0,0) = 1;
+    r_delta = 1;
+    }
+  else
+    {
+    FC_delta.beta(0,0) = 0;
+    r_delta = r2;
+    }
+
+  FC_delta.update();
+
+  // end: updating delta
+
+
+  // updating w
+
+  FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
+                                          b_omega+1-FC_delta.beta(0,0));
+
+  FC_omega.update();
+
+  // end: updating w
+
+
+  // updating tau2
+
+  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+
+  double * worklin;
+  if (likep->linpred_current==1)
+    worklin = likep->linearpred1.getV();
+  else
+    worklin = likep->linearpred2.getV();
+
+  double Sigmatau;
+  double mutau = 0;
+  double * Xp = X.getV();
+  double * responsep = likep->workingresponse.getV();
+  double varinv = 1/(likep->get_scale()*beta(0,0));
+  double xtx=0;
+  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
+    {
+    xtx += pow(*Xp,2);
+    mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
+    }
+
+  Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
+
+  mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
+
+  double tau = mutau + sqrt(Sigmatau) * rand_normal();
+
+  double tau2 = tau*tau;
+  if (tau2 < 0.000000001)
+    tau2 = 0.000000001;
+
+  beta(0,0) = tau2;
+
+  beta(0,1) = likep->get_scale()/beta(0,0);
+
+  FCnonpp->tau2 = beta(0,0);
+
+  // end: updating tau2
+
+  acceptance++;
+  FC::update();
+
+  }
+
+
+bool FC_nonp_variance_varselection2::posteriormode(void)
+  {
+  bool t = FC_nonp_variance::posteriormode();
+
+  FC_psi2.beta(0,0) = beta(0,0);
+
+  return true;
+  }
+
+
+
+void FC_nonp_variance_varselection2::outresults(ofstream & out_stata,ofstream & out_R,
+                                  const ST::string & pathresults)
+  {
+
+  if (pathresults.isvalidfile() != 1)
+    {
+
+    ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
+    ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
+    ST::string pathresults_psi2 = pathresults.substr(0,pathresults.length()-4) + "_psi2.res";
+
+    FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+
+    FC_delta.outresults(out_stata,out_R,"");
+    FC_omega.outresults(out_stata,out_R,pathresults_omega);
+    FC_psi2.outresults(out_stata,out_R,pathresults_psi2);
+
+
+    optionsp->out("    Variance: " + ST::doubletostring(FC_psi2.betamean(0,0),6)  + "\n");
+    optionsp->out("\n");
+    optionsp->out("    Results for the variances are also stored in file\n");
+    optionsp->out("    " +  pathresults_psi2 + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+    FC_psi2.outresults_acceptance();
+
+    optionsp->out("    Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,0),6)  + "\n");
+    optionsp->out("\n");
+    optionsp->out("    Results for the inclusion probabilities are also stored in file\n");
+    optionsp->out("    " +  pathresults_delta + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    optionsp->out("    Inclusion probability parameter omega:\n");
+    optionsp->out("\n");
+    FC_omega.outresults_singleparam(out_stata,out_R,"");
+    optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+    optionsp->out("    " +  pathresults_omega + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+    // deltas
+    ofstream ou(pathresults_delta.strtochar());
+
+    ou << "pmean" << endl;
+    ou << FC_delta.betamean(0,0) << endl;
+
+    //acceptance psi2
+
+    double rate;
+    if (nrtrials == 0)
+      {
+      rate = (double(FC_psi2.acceptance)/double(optionsp->nriter))*100;
+      }
+    else
+      {
+      rate = (double(FC_psi2.acceptance)/double(nrtrials))*100;
+      }
+    ST::string pathresults_psi2_acceptance = pathresults.substr(0,pathresults.length()-4) + "_psi2_acceptance.res";
+    ofstream ou2(pathresults_psi2_acceptance.strtochar());
+
+    ou2 << "acceptance ";
+    ou2 << "r2" << endl;
+    ou2 << rate ;
+    ou2 << " ";
+    ou2 << r2 << endl;
+    }
+
+
+//  FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+
+  }
+
+
+void FC_nonp_variance_varselection2::get_samples(
+   const ST::string & filename,ofstream & outg) const
+  {
+  FC_nonp_variance::get_samples(filename,outg);
+
+  ST::string filename_delta = filename.substr(0,filename.length()-4) + "_delta.raw";
+  FC_delta.get_samples(filename_delta,outg);
+
+
+  ST::string filename_omega = filename.substr(0,filename.length()-4) + "_omega.raw";
+  FC_omega.get_samples(filename_omega,outg);
+
+  ST::string filename_psi2 = filename.substr(0,filename.length()-4) + "_psi2.raw";
+  FC_psi2.get_samples(filename_psi2,outg);
+/*
+  ST::string filename_Q = filename.substr(0,filename.length()-4) + "_Q.raw";
+  FC_Q.get_samples(filename_Q,outg);
+*/
+  }
+
+
+void FC_nonp_variance_varselection2::outoptions(void)
+  {
+
+    optionsp->out("  Weibull prior\n");
+
+    optionsp->out("  Scale parameter: " +
+                ST::doubletostring(scaletau2) + "\n" );
+
+    optionsp->out("  Hyperparameter tildea for proposal density: " +
+                ST::doubletostring(tildea) + "\n" );
+
+    optionsp->out("  Hyperparameter tildeb for proposal density: " +
+                ST::doubletostring(tildeb) + "\n" );
+
+
+  }
+
+
+void FC_nonp_variance_varselection2::reset(void)
+  {
+
+  FC_nonp_variance::reset();
+
+  }
 
 } // end: namespace MCMC
 

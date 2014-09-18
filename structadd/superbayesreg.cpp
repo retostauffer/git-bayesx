@@ -323,6 +323,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("frankcopula_exp");
   families.push_back("frankcopula2_normal_mu");
   families.push_back("frankcopula2_normal_sigma2");
+  families.push_back("gaussiancopula_dagum");
   family = stroption("family",families,"gaussian");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -816,6 +817,18 @@ void superbayesreg::clear(void)
 
   distr_gumbelcopula_rhos.erase(distr_gumbelcopula_rhos.begin(),distr_gumbelcopula_rhos.end());
   distr_gumbelcopula_rhos.reserve(20);
+  
+  distr_gaussiancopula_dagum_rhos.erase(distr_gaussiancopula_dagum_rhos.begin(),distr_gaussiancopula_dagum_rhos.end());
+  distr_gaussiancopula_dagum_rhos.reserve(20);
+
+  distr_gaussiancopula_dagum_as.erase(distr_gaussiancopula_dagum_as.begin(),distr_gaussiancopula_dagum_as.end());
+  distr_gaussiancopula_dagum_as.reserve(20);
+
+  distr_gaussiancopula_dagum_bs.erase(distr_gaussiancopula_dagum_bs.begin(),distr_gaussiancopula_dagum_bs.end());
+  distr_gaussiancopula_dagum_bs.reserve(20);
+
+  distr_gaussiancopula_dagum_ps.erase(distr_gaussiancopula_dagum_ps.begin(),distr_gaussiancopula_dagum_ps.end());
+  distr_gaussiancopula_dagum_ps.reserve(20);
 
   distr_gumbelcopula2_rhos.erase(distr_gumbelcopula2_rhos.begin(),distr_gumbelcopula2_rhos.end());
   distr_gumbelcopula2_rhos.reserve(20);
@@ -949,6 +962,10 @@ void superbayesreg::clear(void)
   FC_nonp_variance_varselections.erase(FC_nonp_variance_varselections.begin(),
                                        FC_nonp_variance_varselections.end());
   FC_nonp_variance_varselections.reserve(200);
+  
+  FC_nonp_variance_varselection2s.erase(FC_nonp_variance_varselection2s.begin(),
+                                       FC_nonp_variance_varselection2s.end());
+  FC_nonp_variance_varselection2s.reserve(200);
 
   FC_linear_pens.erase(FC_linear_pens.begin(),FC_linear_pens.end());
   FC_linear_pens.reserve(50);
@@ -1149,6 +1166,10 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_gumbelcopula2_normal_mus = b.distr_gumbelcopula2_normal_mus;
   distr_gumbelcopula2_normal_sigma2s = b.distr_gumbelcopula2_normal_sigma2s;
+  distr_gaussiancopula_dagum_rhos = b.distr_gaussiancopula_dagum_rhos;
+  distr_gaussiancopula_dagum_as = b.distr_gaussiancopula_dagum_as;
+  distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
+  distr_gaussiancopula_dagum_ps = b.distr_gaussiancopula_dagum_ps;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
@@ -1191,6 +1212,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
+  FC_nonp_variance_varselection2s = b.FC_nonp_variance_varselection2s;
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -1340,6 +1362,10 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_gumbelcopula2_normal_mus = b.distr_gumbelcopula2_normal_mus;
   distr_gumbelcopula2_normal_sigma2s = b.distr_gumbelcopula2_normal_sigma2s;
+  distr_gaussiancopula_dagum_rhos = b.distr_gaussiancopula_dagum_rhos;
+  distr_gaussiancopula_dagum_as = b.distr_gaussiancopula_dagum_as;
+  distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
+  distr_gaussiancopula_dagum_ps = b.distr_gaussiancopula_dagum_ps;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
@@ -1383,6 +1409,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
+  FC_nonp_variance_varselection2s = b.FC_nonp_variance_varselection2s;
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -4263,6 +4290,321 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: gumbelcopula2_rho ---------------------
 
 
+//-------------------------------- gumbelcopula2_dagum_p ---------------------------------
+  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="shape2")
+    {
+
+	unsigned pos;
+      if (distr_gaussiancopula_dagum_ps.size()==0)
+        pos=0;
+      else
+        pos=1;
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_dagum_ps.push_back(DISTR_gaussiancopula_dagum_p(&generaloptions,D.getCol(0),pos,w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1];
+    equations[modnr].pathd = "";
+
+/*	if (distr_gaussiancopula_dagum_bs.size() == 2)
+       {
+       distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response;
+       distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response;
+       }*/
+
+
+    }
+//---------------------------- END: gumbelcopula2_dagum_p -------------------------------
+
+//-------------------------------- gumbelcopula2_dagum_b ---------------------------------
+  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="scale")
+    {
+
+	unsigned pos;
+      if (distr_gaussiancopula_dagum_bs.size()==0)
+        pos=0;
+      else
+        pos=1;
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_dagum_bs.push_back(DISTR_gaussiancopula_dagum_b(&generaloptions,D.getCol(0),pos,w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1];
+    equations[modnr].pathd = "";
+
+/*	if (distr_gaussiancopula_dagum_bs.size() == 2)
+       {
+       distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response;
+       distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response;
+       }*/
+
+
+    }
+//---------------------------- END: gumbelcopula2_dagum_b -------------------------------
+
+//------------------------------- gumbelcopula2_dagum_a ------------------------------------
+  else if ((family.getvalue() == "gaussiancopula_dagum") && equationtype.getvalue()=="shape1")
+    {
+
+	unsigned pos;
+      if (distr_gaussiancopula_dagum_as.size()==0)
+        pos=0;
+      else
+        pos=1;
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_dagum_as.push_back(DISTR_gaussiancopula_dagum_a(&generaloptions,D.getCol(0),pos,w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1];
+    equations[modnr].pathd = "";
+
+	/*if (distr_gaussiancopula_dagum_as.size() == 2)
+       {
+       distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].response2 = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response;
+       distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response2 = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].response;
+       }*/
+
+    }
+//------------------------------- END: gumbelcopula2_dagum_a -------------------------------
+
+
+
+//----------------------------- gaussiancopula_dagum_rho ----------------------
+  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="mean")
+    {
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_dagum_rhos.push_back(DISTR_gaussiancopula_dagum_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    if (((distr_dagum_ps.size() != 2) || (distr_dagum_as.size() != 2) || (distr_dagum_bs.size() != 2)) && ((distr_gaussiancopula_dagum_ps.size() != 2) || (distr_gaussiancopula_dagum_as.size() != 2) || (distr_gaussiancopula_dagum_bs.size() != 2)))
+       {
+       outerror("ERROR: three equations for marginal distributions required");
+       return true;
+       }
+		if ((distr_dagum_as.size() == 2))
+		{
+		    predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-2]);
+            predict_mult_distrs.push_back(&distr_dagum_bs[distr_dagum_bs.size()-2]);
+            predict_mult_distrs.push_back(&distr_dagum_as[distr_dagum_as.size()-2]);
+            predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-1]);
+            predict_mult_distrs.push_back(&distr_dagum_bs[distr_dagum_bs.size()-1]);
+            predict_mult_distrs.push_back(&distr_dagum_as[distr_dagum_as.size()-1]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response2 = distr_dagum_as[distr_dagum_as.size()-2].response;
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response = distr_dagum_as[distr_dagum_as.size()-1].response;
+
+            distr_dagum_ps[distr_dagum_ps.size()-2].distrp.push_back(
+            &distr_dagum_bs[distr_dagum_bs.size()-2]);
+
+            distr_dagum_ps[distr_dagum_ps.size()-2].distrp.push_back(
+            &distr_dagum_as[distr_dagum_as.size()-2]);
+
+            distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
+            &distr_dagum_bs[distr_dagum_bs.size()-1]);
+
+            distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
+            &distr_dagum_as[distr_dagum_as.size()-1]);
+
+            distr_dagum_bs[distr_dagum_bs.size()-2].distrp.push_back(
+            &distr_dagum_ps[distr_dagum_ps.size()-2]);
+
+            distr_dagum_bs[distr_dagum_bs.size()-2].distrp.push_back(
+            &distr_dagum_as[distr_dagum_as.size()-2]);
+
+            distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
+            &distr_dagum_ps[distr_dagum_ps.size()-1]);
+
+            distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
+            &distr_dagum_as[distr_dagum_as.size()-1]);
+
+            distr_dagum_as[distr_dagum_as.size()-2].distrp.push_back(
+            &distr_dagum_ps[distr_dagum_ps.size()-2]);
+
+            distr_dagum_as[distr_dagum_as.size()-2].distrp.push_back(
+            &distr_dagum_bs[distr_dagum_bs.size()-2]);
+
+            distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
+            &distr_dagum_ps[distr_dagum_ps.size()-1]);
+
+            distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
+            &distr_dagum_bs[distr_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_dagum_ps[distr_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_dagum_bs[distr_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_dagum_as[distr_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_dagum_ps[distr_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_dagum_bs[distr_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_dagum_as[distr_dagum_as.size()-1]);
+		}
+		else
+		{
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response2 = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].response;
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response;
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].response2 = distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].response;
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].response2 = distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].response;
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response;
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response;
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].response2 = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response;
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response2 = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].response;
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+
+            distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+
+            distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1]);
+
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].distrp.push_back(
+            &distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1]);
+		}
+
+    }
+//-------------------------- END: gaussiancopula_dagum_rho ---------------------
+
+
+
 //----------------------------- gaussiancopula_rho ----------------------
   else if ((family.getvalue() == "gaussiancopula_rho") && (equationtype.getvalue()=="rho"))
     {
@@ -6591,7 +6933,21 @@ void superbayesreg::create_pspline(unsigned i)
 
     equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
     }
+   else if (terms[i].options[35] == "ssvs2")
+    {
+    FC_nonp_variance_varselection2s.push_back(FC_nonp_variance_varselection2(
+                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                                  title,pathnonp,&design_psplines[design_psplines.size()-1],
+                                  &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                  terms[i].varnames));
 
+    equations[modnr].add_FC(&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1],pathres);
+
+    //cout << "modnr" << modnr << "\n";
+    //cout << "FCpointer.size()-1:" << equations[modnr].FCpointer.size()-1 << "\n";
+
+    equations[modnr].FCpointer[equations[modnr].FCpointer.size()-1]->outoptions();
+    }
 
   }
 

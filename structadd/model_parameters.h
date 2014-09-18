@@ -82,6 +82,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption abeta;
   doubleoption bbeta;
   doubleoption r;
+  doubleoption r2;
   doubleoption v;
   doubleoption aQ;
   doubleoption bQ;
@@ -91,6 +92,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption tildea;
   doubleoption tildeb;
   simpleoption cauchy;
+  simpleoption wei;
+  doubleoption scaletau2;
 
   vector<ST::string> termnames;
 

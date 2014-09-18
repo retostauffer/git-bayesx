@@ -165,6 +165,10 @@ using MCMC::DISTR_gumbelcopula_rho;
 using MCMC::DISTR_gumbelcopula2_rho;
 using MCMC::DISTR_gumbelcopula2_normal_mu;
 using MCMC::DISTR_gumbelcopula2_normal_sigma2;
+using MCMC::DISTR_gaussiancopula_dagum_rho;
+using MCMC::DISTR_gaussiancopula_dagum_a;
+using MCMC::DISTR_gaussiancopula_dagum_b;
+using MCMC::DISTR_gaussiancopula_dagum_p;
 using MCMC::DISTR_claytoncopula_rho;
 using MCMC::DISTR_claytoncopula2_rho;
 using MCMC::DISTR_claytoncopula2_normal_mu;
@@ -216,6 +220,7 @@ using MCMC::FC_mult;
 using MCMC::FC_hrandom;
 using MCMC::FC_nonp_variance;
 using MCMC::FC_nonp_variance_varselection;
+using MCMC::FC_nonp_variance_varselection2;
 using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
 using MCMC::FC_variance_pen_vector_ssvs;
@@ -484,6 +489,10 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gumbelcopula2_rho> distr_gumbelcopula2_rhos;
   vector<DISTR_gumbelcopula2_normal_mu> distr_gumbelcopula2_normal_mus;
   vector<DISTR_gumbelcopula2_normal_sigma2> distr_gumbelcopula2_normal_sigma2s;
+  vector<DISTR_gaussiancopula_dagum_rho> distr_gaussiancopula_dagum_rhos;
+  vector<DISTR_gaussiancopula_dagum_a> distr_gaussiancopula_dagum_as;
+  vector<DISTR_gaussiancopula_dagum_b> distr_gaussiancopula_dagum_bs;
+  vector<DISTR_gaussiancopula_dagum_p> distr_gaussiancopula_dagum_ps;
   vector<DISTR_claytoncopula_rho> distr_claytoncopula_rhos;
   vector<DISTR_claytoncopula2_rho> distr_claytoncopula2_rhos;
   vector<DISTR_claytoncopula2_normal_mu> distr_claytoncopula2_normal_mus;
@@ -602,6 +611,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
   vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;
+  vector<FC_nonp_variance_varselection2> FC_nonp_variance_varselection2s;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);

@@ -2896,6 +2896,279 @@ class __EXPORT_TYPE DISTR_gumbelcopula2_rho : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_gaussiancopula_dagum_p --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussiancopula_dagum_p : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_p(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_p(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_p(const DISTR_gaussiancopula_dagum_p & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_dagum_p & operator=(const DISTR_gaussiancopula_dagum_p & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_dagum_p() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_gaussiancopula_dagum_b --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussiancopula_dagum_b : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_b(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_b(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_b(const DISTR_gaussiancopula_dagum_b & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_dagum_b & operator=(const DISTR_gaussiancopula_dagum_b & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_dagum_b() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_gaussiancopula_dagum_a ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussiancopula_dagum_a : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_a(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_a(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_a(const DISTR_gaussiancopula_dagum_a & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_dagum_a & operator=(const DISTR_gaussiancopula_dagum_a & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_dagum_a() {}
+
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+ // void update(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gaussiancopula_dagum_rho ------------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE DISTR_gaussiancopula_dagum_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_dagum_rho(const DISTR_gaussiancopula_dagum_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_dagum_rho & operator=(const DISTR_gaussiancopula_dagum_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_dagum_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_gumbelcopula_rho ------------------------
 //------------------------------------------------------------------------------
 
