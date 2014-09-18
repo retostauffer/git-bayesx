@@ -614,19 +614,19 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   f = op[6].strtodouble(b);
   atau2.push_back(a);
   btau2.push_back(b);
-  tau2.push_back(FC(optionsp,"",1,1,""));
-  tau2[tau2.size()-1].setbeta(1,1,0.1);
-
-  delta.push_back(FC(optionsp,"",1,1,""));
-  delta[delta.size()-1].setbeta(1,1,1);
 
   nrpen++;
+
+  delta = FC(optionsp,"",nrpen,1,"");
+  delta.setbeta(nrpen,1,1);
+
+  setbeta(nrpen,1,0.1);
 
   Cp->tau2 = datamatrix(nrpen,1,0);
   Cp->tau2oldinv = datamatrix(nrpen,1,0);
   for(int i=0;i<nrpen;i++)
     {
-    Cp->tau2(i,0) = tau2[i].beta(0,0);
+    Cp->tau2(i,0) = beta(i,0);
     }
   }
 
@@ -645,11 +645,15 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
 
   nrpen = 0;
 
+  nu0 = 0.0005;
+
+  theta = FC(optionsp,"",1,1,"");
+  theta.setbeta(1,1,0.5);
+
+  atheta=1;
+  btheta=1;
+
   }
-//______________________________________________________________________________
-//
-// COPY CONSTRUCTOR
-//______________________________________________________________________________
 
 FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_vector_ssvs & t)
     : FC(FC(t))
@@ -660,13 +664,14 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_v
   distrp = t.distrp;
   Cp = t.Cp;
 
-  tau2 = t.tau2;
   delta = t.delta;
   atau2 = t.atau2;
   btau2 = t.btau2;
   theta = t.theta;
   atheta = t.atheta;
   btheta = t.btheta;
+
+  nu0 = t.nu0;
 
   }
 
@@ -682,13 +687,14 @@ const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const
   distrp = t.distrp;
   Cp = t.Cp;
 
-  tau2 = t.tau2;
   delta = t.delta;
   atau2 = t.atau2;
   btau2 = t.btau2;
   theta = t.theta;
   atheta = t.atheta;
   btheta = t.btheta;
+
+  nu0 = t.nu0;
 
   return *this;
   }
@@ -712,12 +718,97 @@ bool FC_variance_pen_vector_ssvs::posteriormode(void)
   }
 
 
+
+
+
 void FC_variance_pen_vector_ssvs::update(void)
   {
 
+  unsigned j;
+  double anew_tau2;
+  double bnew_tau2;
+  double beta2;
+  double btau2_pow_atau2;
+  double nu0btau2_pow_atau2;
+  double thetanew;
+  double helpIG1;
+  double helpIG2;
 
-  }
+  double sumdelta=0;
 
+
+  for (j=0;j<nrpen;j++)
+    {
+
+    // update tau^2_j
+
+    anew_tau2 = atau2[j] + 0.5;
+    beta2 = pow(Cp->beta(j,0),2);
+
+
+    if (delta.beta(j,0) == 1)
+      {
+      bnew_tau2 = btau2[j]+0.5*beta2;
+      }
+    else
+      {
+      bnew_tau2 = nu0*btau2[j]+0.5*beta2;
+      }
+
+
+
+    beta(j,0) = rand_invgamma(anew_tau2,bnew_tau2);
+
+    Cp->tau2(j,0) = beta(j,0);
+
+
+    // update delta_j
+
+    btau2_pow_atau2 = pow(btau2[j],atau2[j]);
+    nu0btau2_pow_atau2 = pow(nu0*btau2[j],atau2[j]);
+
+
+    helpIG1 = btau2_pow_atau2*exp(-btau2[j]/beta(j,0));
+    helpIG2 = nu0btau2_pow_atau2*exp(-nu0*btau2[j]/beta(j,0));
+
+
+    thetanew = (theta.beta(0,0) * helpIG1)/(theta.beta(0,0) * helpIG1 + (1-theta.beta(0,0))*helpIG2);
+
+    if (j==2)
+      {
+      cout << "thetanew " << thetanew << endl;
+      cout << "helpIG1 : " << helpIG1 << endl;
+      cout << "helpIG2 : " << helpIG2 << endl;
+      }
+
+    if (uniform() < thetanew)
+      delta.beta(j,0) = 1;
+    else
+      delta.beta(j,0) = 0;
+
+
+    sumdelta += delta.beta(j,0);
+
+    delta.update();
+    }
+
+
+
+
+  // update theta
+
+  theta.beta(0,0) = randnumbers::rand_beta(atheta+sumdelta,btheta+nrpen-sumdelta);
+
+//  cout << "atheta: " << atheta << endl;
+//  cout << "btheta: " << btheta << endl;
+//  cout << "nrpen: " << nrpen << endl;
+//  cout << "theta: " << theta.beta(0,0) << endl;
+
+  theta.update();
+
+
+  FC::update();
+}
 
 
 void FC_variance_pen_vector_ssvs::get_samples(const ST::string & filename,ofstream & outg) const
@@ -738,6 +829,27 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
                                              const ST::string & pathresults)
   {
 
+   FC::outresults(out_stata,out_R,"");
+   FC::outresults_help(out_stata,out_R,pathresults,Cp->datanames);
+
+
+   optionsp->out("\n");
+   optionsp->out("    Results for linear effects variance parameters are also stored in file\n");
+   optionsp->out("    " + pathresults + "\n");
+   optionsp->out("\n");
+
+
+   ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-7)+"delta.res";
+
+
+   delta.outresults(out_stata,out_R,"");
+   delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
+
+   optionsp->out("\n");
+   optionsp->out("    Results for linear effects delta parameters are also stored in file\n");
+   optionsp->out("    " + pathresults_delta + "\n");
+   optionsp->out("\n");
+   optionsp->out("\n");
 
   }
 

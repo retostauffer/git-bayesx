@@ -186,8 +186,7 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
   FC_linear_pen * Cp;
   DISTR * distrp;
 
-  vector<FC> tau2;                    //  tau^2
-  vector<FC> delta;                   //  delta
+  FC delta;                           //  delta
   vector<double> atau2;               //  a_tau2
   vector<double> btau2;               //  b_tau2
   FC theta;
@@ -195,6 +194,8 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
   double btheta;
 
   unsigned nrpen;
+
+  double nu0;
 
   public:
 
