@@ -1,16 +1,15 @@
-% usefile c:\lab\bayes_commit\trunk\testh\prg\hgaussian_linear.prg
+% usefile c:\bayesx\trunk\testh\prg\hgaussian_linear.prg
 
 dataset d
-d.infile using c:\tmp\d.raw
-d.generate c = 1
-
+d.infile using c:\bayesx\trunk\testh\testdata\hgaussian_linear.raw
+d.generate x3 = uniform()
 
 
 mcmcreg b
 
-b.outfile = c:\lab\bayes_commit\trunk\testh\results\hgaussian_linear
-b.hregress y = c ,  iterations=12000 step=10 burnin=2000 family=hetgaussian equationtype = variance using d
+logopen using c:\bayesx\trunk\testh\results\test.log
 
-b.outfile = c:\lab\bayes_commit\trunk\testh\results\hgaussian_linear
-b.hregress y = c(ridge) ,  iterations=12000 step=10 burnin=2000 family=hetgaussian equationtype = mean using d
+b.outfile = c:\bayesx\trunk\testh\results\hgaussian_linear
+b.hregress y = const + x1(ssvs,a=5,b=25) + x2(ssvs,a=5,b=25) + x3(ssvs,a=5,b=25) , iterations=12000 step=10 burnin=2000 family=gaussian  using d
+
 
