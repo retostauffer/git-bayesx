@@ -17836,9 +17836,9 @@ void DISTR_sfa_alpha::compute_iwls_wweightschange_weightsone(
     double nu = - ( pow(sigu,2) + (epsi+muu)*muu )/hilfs + pow(((epsi+muu)*sigu/hilfs), 2) + (densarg2*darg2)/(randnumbers::Phi2(arg2));
 
 
-    *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigv,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
+    *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigu,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
                         (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + ( muu*(epsi+muu) + pow(muu, 2) )/hilfs
-                        -( 2*(epsi+muu)*muu*pow(sigu, 2) )/pow(hilfs, 2);
+                        -( 4*(epsi+muu)*muu*pow(sigu, 2) )/pow(hilfs, 2);
  /*   *workingweight = (2*pow(sigu,2)*pow(sigv,2))/pow(hilfs,2) + (2*(pow(epsi+muu,2))*(pow(sigu,4) - pow(sigu,2)*pow(sigv,2)))/pow(hilfs,3)  -
                         (densarg2*(pow(darg2,2)*(-arg2)+ddarg2))/proparg2 + pow((densarg2*darg2)/proparg2,2) + (  pow(muu, 2) )/hilfs ;
                         -( 2*(epsi+muu)*muu*pow(sigu, 2) )/pow(hilfs, 2) + 2 * muu * (epsi + muu) * pow(sigv, 2) / pow(hilfs, 2); */
