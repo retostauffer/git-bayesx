@@ -17446,7 +17446,7 @@ void DISTR_sfa0_sigma_u::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//--------------------------- CLASS: DISTR_sfa0_mu_y ------------------------
+//--------------------------- CLASS: DISTR_sfa0_mu_y ---------------------------
 //------------------------------------------------------------------------------
 
 void DISTR_sfa0_mu_y::check_errors(void)
@@ -17674,6 +17674,8 @@ void DISTR_sfa0_mu_y::compute_mu_mult(vector<double *> linpred,vector<double *> 
   *mu = randnumbers::Phi2(muast / sigast - sigast) * exp(-muast + 0.5 * pow(sigast, 2)) / randnumbers::Phi2(muast / sigast);
 
   }
+
+
 
 void DISTR_sfa0_mu_y::outoptions(void)
   {

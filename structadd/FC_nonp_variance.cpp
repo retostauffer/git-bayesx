@@ -534,7 +534,7 @@ void FC_nonp_variance_varselection::update(void)
   else
     r_delta = 1;
 
-  FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)*r_delta);
+  FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)/r_delta);
 
   FC_psi2.update();
 
@@ -717,7 +717,7 @@ void FC_nonp_variance_varselection2::read_options(vector<ST::string> & op,
   int f;
   f = op[39].strtodouble(a_omega);
   f = op[40].strtodouble(b_omega);
-  f = op[41].strtodouble(r2);
+  f = op[52].strtodouble(r2);
   }
 
 
@@ -811,7 +811,7 @@ void FC_nonp_variance_varselection2::update(void)
 
  // FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)*r_delta);
 
-  double gamma = rand_invgamma(v+0.5,Q+0.5*FC_psi2.beta(0,0)*r_delta);
+  double gamma = rand_invgamma(v+0.5,Q+0.5*FC_psi2.beta(0,0)/r_delta);
 
       double logu = log(uniform());
 
@@ -850,12 +850,17 @@ void FC_nonp_variance_varselection2::update(void)
   // end: updating delta
 
 
-  // updating w
+  // updating w only if so = false
 
-  FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
+  //cout << "singleomega" << singleomega << "\n";
+
+  if(singleomega == false) {
+
+    FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
                                           b_omega+1-FC_delta.beta(0,0));
 
-  FC_omega.update();
+    FC_omega.update();
+  }
 
   // end: updating w
 
@@ -1020,6 +1025,9 @@ void FC_nonp_variance_varselection2::outoptions(void)
     optionsp->out("  Scale parameter: " +
                 ST::doubletostring(scaletau2) + "\n" );
 
+    optionsp->out("  Parameter r: " +
+                ST::doubletostring(r2) + "\n" );
+
     optionsp->out("  Hyperparameter tildea for proposal density: " +
                 ST::doubletostring(tildea) + "\n" );
 
@@ -1081,7 +1089,19 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
   void FC_varselection_omega::update(void)
     {
+        //update omega when having one single omega for each equation.
+        double sumdelta;
+        double nfunc = FC_tau2s[0].delta.size();
+        unsigned j;
+        for (j=0;<nfunc;j++)
+        {
+            sumdelta += sumdelta + &FC_tau2s[0].delta(j,0);
+        }
 
+        //draw new omega
+        FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+sumdelta,
+                                          b_omega+nfunc-sumdelta);
+        FC::update();
     }
 
 

@@ -5554,6 +5554,7 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- sfa0_mu_y ------------------------------------
   else if (family.getvalue() == "sfa0_mu_y" && equationtype.getvalue()=="mu")
     {
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -5676,6 +5677,8 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- sfa_mu_y ------------------------------------
   else if (family.getvalue() == "sfa_mu_y" && equationtype.getvalue()=="mu")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
