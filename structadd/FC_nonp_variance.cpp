@@ -638,6 +638,7 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
 
+
     FC_nonp_variance::outresults(out_stata,out_R,pathresults);
 
     FC_delta.outresults(out_stata,out_R,"");
@@ -677,18 +678,12 @@ void FC_nonp_variance_varselection::get_samples(
   {
   FC_nonp_variance::get_samples(filename,outg);
 
-  ST::string filename_delta = filename.substr(0,filename.length()-4) + "_delta.raw";
+  ST::string filename_delta = filename.substr(0,filename.length()-11) + "_delta_sample.raw";
   FC_delta.get_samples(filename_delta,outg);
 
-
-  ST::string filename_omega = filename.substr(0,filename.length()-4) + "_omega.raw";
+  ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
   FC_omega.get_samples(filename_omega,outg);
-/*
-  ST::string filename_Q = filename.substr(0,filename.length()-4) + "_Q.raw";
-  FC_Q.get_samples(filename_Q,outg);
-*/
   }
-
 
 void FC_nonp_variance_varselection::outoptions(void)
   {
@@ -800,8 +795,11 @@ const FC_nonp_variance_varselection2 & FC_nonp_variance_varselection2::operator=
 
 void FC_nonp_variance_varselection2::update(void)
   {
-
   unsigned i;
+  //if more than one omega, set omegas
+  if(singleomega == false) {
+    omegas = FC_omega.beta(0,0) ;
+  }
 
   // updating psi2
 
@@ -860,6 +858,7 @@ void FC_nonp_variance_varselection2::update(void)
 
     FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
                                           b_omega+1-FC_delta.beta(0,0));
+    omegas = FC_omega.beta(0,0) ;
 
     FC_omega.update();
   }
@@ -934,11 +933,16 @@ void FC_nonp_variance_varselection2::outresults(ofstream & out_stata,ofstream & 
     ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
     ST::string pathresults_psi2 = pathresults.substr(0,pathresults.length()-4) + "_psi2.res";
+    if(singleomega == false)
+    {
+        FC_omega.outresults(out_stata,out_R,pathresults_omega);
+    }
+
 
     FC_nonp_variance::outresults(out_stata,out_R,pathresults);
 
     FC_delta.outresults(out_stata,out_R,"");
-    FC_omega.outresults(out_stata,out_R,pathresults_omega);
+
     FC_psi2.outresults(out_stata,out_R,pathresults_psi2);
 
 
@@ -957,13 +961,18 @@ void FC_nonp_variance_varselection2::outresults(ofstream & out_stata,ofstream & 
     optionsp->out("\n");
     optionsp->out("\n");
 
-    optionsp->out("    Inclusion probability parameter omega:\n");
-    optionsp->out("\n");
-    FC_omega.outresults_singleparam(out_stata,out_R,"");
-    optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
-    optionsp->out("    " +  pathresults_omega + "\n");
-    optionsp->out("\n");
-    optionsp->out("\n");
+    if(singleomega == false)
+    {
+        optionsp->out("    Inclusion probability parameter omega:\n");
+        optionsp->out("\n");
+        FC_omega.outresults_singleparam(out_stata,out_R,"");
+        optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+        optionsp->out("    " +  pathresults_omega + "\n");
+        optionsp->out("\n");
+        optionsp->out("\n");
+    }
+
+
 
     // deltas
     ofstream ou(pathresults_delta.strtochar());
@@ -1003,14 +1012,17 @@ void FC_nonp_variance_varselection2::get_samples(
   {
   FC_nonp_variance::get_samples(filename,outg);
 
-  ST::string filename_delta = filename.substr(0,filename.length()-4) + "_delta.raw";
+  ST::string filename_delta = filename.substr(0,filename.length()-11) + "_delta_sample.raw";
   FC_delta.get_samples(filename_delta,outg);
 
+  if(singleomega == false)
+  {
+    ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
+    FC_omega.get_samples(filename_omega,outg);
 
-  ST::string filename_omega = filename.substr(0,filename.length()-4) + "_omega.raw";
-  FC_omega.get_samples(filename_omega,outg);
+  }
 
-  ST::string filename_psi2 = filename.substr(0,filename.length()-4) + "_psi2.raw";
+  ST::string filename_psi2 = filename.substr(0,filename.length()-11) + "_psi2_sample.raw";
   FC_psi2.get_samples(filename_psi2,outg);
 /*
   ST::string filename_Q = filename.substr(0,filename.length()-4) + "_Q.raw";
@@ -1063,7 +1075,7 @@ FC_varselection_omega::FC_varselection_omega(void)
 
 FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
            const ST::string & t)
-     : FC(o,t,1,1,"")
+     : FC(o,t,1,2,"")
 
   {
   setbeta(1,1,0.5);
@@ -1074,7 +1086,7 @@ FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GEN
 
 FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
     {
-    FC_tau2s = m.FC_tau2s;
+   FC_tau2s = m.FC_tau2s;
    a_omega = m.a_omega;
    b_omega = m.b_omega;
     }
@@ -1120,6 +1132,11 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
         FC::update();
     }
 
+bool FC_varselection_omega::posteriormode(void)
+  {
+
+  }
+
 
   void FC_varselection_omega::outoptions(void)
     {
@@ -1130,13 +1147,13 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
   void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
                   const ST::string & pathresults)
    {
-
+        FC::outresults(out_stata,out_R,pathresults);
    }
 
 
   void FC_varselection_omega::reset(void)
     {
-
+        FC::reset();
     }
 
   void FC_varselection_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)
@@ -1146,7 +1163,8 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
   void FC_varselection_omega::get_samples(const ST::string & filename,ofstream & outg) const
    {
-
+        ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
+        FC::get_samples(filename_omega,outg);
 
    }
 

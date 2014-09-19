@@ -6968,12 +6968,13 @@ void superbayesreg::create_pspline(unsigned i)
         {
         FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
                                          equations[modnr].distrp,"omega"));
+        equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],"variance_of_nonlinear_pspline_effects_ssv2_");
         firstvarselection=false;
         }
 
 
       FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
-      (&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1]  );
+      (&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1] );
 
       }
 
@@ -6982,9 +6983,9 @@ void superbayesreg::create_pspline(unsigned i)
     equations[modnr].add_FC(&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1],pathres);
 
     //cout << "modnr" << modnr << "\n";
-    //cout << "FCpointer.size()-1:" << equations[modnr].FCpointer.size()-1 << "\n";
+    //cout << "FCpointer.size():" << FC_varselection_omegas.size() << "\n";
 
-    equations[modnr].FCpointer[equations[modnr].FCpointer.size()-1]->outoptions();
+   // equations[modnr].FCpointer[equations[modnr].FCpointer.size()-1]->outoptions();
     }
 
   }

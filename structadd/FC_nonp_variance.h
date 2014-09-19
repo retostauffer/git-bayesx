@@ -370,6 +370,8 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 
   void update(void);
 
+  bool posteriormode(void);
+
   // FUNCTION: outoptions
   // TASK: writes estimation options (hyperparameters, etc.) to outputstream
 

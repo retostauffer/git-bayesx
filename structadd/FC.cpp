@@ -468,7 +468,7 @@ void FC::update(void)
   double diffmax;
   double normold;
   double rate;
-
+  cout << "nriter " << optionsp->nriter << endl;
   if(
      (optionsp->nriter > optionsp->burnin)
      &&
@@ -988,7 +988,7 @@ void FC::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("  " + title + "\n",true);
     optionsp->out("\n");
     }
-
+    cout << optionsp->samplesize << "\n" <<endl;
   if (optionsp->samplesize > 0)
     {
 
