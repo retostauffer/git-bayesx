@@ -330,6 +330,11 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
   double a_omega;
   double b_omega;
 
+  DISTR * likep;                             // Pointer to DISTR obejct
+
+  MASTER_OBJ * masterp;
+
+
   public:
 
   vector<FC_nonp_variance_varselection2*> FC_tau2s;

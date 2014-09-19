@@ -6962,6 +6962,8 @@ void superbayesreg::create_pspline(unsigned i)
                                   &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                   terms[i].varnames));
 
+    equations[modnr].add_FC(&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1],pathres);
+
     if (so==true)
       {
       if (firstvarselection==true)
@@ -6979,13 +6981,6 @@ void superbayesreg::create_pspline(unsigned i)
       }
 
 
-
-    equations[modnr].add_FC(&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1],pathres);
-
-    //cout << "modnr" << modnr << "\n";
-    //cout << "FCpointer.size():" << FC_varselection_omegas.size() << "\n";
-
-   // equations[modnr].FCpointer[equations[modnr].FCpointer.size()-1]->outoptions();
     }
 
   }

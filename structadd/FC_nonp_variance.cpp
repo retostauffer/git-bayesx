@@ -1078,6 +1078,9 @@ FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GEN
      : FC(o,t,1,2,"")
 
   {
+  likep = lp;
+  masterp = mp;
+
   setbeta(1,1,0.5);
   a_omega = 1;
   b_omega = 1;
@@ -1085,11 +1088,14 @@ FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GEN
 
 
 FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
-    {
+    : FC(FC(m))
+   {
    FC_tau2s = m.FC_tau2s;
    a_omega = m.a_omega;
    b_omega = m.b_omega;
-    }
+   likep = m.likep;
+   masterp = m.masterp;
+   }
 
 
   // OVERLOADED ASSIGNMENT OPERATOR
@@ -1103,6 +1109,8 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
    FC_tau2s = m.FC_tau2s;
    a_omega = m.a_omega;
    b_omega = m.b_omega;
+   likep = m.likep;
+   masterp = m.masterp;
    return *this;
    }
 
