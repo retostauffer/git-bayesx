@@ -233,7 +233,7 @@ class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
 
   bool singleomega;
 
-  FC FC_delta;
+
   FC FC_psi2;
   FC FC_omega;
 
@@ -250,6 +250,10 @@ class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
   datamatrix X;
 
   public:
+
+  double omegas;
+
+  FC FC_delta;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -323,6 +327,8 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 
   protected:
 
+  double a_omega;
+  double b_omega;
 
   public:
 

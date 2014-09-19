@@ -769,6 +769,7 @@ FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(const FC_nonp_var
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
+  omegas = m.omegas;
   v = m.v;
   Q = m.Q;
   r2 = m.r2;
@@ -788,6 +789,7 @@ const FC_nonp_variance_varselection2 & FC_nonp_variance_varselection2::operator=
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
+  omegas = m.omegas;
   v = m.v;
   Q = m.Q;
   r2 = m.r2;
@@ -1064,13 +1066,17 @@ FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GEN
      : FC(o,t,1,1,"")
 
   {
-
+  setbeta(1,1,0.5);
+  a_omega = 1;
+  b_omega = 1;
   }
 
 
 FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
     {
     FC_tau2s = m.FC_tau2s;
+   a_omega = m.a_omega;
+   b_omega = m.b_omega;
     }
 
 
@@ -1083,6 +1089,8 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
    	 return *this;
    FC::operator=(FC(m));
    FC_tau2s = m.FC_tau2s;
+   a_omega = m.a_omega;
+   b_omega = m.b_omega;
    return *this;
    }
 
@@ -1090,17 +1098,25 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
   void FC_varselection_omega::update(void)
     {
         //update omega when having one single omega for each equation.
-        double sumdelta;
-        double nfunc = FC_tau2s[0].delta.size();
+        double sumdelta=0;
+        unsigned nfunc = FC_tau2s.size();
         unsigned j;
-        for (j=0;<nfunc;j++)
+        for (j=0;j<nfunc;j++)
         {
-            sumdelta += sumdelta + &FC_tau2s[0].delta(j,0);
+            sumdelta +=  FC_tau2s[j]->FC_delta.beta(0,0);
         }
 
         //draw new omega
-        FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+sumdelta,
+        beta(0,0) = randnumbers::rand_beta(a_omega+sumdelta,
                                           b_omega+nfunc-sumdelta);
+
+
+        for (j=0;j<nfunc;j++)
+        {
+        FC_tau2s[j]->omegas=beta(0,0);
+        }
+
+
         FC::update();
     }
 
