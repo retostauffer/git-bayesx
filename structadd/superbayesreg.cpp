@@ -426,6 +426,8 @@ void superbayesreg::create_hregress(void)
 
   imeasures = simpleoption("imeasures",false);
 
+  singleomega = simpleoption("singleomega",false);
+
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -468,6 +470,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&saveestimation);
   regressoptions.push_back(&nrcat);
   regressoptions.push_back(&imeasures);
+  regressoptions.push_back(&singleomega);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -817,7 +820,7 @@ void superbayesreg::clear(void)
 
   distr_gumbelcopula_rhos.erase(distr_gumbelcopula_rhos.begin(),distr_gumbelcopula_rhos.end());
   distr_gumbelcopula_rhos.reserve(20);
-  
+
   distr_gaussiancopula_dagum_rhos.erase(distr_gaussiancopula_dagum_rhos.begin(),distr_gaussiancopula_dagum_rhos.end());
   distr_gaussiancopula_dagum_rhos.reserve(20);
 
@@ -962,10 +965,14 @@ void superbayesreg::clear(void)
   FC_nonp_variance_varselections.erase(FC_nonp_variance_varselections.begin(),
                                        FC_nonp_variance_varselections.end());
   FC_nonp_variance_varselections.reserve(200);
-  
+
   FC_nonp_variance_varselection2s.erase(FC_nonp_variance_varselection2s.begin(),
                                        FC_nonp_variance_varselection2s.end());
   FC_nonp_variance_varselection2s.reserve(200);
+
+  FC_varselection_omegas.erase(FC_varselection_omegas.begin(),
+                                       FC_varselection_omegas.end());
+  FC_varselection_omegas.reserve(20);
 
   FC_linear_pens.erase(FC_linear_pens.begin(),FC_linear_pens.end());
   FC_linear_pens.reserve(50);
@@ -1044,6 +1051,7 @@ superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
   mainequation=false;
   posteriormode = false;
   computemodeforstartingvalues = true;
+  firstvarselection = true;
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
   }
 #endif
@@ -1055,6 +1063,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   #if defined(JAVA_OUTPUT_WINDOW)
   adminp_p = b.adminp_p;
   #endif
+
+  firstvarselection = b.firstvarselection;
 
   pathres = b.pathres;
   title = b.title;
@@ -1213,6 +1223,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
   FC_nonp_variance_varselection2s = b.FC_nonp_variance_varselection2s;
+  FC_varselection_omegas = b.FC_varselection_omegas;
+
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -1252,6 +1264,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   adminp_p = b.adminp_p;
   #endif
 
+  firstvarselection = b.firstvarselection;
+
   pathres = b.pathres;
   title = b.title;
   pathnonp = b.pathnonp;
@@ -1410,6 +1424,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
   FC_nonp_variance_varselection2s = b.FC_nonp_variance_varselection2s;
+  FC_varselection_omegas = b.FC_varselection_omegas;
   FC_predicts = b.FC_predicts;
   FC_predicts_mult = b.FC_predicts_mult;
   FC_predict_predictors = b.FC_predict_predictors;
@@ -1550,6 +1565,7 @@ void hregressrun(superbayesreg & b)
     b.equations.push_back(equation(modnr+1,b.hlevel.getvalue(),
                                    b.equationtype.getvalue()));
 
+    b.firstvarselection = true;
     bool failure = false;
 
     if (!failure && b.generaloptions_yes==false)
@@ -6912,6 +6928,8 @@ void superbayesreg::create_pspline(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_pspline_var.raw","variance_of_nonlinear_pspline_effect_of","Variance of nonlinear effect of ");
 
+  bool so = singleomega.getvalue();
+
   if (terms[i].options[35] == "iid")
     {
     FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
@@ -6926,7 +6944,7 @@ void superbayesreg::create_pspline(unsigned i)
     {
 
     FC_nonp_variance_varselections.push_back(FC_nonp_variance_varselection(
-                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,so,
                                   title,pathnonp,&design_psplines[design_psplines.size()-1],
                                   &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                   terms[i].varnames));
@@ -6936,10 +6954,27 @@ void superbayesreg::create_pspline(unsigned i)
    else if (terms[i].options[35] == "ssvs2")
     {
     FC_nonp_variance_varselection2s.push_back(FC_nonp_variance_varselection2(
-                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,so,
                                   title,pathnonp,&design_psplines[design_psplines.size()-1],
                                   &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                   terms[i].varnames));
+
+    if (so==true)
+      {
+      if (firstvarselection==true)
+        {
+        FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
+                                         equations[modnr].distrp,"omega"));
+        firstvarselection=false;
+        }
+
+
+      FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
+      (&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1]  );
+
+      }
+
+
 
     equations[modnr].add_FC(&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1],pathres);
 

@@ -728,11 +728,7 @@ void FC_variance_pen_vector_ssvs::update(void)
   double anew_tau2;
   double bnew_tau2;
   double beta2;
-  double btau2_pow_atau2;
-  double nu0btau2_pow_atau2;
   double thetanew;
-  double helpIG1;
-  double helpIG2;
 
   double sumdelta=0;
 
@@ -752,7 +748,7 @@ void FC_variance_pen_vector_ssvs::update(void)
       }
     else
       {
-      bnew_tau2 = nu0*btau2[j]+0.5*beta2;
+      bnew_tau2 = btau2[j]+0.5*beta2/nu0;
       }
 
 
@@ -764,12 +760,12 @@ void FC_variance_pen_vector_ssvs::update(void)
 
     // update delta_j
 
-    btau2_pow_atau2 = pow(btau2[j],atau2[j]);
-    nu0btau2_pow_atau2 = pow(nu0*btau2[j],atau2[j]);
+//    btau2_pow_atau2 = pow(btau2[j],atau2[j]);
+//    nu0btau2_pow_atau2 = pow(nu0*btau2[j],atau2[j]);
 
 
-    helpIG1 = btau2_pow_atau2*exp(-btau2[j]/beta(j,0));
-    helpIG2 = nu0btau2_pow_atau2*exp(-nu0*btau2[j]/beta(j,0));
+//    helpIG1 = btau2_pow_atau2*exp(-btau2[j]/beta(j,0));
+//    helpIG2 = nu0btau2_pow_atau2*exp(-nu0*btau2[j]/beta(j,0));
 
     double u = uniform();
     double L = 1/sqrt(nu0)*exp(- beta2/(2*beta(j,0))*(1/nu0-1));
@@ -795,10 +791,11 @@ void FC_variance_pen_vector_ssvs::update(void)
 
   theta.beta(0,0) = randnumbers::rand_beta(atheta+sumdelta,btheta+nrpen-sumdelta);
 
-  cout << "atheta: " << atheta << endl;
+  /*cout << "atheta: " << atheta << endl;
   cout << "btheta: " << btheta << endl;
   cout << "nrpen: " << nrpen << endl;
   cout << "theta: " << theta.beta(0,0) << endl;
+*/
 
   theta.update();
 

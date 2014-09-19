@@ -456,13 +456,15 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(void)
 
 FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
                  unsigned & enr, GENERAL_OPTIONS * o,
-                 DISTR * lp, const ST::string & t,const ST::string & fp,
+                 DISTR * lp, bool so, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
      : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
   {
 
   read_options(op,vn);
+
+  singleomega = so;
 
   FC_delta = FC(o,"",1,1,"");
   FC_delta.setbeta(1,1,1);
@@ -486,6 +488,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
 FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_variance_varselection & m)
     : FC_nonp_variance(FC_nonp_variance(m))
   {
+  singleomega = m.singleomega;
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
   FC_omega = m.FC_omega;
@@ -504,6 +507,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  singleomega = m.singleomega;
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
   FC_omega = m.FC_omega;
@@ -726,13 +730,15 @@ FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(void)
 
 FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(MASTER_OBJ * mp,
                  unsigned & enr, GENERAL_OPTIONS * o,
-                 DISTR * lp, const ST::string & t,const ST::string & fp,
+                 DISTR * lp, bool so, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
                  vector<ST::string> & vn)
      : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
   {
 
   read_options(op,vn);
+
+  singleomega = so;
 
   FC_delta = FC(o,"",1,1,"");
   FC_delta.setbeta(1,1,1);
@@ -757,6 +763,7 @@ FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(MASTER_OBJ * mp,
 FC_nonp_variance_varselection2::FC_nonp_variance_varselection2(const FC_nonp_variance_varselection2 & m)
     : FC_nonp_variance(FC_nonp_variance(m))
   {
+  singleomega = m.singleomega;
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
   FC_omega = m.FC_omega;
@@ -775,6 +782,7 @@ const FC_nonp_variance_varselection2 & FC_nonp_variance_varselection2::operator=
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+  singleomega = m.singleomega;
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
   FC_omega = m.FC_omega;
@@ -1028,6 +1036,85 @@ void FC_nonp_variance_varselection2::reset(void)
   FC_nonp_variance::reset();
 
   }
+
+
+
+//-------------------------------------------------------------------------------------------------------------
+//------------------------------------  FC_varselection_omega -------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
+
+
+
+FC_varselection_omega::FC_varselection_omega(void)
+  {
+
+  }
+
+
+FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+           const ST::string & t)
+     : FC(o,t,1,1,"")
+
+  {
+
+  }
+
+
+FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
+    {
+    FC_tau2s = m.FC_tau2s;
+    }
+
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_varselection_omega & FC_varselection_omega::operator=(const FC_varselection_omega & m)
+   {
+
+   if (this==&m)
+   	 return *this;
+   FC::operator=(FC(m));
+   FC_tau2s = m.FC_tau2s;
+   return *this;
+   }
+
+
+  void FC_varselection_omega::update(void)
+    {
+
+    }
+
+
+  void FC_varselection_omega::outoptions(void)
+    {
+
+
+    }
+
+  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults)
+   {
+
+   }
+
+
+  void FC_varselection_omega::reset(void)
+    {
+
+    }
+
+  void FC_varselection_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+    {
+
+    }
+
+  void FC_varselection_omega::get_samples(const ST::string & filename,ofstream & outg) const
+   {
+
+
+   }
+
+
 
 } // end: namespace MCMC
 

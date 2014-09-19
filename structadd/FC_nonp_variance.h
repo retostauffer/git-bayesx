@@ -133,10 +133,15 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   };
 
 
+
+
+
 class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
   {
 
   protected:
+
+  bool singleomega;
 
   FC FC_delta;
   FC FC_psi2;
@@ -166,6 +171,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   // fp   : file path for storing sampled parameters
 
   FC_nonp_variance_varselection(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+          bool so,
            const ST::string & t,
            const ST::string & fp,DESIGN * dp,FC_nonp * FCn,
            vector<ST::string> & op,vector<ST::string> & vn);
@@ -225,6 +231,8 @@ class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
 
   protected:
 
+  bool singleomega;
+
   FC FC_delta;
   FC FC_psi2;
   FC FC_omega;
@@ -255,7 +263,8 @@ class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
   // fp   : file path for storing sampled parameters
 
   FC_nonp_variance_varselection2(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
-           const ST::string & t,
+           bool so,
+            const ST::string & t,
            const ST::string & fp,DESIGN * dp,FC_nonp * FCn,
            vector<ST::string> & op,vector<ST::string> & vn);
 
@@ -306,6 +315,81 @@ class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
   // virtual void transform_beta(void);
 
   };
+
+
+
+class __EXPORT_TYPE FC_varselection_omega  : public FC
+  {
+
+  protected:
+
+
+  public:
+
+  vector<FC_nonp_variance_varselection2*> FC_tau2s;
+
+
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+
+  // DEFAULT CONSTRUCTOR
+
+  FC_varselection_omega(void);
+
+  // CONSTRUCTOR
+  // o    : pointer to GENERAL_OPTIONS object
+  // t    : title of the full conditional (for example "fixed effects")
+  // fp   : file path for storing sampled parameters
+
+  FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+           const ST::string & t);
+
+  // COPY CONSTRUCTOR
+
+  FC_varselection_omega(const FC_varselection_omega & m);
+
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_varselection_omega & operator=(const FC_varselection_omega & m);
+
+  // DESTRUCTOR
+
+  ~FC_varselection_omega()
+    {
+    }
+
+  // FUNCTION: update
+  // TASK: - stores sampled parameters in file 'samplepath'
+  //         storing order: first row, second row, ...
+
+  void update(void);
+
+  // FUNCTION: outoptions
+  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
+
+  void outoptions(void);
+
+  // FUNCTION: outresults
+  // TASK: writes estimation results to logout or into a file
+
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults);
+
+  // FUNCTION: reset
+  // TASK: resets all parameters
+
+  void reset(void);
+
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
+  void get_samples(const ST::string & filename,ofstream & outg) const;
+
+
+  // virtual void transform_beta(void);
+
+  };
+
+
 
 
 } // end: namespace MCMC

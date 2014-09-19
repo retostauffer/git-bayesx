@@ -221,6 +221,7 @@ using MCMC::FC_hrandom;
 using MCMC::FC_nonp_variance;
 using MCMC::FC_nonp_variance_varselection;
 using MCMC::FC_nonp_variance_varselection2;
+using MCMC::FC_varselection_omega;
 using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
 using MCMC::FC_variance_pen_vector_ssvs;
@@ -349,6 +350,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   simpleoption cv;
 
   simpleoption imeasures;
+
+  simpleoption singleomega;
 
   vector<ST::string> MSEop;
   stroption mse;
@@ -530,6 +533,12 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   //----------------------------------------------------------------------------
 
+
+  // for variable selection
+
+  bool firstvarselection;
+
+
   // --------------------------- offset handling -------------------------------
 
   void create_offset(unsigned i);
@@ -612,6 +621,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_nonp_variance> FC_nonp_variances;
   vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;
   vector<FC_nonp_variance_varselection2> FC_nonp_variance_varselection2s;
+  vector<FC_varselection_omega> FC_varselection_omegas;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);

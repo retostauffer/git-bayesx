@@ -47,7 +47,7 @@
 			<Add directory="../../../gsl" />
 		</Compiler>
 		<Linker>
-			<Add library="..\..\gsl\.libs\libgsl.a" />
+			<Add library="..\..\gsl\lib\libgsl.a" />
 			<Add library="..\..\gsl\lib\libgslcblas.a" />
 		</Linker>
 		<Unit filename="adaptiv/fullcond_adaptiv.cpp" />
