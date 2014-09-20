@@ -468,7 +468,7 @@ void FC::update(void)
   double diffmax;
   double normold;
   double rate;
-  cout << "nriter " << optionsp->nriter << endl;
+ // cout << "nriter " << optionsp->nriter << endl;
   if(
      (optionsp->nriter > optionsp->burnin)
      &&

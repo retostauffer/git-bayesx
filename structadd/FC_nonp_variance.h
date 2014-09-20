@@ -375,29 +375,29 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 
   void update(void);
 
-  bool posteriormode(void);
-
-  // FUNCTION: outoptions
-  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
-
-  void outoptions(void);
-
-  // FUNCTION: outresults
-  // TASK: writes estimation results to logout or into a file
-
-  void outresults(ofstream & out_stata,ofstream & out_R,
-                  const ST::string & pathresults);
-
-  // FUNCTION: reset
-  // TASK: resets all parameters
-
-  void reset(void);
-
-  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
-
-  void get_samples(const ST::string & filename,ofstream & outg) const;
-
-
+//  bool posteriormode(void);
+//
+//  // FUNCTION: outoptions
+//  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
+//
+//  void outoptions(void);
+//
+//  // FUNCTION: outresults
+//  // TASK: writes estimation results to logout or into a file
+//
+//  void outresults(ofstream & out_stata,ofstream & out_R,
+//                  const ST::string & pathresults);
+//
+//  // FUNCTION: reset
+//  // TASK: resets all parameters
+//
+//  void reset(void);
+//
+//  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+//
+//  void get_samples(const ST::string & filename,ofstream & outg) const;
+//
+//
   // virtual void transform_beta(void);
 
   };

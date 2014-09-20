@@ -812,7 +812,7 @@ void FC_nonp_variance_varselection2::update(void)
  // FC_psi2.beta(0,0) = rand_invgamma(v+0.5,Q+0.5*beta(0,0)*r_delta);
 
   double gamma = rand_invgamma(v+0.5,Q+0.5*FC_psi2.beta(0,0)/r_delta);
-
+    //double gamma = rand_invgamma(v+0.5,Q/r_delta);
       double logu = log(uniform());
 
       double fcold = -log(FC_psi2.beta(0,0))-pow(FC_psi2.beta(0,0)/scaletau2, 0.5)-beta(0,0)/(2*r_delta*FC_psi2.beta(0,0));
@@ -1075,7 +1075,7 @@ FC_varselection_omega::FC_varselection_omega(void)
 
 FC_varselection_omega::FC_varselection_omega(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
            const ST::string & t)
-     : FC(o,t,1,2,"")
+     : FC(o,t,1,1,"")
 
   {
   likep = lp;
@@ -1140,41 +1140,41 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
         FC::update();
     }
 
-bool FC_varselection_omega::posteriormode(void)
-  {
-
-  }
-
-
-  void FC_varselection_omega::outoptions(void)
-    {
-
-
-    }
-
-  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
-                  const ST::string & pathresults)
-   {
-        FC::outresults(out_stata,out_R,pathresults);
-   }
-
-
-  void FC_varselection_omega::reset(void)
-    {
-        FC::reset();
-    }
-
-  void FC_varselection_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)
-    {
-
-    }
-
-  void FC_varselection_omega::get_samples(const ST::string & filename,ofstream & outg) const
-   {
-        ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
-        FC::get_samples(filename_omega,outg);
-
-   }
+//bool FC_varselection_omega::posteriormode(void)
+//  {
+//
+//  }
+//
+//
+//  void FC_varselection_omega::outoptions(void)
+//    {
+//
+//
+//    }
+//
+//  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
+//                  const ST::string & pathresults)
+//   {
+//        FC::outresults(out_stata,out_R,pathresults);
+//   }
+//
+//
+//  void FC_varselection_omega::reset(void)
+//    {
+//        FC::reset();
+//    }
+//
+//  void FC_varselection_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+//    {
+//
+//    }
+//
+//  void FC_varselection_omega::get_samples(const ST::string & filename,ofstream & outg) const
+//   {
+//        ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
+//        FC::get_samples(filename_omega,outg);
+//
+//   }
 
 
 

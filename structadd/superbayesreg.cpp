@@ -6970,7 +6970,7 @@ void superbayesreg::create_pspline(unsigned i)
         {
         FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
                                          equations[modnr].distrp,"omega"));
-        equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],"variance_of_nonlinear_pspline_effects_ssv2_");
+        equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],pathres);
         firstvarselection=false;
         }
 
