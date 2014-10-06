@@ -13299,7 +13299,7 @@ void DISTR_bivt_df::compute_iwls_wweightschange_weightsone(
 
     double nu = nd2*( randnumbers::digamma_exact(np2d2)-randnumbers::digamma_exact(nd2)-log(nenner_C) ) - 1 + np2d2*(nenner_C-1)/nenner_C;
 
-    *workingweight =  - pow(nd2,2)*( randnumbers::trigamma_exact(np2d2) - randnumbers::trigamma_exact(nd2) ) - degf/(degf+2);
+    *workingweight =  - pow(nd2,2)*( randnumbers::trigamma_exact(np2d2) - randnumbers::trigamma_exact(nd2) ) -2*degf/(degf+2)-degf*(degf+2)/(2*(degf+4))+degf/2; //- degf/(degf+2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
