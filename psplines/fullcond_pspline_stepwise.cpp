@@ -1217,7 +1217,7 @@ vector<double> & lvec, int & number)
       {
       if(!nofixed && dfstart==1 && identifiable)
         lambdastart = -1;
-      else if(!nofixed && (dfstart==2 && identifiable) || (dfstart==1 && !identifiable))
+      else if(!nofixed && ((dfstart==2 && identifiable) || (dfstart==1 && !identifiable)))
         lambdastart = -2;
       else if(dfstart==0)
         lambdastart = 0;

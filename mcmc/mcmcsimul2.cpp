@@ -2489,8 +2489,9 @@ void STEPWISErun::koord_leer_fix(vector<double> & kriteriumiteration2,
   // if(minim == "adaptiv" || minim == "adap_exact")
      // --> hier nicht nötig, weil Intercept immer erneuert wird!
      // --> bei 1. Koeffizienten und "Gamma" doch nötig, weil Phi neu geschätzt wurde!
-  if(criterion == "CV5" || criterion == "CV10"
-      || (minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma")
+  if( (criterion == "CV5")
+       || (criterion == "CV10")
+       || ((minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma"))
     {
     schaetzen(i,kriterium_aktuell,true,"leer");
     }
