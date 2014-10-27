@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #if defined (__BUILDING_LINUX)
   #include "gsl/gsl_randist.h"
 #else
-  #include "gsl\gsl_randist.h"
+  #include "gsl/gsl_randist.h"
 #endif
 
 namespace MCMC
