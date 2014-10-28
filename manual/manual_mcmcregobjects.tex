@@ -7,7 +7,7 @@
 structured additive predictor}, see \citeasnoun{kleknelan14a}. Hierarchical data structures may be considered using
 hierarchical or multilevel structured additive predictors. For multilevel structured additive models  see
 \citeasnoun{LanUml14}. Inference is based on a fully Bayesian approach implemented via Markov Chain Monte Carlo (MCMC)
-simulation techniques. The methodology manual provides a brief introduction to structured additive regression and MCMC-based
+simulation techniques. The methodology manual provides a brief introduction to (multilevel) structured additive regression and MCMC-based
 inference. More details can be found in the references cited above and in the book by \citeasnoun{fahkne13}
 
 First steps with {\em mcmcreg objects} can be done with the
@@ -146,14 +146,12 @@ The following model statement specified a model with $q$ fixed
 \subsubsection*{Shrinkage of fixed effects}
 \index{Shrinkage of fixed Effects}
 
-STEFAN: NOCHMAL CHECKEN
-
 
 \begin{itemize}
 \item[] {\em Description}: Defines a shrinkage-prior for the corresponding
   parameters $\gamma _{j} $, $j=1,\ldots,q$, $q \ge 1$ of the linear effects
-  #X1,...Xq#. There are three priors possible: ridge-,
-  lasso- and Normal Mixture of inverse Gamma (NMIG)-prior.
+  #X1,...Xq#. There are two priors possible: ridge and 
+  lasso type priors.
 
 \item[] {\em Predictor}: $\eta =\cdots +\gamma _{1} {\kern 1pt} X1+\cdots +
   \gamma _{q} {\kern 1pt} Xq+\cdots $
@@ -163,7 +161,6 @@ STEFAN: NOCHMAL CHECKEN
   \begin{itemize}
   \item  Ridge-prior: #X1(ridge#[, {\em options}]#) #
   \item  Lasso-prior: #X1(lasso#[, {\em options}]#) #
-  \item  NMIG-prior: #X1(nigmix#[, {\em options}]#) #
   \end{itemize}
 
 \item[] {\em Example}:
@@ -175,7 +172,7 @@ STEFAN: NOCHMAL CHECKEN
  By default, the starting value of the shrinkage parameter in the Markov chain is
  set to 1 and the shrinkage parameter is estimated by the data. It is also possible
  to fix the shrinkage parameter through the iterations in order to use a prespecified
- amount for shrinkage. To do so the the option #shrinkagefix# have to be set
+ amount for shrinkage. To do so the option #shrinkagefix# have to be set
  in the corresponding terms and this results in fixing the shrinkage parameter at
  the starting value assigned in the option #shrinkage#.
 
@@ -195,7 +192,6 @@ STEFAN: NOCHMAL CHECKEN
 
  uses the options of #X2#. If the option #adaptive# is specified the options from
  each term are used.
-
 \end{itemize}
 
 % NEW_END: Susanne.Konrath@stat.uni-muenchen.de %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -517,7 +513,7 @@ intercept term with #a=b=0.001# as parameters for the inverse
 gamma prior of the variance parameter is
 specified as follows:
 
-#X1*grvar(random,a=0.001,b=0.001)#
+#X1*grvar(random,a_re=0.001,b_re=0.001)#
 
 Note that all options may be specified in arbitrary order.
 \autoref{mcmcregoptions1} and \autoref{mcmcregoptions2} provide explanations and the default values of
@@ -539,8 +535,8 @@ Linear effect & #W1#  & Linear effect of #W1#. \\
 Ridge effect & #X1(ridge)#  & Linear effect of #X1# with ridge-penalty. \\
 \hline
 Lasso effect & #X1(lasso)#  & Linear effect of #X1# with lasso-penalty. \\
-\hline
-NMIG effect & #X1(nigmix)#  & Linear effect of #X1# with NMIG-penalty. \\
+%\hline
+%NMIG effect & #X1(ssvs)#  & Linear effect of #X1# with ssvs-penalty. \\
 \hline
 P-spline &  #X1(pspline)#   & Nonlinear effect of #X1#.  \\
 \hline Markov random \newline field &  #region(spatial,map=m)#  &
@@ -595,18 +591,6 @@ covariates #X1# and #X2#. \\
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 % STEFAN: noch beschreiben
 
 %  internal_mult = simpleoption("internal_mult",false);
@@ -649,15 +633,15 @@ covariates #X1# and #X2#. \\
 \hline Option & Description & Default\\
 \hline
 \hline
-e#a#,#b# & The options #a# and #b# specify the hyperparameters of
-  the inverse Gamma prior for the variance $\tau^2$.
+#a#,#b# & The options #a# and #b# specify the hyperparameters of
+  the inverse Gamma prior for the variance $\tau^2$ of nonlinear effects (e.g. P-splines or Markov random fields).
 & #a=0.001#, #b=0.001# \\
 \hline
 #a_re#,#b_re# & The options #a_re# and #b_re# specify the hyperparameters of
 the inverse Gamma prior for the variance $\tau^2$ of random effects (random or hrandom).
 & #a_re=0.001#, #b_re=0.001# \\
 \hline
-#binning# & uses binning of the covariate according to \citeasnoun{LanUml14} & #binning=-1# (no binning) \\
+#binning# & uses binning of the covariate according to \citeasnoun{LanUml14}. & #binning=-1# (no binning) \\
 \hline
 #centermethod# & Defines the method for centering nonlinear terms (e.g. P-splines). & #centermethod=meanfd# \\
                & #centermethods = meanf# &          \\
@@ -689,7 +673,7 @@ function estimate are computed (for P-splines only). & - \\
 & Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
 \hline
 #lambda_re#
-& Provides a starting value for the smoothing parameter $\lambda$ for random effects (random o hrandom). & #lambda_re=0.1# \\
+& Provides a starting value for the smoothing parameter $\lambda$ for random effects (random or hrandom). & #lambda_re=0.1# \\
 \hline
 #nocenter# & Indicates that a nonlinear term should not be centered. & - \\
 \hline
@@ -798,33 +782,27 @@ $\triangle$   & \multicolumn{5}{l|}{available as boolean option (specified witho
 \end{sidewaystable}
 
 
-               
+
 
 \clearpage
 
 \subsubsection{Specifying the response distribution}
 \index{Response distribution} \label{mcmcregfamilysyntax}
 
-An overview of supported univariate distributions are given in Tables~\ref{tab:distrBayesX1}, \ref{tab:distrBayesX2} and \ref{tab:distrBayesX3}. 
+An overview of supported univariate distributions is given in Tables~\ref{tab:distrBayesX1}, \ref{tab:distrBayesX2} and \ref{tab:distrBayesX3}.
 Supported multivariate distributions are presented in Table~\ref{tab:distrBayesX4}.
 {\em mcmcreg objects}
 allow to define for every parameter of a specific distribution a full STAR predictor. This is done
 by defining for every parameter of the distribution a separate model equation. To define the equation
 type the user has to specify the (global) options #family# and #equationtype#.
-
-
-
-
 In some cases, one or more additional
 options associated with the specified response distribution can be
 specified. An example is the #reference# option for multinomial
 responses, which defines the reference category. In the following
 we give detailed instructions on how to specify the various
-models. (ODER NUR BEISPIEL, REST IN TABELLEN?)
+models for two distributions, the Gaussian and Gamma distribution. For the other distributions
+the specification is analogous.
 
-
-Detailed examples for Gaussian and Gamma responses
-show how this is done in practise.
 
 
 
@@ -870,7 +848,7 @@ Dagum & $p(y|a,b,p)=\frac{a p y^{a p-1}}{b^{a p}\left(1+\left(y/b\right)^{a}\rig
 &&$b>0$&#dagum#&#b#\\
 &&$a>0$&#dagum#&#a#\\\hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX1}
+\end{center}\caption{\footnotesize List of possible response distributions in distributional regression.}\label{tab:distrBayesX1}
 \end{sidewaystable}
 
 \begin{sidewaystable}[htbp]
@@ -913,7 +891,7 @@ Cloglog &$p(y|\pi)=\begin{cases}
 			\end{cases}$&$\pi\in(0,1)$&#binomialglog#&#cloglog#\\
 \hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX2}
+\end{center}\caption{\footnotesize List of possible response distributions.}\label{tab:distrBayesX2}
 \end{sidewaystable}
 
 \begin{sidewaystable}[htbp]
@@ -951,7 +929,7 @@ One-inflated Beta & $p(y|\mu,\sigma^2,\tau)=\begin{cases}
 					\end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#tau#}
 					\end{matrix}$\\\hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX3}
+\end{center}\caption{\footnotesize List of possible response distributions.}\label{tab:distrBayesX3}
 \end{sidewaystable}
 
 \begin{sidewaystable}[htbp]
@@ -999,60 +977,63 @@ Dirichlet &$p(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\
 &$\sum_{d=1}^D y_d = 1$&$D\geq 2$&&\\
 \hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of important response distributions in distributional regression.}\label{tab:distrBayesX4}
+\end{center}\caption{\footnotesize List of possible response distributions.}\label{tab:distrBayesX4}
 \end{sidewaystable}
 
 
 
 \subsubsection*{Gaussian responses}
 
+The overwhelming majority of Gaussian regression models is specified with homoscedastic variances, i.e. the responses $y_i$ are Gaussian with expected value $\mu = \eta_i$ depending on covariates and homoscedastic variance $\sigma^2$ not depending on covariates. The homoscedastic Gaussian model is specified as  
+
+#b.hregress depvar = const + term1 + \cdots, family=normal equationtype=mu using d#
+
+where #depvar# is the response variable, #term1# is a specific covariate effect to be specified as outlined in the previous section and #d# is the name of the dataset object where the data are stored. Since we are dealing with homoscedastic models where only the mean $\mu$ depends on covariates
+the specification of the #equationtype# as done above is not necessary. 
+
+A Gaussian regression model with heteroscedastic variances $\sigma^2_i$ depending on covariates is specified as:
+
+#b.hregress depvar = const + s\_term1 + \cdots, family=normal equationtype=sigma2#
+#using d#
+
+#b.hregress depvar = const + m\_term1 + \cdots, family=normal equationtype=mu# 
+#using d#
+
+The covariates and the respective terms can be completely different in the variance and mean equation.  
+It is also possible to model the standard deviation $\sigma$ rather than the variance $\sigma^2$ using the syntax:
+
+#b.hregress depvar = const + s\_term1 + \cdots, family=normal2 equationtype=sigma#
+# using d#
+
+#b.hregress depvar = const + m\_term1 + \cdots, family=normal2 equationtype=mu#
+#using d#
+
+Note that we have to specify #family=normal2# rather than #family=normal# when using the standard deviation.
+
 
 \subsubsection*{Gamma distributed responses}
 
 
+Gamma distributed responses are specified with the following two equations, one for the shape parameter $\sigma$ and one for the expected value
+$\mu$:
+
+
+#b.hregress depvar = const + s\_term1 + \cdots, family=gamma equationtype=sigma# 
+#using d#
+
+#b.hregress depvar = const + m\_term1 + \cdots, family=gamma equationtype=mu#
+#using d#
+
+A model with constant scale parameter not depending on covariates is given by
+
+#b.hregress depvar = const  , family=gamma equationtype=sigma# 
+#using d#
+
+#b.hregress depvar = const + m\_term1 + \cdots , family=gamma equationtype=mu#
+#using d#
 
 
 
-
-\subsubsection*{Piecewise exponential model (p.e.m.)}\index{Piecewise exponential model}
-
-In subsection \ref*{continuoustime} of the methodology manual we
-demonstrated how continuous time survival data has to be
-manipulated to transform it to a Poisson for model estimation.
-Suppose that the following modified data set is available
-\vspace{0.5cm}\\
-\begin{tabular}{c|c|c|c|c|c|c}
-#y# & #indnr# & #a# & $\delta$ &  $\Delta$ &   #x1# &
-#x#2\\\hline\hline
-0 &  1 &   0.1 &   1  &  log(0.1) & 0  & 3\\
-0  & 1   & 0.2  &  1  &  log(0.1) & 0 &  3\\
-1  & 1   & 0.3  &  1  &  log(0.05)& 0  & 3\\\hline
-0 &  2 &   0.1 &   0 &   log(0.1) & 1 &  5\\
-0  & 2  &  0.2 &   0  &  log(0.02)& 1 &  5\\\hline
-$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$\\
-\end{tabular}
-\vspace{0.5cm}\\
-with indicator #y#, interval limit #a#, indicator of non-censoring
-$\delta$ and offset $\Delta$ defined as in subsection
-\ref*{continuoustime} of the methodology manual. Let #x1# be a
-covariate with linear effect and #x2# a continuous covariate with
-nonlinear effect. Then the correct syntax for estimating a
-p.e.m.~with a {\em bayesreg object} named #b#  would be as
-follows:
-
- #> b.regress y = a(rw1) + Delta(offset) + x1 + x2(psplinerw2), family=poisson# $\ldots$
-
-or
-
- #> b.regress y = a(rw2) + Delta(offset) + x1 + x2(psplinerw2), family=poisson# $\ldots$
-
-
-Note that a time-varying effect of an additional covariate #X# may
-be estimated by simply adding the term
-
-#X*a(rw1) or X*a(rw2)#
-
-to the model statement.
 
 \subsubsection{Hierarchical or multilevel models}
 \index{Hierarchical models} \label{mcmcregmultilevelsyntax}
@@ -1074,39 +1055,26 @@ alphabetical order.
 Changes the number of burn-in iterations to {\em integer}, where
 {\em integer} must be a positive integer number or zero (i.e.~no
 burn-in period).
-The number of burn-in iterations must be smaller than the number of iterations (see option #iterations#). \\
+The number of burn-in iterations must be smaller than the number of iterations (see option #iterations#). 
+Option #burnin# must be specified in the first equation of the model, otherwise the option will be ignored. \\ 
 DEFAULT: #burnin=2000#
 
 \item #iterations = #{\em integer } \\
 Changes the number of MCMC iterations to {\em integer}, where {\em
 integer} must be a positive integer number. The number of
 iterations must be larger than the
-number of burn-in iterations. \\
+number of burn-in iterations. 
+Option #iterations# must be specified in the first equation of the model, otherwise the option will be ignored. \\
 DEFAULT: #iterations=52000 #
-
-
-\item #maxint = #{\em integer } \\
-If first or second order random walk priors are specified, in some
-cases the data will be slightly grouped: The range between the
-minimal and maximal observed covariate values will be divided into
-(small) intervals, and for each interval one parameter will be
-estimated. The grouping has almost no effect on estimation results
-as long as the number of intervals is large enough. With the
-#maxint# option the amount of grouping can be determined by the
-user. {\em integer} is the maximum number of intervals allowed.
-For equidistant data, #maxint = 150# for example, means that no
-grouping will be done as long as the number of {\em different}
-observations is equal to or below 150. For non equidistant
-data some grouping may be done even if the number of different observations is below 150. \\
-DEFAULT: #maxint=150#
 
 \item #step = #{\em integer} \\
 Defines the thinning parameter for MCMC simulation. For example,
-#step = 50# means, that only every 50th sampled parameter will be
+#step = 50# means, that every 50th sampled parameter will be
 stored and used to compute characteristics of the posterior
 distribution as means, standard deviations or quantiles. The aim
 of thinning is to reach a considerable reduction of disk storing
-and autocorrelations between sampled parameters.\\
+and autocorrelations between sampled parameters.
+Option #step# must be specified in the first equation of the model, otherwise the option will be ignored. \\
 DEFAULT: #step=50#
 
 \end{itemize}
