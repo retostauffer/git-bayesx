@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 
 
+
 #include "FC.h"
 #include "clstring.h"
 
@@ -468,7 +469,7 @@ void FC::update(void)
   double diffmax;
   double normold;
   double rate;
- // cout << "nriter " << optionsp->nriter << endl;
+
   if(
      (optionsp->nriter > optionsp->burnin)
      &&
