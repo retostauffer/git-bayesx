@@ -2771,8 +2771,9 @@ void STEPWISErun::koord_leer_factor(vector<double> & kriteriumiteration2,
   double kriterium_adaptiv = kriterium_aktuell;
   // if(minim == "adaptiv" || minim == "adap_exact")
       // ---> hier überflüssig (siehe oben)!
-  if(criterion == "CV5" || criterion == "CV10"
-     || (minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma")
+  if( (criterion == "CV5")
+       || (criterion == "CV10")
+       || ((minim == "adaptiv" || minim == "adap_exact") && likep_mult[0]->get_family()=="Gamma"))
     {
     schaetzen(z,kriterium_aktuell,true,"leer");
     }
