@@ -1170,7 +1170,7 @@ nominal levels (95\%). Adding, for instance,
 
 to the options list computes credible intervals for a nominal
 level of 99\% rather than 95\%.
-Option #level1# must be specified in the first equation of the model, otherwise the option will be ignored. 
+Option #level1# must be specified in the first equation of the model, otherwise the option will be ignored.
 \item \label{level2} #level2 = #{\em integer} \\
 Besides the posterior means and medians, {\em BayesX} provides
 pointwise posterior credible intervals for every effect in the
@@ -1185,18 +1185,19 @@ nominal levels (80\%). Adding, for instance,
 
 to the options list computes credible intervals for a nominal
 level of 70\% rather than 80\%.
-Option #level2# must be specified in the first equation of the model, otherwise the option will be ignored. 
+Option #level2# must be specified in the first equation of the model, otherwise the option will be ignored.
 \item \label{predict} #predict# \\
 \index{DIC} \index{Deviance} \index{Saturated deviance}
 \index{Deviance information criterion} \index{Effective number of
-parameters} \index{Predicted values} 
+parameters} \index{Predicted values}
 Option #predict# may be specified to compute predicted values, samples of the deviance
 $D$, the deviance
 information criterion $DIC$ etc. The following specifications are possible:
 \begin{itemize}
 \item #predict=full#
-
-Deviance, DIC, predictor, parameter mu? scores?
+This specification computes and reports the model
+deviance, the DIC, posterior means, medians, standard deviations and some quantiles of the 
+predictor, the estimated parameter and the expected value. 
 
 \item #predict=fulls#
 \item #predict=light#
