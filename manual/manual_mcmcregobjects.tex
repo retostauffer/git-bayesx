@@ -150,7 +150,7 @@ The following model statement specified a model with $q$ fixed
 \begin{itemize}
 \item[] {\em Description}: Defines a shrinkage-prior for the corresponding
   parameters $\gamma _{j} $, $j=1,\ldots,q$, $q \ge 1$ of the linear effects
-  #X1,...Xq#. There are two priors possible: ridge and 
+  #X1,...Xq#. There are two priors possible: ridge and
   lasso type priors.
 
 \item[] {\em Predictor}: $\eta =\cdots +\gamma _{1} {\kern 1pt} X1+\cdots +
@@ -984,28 +984,28 @@ Dirichlet &$p(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\
 
 \subsubsection*{Gaussian responses}
 
-The overwhelming majority of Gaussian regression models is specified with homoscedastic variances, i.e. the responses $y_i$ are Gaussian with expected value $\mu = \eta_i$ depending on covariates and homoscedastic variance $\sigma^2$ not depending on covariates. The homoscedastic Gaussian model is specified as  
+The overwhelming majority of Gaussian regression models is specified with homoscedastic variances, i.e. the responses $y_i$ are Gaussian with expected value $\mu = \eta_i$ depending on covariates and homoscedastic variance $\sigma^2$ not depending on covariates. The homoscedastic Gaussian model is specified as
 
-#b.hregress depvar = const + term1 + \cdots, family=normal equationtype=mu using d#
+#b.hregress depvar = const + term1 + ... , family=normal equationtype=mu using d#
 
-where #depvar# is the response variable, #term1# is a specific covariate effect to be specified as outlined in the previous section and #d# is the name of the dataset object where the data are stored. Since we are dealing with homoscedastic models where only the mean $\mu$ depends on covariates
-the specification of the #equationtype# as done above is not necessary. 
+where #depvar# is the response variable, #term1# is a specific covariate effect to be specified as outlined in the previous section and #d# is the name of the dataset object where the data are stored. The dots indicate that there might be other covariate terms in the equation. Since we are dealing with homoscedastic models where only the mean $\mu$ depends on covariates
+the specification of the #equationtype# as done above is not necessary.
 
 A Gaussian regression model with heteroscedastic variances $\sigma^2_i$ depending on covariates is specified as:
 
-#b.hregress depvar = const + s\_term1 + \cdots, family=normal equationtype=sigma2#
+#b.hregress depvar = const + s_term1 + ..., family=normal equationtype=sigma2#
 #using d#
 
-#b.hregress depvar = const + m\_term1 + \cdots, family=normal equationtype=mu# 
+#b.hregress depvar = const + m_term1 + ..., family=normal equationtype=mu#
 #using d#
 
-The covariates and the respective terms can be completely different in the variance and mean equation.  
+The covariates and the respective terms can be completely different in the variance and mean equation.
 It is also possible to model the standard deviation $\sigma$ rather than the variance $\sigma^2$ using the syntax:
 
-#b.hregress depvar = const + s\_term1 + \cdots, family=normal2 equationtype=sigma#
+#b.hregress depvar = const + s_term1 + ..., family=normal2 equationtype=sigma#
 # using d#
 
-#b.hregress depvar = const + m\_term1 + \cdots, family=normal2 equationtype=mu#
+#b.hregress depvar = const + m_term1 + ..., family=normal2 equationtype=mu#
 #using d#
 
 Note that we have to specify #family=normal2# rather than #family=normal# when using the standard deviation.
@@ -1018,18 +1018,18 @@ Gamma distributed responses are specified with the following two equations, one 
 $\mu$:
 
 
-#b.hregress depvar = const + s\_term1 + \cdots, family=gamma equationtype=sigma# 
+#b.hregress depvar = const + s_term1 + ..., family=gamma equationtype=sigma#
 #using d#
 
-#b.hregress depvar = const + m\_term1 + \cdots, family=gamma equationtype=mu#
+#b.hregress depvar = const + m_term1 + ..., family=gamma equationtype=mu#
 #using d#
 
-A model with constant scale parameter not depending on covariates is given by
+A model with constant scale parameter not depending on covariates is given by:
 
-#b.hregress depvar = const  , family=gamma equationtype=sigma# 
+#b.hregress depvar = const  , family=gamma equationtype=sigma#
 #using d#
 
-#b.hregress depvar = const + m\_term1 + \cdots , family=gamma equationtype=mu#
+#b.hregress depvar = const + m_term1 + ... , family=gamma equationtype=mu#
 #using d#
 
 
@@ -1055,15 +1055,15 @@ alphabetical order.
 Changes the number of burn-in iterations to {\em integer}, where
 {\em integer} must be a positive integer number or zero (i.e.~no
 burn-in period).
-The number of burn-in iterations must be smaller than the number of iterations (see option #iterations#). 
-Option #burnin# must be specified in the first equation of the model, otherwise the option will be ignored. \\ 
+The number of burn-in iterations must be smaller than the number of iterations (see option #iterations#).
+Option #burnin# must be specified in the first equation of the model, otherwise the option will be ignored. \\
 DEFAULT: #burnin=2000#
 
 \item #iterations = #{\em integer } \\
 Changes the number of MCMC iterations to {\em integer}, where {\em
 integer} must be a positive integer number. The number of
 iterations must be larger than the
-number of burn-in iterations. 
+number of burn-in iterations.
 Option #iterations# must be specified in the first equation of the model, otherwise the option will be ignored. \\
 DEFAULT: #iterations=52000 #
 
@@ -1089,42 +1089,33 @@ alphabetical order below.
 \item #aresp = #{\em realvalue } \\
 Defines the value of the hyperparameter #a# for the inverse gamma
 prior of the overall variance parameter $\sigma^2$, if the
-response distribution is Gaussian.
+response distribution is Gaussian with homoscedastic variance.
 {\em realvalue} must be a positive real valued number. \\
 DEFAULT: #aresp=1#
 
 \item #bresp = #{\em realvalue } \\
 Defines the value of the hyperparameter #b# for the inverse gamma
 prior of the overall variance parameter $\sigma^2$, if the
-response distribution is Gaussian.
+response distribution is Gaussian with homoscedastic variance.
 {\em realvalue} must be a positive real valued number. \\
 DEFAULT: #bresp=0.005#
-
-\item #distopt = #{\em characterstring} \\
-Defines the implemented formulation for the negative binomial
-model if the response distribution is negative binomial. The two
-possibilities are to work with a negative binomial likelihood
-(#distopt=nb#) or to work with the
-Poisson likelihood and the multiplicative random effects (#distopt=poga#)\\
-DEFAULT: #distopt=nb#
-
-
-\item #family = #{\em characterstring } \\
+\item #equationtype = #{\em characterstring} \\
+Defines the type of equation in the model, e.g. #equationtype=sigma2# and
+ #equationtype=mu# for Gaussian responses. The admittable equation types depend on the response
+ distribution family, see Tables \ref{tab:distrBayesX1}, \ref{tab:distrBayesX2}, \ref{tab:distrBayesX3}
+and \ref{tab:distrBayesX4}. \\
+DEFAULT: #equationtype=mu#
+ \item #family = #{\em characterstring } \\
 Defines the distribution of the response variable in the model.
-Models supported are Gaussian regression models with the identity
-link, binomial logit or probit models, multinomial logit or probit
-models for unordered categories of the response, cumulative
-threshold models with probit link for ordered categories of the
-response, and Poisson, negative binomial or their zero inflated
-versions with the log-link. For some distributions
+Supported models can be found in Tables \ref{tab:distrBayesX1}, \ref{tab:distrBayesX2}, \ref{tab:distrBayesX3}
+and \ref{tab:distrBayesX4}.
+For some distributions
 (e.g.~multinomial) additional options may be specified to control
-MCMC inference. A detailed description on how to specify the
-distribution of the response is given in \autoref{familysyntax}.
-\autoref{familyopt} lists all possible specifications for the
-distribution of the response currently supported by {\em BayesX}. In
-addition, a list of options associated
-with the particular response distribution is given. \\
-DEFAULT: #family=binomial#
+MCMC inference.
+A list of distributions with associated additional options is given in Table \ref{mcmcregfamilyadditionalopt}.  \\
+A more detailed description on how to specify the
+distribution of the response is given in \autoref{mcmcregfamilysyntax}. \\
+DEFAULT: #family=normal#
 
 \item #reference = #{\em realvalue} \\
 Option #reference# is meaningful only if either #family=multinomial# or #family=multinomialprobit# is
@@ -1147,29 +1138,13 @@ zero inflated negative binomial likelihood (#zipdistopt=zinb#).
 \hline
 value of #family# & response distribution & link & additional options \\
 \hline
-#family=gaussian #           & Gaussian              & identity &  #aresp#, #bresp# \\
+#family=normal #           & Gaussian              & identity &  #aresp#, #bresp# \\
 \hline
-#family=binomialprobit#      & binomial              & probit & \\
-#family=binomial#            & binomial              & logit & \\
-\hline
-#family=multinomialprobit#   & unordered multinomial & probit & #reference#\\
-#family=multinomial #        & unordered multinomial & logit & #reference#\\
-\hline
-#family=cumprobit#           & cumulative threshold  & probit &  \\
-\hline
-#family=poisson# & Poisson & log-link &  \\
-\hline
-#family=nbinomial# & Negative Binomial & log--link &  #distopt#\\
-\hline
-#family=zip# & Zero inflation & log-link & #zipdistopt#\\
-\hline
-#family=cox#                 & continuous-time survival data & &#begin# \\
-\hline
-#family=multistate#                 & continuous-time multi-state data & &#begin#, #state# \\
+#family=multinom_probit#   & unordered multinomial & probit & #reference#\\
+%#family=multinomial #        & unordered multinomial & logit & #reference#\\
 \hline
 \end{tabular}
-{\em\caption {\label{familyopt} Summary of supported response
-distributions.}}
+{\em\caption {\label{mcmcregfamilyadditionalopt} Response distributions with additional options.}}
 \end{center}
 \end{table}
 
@@ -1181,14 +1156,6 @@ Options are listed in alphabetical order:
 nominal level} \index{Changing the nominal level of credible
 intervals}
 \begin{itemize}
-\item #begin = #{\em variablename} \\
-Option #begin# is meaningful only if #family=cox# is specified as
-the response distribution. In this case #begin# specifies the
-variable that records when the observation became at risk. This
-option can be used to handle left truncation and time-varying
-covariates. If #begin# is not specified, all observations are
-assumed to have become at risk at time 0.
-
 \item \label{level1} #level1 = #{\em integer} \\
 Besides the posterior means and medians, {\em BayesX} provides
 pointwise posterior credible intervals for every effect in the
@@ -1203,7 +1170,7 @@ nominal levels (95\%). Adding, for instance,
 
 to the options list computes credible intervals for a nominal
 level of 99\% rather than 95\%.
-
+Option #level1# must be specified in the first equation of the model, otherwise the option will be ignored. 
 \item \label{level2} #level2 = #{\em integer} \\
 Besides the posterior means and medians, {\em BayesX} provides
 pointwise posterior credible intervals for every effect in the
@@ -1218,14 +1185,29 @@ nominal levels (80\%). Adding, for instance,
 
 to the options list computes credible intervals for a nominal
 level of 70\% rather than 80\%.
-
+Option #level2# must be specified in the first equation of the model, otherwise the option will be ignored. 
 \item \label{predict} #predict# \\
 \index{DIC} \index{Deviance} \index{Saturated deviance}
 \index{Deviance information criterion} \index{Effective number of
-parameters} \index{Predicted values} \index{Leverage statistics}
-Option #predict# may be specified to compute samples of the deviance
-$D$, the effective number of parameters $p_D$ and the deviance
-information criterion $DIC$ of the model, see \citeasnoun{SpiBesCar02}.
+parameters} \index{Predicted values} 
+Option #predict# may be specified to compute predicted values, samples of the deviance
+$D$, the deviance
+information criterion $DIC$ etc. The following specifications are possible:
+\begin{itemize}
+\item #predict=full#
+
+Deviance, DIC, predictor, parameter mu? scores?
+
+\item #predict=fulls#
+\item #predict=light#
+\item #predict=predictor#
+\item #nosamples#
+\end{itemize}
+
+
+
+
+
 The computation of these quantities is based on the
 unstandardized deviance which is defined as $D(\theta) =
 -2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$ for Gaussian
