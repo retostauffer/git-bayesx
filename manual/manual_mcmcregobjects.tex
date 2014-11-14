@@ -792,8 +792,8 @@ $\triangle$   & \multicolumn{5}{l|}{available as boolean option (specified witho
 An overview of supported univariate distributions is given in Tables~\ref{tab:distrBayesX1}, \ref{tab:distrBayesX2} and \ref{tab:distrBayesX3}.
 Supported multivariate distributions are presented in Table~\ref{tab:distrBayesX4}.
 {\em mcmcreg objects}
-allow to define for every parameter of a specific distribution a full STAR predictor. This is done
-by defining for every parameter of the distribution a separate model equation. To define the equation
+allow to define for each parameter of a specific distribution a full STAR predictor. This is done
+by defining for each parameter of the distribution a separate model equation. To define the equation
 type the user has to specify the (global) options #family# and #equationtype#.
 In some cases, one or more additional
 options associated with the specified response distribution can be
@@ -809,7 +809,7 @@ the specification is analogous.
 
 
 \begin{sidewaystable}[htbp]
-D\begin{center} %\footnotesize
+\begin{center} %\footnotesize
 \begin{tabular}{l l c l l}
 \hline\hline
 % \multicolumn{5}{l}
@@ -833,7 +833,7 @@ Inverse Gaussian &	$p(y|\mu,\sigma^2)=\frac{1}{\sqrt{2\pi\sigma^2} y^{3/2}}\exp\
 &&$\mu>0$&#invgaussian#&#mu#\\\hline
 Gamma & $p(y|\mu,\sigma)=\left(\frac{\sigma}{\mu}\right)^{\sigma}\frac{y^{\sigma-1}}{\Gamma(\sigma)}\exp\left(-\frac{\sigma}{\mu}y\right)$&$\sigma>0$&#gamma#&#sigma# \\
 &&$\mu>0$&#gamma#&#mu#\\\hline
-Weibull & $	p(y|\lambda,\alpha)=\frac{\alpha y^{\alpha-1}\exp\left(-\left(y/\lambda\right)^{\alpha}\right)}{\lambda^{\alpha}}$&$\alpha>0$&#weibull#&#alpha# \\
+Weibull & $	p(y|\lambda,\alpha)=\alpha\lambda^{\alpha} y^{\alpha-1}\exp\left(-\left(\lambda y\right)^{\alpha}\right)$&$\alpha>0$&#weibull#&#alpha# \\
 &&$\lambda>0$&#weibull#&#lambda#\\\hline
 Pareto & $p(y|b,p)=p b^{p}(y+p)^{-p-1}$&$p>0$&#pareto#&#p#\\
 &&$b>0$&#pareto#&#b#\\\hline
@@ -984,7 +984,7 @@ Dirichlet &$p(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\
 
 \subsubsection*{Gaussian responses}
 
-The overwhelming majority of Gaussian regression models is specified with homoscedastic variances, i.e. the responses $y_i$ are Gaussian with expected value $\mu = \eta_i$ depending on covariates and homoscedastic variance $\sigma^2$ not depending on covariates. The homoscedastic Gaussian model is specified as
+The classical Gaussian regression model is specified with homoscedastic variances, i.e.~the responses $y_i$ are Gaussian with expected value $\mu = \eta_i$ depending on covariates and homoscedastic variance $\sigma^2$ not depending on covariates. The homoscedastic Gaussian model is specified as
 
 #b.hregress depvar = const + term1 + ... , family=normal equationtype=mu using d#
 
@@ -1014,7 +1014,7 @@ Note that we have to specify #family=normal2# rather than #family=normal# when u
 \subsubsection*{Gamma distributed responses}
 
 
-Gamma distributed responses are specified with the following two equations, one for the shape parameter $\sigma$ and one for the expected value
+Gamma distributed responses are specified with the following two equations, one for the parameter $\sigma$ and one for the expected value
 $\mu$:
 
 
@@ -1024,7 +1024,7 @@ $\mu$:
 #b.hregress depvar = const + m_term1 + ..., family=gamma equationtype=mu#
 #using d#
 
-A model with constant scale parameter not depending on covariates is given by:
+A model with constant parameter $\sigma$ not depending on covariates is given by:
 
 #b.hregress depvar = const  , family=gamma equationtype=sigma#
 #using d#
