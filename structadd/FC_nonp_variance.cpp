@@ -578,7 +578,7 @@ void FC_nonp_variance_varselection::update(void)
   double Sigmatau;
   double mutau;
 
-/*  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
 
   double * worklin;
   if (likep->linpred_current==1)
@@ -615,7 +615,8 @@ void FC_nonp_variance_varselection::update(void)
   acceptance++;
   FC::update();
 
-  */
+/*
+//  extension to GAMLSS case
 
   Sigmatau = 1/(FCnonpp->designp->XWX_p->compute_quadform(FCnonpp->beta, 0) +
                       1/(r_delta*FC_psi2.beta(0,0)));
@@ -628,10 +629,20 @@ void FC_nonp_variance_varselection::update(void)
 
   mutau *= Sigmatau;
 
-  double tau = mutau + sqrt(Sigmatau) * rand_normal();
+  double stand_new = rand_normal();
+  double tau = mutau + sqrt(Sigmatau) * stand_new;
+  double tau2 = tau*tau;
+  if (tau2 < 0.000000001)
+    tau2 = 0.000000001;
+
+  double tau2old = tauold*tauold;
+
   u = log(uniform());
 
-  double fcold = likep->compute_iwls(true, true);
+  double fcold = likep->compute_iwls(true, true) - 0.5*pow(tauold,2)/(r_delta*FC_psi2.beta(0,0)) +
+                 log(randnumbers::phi(stand_new));
+
+  // ToDO: calculate fcnew!
 
   double fcnew = 0;
 
@@ -642,29 +653,16 @@ void FC_nonp_variance_varselection::update(void)
   else
     {
     tau = tauold;
+    tau2 = tau2old;
     }
 
-  // add acceptance step
-  // store value from last iteration in tauold
-  // add tauold to FC and initialize with starting value
-
-
-
-  double tau2 = tau*tau;
-  if (tau2 < 0.000000001)
-    tau2 = 0.000000001;
-
-  beta(0,0) = tau2;
-
+  beta(0,0) = tau;
   beta(0,1) = likep->get_scale()/beta(0,0);
-
   FCnonpp->tau2 = beta(0,0);
 
+  FC::update();*/
+
   // end: updating tau2
-
-  acceptance++;
-  FC::update();
-
   }
 
 
