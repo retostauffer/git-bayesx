@@ -248,7 +248,7 @@ class __EXPORT_TYPE DESIGN
   datamatrix Wsum;
 
   envmatdouble XWX;                          // X'WX
-  datamatrix * XWX_p;                      // Pointer to the current
+  envmatdouble * XWX_p;                      // Pointer to the current
                                              // XWX object
 
   datamatrix XWres;                          // X'W(y-eta)

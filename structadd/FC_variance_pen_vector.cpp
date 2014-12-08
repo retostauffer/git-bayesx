@@ -618,7 +618,7 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   nrpen++;
 
   delta = FC(optionsp,"",nrpen,1,"");
-  delta.setbeta(nrpen,1,1);
+  delta.setbeta(nrpen,1,0);
 
   setbeta(nrpen,1,0.1);
 
@@ -742,7 +742,7 @@ void FC_variance_pen_vector_ssvs::update(void)
     beta2 = pow(Cp->beta(j,0),2);
 
 
-    if (delta.beta(j,0) == 1)
+    if (delta.beta(j,0) > 0)
       {
       bnew_tau2 = btau2[j]+0.5*beta2;
       }
@@ -750,13 +750,22 @@ void FC_variance_pen_vector_ssvs::update(void)
       {
       bnew_tau2 = btau2[j]+0.5*beta2/nu0;
       }
+    double tau2help = rand_invgamma(anew_tau2,bnew_tau2);
 
-
-
-    beta(j,0) = rand_invgamma(anew_tau2,bnew_tau2);
+    if (delta.beta(j,0) > 0)
+      {
+      beta(j,0) = tau2help;
+      }
+    else
+      {
+      beta(j,0) = nu0*tau2help;
+      }
 
     Cp->tau2(j,0) = beta(j,0);
 
+//    cout << "anew: " << anew_tau2 << endl;
+//    cout << "bnew: " << bnew_tau2 << endl;
+//    cout << "tau2: " << beta(j,0) << endl;
 
     // update delta_j
 
@@ -768,10 +777,11 @@ void FC_variance_pen_vector_ssvs::update(void)
 //    helpIG2 = nu0btau2_pow_atau2*exp(-nu0*btau2[j]/beta(j,0));
 
     double u = uniform();
-    double L = 1/sqrt(nu0)*exp(- beta2/(2*beta(j,0))*(1/nu0-1));
+    double L = 1/sqrt(nu0)*exp(- beta2/(2*tau2help)*(1/nu0-1));
     double thetanew = 1/(1+ ((1-theta.beta(0,0))/theta.beta(0,0))*L);
   //  thetanew = (theta.beta(0,0) * helpIG1)/(theta.beta(0,0) * helpIG1 + (1-theta.beta(0,0))*helpIG2);
 
+//    cout << "theta: " << thetanew << endl;
 
     if (u <= thetanew)
       delta.beta(j,0) = 1;
@@ -781,11 +791,9 @@ void FC_variance_pen_vector_ssvs::update(void)
 
     sumdelta += delta.beta(j,0);
 
-    delta.update();
     }
 
-
-
+  delta.update();
 
   // update theta
 
@@ -807,13 +815,12 @@ void FC_variance_pen_vector_ssvs::update(void)
 void FC_variance_pen_vector_ssvs::get_samples(const ST::string & filename,ofstream & outg) const
   {
 
-  /*
-  FC::get_samples(filename,outg);
 
-  ST::string pathhelp = filename.substr(0,filename.length()-14)+"shrinkage_sample.raw";
+//  this->get_samples(filename,outg);
 
-  FC_shrinkage.get_samples(pathhelp,outg);
-  */
+//  ST::string pathhelp = filename.substr(0,filename.length()-14)+"shrinkage_sample.raw";
+
+//  FC.get_samples(pathhelp,outg);
 
   }
 
