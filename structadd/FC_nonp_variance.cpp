@@ -178,10 +178,11 @@ void FC_nonp_variance::update(void)
 
       double u = log(uniform());
 
-      double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-1/(2*beta(0,0))*quadf-log(1+beta(0,0));
+      double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-1/(2*beta(0,0))*quadf-log(1+beta(0,0)) ;
       double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-1/(2*gamma)*quadf-log(1+gamma);
-
-      if (u <= (fcnew - fcold ))
+      double proposalold = -(tildea+1)*log(beta(0,0)) - tildeb / beta(0,0);
+      double proposalnew = -(tildea+1)*log(gamma) - tildeb / gamma;
+      if (u <= (fcnew - fcold + proposalnew - proposalold))
         {
 
         beta(0,0) = gamma;
