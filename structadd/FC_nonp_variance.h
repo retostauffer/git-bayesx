@@ -157,6 +157,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   datamatrix X;
 
+  double tauold;
+
   public:
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------

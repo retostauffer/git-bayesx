@@ -472,9 +472,9 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
   FC_psi2 = FC(o,"",1,1,"");
   FC_psi2.setbeta(1,1,0.5);
 
+  tauold = rand_normal()*sqrt(0.5);
 
   FC_omega = FC(o,"",1,1,"");
-
   FC_omega.setbeta(1,1,0.5);
 
   v = 5;
@@ -494,6 +494,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
+  tauold = m.tauold;
   v = m.v;
   Q = m.Q;
   r = m.r;
@@ -513,6 +514,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
+  tauold = m.tauold;
   v = m.v;
   Q = m.Q;
   r = m.r;
@@ -573,7 +575,10 @@ void FC_nonp_variance_varselection::update(void)
 
   // updating tau2
 
-  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+  double Sigmatau;
+  double mutau;
+
+/*  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
 
   double * worklin;
   if (likep->linpred_current==1)
@@ -581,8 +586,6 @@ void FC_nonp_variance_varselection::update(void)
   else
     worklin = likep->linearpred2.getV();
 
-  double Sigmatau;
-  double mutau = 0;
   double * Xp = X.getV();
   double * responsep = likep->workingresponse.getV();
   double varinv = 1/(likep->get_scale()*beta(0,0));
@@ -592,12 +595,60 @@ void FC_nonp_variance_varselection::update(void)
     xtx += pow(*Xp,2);
     mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
     }
-
   Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
-
   mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
 
   double tau = mutau + sqrt(Sigmatau) * rand_normal();
+
+  double tau2 = tau*tau;
+  if (tau2 < 0.000000001)
+    tau2 = 0.000000001;
+
+  beta(0,0) = tau2;
+
+  beta(0,1) = likep->get_scale()/beta(0,0);
+
+  FCnonpp->tau2 = beta(0,0);
+
+  // end: updating tau2
+
+  acceptance++;
+  FC::update();
+
+  */
+
+  Sigmatau = 1/(FCnonpp->designp->XWX_p->compute_quadform(FCnonpp->beta, 0) +
+                      1/(r_delta*FC_psi2.beta(0,0)));
+  double * p1 = FCnonpp->beta.getV();
+  double * p2 = FCnonpp->designp->XWres_p->getV();
+  for(i=0; i<FCnonpp->beta.rows(); i++, p1++, p2++)
+    {
+    mutau += *p1 * *p2;
+    }
+
+  mutau *= Sigmatau;
+
+  double tau = mutau + sqrt(Sigmatau) * rand_normal();
+  u = log(uniform());
+
+  double fcold = likep->compute_iwls(true, true);
+
+  double fcnew = 0;
+
+  if (u <= (fcnew - fcold ))
+    {
+    acceptance++;
+    }
+  else
+    {
+    tau = tauold;
+    }
+
+  // add acceptance step
+  // store value from last iteration in tauold
+  // add tauold to FC and initialize with starting value
+
+
 
   double tau2 = tau*tau;
   if (tau2 < 0.000000001)

@@ -387,6 +387,7 @@ DESIGN::DESIGN(const DESIGN & m)
   rankK = m.rankK;
 
   XWX = m.XWX;
+  XWX_p = m.XWX_p;
   precision = m.precision;
   precisiondeclared = m.precisiondeclared;
   Wsum = m.Wsum;
@@ -468,6 +469,7 @@ const DESIGN & DESIGN::operator=(const DESIGN & m)
   rankK = m.rankK;
 
   XWX = m.XWX;
+  XWX_p = m.XWX_p;
   precision = m.precision;
   precisiondeclared = m.precisiondeclared;
   Wsum = m.Wsum;
@@ -887,6 +889,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
     }
 
   XWres_p = &XWres;
+  XWX_p = &XWX;
 
   // TEST
 //  ofstream out("c:\\bayesx\\test\\results\\XWres.res");
