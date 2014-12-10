@@ -362,6 +362,9 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("p");
   equationtypes.push_back("b");
   equationtypes.push_back("a");
+  equationtypes.push_back("mean");
+  equationtypes.push_back("scale");
+  equationtypes.push_back("shape1");
 
   equationtype = stroption("equationtype",equationtypes,"mu");
 
