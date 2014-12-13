@@ -756,6 +756,128 @@ double GIG(double lambda, double psi, double chi)
   }
 
 
+double GIG2(double lambda, double omega)
+  {
+
+  double alpha = sqrt(omega*omega+lambda*lambda) - lambda;
+
+  double mfpsi1 = -fpsi(1, alpha, lambda);
+  double mfpsim1 = -fpsi(-1, alpha, lambda);
+
+  double t = 1;
+
+  if(mfpsi1>2)
+    {
+    double t = sqrt(2/(alpha+lambda));
+    }
+  else if(mfpsi1<0.5)
+    {
+    double t = log(4/(alpha+2*lambda));
+    }
+
+  double s = 1;
+
+  if(mfpsim1>2)
+    {
+    double s = sqrt(3/(alpha*cosh(1)+lambda));
+    }
+  else if(mfpsim1<0.5)
+    {
+    double s = fmin(1/lambda, log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha))));
+    }
+  double eta = -fpsi(t, alpha, lambda);
+  double zeta = -dfpsi(t, alpha, lambda);
+  double theta = -dfpsi(-s, alpha, lambda);
+  double xi = dfpsi(-s, alpha, lambda);
+  double p = 1/xi;
+  double r = 1/zeta;
+  double dt = t-r*eta;
+  double ds = s-p*theta;
+  double q = ds+dt;
+
+  double u = uniform();
+  double v = uniform();
+  double w = uniform();
+  double x = 0;
+
+  if(u < (q / (p + q + r)))
+    {
+    x = -ds+q*v;
+    }
+  else if(u < (q + r) / (p + q + r))
+    {
+    x = dt+r*log(1/v);
+    }
+  else
+    {
+    x = -ds-p*log(1/v);
+    }
+
+  double chi = 0;
+  if((x>= -ds) && (x<=dt))
+    {
+    chi += x;
+    }
+  if((x>= dt))
+    {
+    chi += exp(-eta-zeta*(x-t));
+    }
+  if((x<= -ds))
+    {
+    chi += exp(-theta-xi*(x+s));
+    }
+
+  while(chi*w > exp(fpsi(x, alpha, lambda)))
+    {
+    double u = uniform();
+    double v = uniform();
+    double w = uniform();
+
+    if(u < (q / (p + q + r)))
+      {
+      x = -ds+q*v;
+      }
+    else if(u < (q + r) / (p + q + r))
+      {
+      x = dt+r*log(1/v);
+      }
+    else
+      {
+      x = -ds-p*log(1/v);
+      }
+
+    chi = 0;
+    if((x>= -ds) && (x<=dt))
+      {
+      chi += x;
+      }
+    if((x> dt))
+      {
+      chi += exp(-eta-zeta*(x-t));
+      }
+    if((x< -ds))
+      {
+      chi += exp(-theta-xi*(x+s));
+      }
+    }
+  double ret = (lambda/omega+sqrt(1+lambda*lambda/(omega*omega)))*exp(x);
+  //cout << ret << endl;
+  return ret;
+
+  }
+
+double fpsi(double x, double alpha, double lambda)
+  {
+  double ret = -alpha*(cosh(x)-1)-lambda*(exp(x)-x-1);
+  return ret;
+  }
+
+double dfpsi(double x, double alpha, double lambda)
+  {
+  double ret = -alpha*sinh(x)-lambda*(exp(x)-1);
+  return ret;
+  }
+
 double f1old(double x, int j)
   {
   // first series approximation, guranteed to be monotone for x > 1.333
