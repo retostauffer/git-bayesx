@@ -364,6 +364,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("a");
   equationtypes.push_back("mean");
   equationtypes.push_back("scale");
+  equationtypes.push_back("shape2");
   equationtypes.push_back("shape1");
 
   equationtype = stroption("equationtype",equationtypes,"mu");
@@ -4394,8 +4395,8 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- gaussiancopula_dagum_rho ----------------------
   else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="mean")
     {
-    computemodeforstartingvalues = true;
-
+    //computemodeforstartingvalues = true;
+mainequation=true;
     distr_gaussiancopula_dagum_rhos.push_back(DISTR_gaussiancopula_dagum_rho(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1];

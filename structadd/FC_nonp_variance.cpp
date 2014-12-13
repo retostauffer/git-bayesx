@@ -166,6 +166,42 @@ void FC_nonp_variance::update(void)
   //  (FCnonpp->param).prettyPrint(out);
   // END: TEST
 
+ /*   double clk = (double)CLK_TCK;
+    clock_t clkbegin2 = clock();
+    std::ofstream out2;
+    double counti = 0;
+    double nrs = 10000;
+    double tmp = 0;
+    out2.open ("C:\\tmp\\GIG2.raw", std::ofstream::out | std::ofstream::app);
+    out2 << "GIG2"  << endl;
+    for (counti=0;counti<nrs;counti++)
+    {
+    tmp = randnumbers::GIG2(0, 1);
+    out2 << tmp << endl;
+    }
+    out2 << endl;
+    clock_t clkend2 = clock();
+    double sec2 = (clkend2-clkbegin2)/clk;
+
+    cout << "time GIG2: " << sec2 << endl;
+
+    clock_t clkbegin = clock();
+    std::ofstream out;
+    counti = 0;
+    out.open ("C:\\tmp\\GIG.raw", std::ofstream::out | std::ofstream::app);
+    out << "GIG"  << endl;
+    for (counti=0;counti<nrs;counti++)
+    {
+    tmp = randnumbers::GIG(0, 1, 1);
+    out << tmp << endl;
+    }
+    out << endl;
+
+    clock_t clkend = clock();
+    double sec = (clkend-clkbegin)/clk;
+
+    cout << "time GIG: " << sec << endl;
+*/
   b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   if (lambdaconst == false)
@@ -180,9 +216,9 @@ void FC_nonp_variance::update(void)
 
       double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-1/(2*beta(0,0))*quadf-log(1+beta(0,0)) ;
       double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-1/(2*gamma)*quadf-log(1+gamma);
-      double proposalold = -(tildea+1)*log(beta(0,0)) - tildeb / beta(0,0);
-      double proposalnew = -(tildea+1)*log(gamma) - tildeb / gamma;
-      if (u <= (fcnew - fcold + proposalnew - proposalold))
+      double proposalold = -(tildea+designp->rankK/2+1)*log(beta(0,0)) - (0.5*quadf+tildeb) / beta(0,0);
+      double proposalnew = -(tildea+designp->rankK/2+1)*log(gamma) - (0.5*quadf+tildeb) / gamma;
+      if (u <= (fcnew - fcold - proposalnew + proposalold))
         {
 
         beta(0,0) = gamma;
@@ -211,8 +247,10 @@ void FC_nonp_variance::update(void)
 
       double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-pow(beta(0,0)/scaletau2, 0.5)-1/(2*beta(0,0))*quadf;
       double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-pow(gamma/scaletau2, 0.5)-1/(2*gamma)*quadf;
+      double proposalold = -(designp->rankK/2 +tildea+1)*log(beta(0,0)) - (0.5*quadf+tildeb) / beta(0,0);
+      double proposalnew = -(designp->rankK/2 +tildea+1)*log(gamma) - (0.5*quadf+tildeb) / gamma;
 
-      if (u <= (fcnew - fcold ))
+      if (u <= (fcnew - fcold - proposalnew + proposalold))
         {
 
         beta(0,0) = gamma;
@@ -230,7 +268,6 @@ void FC_nonp_variance::update(void)
     beta(0,1) = likep->get_scale()/beta(0,0);
 
     FCnonpp->tau2 = beta(0,0);
-
 
     FC::update();
 
@@ -576,6 +613,18 @@ void FC_nonp_variance_varselection::update(void)
 
   // updating tau2
 
+  double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
+  double tau2 = randnumbers::GIG2(0, w);
+
+  beta(0,0) = r_delta*tau2;
+  beta(0,1) = likep->get_scale()/beta(0,0);
+  FCnonpp->tau2 = beta(0,0);
+
+  FC::update();
+
+//---------------------------------------------------------------------------------------
+/*
+variante stefan, für GAUSS fall
   double Sigmatau;
   double mutau;
 
@@ -615,7 +664,8 @@ void FC_nonp_variance_varselection::update(void)
 
   acceptance++;
   FC::update();
-
+*/
+//---------------------------------------------------------------------------------------
 /*
 //  extension to GAMLSS case
 
