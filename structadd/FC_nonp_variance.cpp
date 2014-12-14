@@ -166,42 +166,43 @@ void FC_nonp_variance::update(void)
   //  (FCnonpp->param).prettyPrint(out);
   // END: TEST
 
- /*   double clk = (double)CLK_TCK;
+   /* double clk = (double)CLK_TCK;
     clock_t clkbegin2 = clock();
-    std::ofstream out2;
+
     double counti = 0;
-    double nrs = 10000;
-    double tmp = 0;
-    out2.open ("C:\\tmp\\GIG2.raw", std::ofstream::out | std::ofstream::app);
-    out2 << "GIG2"  << endl;
-    for (counti=0;counti<nrs;counti++)
-    {
-    tmp = randnumbers::GIG2(0, 1);
-    out2 << tmp << endl;
-    }
-    out2 << endl;
-    clock_t clkend2 = clock();
-    double sec2 = (clkend2-clkbegin2)/clk;
+    double nrs = 1;*/
+//    double tmp = 0;
+//    std::ofstream out2;
+//    out2.open ("C:\\tmp\\GIG2.raw", std::ofstream::out | std::ofstream::app);
+    //out2 << "GIG2"  << endl;
+   // for (counti=0;counti<nrs;counti++)
+  //  {
+//    tmp = randnumbers::GIG2(0, 0.5, 1.5);
+//    out2 << tmp << endl;
+  //  }
+  //  out2 << endl;
+  //  clock_t clkend2 = clock();
+  //  double sec2 = (clkend2-clkbegin2)/clk;
 
-    cout << "time GIG2: " << sec2 << endl;
+   // cout << "time GIG2: " << sec2 << endl;
 
-    clock_t clkbegin = clock();
-    std::ofstream out;
-    counti = 0;
-    out.open ("C:\\tmp\\GIG.raw", std::ofstream::out | std::ofstream::app);
-    out << "GIG"  << endl;
-    for (counti=0;counti<nrs;counti++)
-    {
-    tmp = randnumbers::GIG(0, 1, 1);
-    out << tmp << endl;
-    }
-    out << endl;
+   // clock_t clkbegin = clock();
+   // counti = 0;
+ //   std::ofstream out;
+//    out.open ("C:\\tmp\\GIG.raw", std::ofstream::out | std::ofstream::app);
+    //out << "GIG"  << endl;
+    //for (counti=0;counti<nrs;counti++)
+    //{
+//    tmp = randnumbers::GIG(0, 0.5, 1.5);
+ //   out << tmp << endl;
+    //}
+    //out << endl;
 
-    clock_t clkend = clock();
+    /*clock_t clkend = clock();
     double sec = (clkend-clkbegin)/clk;
 
-    cout << "time GIG: " << sec << endl;
-*/
+    cout << "time GIG: " << sec << endl;*/
+
   b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   if (lambdaconst == false)
@@ -228,19 +229,9 @@ void FC_nonp_variance::update(void)
       }
     else if (wei == true)
       {
-    //  const gsl_rng_type * T;
-     // gsl_rng * r;
 
-    //  gsl_rng_env_setup();
-    //  T = gsl_rng_default;
-    //  r = gsl_rng_alloc (T);
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
-     // double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
-   //   double gamma = gsl_ran_weibull(r,  0.5,  tildea);
-    //  double sde = -(0.5*designp->rankK+0.5)/beta(0,0) - 0.25 * pow(tildea, -0.5) / pow(beta(0,0), 1.5) + quadf / pow(beta(0,0), 3);
-    //  if(sde <= 0) {
-    //    sde = 0.0001;
-    //  }
+
       double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
 
       double u = log(uniform());
@@ -532,6 +523,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
+  omegas = m.omegas;
   tauold = m.tauold;
   v = m.v;
   Q = m.Q;
@@ -552,6 +544,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
+  omegas = m.omegas;
   tauold = m.tauold;
   v = m.v;
   Q = m.Q;
@@ -567,6 +560,11 @@ void FC_nonp_variance_varselection::update(void)
   unsigned i;
 
   // updating psi2
+
+  //if more than one omega, set omegas
+  if(singleomega == false) {
+    omegas = FC_omega.beta(0,0) ;
+  }
 
   double r_delta;
   if (FC_delta.beta(0,0) == 0)
@@ -603,23 +601,28 @@ void FC_nonp_variance_varselection::update(void)
 
   // updating w
 
-  FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
-                                          b_omega+1-FC_delta.beta(0,0));
+  if(singleomega == false) {
 
-  FC_omega.update();
+    FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
+                                          b_omega+1-FC_delta.beta(0,0));
+    omegas = FC_omega.beta(0,0) ;
+
+    FC_omega.update();
+  }
 
   // end: updating w
 
 
   // updating tau2
 
-  double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
-  double tau2 = randnumbers::GIG2(0, w);
+  //double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
+  double tau2 = randnumbers::GIG2(0, designp->penalty_compute_quadform(FCnonpp->param), r_delta*FC_psi2.beta(0,0));
 
-  beta(0,0) = r_delta*tau2;
+  beta(0,0) = tau2;
   beta(0,1) = likep->get_scale()/beta(0,0);
   FCnonpp->tau2 = beta(0,0);
 
+  acceptance++;
   FC::update();
 
 //---------------------------------------------------------------------------------------

@@ -143,7 +143,6 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   bool singleomega;
 
-  FC FC_delta;
   FC FC_psi2;
   FC FC_omega;
 
@@ -160,6 +159,9 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   double tauold;
 
   public:
+
+  double omegas;
+  FC FC_delta;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -340,6 +342,7 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
   public:
 
   vector<FC_nonp_variance_varselection2*> FC_tau2s;
+ // vector<FC_nonp_variance_varselection*> FC_tau2s;
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
