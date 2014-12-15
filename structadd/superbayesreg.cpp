@@ -6956,7 +6956,7 @@ void superbayesreg::create_pspline(unsigned i)
                                   &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                   terms[i].varnames));
 
-    equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselection2s.size()-1],pathres);
+    equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
 
     if (so==true)
       {
@@ -6969,8 +6969,8 @@ void superbayesreg::create_pspline(unsigned i)
         }
 
 
-    //  FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
-    //  (&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1] );
+      FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
+      (&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1] );
 
       }
 
@@ -6986,7 +6986,7 @@ void superbayesreg::create_pspline(unsigned i)
 
     equations[modnr].add_FC(&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1],pathres);
 
-    if (so==true)
+   /* if (so==true)
       {
       if (firstvarselection==true)
         {
@@ -7000,7 +7000,7 @@ void superbayesreg::create_pspline(unsigned i)
       FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
       (&FC_nonp_variance_varselection2s[FC_nonp_variance_varselection2s.size()-1] );
 
-      }
+      }*/
 
 
     }

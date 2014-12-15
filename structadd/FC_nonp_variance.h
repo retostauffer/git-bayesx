@@ -154,9 +154,9 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   double r;
 
-  datamatrix X;
+  //datamatrix X;
 
-  double tauold;
+ // double tauold;
 
   public:
 
@@ -341,7 +341,7 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 
   public:
 
-  vector<FC_nonp_variance_varselection2*> FC_tau2s;
+  vector<FC_nonp_variance_varselection*> FC_tau2s;
  // vector<FC_nonp_variance_varselection*> FC_tau2s;
 
 

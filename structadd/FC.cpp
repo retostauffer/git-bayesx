@@ -989,7 +989,7 @@ void FC::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("  " + title + "\n",true);
     optionsp->out("\n");
     }
-    cout << optionsp->samplesize << "\n" <<endl;
+//    cout << optionsp->samplesize << "\n" <<endl;
   if (optionsp->samplesize > 0)
     {
 

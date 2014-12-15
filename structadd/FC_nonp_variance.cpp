@@ -496,12 +496,12 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
   singleomega = so;
 
   FC_delta = FC(o,"",1,1,"");
-  FC_delta.setbeta(1,1,1);
+  FC_delta.setbeta(1,1,0);
 
   FC_psi2 = FC(o,"",1,1,"");
   FC_psi2.setbeta(1,1,0.5);
 
-  tauold = rand_normal()*sqrt(0.5);
+  //tauold = rand_normal()*sqrt(0.5);
 
   FC_omega = FC(o,"",1,1,"");
   FC_omega.setbeta(1,1,0.5);
@@ -524,11 +524,11 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omegas = m.omegas;
-  tauold = m.tauold;
+  //tauold = m.tauold;
   v = m.v;
   Q = m.Q;
   r = m.r;
-  X = m.X;
+ // X = m.X;
   }
 
 
@@ -545,11 +545,11 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omegas = m.omegas;
-  tauold = m.tauold;
+ // tauold = m.tauold;
   v = m.v;
   Q = m.Q;
   r = m.r;
-  X = m.X;
+ // X = m.X;
   return *this;
   }
 
@@ -567,7 +567,7 @@ void FC_nonp_variance_varselection::update(void)
   }
 
   double r_delta;
-  if (FC_delta.beta(0,0) == 0)
+  if (FC_delta.beta(0,0) < 1)
     r_delta = r;
   else
     r_delta = 1;
@@ -616,7 +616,7 @@ void FC_nonp_variance_varselection::update(void)
   // updating tau2
 
   //double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
-  double tau2 = randnumbers::GIG2(0, designp->penalty_compute_quadform(FCnonpp->param), r_delta*FC_psi2.beta(0,0));
+  double tau2 = randnumbers::GIG2(0, designp->penalty_compute_quadform(FCnonpp->param), 1/r_delta*FC_psi2.beta(0,0));
 
   beta(0,0) = tau2;
   beta(0,1) = likep->get_scale()/beta(0,0);
@@ -741,11 +741,15 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
 
+    if(singleomega == false)
+    {
+        FC_omega.outresults(out_stata,out_R,pathresults_omega);
+    }
+
 
     FC_nonp_variance::outresults(out_stata,out_R,pathresults);
 
     FC_delta.outresults(out_stata,out_R,"");
-    FC_omega.outresults(out_stata,out_R,pathresults_omega);
 
 
     optionsp->out("    Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,0),6)  + "\n");
@@ -755,13 +759,16 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     optionsp->out("\n");
     optionsp->out("\n");
 
-    optionsp->out("    Inclusion probability parameter omega:\n");
-    optionsp->out("\n");
-    FC_omega.outresults_singleparam(out_stata,out_R,"");
-    optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
-    optionsp->out("    " +  pathresults_omega + "\n");
-    optionsp->out("\n");
-    optionsp->out("\n");
+    if(singleomega == false)
+    {
+        optionsp->out("    Inclusion probability parameter omega:\n");
+        optionsp->out("\n");
+        FC_omega.outresults_singleparam(out_stata,out_R,"");
+        optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+        optionsp->out("    " +  pathresults_omega + "\n");
+        optionsp->out("\n");
+        optionsp->out("\n");
+    }
 
     // deltas
     ofstream ou(pathresults_delta.strtochar());
@@ -784,8 +791,12 @@ void FC_nonp_variance_varselection::get_samples(
   ST::string filename_delta = filename.substr(0,filename.length()-11) + "_delta_sample.raw";
   FC_delta.get_samples(filename_delta,outg);
 
-  ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
-  FC_omega.get_samples(filename_omega,outg);
+  if(singleomega == false)
+  {
+    ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
+    FC_omega.get_samples(filename_omega,outg);
+
+  }
   }
 
 void FC_nonp_variance_varselection::outoptions(void)
