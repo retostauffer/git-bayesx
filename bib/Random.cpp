@@ -756,88 +756,69 @@ double GIG(double lambda, double psi, double chi)
   }
 
 
-double GIG2(double lambda, double omega)
+double GIG2(double lambda, double a, double b)
   {
-
-  double alpha = sqrt(omega*omega+lambda*lambda) - lambda;
-
-  double mfpsi1 = -fpsi(1, alpha, lambda);
-  double mfpsim1 = -fpsi(-1, alpha, lambda);
-
-  double t = 1;
-
-  if(mfpsi1>2)
+  double omega = sqrt(a*b);
+  if(b==0)
     {
-    double t = sqrt(2/(alpha+lambda));
+    return(rand_gamma(lambda,0.5*a));
     }
-  else if(mfpsi1<0.5)
+  else if(lambda==(-0.5))
     {
-    double t = log(4/(alpha+2*lambda));
+    return(rand_inv_gaussian(sqrt(b/a),b));
     }
-
-  double s = 1;
-
-  if(mfpsim1>2)
+  else if(a==0)
     {
-    double s = sqrt(3/(alpha*cosh(1)+lambda));
-    }
-  else if(mfpsim1<0.5)
-    {
-    double s = fmin(1/lambda, log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha))));
-    }
-  double eta = -fpsi(t, alpha, lambda);
-  double zeta = -dfpsi(t, alpha, lambda);
-  double theta = -dfpsi(-s, alpha, lambda);
-  double xi = dfpsi(-s, alpha, lambda);
-  double p = 1/xi;
-  double r = 1/zeta;
-  double dt = t-r*eta;
-  double ds = s-p*theta;
-  double q = ds+dt;
-
-  double u = uniform();
-  double v = uniform();
-  double w = uniform();
-  double x = 0;
-
-  if(u < (q / (p + q + r)))
-    {
-    x = -ds+q*v;
-    }
-  else if(u < (q + r) / (p + q + r))
-    {
-    x = dt+r*log(1/v);
+    return(rand_invgamma(lambda,b));
     }
   else
     {
-    x = -ds-p*log(1/v);
-    }
+    double alpha = sqrt(omega*omega+lambda*lambda) - lambda;
 
-  double chi = 0;
-  if((x>= -ds) && (x<=dt))
-    {
-    chi += x;
-    }
-  if((x>= dt))
-    {
-    chi += exp(-eta-zeta*(x-t));
-    }
-  if((x<= -ds))
-    {
-    chi += exp(-theta-xi*(x+s));
-    }
+    double mfpsi1 = -fpsi(1, alpha, lambda);
+    double mfpsim1 = -fpsi(-1, alpha, lambda);
 
-  while(chi*w > exp(fpsi(x, alpha, lambda)))
-    {
+    double t = 1;
+
+    if(mfpsi1>2)
+      {
+      t = sqrt(2/(alpha+lambda));
+      }
+    else if(mfpsi1<0.5)
+      {
+      t = log(4/(alpha+2*lambda));
+      }
+
+    double s = 1;
+
+    if(mfpsim1>2)
+      {
+      s = sqrt(4/(alpha*cosh(1)+lambda));
+      }
+    else if(mfpsim1<0.5)
+      {
+      s = fmin(1/lambda, log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha))));
+      }
+    double eta = -fpsi(t, alpha, lambda);
+    double zeta = -dfpsi(t, alpha, lambda);
+    double theta = -fpsi(-s, alpha, lambda);
+    double xi = dfpsi(-s, alpha, lambda);
+    double p = 1/xi;
+    double r = 1/zeta;
+    double dt = t-r*eta;
+    double ds = s-p*theta;
+    double q = ds+dt;
+
     double u = uniform();
     double v = uniform();
     double w = uniform();
+    double x = 0;
 
     if(u < (q / (p + q + r)))
       {
       x = -ds+q*v;
       }
-    else if(u < (q + r) / (p + q + r))
+    else if(u < ((q + r) / (p + q + r)))
       {
       x = dt+r*log(1/v);
       }
@@ -846,23 +827,34 @@ double GIG2(double lambda, double omega)
       x = -ds-p*log(1/v);
       }
 
-    chi = 0;
-    if((x>= -ds) && (x<=dt))
+    double chi=1*((x>= (-ds)) && (x<=dt)) + 1*((x> dt))*exp(-eta-zeta*(x-t))+1*((x< (-ds)))*exp(-theta+xi*(x+s));
+
+
+    while(chi*w > exp(fpsi(x, alpha, lambda)))
       {
-      chi += x;
+      u = uniform();
+      v = uniform();
+      w = uniform();
+
+      if(u < (q / (p + q + r)))
+        {
+        x = -ds+q*v;
+        }
+      else if(u < ((q + r) / (p + q + r)))
+        {
+        x = dt+r*log(1/v);
+        }
+      else
+        {
+        x = -ds-p*log(1/v);
+        }
+      chi=1*((x>= (-ds)) && (x<=dt)) + 1*((x> dt))*exp(-eta-zeta*(x-t))+1*((x< (-ds)))*exp(-theta+xi*(x+s));
+
       }
-    if((x> dt))
-      {
-      chi += exp(-eta-zeta*(x-t));
-      }
-    if((x< -ds))
-      {
-      chi += exp(-theta-xi*(x+s));
-      }
+    double ret = (lambda/omega+sqrt(1+lambda*lambda/(omega*omega)))*exp(x);
+    ret *= sqrt(b/a);
+    return ret;
     }
-  double ret = (lambda/omega+sqrt(1+lambda*lambda/(omega*omega)))*exp(x);
-  //cout << ret << endl;
-  return ret;
 
   }
 

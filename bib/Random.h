@@ -196,7 +196,7 @@ double __EXPORT_TYPE GIG(double lambda, double psi, double chi);
 
 double __EXPORT_TYPE GIG(double chi);
 
-double __EXPORT_TYPE GIG2(double lambda, double omega);
+double __EXPORT_TYPE GIG2(double lambda, double a, double b);
 
 double __EXPORT_TYPE fpsi(double x, double alpha, double lambda);
 
