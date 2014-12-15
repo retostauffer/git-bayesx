@@ -74,7 +74,9 @@ responses:
 \item{\bf\sffamily Univariate exponential family:} Supported response distributions are Gaussian, Poisson, Binomial and Gamma distribution as well as some simple versions of the
     negative binomial, zero-inflated Poisson, and zero-inflated negative binomial.
 
+\item {\bf\sffamily Distributional regression:} A large number of univariate and multivariate continuous, discrete or mixed discrete-continuous responses can be treated within the framework of distributional regression. In this setting, potentially all parameters of these distributions can be related to structured additive predictors.
 
+\item {\bf\sffamily Quantile Regression:} Bayesian quantile regression allows to study specific quantiles of the response distribution without relying on a specific distributional assumption.
 
 \item{\bf\sffamily Categorical responses with unordered responses:} For categorical responses with unordered categories,
     {\em BayesX} supports multinomial logit and multinomial probit models. Both effects of category-specific and
@@ -123,6 +125,8 @@ combinations of the following model terms:
 \item {\bf\sffamily Regularised high-dimensional effects:} High-dimensional vectors of regression coefficients can be
     assigned Bayesian regularisation priors. Available alternatives are ridge, lasso, and normal mixture of inverse gamma
     (spike and slab) priors.
+
+\item {\bf\sffamily Multilevel models:} In multilevel models, parameters of specific effects can themselves be assigned a structured additive predictor (e.g. in multilevel random effects specifications).
 \end{itemize}
 
 Note that parts of the functionality may be available for one of the regression objects only. For example, bayesreg objects do
@@ -160,49 +164,49 @@ found in \autoref{dag}.
 \end{itemize}
 \end{stanza}
 
-\begin{stanza}{Recommendations for further reading}
-If you are interested in using {\em BayesX}, it is of course not
-necessary to read the complete manual. \autoref{recomm} provides a
-rough guideline for reading this manual and other sources,
-depending on the features of {\em BayesX} you are interested in
-and your statistical background. In any case, you should read
-sections \ref{availableversions} -- \ref{generalusage} to make
-yourself familiar with the general usage of {\em BayesX}.
+%\begin{stanza}{Recommendations for further reading}
+%If you are interested in using {\em BayesX}, it is of course not
+%necessary to read the complete manual. \autoref{recomm} provides a
+%rough guideline for reading this manual and other sources,
+%depending on the features of {\em BayesX} you are interested in
+%and your statistical background. In any case, you should read
+%sections \ref{availableversions} -- \ref{generalusage} to make
+%yourself familiar with the general usage of {\em BayesX}.
 
-\begin{table}[ht] \footnotesize
-\hspace{1cm}\begin{tabular}{ |p{7cm}|p{7.7cm}|}
- \hline
- {\bf Intended use and background} & {\bf Guideline} \\
- \hline\hline
- Bayesian semiparametric regression based on MCMC
- simulation techniques. No experience with MCMC.
- & Read an introductory text about MCMC first. A brief introduction is given
- for example in \citeasnoun{Gre01}. Read the methodology manual to make yourself
- familiar with STAR models.
- Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
- \hline Bayesian semiparametric regression based on MCMC simulation
- techniques. At least basic knowledge about MCMC.
- & Read the methodology manual to make yourself familiar with STAR
- models. Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
- \hline
- Semiparametric regression based on mixed model methodology. &
- Read the methodology manual to make yourself familiar with STAR
- models. Proceed with chapter \ref*{remlregzambiaanalysis} of the tutorial manual. \\
-\hline
-Semiparametric regression based on penalized least squares including
-variable and model selection. &
- Read the methodology manual to make yourself familiar with STAR
- models. Proceed with chapter \ref*{zambia_step_analysis} of the tutorial manual. \\
- \hline Model selection for DAGs. No experience with reversible jump
- MCMC. & Read an introductory text about reversible jump MCMC first.
- A brief introduction is given for example in \citeasnoun{Gre01}. Proceed with \autoref{dag}. \\
- \hline
- Draw and color geographical maps & Read \autoref{map} and \autoref{graphdrawmap} of the reference manual. \\
- \hline
-\end{tabular}
-\begin{center}
-{\em \caption {\label{recomm} Recommendations for further
-reading.}}
-\end{center}
-\end{table}
-\end{stanza}
+%\begin{table}[ht] \footnotesize
+%\hspace{1cm}\begin{tabular}{ |p{7cm}|p{7.7cm}|}
+% \hline
+% {\bf Intended use and background} & {\bf Guideline} \\
+% \hline\hline
+% Bayesian semiparametric regression based on MCMC
+% simulation techniques. No experience with MCMC.
+% & Read an introductory text about MCMC first. A brief introduction is given
+% for example in \citeasnoun{Gre01}. Read the methodology manual to make yourself
+% familiar with STAR models.
+% Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
+% \hline Bayesian semiparametric regression based on MCMC simulation
+% techniques. At least basic knowledge about MCMC.
+% & Read the methodology manual to make yourself familiar with STAR
+% models. Proceed with chapter \ref*{zambiaanalysis} of the tutorial manual. \\
+% \hline
+% Semiparametric regression based on mixed model methodology. &
+% Read the methodology manual to make yourself familiar with STAR
+% models. Proceed with chapter \ref*{remlregzambiaanalysis} of the tutorial manual. \\
+%\hline
+%Semiparametric regression based on penalized least squares including
+%variable and model selection. &
+% Read the methodology manual to make yourself familiar with STAR
+% models. Proceed with chapter \ref*{zambia_step_analysis} of the tutorial manual. \\
+% \hline Model selection for DAGs. No experience with reversible jump
+% MCMC. & Read an introductory text about reversible jump MCMC first.
+% A brief introduction is given for example in \citeasnoun{Gre01}. Proceed with \autoref{dag}. \\
+% \hline
+% Draw and color geographical maps & Read \autoref{map} and \autoref{graphdrawmap} of the reference manual. \\
+% \hline
+%\end{tabular}
+%\begin{center}
+%{\em \caption {\label{recomm} Recommendations for further
+%reading.}}
+%\end{center}
+%\end{table}
+%\end{stanza}

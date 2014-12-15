@@ -13,36 +13,32 @@ three data sets that will be used for demonstrating purposes in
 the later chapters.
 
 \section{Available versions of BayesX}
-\label{availableversions} \index{Windows version} \index{Command line version} \index{Versions} \index{Versions!Windows}
+\label{availableversions} \index{GUI version} \index{Command line version} \index{Versions} \index{Versions!GUI}
 \index{Versions!Command line}
 
-Currently, {\it BayesX} is available in two different versions. The first one is intended for the various versions of the
-Windows operating system (e.g. Windows 95, 98, 2000, NT, XP, Vista) and includes a graphical user interface that enables
+Currently, {\it BayesX} is available in two different versions. The first one includes a graphical user interface that enables
 visualisation of estimated effects. While the computational kernel of {\it BayesX} has been implemented in C++, the graphical
 user interface has been implemented in Java.
 
 The second version of {\it BayesX} is a command line version that is based purely on C++ and comes without any graphics
-facilities. While the Windows version is provided as a pre-compiled binary with an easy to use installer, the command line
-version is provided in terms of source code and has to be compiled on your system. A make file is provided that assumes that
+facilities. While the GUI version is provided as a pre-compiled binary with an easy to use installer, the command line
+version is provided in terms of source code and has to be compiled on your system. A makefile is provided that assumes that
 the GNU C++ compiler is available on your system. Hence, the command line version is suitable for any operating system that
-supports the GNU compiler family and has been successfully tested on Windows, Linux and Mac OS.
+supports the GNU compiler family and has been successfully tested on Windows, Linux and Mac OS. In addition, the cmake toolchain can be used to generate customized makefiles.
 
-As a supplement to both versions, an additional R package {\it BayesX} is available from CRAN
-(\href{http://www.r-project.org}{http://www.r-project.org}). While this package does not provide direct access to {\it BayesX}
-from within R at the moment (this is planned for the future), it provides additional visualisation routines and additional
-functionality for handling geographical information.
+As a supplement to both versions, supplementing R packages are available from CRAN (\href{http://www.r-project.org}{http://www.r-project.org}). The package  {\it BayesX} provides functionality for reading, creating and manipulating maps in R as well as some customized visualisation tools. The packages {\it R2BayesX} and {\it BayesR} provide access to {\it BayesX} from within R such that models can be estimated in the usual R formula syntax. Note that not all features described in this manual will be supported by the two latter packages.
 
-The current releases of both {\em BayesX} versions can be downloaded from \href{http://www.stat.uni-muenchen.de/~bayesx}
-{http://www.stat.uni-muenchen.de/\~{}bayesx}.
+The current releases of both {\em BayesX} versions can be downloaded from \href{http://www.bayesx.org}
+{http://www.bayesx.org}.
 
 Most of this manual applies for both versions of {\it BayesX}. However, those parts that deal with visualisation of data sets
-or estimation results are exclusively for the Windows version.
+or estimation results are exclusively for the GUI version.
 
 \section{Installing BayesX}\label{installbayesx}
 \index{Installation} \index{Installation directories}
 
 Depending on the version of {\it BayesX} you are planning to use, there are two different ways to install it on your computer.
-For the Windows version, you have to download the installation routine from the {\em BayesX} homepage and execute it (with
+For the GUI version, you have to download the installation routine from the {\em BayesX} homepage and execute it (with
 administrator privileges for Windows Vista). The installation routine will request all necessary information during the
 installation process. Note that it is recommended to install BayesX in a directory without spaces in the path name. When {\em
 BayesX} has been installed successfully, it can be started using the {\em Windows Start} button or the icon created on the
@@ -90,13 +86,13 @@ BayesX}. The methodology manual provides background information on the statistic
 BayesX}. In this manual, you will also find more references on the methodological background. The tutorial manual is intended
 to make new users familiar with the usage of {\em BayesX} by demonstrating examples. It contains three self-contained
 tutorials, describing how to perform semiparametric regression analyses using {\em BayesX}. All three manuals can be found in
-the #doc# directory (a subdirectory of the installation directory). In the Windows version of {\it BayesX}, the manuals are
+the #doc# directory (a subdirectory of the installation directory). In the GUI version of {\it BayesX}, the manuals are
 also available from the help menu.
 
 \section{Windows and buttons in BayesX}\label{bayesxwindows}
 \index{Windows}
 
-This section only applies to the Windows version of {\it BayesX}
+This section only applies to the GUI version of {\it BayesX}
 
 After starting {\em BayesX} you will see a main window with a menu bar and four additional subwindows. The four windows are the
 {\em command window}, the {\em output window}, the {\em review window} and the {\em object browser}. The purpose of these
@@ -179,17 +175,16 @@ PAUSE button.
 
 {\em BayesX} is implemented in an object oriented way, although the object oriented concept does not go too far, i.e.
 inheritance or other concepts of object oriented programming languages such as S or C++ are not supported. As a consequence,
-the first thing to do during a session, is to create some objects. Currently, six different object types are available: {\em
-dataset objects}, {\em bayesreg objects}, {\em remlreg objects}, {\em map objects}, {\em dag objects} and {\em graph objects}.
+the first thing to do during a session, is to create some objects. Currently, eight different object types are available: {\em
+dataset objects}, {\em bayesreg objects}, {\em mcmcreg objects}, {\em remlreg objects}, {\em stepwisereg objects}, {\em map objects}, {\em dag objects} and {\em graph objects}.
+
 {\em Dataset objects} are used to store, handle, and manipulate data sets, see \autoref{datasetobj} for details. {\em Map
 objects} are used to handle geographical information and are covered in more detail in \autoref{map}. The main purpose of {\em
-map objects} is to serve as auxiliary objects for {\em bayesreg objects} or {\em remlreg objects} when estimating spatial
+map objects} is to serve as auxiliary objects for regression objects when estimating spatial
 effects. {\em Graph objects} are used to visualize data (e.g. to create scatterplots or to color geographical maps according to
-some numerical characteristics), see \autoref{graphobj} for details. The most important object types are {\em bayesreg objects}
-and {\em remlreg objects}. These objects are used to estimate Bayesian semiparametric regression models based on either Markov
-Chain Monte Carlo simulation techniques ({\em bayesreg objects}) or a mixed model representation of the regression model ({\em
-remlreg objects}). See \autoref{bayesreg} for a detailed description of {\em bayesreg objects} and \autoref{remlreg} for a
-detailed description of {\em remlreg objects}. {\em Dag objects} are used to estimate Gaussian or non-Gaussian DAGs (direct
+some numerical characteristics), see \autoref{graphobj} for details. 
+
+The most important object types are {\em bayesreg objects}, {\em mcmcreg objects}, {\em remlreg objects} and {\em stepwisereg objects}. These objects are used to estimate Bayesian semiparametric regression models based on the different inferential approaches implemented in {\em BayesX} (see \autoref{bayesreg} for {\em bayesreg objects}, \autoref{remlreg} for {\em remlreg objects}, \autoref{stepwisereg} for {\em stepwisereg objects} and \autoref{mcmcreg} for {\em mcmcreg objects}. {\em Dag objects} are used to estimate Gaussian or non-Gaussian DAGs (direct
 acyclic graphs) based on reversible jump MCMC simulation techniques (see \autoref{dag} for details).
 
 The syntax for creating a new object is:
