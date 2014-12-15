@@ -584,13 +584,6 @@ void FC_nonp_variance_varselection::update(void)
   double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r-1));
   double pr1 = 1/(1+ ((1-FC_omega.beta(0,0))/FC_omega.beta(0,0))*L);
 
-  cout << "tau2: " << beta(0,0) << endl;
-  cout << "pr1: " << pr1 << endl;
-  cout << "omegas: " << omegas << endl;
-  cout << "r_delta: " << r_delta << endl;
-  cout << "delta: " << FC_delta.beta(0,0) << endl;
-  cout << "L: " << L << endl;
-  cout << "psi2: " << FC_psi2.beta(0,0) << endl;
   if (u <=pr1)
     {
     FC_delta.beta(0,0) = 1;

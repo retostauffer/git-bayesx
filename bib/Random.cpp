@@ -771,6 +771,98 @@ double GIG2(double lambda, double a, double b)
     {
     return(rand_invgamma(lambda,b));
     }
+ /* else if(lambda<=0.0000001)
+    {
+    double alpha = omega;
+
+    double mfpsi1 = -fpsi(1, alpha, 0);
+    double mfpsim1 = -fpsi(-1, alpha, 0);
+
+    double t = 1;
+
+    if(mfpsi1>2)
+      {
+      t = sqrt(2/(alpha));
+      }
+    else if(mfpsi1<0.5)
+      {
+      t = log(4/(alpha));
+      }
+    else
+      {
+      t=1;
+      }
+
+    double s = 1;
+
+    if(mfpsim1>2)
+      {
+      s = sqrt(4/(alpha*cosh(1)));
+      }
+    else if(mfpsim1<0.5)
+      {
+      s =   log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha)));
+      }
+    else
+      {
+    s=1;
+      }
+    double eta = -fpsi(t, alpha, 0);
+    double zeta = -dfpsi(t, alpha, 0);
+    double theta = -fpsi(-s, alpha, 0);
+    double xi = dfpsi(-s, alpha, 0);
+    double p = 1/xi;
+    double r = 1/zeta;
+    double dt = t-r*eta;
+    double ds = s-p*theta;
+    double q = ds+dt;
+
+    double u = uniform();
+    double v = uniform();
+    double w = uniform();
+    double x = 0;
+
+    if(u < (q / (p + q + r)))
+      {
+      x = -ds+q*v;
+      }
+    else if(u < ((q + r) / (p + q + r)))
+      {
+      x = dt+r*log(1/v);
+      }
+    else
+      {
+      x = -ds-p*log(1/v);
+      }
+
+    double chi=1.0*((x>= (-ds)) && (x<=dt)) + 1.0*((x> dt))*exp(-eta-zeta*(x-t))+1.0*((x< (-ds)))*exp(-theta+xi*(x+s));
+
+
+    while(chi*w > exp(fpsi(x, alpha, 0)))
+      {
+      u = uniform();
+      v = uniform();
+      w = uniform();
+
+      if(u < (q / (p + q + r)))
+        {
+        x = -ds+q*v;
+        }
+      else if(u < ((q + r) / (p + q + r)))
+        {
+        x = dt+r*log(1/v);
+        }
+      else
+        {
+        x = -ds-p*log(1/v);
+        }
+      chi=1*((x>= (-ds)) && (x<=dt)) + 1*((x> dt))*exp(-eta-zeta*(x-t))+1*((x< (-ds)))*exp(-theta+xi*(x+s));
+
+      }
+    double ret = exp(x);
+    ret *= sqrt(b/a);
+    return ret;
+    }*/
   else
     {
     double alpha = sqrt(omega*omega+lambda*lambda) - lambda;
@@ -788,6 +880,10 @@ double GIG2(double lambda, double a, double b)
       {
       t = log(4/(alpha+2*lambda));
       }
+    else
+      {
+      t=1;
+      }
 
     double s = 1;
 
@@ -797,7 +893,18 @@ double GIG2(double lambda, double a, double b)
       }
     else if(mfpsim1<0.5)
       {
-      s = fmin(1/lambda, log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha))));
+      if(lambda<=0.0000001)
+        {
+        s =   log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha)));
+        }
+        else
+          {
+          s = fmin(1/lambda, log(1+1/alpha+sqrt(1/(alpha*alpha)+2/(alpha))));
+          }
+      }
+    else
+      {
+    s=1;
       }
     double eta = -fpsi(t, alpha, lambda);
     double zeta = -dfpsi(t, alpha, lambda);
@@ -829,6 +936,22 @@ double GIG2(double lambda, double a, double b)
 
     double chi=1.0*((x>= (-ds)) && (x<=dt)) + 1.0*((x> dt))*exp(-eta-zeta*(x-t))+1.0*((x< (-ds)))*exp(-theta+xi*(x+s));
 
+/*	double chi2 = 1;
+	if(x> dt)
+	  {
+	  chi2 = exp(-eta-zeta*(x-t));
+	  }
+	else if(x< (-ds))
+	  {
+	  chi2 = exp(-theta+xi*(x+s));
+	  }
+	else
+      {
+	  chi2 = 1;
+	  }
+	  cout << "chi: " << chi << endl;
+	  cout << "chi2: " << chi2 << endl;
+*/
 
     while(chi*w > exp(fpsi(x, alpha, lambda)))
       {
