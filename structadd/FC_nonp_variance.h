@@ -154,9 +154,9 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   double r;
 
-  //datamatrix X;
+  datamatrix X;
 
- // double tauold;
+  double tauold;
 
   public:
 

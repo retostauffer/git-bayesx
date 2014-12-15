@@ -524,11 +524,11 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omegas = m.omegas;
-  //tauold = m.tauold;
+  tauold = m.tauold;
   v = m.v;
   Q = m.Q;
   r = m.r;
- // X = m.X;
+  X = m.X;
   }
 
 
@@ -545,11 +545,11 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omegas = m.omegas;
- // tauold = m.tauold;
+  tauold = m.tauold;
   v = m.v;
   Q = m.Q;
   r = m.r;
- // X = m.X;
+  X = m.X;
   return *this;
   }
 
@@ -583,6 +583,14 @@ void FC_nonp_variance_varselection::update(void)
   double u = uniform();
   double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r-1));
   double pr1 = 1/(1+ ((1-FC_omega.beta(0,0))/FC_omega.beta(0,0))*L);
+
+  cout << "tau2: " << beta(0,0) << endl;
+  cout << "pr1: " << pr1 << endl;
+  cout << "omegas: " << omegas << endl;
+  cout << "r_delta: " << r_delta << endl;
+  cout << "delta: " << FC_delta.beta(0,0) << endl;
+  cout << "L: " << L << endl;
+  cout << "psi2: " << FC_psi2.beta(0,0) << endl;
   if (u <=pr1)
     {
     FC_delta.beta(0,0) = 1;
@@ -603,8 +611,8 @@ void FC_nonp_variance_varselection::update(void)
 
   if(singleomega == false) {
 
-    FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
-                                          b_omega+1-FC_delta.beta(0,0));
+    FC_omega.beta(0,0) = 0.1;//randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
+                               //           b_omega+1-FC_delta.beta(0,0));
     omegas = FC_omega.beta(0,0) ;
 
     FC_omega.update();
@@ -616,7 +624,7 @@ void FC_nonp_variance_varselection::update(void)
   // updating tau2
 
   //double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
-  double tau2 = randnumbers::GIG2(0, designp->penalty_compute_quadform(FCnonpp->param), 1/r_delta*FC_psi2.beta(0,0));
+  double tau2 = randnumbers::GIG2(0, 1/(r_delta*FC_psi2.beta(0,0)), designp->penalty_compute_quadform(FCnonpp->param));
 
   beta(0,0) = tau2;
   beta(0,1) = likep->get_scale()/beta(0,0);
@@ -627,7 +635,7 @@ void FC_nonp_variance_varselection::update(void)
 
 //---------------------------------------------------------------------------------------
 /*
-variante stefan, für GAUSS fall
+//variante stefan, für GAUSS fall
   double Sigmatau;
   double mutau;
 
