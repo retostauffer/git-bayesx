@@ -827,7 +827,7 @@ double GIG2(double lambda, double a, double b)
       x = -ds-p*log(1/v);
       }
 
-    double chi=1*((x>= (-ds)) && (x<=dt)) + 1*((x> dt))*exp(-eta-zeta*(x-t))+1*((x< (-ds)))*exp(-theta+xi*(x+s));
+    double chi=1.0*((x>= (-ds)) && (x<=dt)) + 1.0*((x> dt))*exp(-eta-zeta*(x-t))+1.0*((x< (-ds)))*exp(-theta+xi*(x+s));
 
 
     while(chi*w > exp(fpsi(x, alpha, lambda)))
