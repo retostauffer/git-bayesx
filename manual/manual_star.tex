@@ -16,11 +16,11 @@
 
 \section{Introduction}
 
-In this manual we provide a brief review of the methodological background for the three regression tools currently implemented
-in {\em BayesX}. The first regression tool ({\em bayesreg objects}) relies on Markov chain Monte Carlo (MCMC) simulation
-techniques and yields fully Bayesian posterior mean or posterior mode estimates. The second regression tool ({\em remlreg
-objects}) is based on the mixed model representation of penalised regression models with inference being based on penalised
-maximum likelihood and marginal likelihood (a generalisation of restricted maximum likelihood) estimation. The third regression
+In this manual we provide a brief review of the methodological background for the four regression tools currently implemented
+in {\em BayesX}. The first two regression tools ({\em bayesreg objects} and {\em mcmcreg objects}) rely on Markov chain Monte Carlo (MCMC) simulation
+techniques and yields fully Bayesian posterior mean or posterior mode estimates. While {\em bayesreg objects} provide access to exponential family structured additive regression as well as survival times and multi-state models, {\em mcmcreg objects} implement distributional and quantile structured additive regression models as well as multilevel extensions of structure additive regression. 
+The third regression tool ({\em remlreg objects}) is based on the mixed model representation of penalised regression models with inference being based on penalised
+maximum likelihood and marginal likelihood (a generalisation of restricted maximum likelihood) estimation. The fourth regression
 tool ({\em stepwisereg objects}) simultaneously performs model choice and estimation with inference being based on penalised
 likelihood. MCMC techniques are partly used for computing interval estimates. All regression tools allow to estimate structured
 additive regression (STAR) models (\citeasnoun{BelLan08}, \citeasnoun{BreLan06}, \citeasnoun{FahKneLan04}) with complex semiparametric predictors.
@@ -29,10 +29,10 @@ known model classes as special cases, including {\em generalized additive models
 mixed models} \cite{LinZha99}, {\em geoadditive models} \cite{KamWan03}, {\em varying coefficient models}\cite{HasTib93}, and
 {\em geographically weighted regression} \citeasnoun{FotBruCha02}. Besides models for responses from univariate exponential
 families, BayesX also supports non-standard regression situations such as models for categorical responses with either ordered
-or unordered categories, continuous time survival data, or continuous time multi-state models. To provide a first impression of
+or unordered categories, uni- and multivariate distributional regression in the spirit of generalised additive models for location, scale and shape with parametric response distributions beyond the exponential family framework, Bayesian quantile regression, continuous time survival data, or continuous time multi-state models. To provide a first impression of
 structured additive regression, Sections~\ref{obsmodel} to \ref{inference} describe STAR models for exponential family
 regression. Section~\ref{survivalAnalysis} extends structured additive regression to the analysis of survival times and
-multi-state data. Full details on STAR methodology can be found in the following references:
+multi-state data while Section~\ref{distreg_star} considers extensions for distributional regression, quantile regression and multilevel specifications. Full details on STAR methodology can be found in the following references:
 
 \subsubsection*{Structured additive regression based on MCMC
 simulation}
@@ -45,11 +45,8 @@ simulation}
       Simultaneous Probability statements for Bayesian P-splines.
       {\it Statistical Modelling}, {\bf 8},
       141--168.\vspace{-0.25cm}
-\item Brezger, A., Steiner, W. (2008)
-Monotonic regression based on Bayesian P-splines: an
-application to estimating price response functions from
-store-level scanner data. {\it Journal of Economic and Business Statistics}, {\bf 26}, 90--104.
-\vspace{-0.25cm}
+\item Brezger, A., Steiner, W. (2008): Monotonic regression based on Bayesian P-splines: an application to estimating price response functions from
+store-level scanner data. {\it Journal of Economic and Business Statistics}, {\bf 26}, 90--104. \vspace{-0.25cm}
 \item Fahrmeir, L., Lang, S. (2001): Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random Field
     Priors. {\it Journal of the Royal Statistical Society C (Applied Statistics)}, {\bf 50}, 201--220.\vspace{-0.25cm}
 \item Fahrmeir, L., Lang, S. (2001): Bayesian Semiparametric Regression Analysis of Multicategorical Time-Space Data. {\it
@@ -58,10 +55,14 @@ store-level scanner data. {\it Journal of Economic and Business Statistics}, {\b
     Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369.\vspace{-0.25cm}
 \item Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006): Geoadditive survival models. {\it Journal of the American
     Statistical Association}, {\bf 101}, 1065--1075.\vspace{-0.25cm}
+\item Klein, N., Kneib, T., Lang, S., Sohn, A. (2014): Bayesian structured additive distributional regression.  Under revision for {\it Annals of Applied Statistics}.
+\item Klein, N., Kneib, T., Lang, S. (2014): Bayesian Generalized Additive Models for Location, Scale and Shape for Zero-Inflated and Overdispersed Count Data. To appear in {\it Journal of the American Statistical Association}.
+\item Klein, N., Kneib, T., Klasen, S., Lang, S.(2014): Bayesian structured additive distributional regression for Multivariate Responses. To appear in {\it Journal of the Royal Statistical Society C}.
 \item Kneib, T., Hennerfeind, A. (2006) Bayesian Semiparametric Multi-State Models. {\it Statistical Modelling}, {\bf 8},
     169--198..\vspace{-0.25cm}
 \item Lang, S., Brezger, A. (2004): Bayesian P-Splines {\it Journal of Computational and Graphical Statistics}, {\bf 13},
     183--212.
+\item Lang, S., Umlauf, N., Wechselberger, P., Hartgen, K. and Kneib, T. (2014): Multilevel Structured Additive Regression, {\it Statistics and Computing}, {\bf 24}, 223--238
 \end{itemize}
 
 Presumably the best starting point is the paper by \citeasnoun{BreLan06}.
@@ -87,8 +88,8 @@ Presumably the best starting point is the paper by \citeasnoun{BreLan06}.
 % \vspace{3mm}
 \[\mbox{
  \beginpicture
- \setcoordinatesystem units <1.1cm,1.1cm> point at 0 0
- \setlength{\unitlength}{1.1cm}
+ \setcoordinatesystem units <1.0cm,1.0cm> point at 0 0
+ \setlength{\unitlength}{1.0cm}
 
  \put {\framebox(5.5,0.7){\sffamily\bfseries 2 Generalized regression models}} at 0 0
 
@@ -109,15 +110,16 @@ Presumably the best starting point is the paper by \citeasnoun{BreLan06}.
 
  \put {\framebox(5.5,0.7){\sffamily\bfseries 5 Mixed model representation}} at 0 -6
 
- \arrow <4mm> [0.25,0.75] <0pt,5mm> from -5 -4 to -5 -9
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from -5 -4 to -5 -13
+ \arrow <4mm> [0.25,0.75] <0pt,5mm> from -5 -8 to 0 -13
  \arrow <4mm> [0.25,0.75] <0pt,5mm> from 5 -4 to 5 -9
 
- \put {\framebox(3.5,0.7){\sffamily\bfseries 6.1 bayesreg objects}} at -5 -9
+ \put {\framebox(3.5,0.7){\sffamily\bfseries 6.1 bayesreg object}} at -5 -13
  \put {\framebox(3.5,0.7){\sffamily\bfseries 6.3 stepwisereg objects}} at 5 -9
 
  \put {MCMC (full Bayes)} at -6.5 -6
  \put {penalised likelihood} at 6.5 -5.75
- \put {incl. model choice} at 6.5 -6.15
+ \put {incl. model choice} at 6.4 -6.25
 
  \arrow <4mm> [0.25,0.75] <0pt,5mm> from 0 -7 to 0 -9
 
@@ -125,7 +127,15 @@ Presumably the best starting point is the paper by \citeasnoun{BreLan06}.
  \put {(empirical Bayes)} at 1.3 -7.5
 
  \put {\framebox(3.5,0.7){\sffamily\bfseries 6.2 remlreg objects}} at 0 -9
+ \put {\framebox(3.5,0.7){\sffamily\bfseries 8 mcmcreg objects}} at 0 -13
 
+ \put {exponential family} at -6.4 -10
+ \put {durations} at -5.8 -10.5
+ \put {categorical responses} at -6.6 -11
+
+ \put {distributional regression} at -0.6 -10
+ \put {quantile regression} at -0.4 -10.5
+ \put {multilevel models} at 0.1 -11
 
  \endpicture
 }\]
@@ -175,7 +185,7 @@ The rest of this manual is organized as follows:
 
 The next section describes the general structure of STAR models for
 distributions of the response variable belonging to an exponential
-family. The following Sections \ref{penalizedleastsquares} -
+family. The following Sections~\ref{penalizedleastsquares} --
 \ref{inference} discuss alternative approaches for specifying and
 estimating the different model terms in STAR models. Section
 \ref{penalizedleastsquares} describes the models from a more
@@ -183,12 +193,12 @@ classical penalized least squares perspectives. A Bayesian point of
 view is taken in Section \ref{priorassumptions}. The close
 connection to mixed models is highlighted in Section \ref{glmmrep}.
 Section \ref{inference} gives a brief outline of the various
-inference techniques for STAR models. Fully Bayesian inference via
-MCMC simulation techniques is the topic of Section \ref{fullbayes}.
+inference techniques for exponential family STAR models. Fully Bayesian inference via
+MCMC simulation techniques for exponential family responses, categorical responses and duration times is the topic of Section \ref{fullbayes}.
 Inference based on mixed model technology is sketched in Section
 \ref{glmmmeth}. Simultaneous selection of relevant model terms and
 estimation of the parameters is described in Section
-\ref{stepwiseest}.
+\ref{stepwiseest}. Section~\ref{survivalAnalysis} discusses extensions for duration times and multi-state models while Section~\ref{distreg_star} provides details on distributional regression, quantile regression and multilevel specifications.
 
 For most users of BayesX it is sufficient to read only parts of this
 manual. Some recommendations are given in Figure \ref{guideline}.
@@ -919,36 +929,31 @@ have already been discussed in the previous chapter, see section \ref{varcoeff_t
 \label{Regularization Priors for highdimensional covariates}
 \index{Regularization Priors for highdimensional covariates}
 
-In this section the vector $\beta _{s} =\left(\beta _{p+1} ,\ldots\beta _{p+q} \right)$ is a subvector of unknown regression
-coefficients $\gamma $ for fixed (linear) effects. A desirable feature for variable selection is to shrink small effects to
+In this section the vector $\betavec _{s} =\left(\beta _{p+1} ,\ldots\beta _{p+q} \right)$ is a subvector of the unknown regression
+coefficients $\gammavec$ for fixed (linear) effects. A desirable feature for variable selection is to shrink small effects to
 zero but to shrink important effects only moderately to prevent them from large bias. At the opposite to the unregularized
-regression coefficients, where flat priors $p \left(\gamma \right)\propto 1$ are assumed we need here informative priors
+regression coefficients where flat priors $p \left(\gammavec \right)\propto 1$ are assumed, we need informative priors
 appropriate for shrinkage. Several alternatives have been proposed for specifying shrinkage priors for the regression
 coefficients, see e.g. Griffin and Brown (2005). Three shrinkage priors, which are hierarchically represented as scale mixtures
-of normals, are implemented in {\em BayesX}, i.e. the {\em ridge}-, the {\em lasso}- and the {\em Normal Mixture of Inverse
+of normals, are implemented in {\em BayesX}: the {\em ridge}-, the {\em lasso}- and the {\em Normal Mixture of Inverse
 Gamma (NMIG)-prior}. Common for all approaches is an informative, zero mean conditional Gaussian distribution of the regression
 coefficients
-
 \[\beta _{j} |\sigma^2,\tau _{j}^{2} \mathop{\sim }\limits^{i.i.d.} N\left(0,\sigma^2\tau _{j}^{2}
 \right),\quad j=p+1,\ldots,p+q\]
-
-together with special mixing distributions for the variances $\tau _{s}^{2} =\left( \tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2}
-\right)$. The general form of the prior for $\beta _{s} $ is given by
-
+together with special mixing distributions for the variances $\tauvec_{s}^{2} =\left( \tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2}
+\right)$. The general form of the prior for $\betavec_{s} $ is given by
 \begin{equation}
 \label{ZEqnNum341486}
-p\left(\beta _{s} |\sigma^2,\tau _{s}^{2} \right)\propto \frac{1}{\det \left(K_{s} \right)^{{1
+p\left(\betavec_{s} |\sigma^2,\tau _{s}^{2} \right)\propto \frac{1}{\det \left(\mK_{s} \right)^{{1
 \mathord{\left/ {\vphantom {1 2}} \right. \kern-\nulldelimiterspace} 2} } } \exp
-\left(-\frac{1}{2} \beta _{s} ^{{'} } K_{s}^{-1} \beta _{s} \right),
+\left(-\frac{1}{2} \betavec_{s} ^{{'} } \mK_{s}^{-1} \betavec_{s} \right),
 \end{equation}
-
-where $K_{s} =diag\left(\sigma^2\tau _{p+1}^{2} ,\ldots,\sigma^2\tau _{p+q}^{2} \right)$ denotes the diagonal matrix of the variances.
+where $\mK_{s} = \diag\left(\sigma^2\tau _{p+1}^{2} ,\ldots,\sigma^2\tau _{p+q}^{2} \right)$ denotes the diagonal matrix of the variances.
 
 {\em Ridge-Prior}
 
 In this case the priors of the variances $\tau _{j}^{2} $ are point masses
 given the shrinkage parameter $\lambda $
-
 \begin{equation}
 \label{ZEqnNum108379}
 \tau _{j}^{2} |\lambda \mathop{\sim }\limits^{i.i.d.} \delta _{{1\mathord{\left/
@@ -959,12 +964,10 @@ given the shrinkage parameter $\lambda $
 The symbol $\delta _{a} (x)$ denotes the Kronecker function which is 1 if $x=a$ and
 0 if $x\ne a$. The shrinkage parameter $\lambda $ determines the amount of the shrinkage
 of the regression coefficients and is equipped with a Gamma distribution
-
-\[\lambda \sim Gamma\left(a,b\right);\quad a,b>0\]
-
-which results in a marginal (respective $\tau_{j}^2$) Gaussian distribution of the regression coefficients $\beta _{s} |\sigma^2,\lambda \mathop{\sim
+\[\lambda \sim Ga\left(a,b\right);\quad a,b>0\]
+which results in a marginal (respective $\tau_{j}^2$) Gaussian distribution of the regression coefficients $\beta_j |\sigma^2,\lambda \mathop{\sim
 }\limits^{i.i.d.} N\left(0,{\lambda \mathord{\left/ { \vphantom {\sigma^2  2\lambda}} \right. \kern-\nulldelimiterspace} 2\sigma^2} \right).$
-The logarithm of the common marginal prior for $\beta _{s} |\sigma^2,\lambda $ corresponds to the ridge penalty
+The logarithm of the common marginal prior for $\beta_j |\sigma^2,\lambda $ corresponds to the ridge penalty
 and for a given value of $\lambda $ posterior mode estimation coincides with penalized likelihood estimation.
 
 The {\em adaptive} version allows the tuning each variance patameter via
@@ -972,7 +975,7 @@ The {\em adaptive} version allows the tuning each variance patameter via
 \[\tau _{j}^{2} |\lambda_j \mathop{\sim }\limits \delta _{{1\mathord{\left/
 {\vphantom {1 2\lambda_j }} \right. \kern-\nulldelimiterspace} 2\lambda_j } } \left(
 \tau _{j}^{2} \right),\]
-\[{\lambda _j}\sim Gamma\left( {{a_j},{b_j}} \right).\]
+\[{\lambda _j}\sim Ga\left( {{a_j},{b_j}} \right).\]
 
 
 {\em Lasso-Prior}
@@ -989,10 +992,10 @@ given the squared shrinkage parameter $\lambda ^{2} $
 
 The prior of the squared shrinkage parameter is also a gamma distribution
 
-\[\lambda ^{2} \sim Gamma\left(a,b\right);\quad a,b>0\]
+\[\lambda ^{2} \sim Ga\left(a,b\right);\quad a,b>0\]
 
 and the corresponding marginal priors of the regression coefficients are i.i.d. Laplace
-distributions $\beta _{j} |\sigma^2,\lambda \mathop{\sim }\limits^{i.i.d.} Laplace\left(0,
+distributions $\beta _{j} |\sigma^2,\lambda \mathop{\sim }\limits^{i.i.d.} Lap\left(0,
 \lambda / \sigma \right)$ so that the logarithm of the common marginal prior for $\beta $ (respective $\tau_{j}^2$) corresponds
 to the Lasso penalty (Park and Casella, 2008).
 
@@ -1001,7 +1004,7 @@ The {\em adaptive} version allows the tuning each variance patameter via
 \[\tau _{j}^{2} |\lambda_{j}^{2} \mathop{\sim }\limits Exp\left({\lambda_{j}^{2}
 \mathord{\left/ {\vphantom {\lambda_{j}^{2}  2}} \right. \kern-\nulldelimiterspace}
 2} \right),\]
-\[\lambda _j^2\sim Gamma\left( {{a_j},{b_j}} \right).\]
+\[\lambda _j^2\sim Ga\left( {{a_j},{b_j}} \right).\]
 
 
 {\em Normal-Mixture of inverse Gamma-Prior}
@@ -1013,7 +1016,7 @@ mixture distribution modeled by the product of the two components
 \label{ZEqnNum102399}
 \begin{array}{l} {I_{j} |\nu _{0} ,\nu _{1} ,\omega \sim \left(1-\omega \right)
 \delta _{\nu _{o} } \left(\cdot \right)+\omega \delta _{\nu _{1} } \left(\cdot \right),
-\quad } \\ {t_{j}^{2} |a,b \sim InvGamma\left(a,b\right).} \end{array}
+\quad } \\ {t_{j}^{2} |a,b \sim IG\left(a,b\right).} \end{array}
 \end{equation}
 
 The first component in \eqref{ZEqnNum102399} is an indicator variable with point
@@ -1029,8 +1032,8 @@ of scaled inverse Gamma distributions
 
 \[
 \pi \left(\tau _{j}^{2} |\nu _{0} ,\nu _{1} ,\omega ,a ,b \right)=
-\left(1-\omega \right)\cdot InvGamma\left(\tau _{j}^{2} |a ,\nu _{0} b
-\right)+\omega \cdot InvGamma\left(\tau _{j}^{2} | a ,\nu _{1} b \right).
+\left(1-\omega \right)\cdot IG\left(\tau _{j}^{2} |a ,\nu _{0} b
+\right)+\omega \cdot IG\left(\tau _{j}^{2} | a ,\nu _{1} b \right).
 \]
 
 We assume a beta prior for the parameter $\omega $, i.e. $\omega \sim  Beta \left( a_{\omega} ,b_{\omega} \right)$,
@@ -1165,9 +1168,10 @@ identifiability.
 \section{Inference}
 \label{inference}
 
-{\em BayesX} provides three alternative approaches for Bayesian inference. {\em Bayesreg objects} (chapter \ref*{bayesreg} of
-the reference manual) estimate STAR models using MCMC simulation techniques described in \autoref{fullbayes}. {\em Remlreg
-objects} (chapter \ref*{remlreg} of the reference manual) use mixed model representations of STAR models for empirical Bayesian
+{\em BayesX} provides four alternative approaches for Bayesian inference. {\em Bayesreg objects} (chapter \ref*{bayesreg} of
+the reference manual) estimate exponential family, categorical and duration time STAR models using MCMC simulation techniques described in \autoref{fullbayes}. 
+{\em MCMCreg objects} (chapter \ref*{mcmcreg} of the reference manual) provide the counterpart for distributional and quantile regression as well as multilevel models (see \autoref{distreg_star}).
+{\em Remlreg objects} (chapter \ref*{remlreg} of the reference manual) use mixed model representations of STAR models for empirical Bayesian
 inference, see \autoref{glmmmeth}. {\em Stepwisereg objects} (chapter \ref*{stepwisereg} of the reference manual)
 simultaneously perform model selection and estimation of parameters, see \autoref{stepwiseest}.
 
@@ -1549,18 +1553,15 @@ conditionals with parameters given in (\ref{hypab}).
 If shrinkage priors are involved the posterior \eqref{posterior} have to be completed to take account for the additional
 shrinkage components $\beta _{p+1} ,\ldots,\beta _{p+q} ,\tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2} $ and $\lambda $. Due to the
 similarity of the prior \eqref{ZEqnNum341486} to the prior \eqref{genform} the full conditionals of the shrinkage effects
-$\beta _{s} =\left(\beta _{p+1} ,\ldots \beta _{p+q} \right)$ are similar to the full conditionals of the previous subsections
+$\betavec_{s} =\left(\beta _{p+1} ,\ldots \beta _{p+q} \right)$ are similar to the full conditionals of the previous subsections
 \ref{gaussianresp} to \ref{IWLS} if the penalty matrix ${K_{j} \mathord{\left/ {\vphantom {K_{j}  \tau _{j}^{2} }} \right.
-\kern-\nulldelimiterspace} \tau _{j}^{2} } $ is replaced by the pnalty matrix of the shrinkage priors $K_{s}^{-1} $. For example for
-Gaussian responses \ref{gaussianresp} the full conditional for the regression coefficients $\beta _{s} $ is also Gaussian with
+\kern-\nulldelimiterspace} \tau _{j}^{2} } $ is replaced by the penalty matrix of the shrinkage priors $\mK_{s}^{-1} $. For example for
+Gaussian responses \ref{gaussianresp} the full conditional for the regression coefficients $\betavec_{s} $ is also Gaussian with
 covariance (inverse precision) matrix and mean similar to the formulas \eqref{meangaussian} and \eqref{covgaussian}:
-
-\[Cov\left(\beta _{s} |\cdot \right)=P_{s}^{-1} =\left(\frac{1}{\sigma ^{2} } X_{s}
-^{{'} } CX_{s} +K_{s}^{-1} \right)^{-1} ,\quad m_{s} =P_{s}^{-1} \frac{1}{\sigma ^{2}
-} X_{s} ^{{'} } C\left(y-\eta _{-s} \right)\]
-
-where $X_{s} $ is the design matrix corresponding to the shrinkage effects in $\beta _{s} $ and $\eta
-_{s} =\eta -X_{s} \beta _{s} $.
+\[Cov\left(\betavec_{s} |\cdot \right)=\mP_{s}^{-1} =\left(\frac{1}{\sigma ^{2} } \mX_{s}
+^{{'} } \mC\mX_{s} +\mK_{s}^{-1} \right)^{-1} ,\quad \mvec_{s} =\mP_{s}^{-1} \frac{1}{\sigma ^{2}
+} \mX_{s} ^{{'} } \mC\left(\yvec-\etavec_{-s} \right)\]
+where $\mX_{s} $ is the design matrix corresponding to the shrinkage effects in $\betavec_{s} $ and $\etavec_{s} =\etavec -\mX_{s} \betavec_{s} $.
 
 For categorical responses \ref{mulitcategoricalresp} and for general uni- or multivariate
 response from an exponential family \ref{IWLS} the full conditionals for the
@@ -1573,7 +1574,7 @@ corresponding updates for the Markov chain are available via Gibbs steps.
 {\em Ridge-Prior}
 
 For the ridge prior the full conditionals of the variance parameters simplify to $\tau _{j}^{2} |\cdot \sim {1\mathord{\left/
-{\vphantom {1 2\lambda }} \right. \kern-\nulldelimiterspace} 2\lambda } $, $j=p+1,..,p+q$. For the shrinkage parameter $\lambda
+{\vphantom {1 2\lambda }} \right. \kern-\nulldelimiterspace} 2\lambda } $, $j=p+1,\ldots,p+q$. For the shrinkage parameter $\lambda
 $ we get a gamma density with parameters
 
 \[a'=\frac{q}{2} +a\quad {\rm and}\quad b'=\sum _{j=p+1}^{p+q}\beta _{j}^{2} / \sigma^2  +b\]
@@ -1639,10 +1640,10 @@ The scale parameter $\sigma ^{2} $ is for all shrinkage priors inverse
 gamma with parameters
 
 \[a'_{\sigma } =a_{\sigma } +\frac{n}{2} +\frac{q}{2} \quad und\quad b'_{\sigma }
-=b_{\sigma } +\frac{1}{2} \varepsilon '\varepsilon +\frac{1}{2} \beta '{(K_{s}/\sigma^2)}^{-1}
-\beta \]
+=b_{\sigma } +\frac{1}{2} \varepsilonvec'\varepsilonvec +\frac{1}{2} \betavec'{(\mK_{s}/\sigma^2)}^{-1}
+\betavec\]
 
-and the corresponding variances matrix $K_{s}/ \sigma^2 =diag\left(\tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2} \right)$ for the ridge, lasso and NMIG.
+and the corresponding variances matrix $\mK_{s}/ \sigma^2 = \diag\left(\tau _{p+1}^{2} ,\ldots,\tau _{p+q}^{2} \right)$ for the ridge, lasso and NMIG.
 
 
 \subsection{Empirical Bayes inference based on mixed model methodology}
@@ -2465,7 +2466,7 @@ of entrance to the study to the survival or censoring time.
 
 More details on multi-state models, including an exemplary analysis on human sleep, can be found in \citeasnoun{KneHen06}.
 
-\section{Multilevel structured additive disributional regression}
+\section{Multilevel structured additive distributional and quantile regression}\label{distreg_star}
 
 \subsection{Distributional regression}
 
@@ -2475,7 +2476,7 @@ Structured additive regression models assume that the distribution of the respon
 \begin{align*}
 \eta_i = f_1(x_{i1}) + \ldots + f_q(x_{ip}) + \uvec_i' \gammavec, \,\,\,\,\,\,\,\, i = 1, \ldots, n,
 \end{align*}
-by $\mu_i = h(\eta_i)$, see Chapter \ref{obsmodel}. In matrix notation we obtain 
+by $\mu_i = h(\eta_i)$, see Chapter \ref{obsmodel}. In matrix notation we obtain
 $$
 \etavec = \Xvec_1 \betavec_1 + \ldots + \Xvec_p \betavec_p + \Uvec \gammavec,
 $$
@@ -2492,19 +2493,11 @@ $$
 
 Here and in other convential STAR models only the conditional mean is modeled in dependence of covariates.
 
-A more flexible approach is given by distributional regression as introduced in  \citeasnoun{kleknelan14a} and \citeasnoun{kleknelan14b}. On the one hand, the class of distributions that can be estimated with distributional regression is not restricted to the exponential family. On the other hand, distributional regression allows to model not only the conditional mean of the response variable but the whole set of distribution parameters, i.e.~all parameters for the location, scale and shape of a distribution can be related to a set of predictor variables, which of course may vary between the different parameters.
-
-For most distribution families a location parameter $\muvec$, a scale parameter $\sigmavec$ (or $\sigmavec^2$) and a maximum of two shape parameters $\nuvec$ and $\tauvec$ are sufficient to fully characterize the respective distribution. Using response functions $h_1, \ldots, h_4$ each of these parameters can be linked to a structured additive predictor
-\begin{align}
-\begin{array}{lllll}
-\muvec & = & h_1(\etavec_1) & = &    h_1(\Xvec_{11} \betavec_{11} + \ldots + \Xvec_{q1} \betavec_{q1} + \Uvec_1 \gammavec_1), \\ [0.2cm]
-\sigmavec & = & h_2(\etavec_2) & = & h_2(\Xvec_{12} \betavec_{12} + \ldots + \Xvec_{q2} \betavec_{q2} + \Uvec_2 \gammavec_2), \\ [0.2cm]
-\nuvec & = & h_3(\etavec_3) & = &    h_3(\Xvec_{13} \betavec_{13} + \ldots + \Xvec_{q3} \betavec_{q3} + \Uvec_3 \gammavec_3), \\ [0.2cm]
-\tauvec & = & h_4(\etavec_4) & = &   h_4(\Xvec_{14} \betavec_{14} + \ldots + \Xvec_{q4} \betavec_{q4} + \Uvec_4 \gammavec_4).
-\end{array}
-\label{eq:gamlss}
-\end{align}
-Usually, the response functions are chosen to ensure appropriate restrictions on the parameter spaces. We use, for example, the exponential function to ensure positivity of the scale parameter, i.e.~$\sigmavec = \exp(\etavec_2)$.
+A more flexible approach is given by distributional regression as introduced in  \citeasnoun{kleknelan14a} and \citeasnoun{kleknelan14b}. On the one hand, the class of distributions that can be estimated with distributional regression is not restricted to the exponential family. On the other hand, distributional regression allows to model not only the conditional mean of the response variable but the whole set of distribution parameters $\varthetavec_1,\ldots,\varthetavec_K$, i.e.~all $K$ parameters of the response distribution can be related to a set of predictor variables, which of course may vary between the different parameters. Using response functions $h_1, \ldots, h_K$ each of these parameters can be linked to a structured additive predictor via
+\[
+\varthetavec_k = h_k(\etavec_k) = h_k(\Xvec_{1k} \betavec_{1k} + \ldots + \Xvec_{qk} \betavec_{qk} + \Uvec_k \gammavec_k), \quad k=1,\ldots,K.
+\]
+Usually, the response functions are chosen to ensure appropriate restrictions on the parameter spaces. We use, for example, the exponential function to ensure positivity of the scale parameter.
 
 Presumably the most simple distributional regression model is obtained with Gaussian responses where both the mean $\mu$ and the variance
 $\sigma^2$ is modeled in terms of covariates.
@@ -2556,33 +2549,26 @@ In linear quantile regression (see  \citeasnoun{Koe05}), we assume
 \begin{align*}
 q_{\varphi,i} = \beta_{\varphi,0} + \beta_{\varphi,1}x_{i1} + \ldots + \beta_{\varphi,p}x_{ip}
 \end{align*}
-
 where $q_\varphi$, for $\varphi \in (0,1)$, is the $\varphi$-quantile of the response distribution. Estimation of the quantile-specific regression coefficients $\betavec_{\varphi}$ relies on minimizing the asymmetrically weighted error (AWE) criterion
 \begin{align}
 \hat{\betavec}_{\varphi} = \mbox{argmin}_{\betavec_{\varphi}} \left\{ \sum_{i=1}^{n} \rho_{\varphi}(y_i - \xvec_i' \betavec_{\varphi})\right\},
 \label{eq:quantmin}
 \end{align}
-
 with the loss function $\rho_{\varphi}$ defined by
 \begin{align*}
 \rho_{\varphi}(u) = \begin{cases} u \varphi & \textnormal{if $u \geq 0$} \\ u (\varphi - 1) & \textnormal{if $u < 0$,} \end{cases}
 \end{align*}
 which is also known as the check function. Since there exists no closed form solution for this minimization problem, estimates are typically obtained based on linear programming and modifications of the simplex algorithm, see \citeasnoun{Koe05} for details. The distribution of the response is implicitly determined by the estimated quantiles $q_{\varphi}$ provided that quantiles for a reasonable dense grid of $\varphi$-values are estimated. Generalizations to structured additive predictors are conceptually straightforward. However, estimation is highly challenging and almost impossible for complex hierarchical models, revealing the limits of frequentist quantile regression.
 
-Bayesian quantile regression requires a distributional assumption for the responses to be able to set up a likelihood. Following \citeasnoun{WalKneLanYue12} we will assume independent and identically distributed observations following an asymmetric Laplace distribution with location parameter $\xvec_i' \betavec_{\varphi}$, scale parameter $\sigma^2$ and skewness parameter $\varphi$,
+Bayesian structured quantile regression requires a distributional assumption for the responses to be able to set up a likelihood. Following \citeasnoun{WalKneLanYue12} we will assume independent and identically distributed observations following an asymmetric Laplace distribution with location parameter $\eta_{i,\varphi}$ (specified in the usual structured additive fashion), scale parameter $\sigma^2$ and skewness parameter $\varphi$,
 \begin{align*}
-y_{i} | \betavec_{\varphi}, \sigma^2, \varphi \overset{\textnormal{iid}}{\sim} \textnormal{ALD}(\xvec_i' \betavec_{\varphi},\sigma^2,\varphi).
+y_{i} | \eta_{i,\varphi}, \sigma^2, \varphi \overset{\textnormal{iid}}{\sim} \textnormal{ALD}(\eta_{i,\varphi},\sigma^2,\varphi).
 \end{align*}
 Then, the density of the responses is given by
 \begin{align*}
-p(y_i | \betavec_{\varphi},\sigma^2,\varphi) = \frac{\varphi(1-\varphi)}{\sigma^2} \exp\left(-\frac{\rho_{\varphi}(y_i - \xvec_i' \betavec_{\varphi})}{\sigma^2}\right).
+p(y_i | \eta_{i,\varphi},\sigma^2,\varphi) = \frac{\varphi(1-\varphi)}{\sigma^2} \exp\left(-\frac{\rho_{\varphi}(y_i - \eta_i{\varphi})}{\sigma^2}\right).
 \end{align*}
-Maximizing the corresponding posterior (for fixed $\sigma^2$ and $\varphi$)
-\begin{align*}
-p(\betavec_{\varphi} | \yvec, \sigma^2, \varphi) & \propto \prod_{i=1}^n p(y_i | \betavec_{\varphi}, \sigma^2) \\
-& \propto \exp \left(-\frac{1}{\sigma^2}\sum_{i=1}^n \rho_{\varphi}(y_i - \xvec_i' \betavec_{\varphi})\right)
-\end{align*}
-with respect to $\betavec_{\varphi}$ obviously is equivalent to minimizing the AWE criterion (\ref{eq:quantmin}). However, in contrast to frequentist quantile regression the linear predictor $\eta_{i,\varphi} = \xvec_i' \betavec_{\varphi}$ can be replaced by a hierarchical structured additive predictor without any further difficulties, see \citeasnoun{WalKneLanYue12} for details.
+Maximizing the corresponding posterior (for fixed $\sigma^2$ and $\varphi$) obviously is equivalent to minimizing the AWE criterion (\ref{eq:quantmin}) in case of a linear predictor. However, in contrast to frequentist quantile regression the linear predictor can be replaced by a hierarchical structured additive predictor without any further difficulties, see \citeasnoun{WalKneLanYue12} for details.
 
 Since the check function $\rho_{\varphi}$ is non-differentiable, inference based on Markov chain Monte Carlo (MCMC) simulations at a first glance seems to be complicated. However, the asymmetric Laplace distribution can be represented as a scaled mixture of normals:
 \begin{align*}
@@ -2894,14 +2880,14 @@ with $\xi = \frac{1-2\varphi}{\varphi(1-\varphi)}$ and $\delta^2 = \frac{2}{\var
  {\it Journal of the Royal Statistical Society C}, {\bf 52}, 1--18.
 
 
-\harvarditem{Klein et al.}{2014}{KleDenKneLan14}
+\harvarditem{Klein et al.}{2014a}{KleDenKneLan14}
 {\scshape Klein, N., Denuit, M., Kneib, T. \& Lang, S.}(2014).
 Nonlife ratemaking and risk management with Bayesian additive models for location, scale and shape.
 {\it Insurance: Mathematics and Economics}, {\bf 55}, 225--249.
 
 
-\harvarditem{Klein, Kneib \& Lang}{2014}{kleknelan14a}
-{\scshape Klein, N., Kneib, T. \& Lang, S.}(2014).
+\harvarditem{Klein et al.}{2014b}{kleknelan14a}
+{\scshape Klein, N., Kneib, T., Lang, S. \& Sohn, A.}(2014).
 Bayesian structured additive distributional regression.
 {\it Under revision for Annals of Applied Statistics}.
 
@@ -2909,13 +2895,13 @@ Bayesian structured additive distributional regression.
 \harvarditem{Klein, Kneib \& Lang}{2014}{kleknelan14b}
 {\scshape Klein, N., Kneib, T. \& Lang, S.}(2014).
 Bayesian Generalized Additive Models for Location, Scale and Shape for Zero-Inflated and Overdispersed Count Data.
-{\it To appear in Journal of the American Statistical Association}.
+To appear in {\it Journal of the American Statistical Association}.
 
 
-\harvarditem{Klein, Kneib \& Lang}{2014}{KleKneLan14c}
-{\scshape Klein, N., Kneib, T. \& Lang, S.}(2014).
-Bayesian structured additive distributional regression.
-{\it Revised for Journal of the Royal Statistical Society C}.
+\harvarditem{Klein et al.}{2014c}{KleKneLan14c}
+{\scshape Klein, N., Kneib, T., Klasen, S. \& Lang, S.}(2014).
+Bayesian structured additive distributional regression for Multivariate Responses.
+To appear in {\it Journal of the Royal Statistical Society C}.
 
 
 \harvarditem{Koenker}{2005}{Koe05}

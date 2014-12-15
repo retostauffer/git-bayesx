@@ -3,7 +3,7 @@
 \begin{stanza}{General scope}
 
 {\it BayesX} is a software tool for estimating structured additive
-regression models. Structured additive regression embrasses
+regression models. Structured additive regression embraces
 several well-known regression models such as generalized additive
 models (GAM), generalized additive mixed models (GAMM),
 generalized geoadditive mixed models (GGAMM), dynamic models,
@@ -11,17 +11,14 @@ varying coefficient models, and geographically weighted regression
 within a unifying framework. Besides exponential family
 regression, {\em BayesX} also supports non-standard regression
 situations such as regression for categorical responses, hazard
-regression for continuous survival times, and continuous time
-multi-state models.
+regression for continuous survival times, continuous time
+multi-state models, quantile regression, distributional regression models and multilevel models.
 \end{stanza}
 
 \begin{stanza}{Inferential procedures}
 
-Estimation of regression models can be achieved based on two
-different inferential concepts: Markov chain Monte Carlo
-simulation techniques corresponding to full Bayesian inference and
-mixed model methodology corresponding to penalised likelihood or
-empirical Bayes inference. Both concepts have been implemented in
+Estimation of regression models can be achieved based on four
+different inferential concepts that have been implemented in
 separate regression objects:
 
 \begin{itemize}
@@ -29,8 +26,10 @@ separate regression objects:
     regression models is obtained by specifying prior distributions for all unknown parameters. Estimation can be
     facilitated using Markov chain Monte Carlo simulation techniques, a general and versatile concept for Bayesian
     inference. Bayesreg objects provide numerically efficient implementations of MCMC schemes for structured additive
-    regression models. Suitable proposal densities have been developed to obtain rapidly mixing, well-behaved sampling
+    regression models in case of exponential family responses, categorical responses, hazard regression and multi-state models.
+    Suitable proposal densities have been developed to obtain rapidly mixing, well-behaved sampling
     schemes without the need for manual tuning.
+\item {\bf\sffamily MCMC simulation techniques (mcmcreg objects):} Mcmcreg objects provide similar functionality for fully Bayesian inference as bayesreg objects but implement distributional regression models for responses beyond simple exponential families (distributional regression), quantile regression and multilevel models.
 \item{\bf\sffamily Mixed model based estimation (remlreg objects):} An increasingly popular way to estimate semiparametric
     regression models is the representation of penalisation approaches as mixed models. Within {\em BayesX }this concept
     has been extended to structured additive regression  models and several types of non-standard regression situations.
@@ -45,10 +44,10 @@ separate regression objects:
     yields empirical Bayes / posterior mode estimates for the structured additive regression models. However, estimates can
     also merely be interpreted as penalised likelihood estimates from a frequentist perspective.
 \item{\bf \sffamily Penalized least squares including model selection (stepwisereg objects):}
-As a third alternative {\em BayesX} provides a penalized least squares (respectively penalized likelihood) approach for
+As a fourth alternative {\em BayesX} provides a penalized least squares (respectively penalized likelihood) approach for
 estimating structured additive regression tools.
 In addition to
-the previously described estimation alternatives a powerful variable and model selection tool is included.  Model choice and estimation of
+the previously described estimation alternatives, a powerful variable and model selection tool is included.  Model choice and estimation of
 the parameters is done simultaneously. The algorithms are able to
 \begin{itemize}
 \item decide whether a particular covariate enters the model,
@@ -72,8 +71,10 @@ e.g. AIC, BIC, GCV and 5 or 10 fold cross validation.
 responses:
 
 \begin{itemize}
-\item{\bf\sffamily Univariate exponential family:} Supported response distributions are Gaussian, Poisson, Binomial, Gamma,
+\item{\bf\sffamily Univariate exponential family:} Supported response distributions are Gaussian, Poisson, Binomial and Gamma distribution as well as some simple versions of the
     negative binomial, zero-inflated Poisson, and zero-inflated negative binomial.
+
+
 
 \item{\bf\sffamily Categorical responses with unordered responses:} For categorical responses with unordered categories,
     {\em BayesX} supports multinomial logit and multinomial probit models. Both effects of category-specific and
