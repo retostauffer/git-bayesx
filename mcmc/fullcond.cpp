@@ -101,6 +101,8 @@ FULLCOND::FULLCOND(MCMCoptions * o,const datamatrix & d,
   fixornot = false;
   plotstyle = noplot;
   isnonparametric = false;
+  identifiable = false;
+  center = false;
   // end: ASAN/UBSAN checks
 
 
@@ -189,6 +191,8 @@ FULLCOND::FULLCOND(MCMCoptions * o,const ST::string & t)
   inthemodel = false;
   calculate_xwx = false;
   kombimatrix = false;
+  identifiable = false;
+  center = false;
   // end: ASAN/UBSAN checks
 
   title = t;
