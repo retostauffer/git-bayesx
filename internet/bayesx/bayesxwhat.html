@@ -82,41 +82,51 @@ Ende: Allgemeiner Teil der Seite
 
 <p style="font-weight:bold">General scope</p>
 
-<p>BayesX is a software tool for estimating structured additive regression models. Structured additive regression 
-embraces several well-known regression models such as generalized additive models (GAM), generalized additive mixed models (GAMM), 
-generalized geoadditive mixed models (GGAMM), dynamic models, varying coefficient models (VCM), and geographically weighted regression
-within a unifying framework. Besides exponential family regression, BayesX also supports non-standard regression situations 
-such as regression for categorical responses, hazard regression for continuous survival times, and continuous time
-multi-state models (see model classes and model terms below).</p>
+<p>BayesX is a software tool for estimating structured additive
+regression models. Structured additive regression embraces
+several well-known regression models such as generalized additive
+models (GAM), generalized additive mixed models (GAMM),
+generalized geoadditive mixed models (GGAMM), dynamic models,
+varying coefficient models, and geographically weighted regression
+within a unifying framework. Besides exponential family
+regression, BayesX also supports non-standard regression
+situations such as regression for categorical responses, hazard
+regression for continuous survival times, continuous time
+multi-state models, quantile regression, distributional regression models and multilevel models.</p>
 
 <p style="font-weight:bold">Inferential procedures</p>
 
-<p>Estimation of regression models can be achieved based on two different inferential concepts: 
-Markov chain Monte Carlo simulation techniques corresponding to full Bayesian inference
-and mixed model methodology corresponding to penalised likelihood or empirical Bayes inference. 
-Both concepts have been implemented in separate regression objects:</p>
+<p>Estimation of regression models can be achieved based on four
+different inferential concepts that have been implemented in
+separate regression objects:</p>
 
 <ul>
 <li><b>MCMC simulation techniques (bayesreg objects).</b><br>
-A fully Bayesian interpretation of structured additive regression models is obtained by specifying
-prior distributions for all unknown parameters. Estimation can be facilitated using Markov chain Monte Carlo simulation 
-techniques, a general and versatile concept for Bayesian inference. Bayesreg objects provide numerically efficient
-implementations of MCMC schemes for structured additive regression models. Suitable proposal densities have been developed to
-obtain rapidly mixing, well-behaved sampling schemes without the need for manual tuning.</li>
+A fully Bayesian interpretation of structured additive
+    regression models is obtained by specifying prior distributions for all unknown parameters. Estimation can be
+    facilitated using Markov chain Monte Carlo simulation techniques, a general and versatile concept for Bayesian
+    inference. Bayesreg objects provide numerically efficient implementations of MCMC schemes for structured additive
+    regression models in case of exponential family responses, categorical responses, hazard regression and multi-state models.
+    Suitable proposal densities have been developed to obtain rapidly mixing, well-behaved sampling
+    schemes without the need for manual tuning.</li>
+
+<li><b>MCMC simulation techniques (mcmcreg objects).</b><br>
+Mcmcreg objects provide similar functionality for fully Bayesian inference as bayesreg objects but implement distributional regression models for responses beyond simple exponential families (distributional regression), quantile regression and multilevel models.</li>
 
 <li><b>Mixed model based estimation (remlreg objects).</b><br>
-An increasingly popular way to estimate semiparametric regression models is the representation of
-penalisation approaches as mixed models. Within BayesX this concept has been extended to structured additive regression models
-and several types of non-standard regression situations. The general idea is to take advantage of the close connection
-between penalty concepts and corresponding random effects distributions. The smoothing parameters of the penalties then transform
-to variance components in the random effects (mixed) model. While the selection of smoothing parameters has been a difficult task for
-a long time, several estimation procedures for variance components in mixed models are already available since the 1970's.
-The most popular one is restricted maximum likelihood in Gaussian mixed models with marginal likelihood as the non-Gaussian counterpart.<br>
-Remlreg objects employ mixed model methodology for the estimation of structured additive regression models.
-While regression coefficients are estimated based on penalised likelihood, restricted maximum likelihood or marginal likelihood
-estimation forms the basis for the determination of smoothing parameters. From a Bayesian perspective, this yields 
-empirical Bayes / posterior mode estimates for the structured additive regression models. However, estimates can also merely
-be interpreted as penalised likelihood estimates from a frequentist perspective.
+An increasingly popular way to estimate semiparametric
+    regression models is the representation of penalisation approaches as mixed models. Within {\em BayesX }this concept
+    has been extended to structured additive regression  models and several types of non-standard regression situations.
+    The general idea is to take advantage of the close  connection between penalty concepts and corresponding random
+    effects distributions. The smoothing parameters of the  penalties then transform to variance components in the random
+    effects (mixed) model. While the selection of smoothing  parameters has been a difficult task for a long time, several
+    estimation procedures for variance components in mixed models are already available since the 1970's. The most popular
+    one is restricted maximum likelihood in Gaussian mixed models with marginal likelihood as the non-Gaussian counterpart.
+    Remlreg objects employ mixed model methodology for the estimation of structured additive regression models. While
+    regression coefficients are estimated based on penalised likelihood, restricted maximum likelihood or marginal
+    likelihood estimation forms the basis for the determination of smoothing parameters. From a Bayesian perspective, this
+    yields empirical Bayes / posterior mode estimates for the structured additive regression models. However, estimates can
+    also merely be interpreted as penalised likelihood estimates from a frequentist perspective.
 </li>
 <li><b>Penalized least squares including model selection (stepwisereg objects).</b><br>
 As a third alternative, BayesX provides a penalized least squares (respectively penalized likelihood) approach for
@@ -144,7 +154,15 @@ e.g. AIC, BIC, GCV and 5 or 10 fold cross validation.
 
 <ul>
 <li><b>Univariate exponential family</b><br>
-Supported response distributions are Gaussian, Poisson, Binomial, Gamma, negative binomial, zero-inflated Poisson, and zero-inflated negative binomial.
+Supported response distributions are Gaussian, Poisson, Binomial and Gamma distribution as well as some simple versions of the
+    negative binomial, zero-inflated Poisson, and zero-inflated negative binomial.</li>
+<li><b>Distributional regression</b><br>
+ A large number of univariate and multivariate continuous, discrete or mixed discrete-continuous responses can be
+ treated within the framework of distributional regression. In this setting, potentially all parameters of these
+ distributions can be related to structured additive predictors.
+</li>
+<li><b>Quantile regression</b><br>
+ Bayesian quantile regression allows to study specific quantiles of the response distribution without relying on a specific distributional assumption.
 </li>
 <li><b>Categorical responses with unordered responses</b><br>
 For categorical responses with unordered categories, BayesX supports multinomial logit and multinomial probit models.
@@ -197,6 +215,9 @@ BayesX supports i.i.d. Gaussian random intercepts and random slopes.
 High-dimensional vectors of regression coefficients can be assigned Bayesian regularisation priors. Available alternatives are ridge
 regression, lasso regularisation and normal mixture of inverse gamma (spike and slab) priors.
 </li>
+<li><b>Multilevel models:</b><br>
+In multilevel models, parameters of specific effects can themselves be assigned a structured additive predictor (e.g. in multilevel random effects specifications).
+</li>
 </ul>
 
 <p>Note that parts of the functionality may be available for one of the regression objects only. For example, 
@@ -218,10 +239,11 @@ a better representation of colored maps independent of the display device.</li>
 BayesX provides functions for drawing scatter plots and geographical maps.
 A number of additional options are provided to customize the graphs according to
 the personal needs of the user.</li>
-<li><b>R Package BayesX</b><br>
+<li><b>R Packages</b><br>
 In addition to BayesX, there is an R add-on package of the same name that provides additional functionality for manipulating geographical data 
 and additional graphics facilities. In particular, the package includes resources for constructing boundary and graph files from other geographical
-information systems.
+information systems. The R-package BayesXsrc allows to install BayesX via the package management of R while R2BayesX and BayesR provide convenient access from
+within R in the usual R fomular style.
 </li>
 <li><b>Model selection for Gaussian and non-Gaussian dags.</b><br>
 This tool estimates Gaussian and non-Gaussian directed acyclical graphs (dag) via reversible jump MCMC.
@@ -231,9 +253,9 @@ This tool estimates Gaussian and non-Gaussian directed acyclical graphs (dag) vi
 <p style="font-weight:bold">References</p>
 
 <p>A brief description of the methodological background for the regression tools available in BayesX can be found in the methodology manual.
-More details are given in the following sources and the references therein.</p>
+The methodology manual also contains a list of references on the methodology implemented in BayesX.</p>
 
-<p> Structured additive regression based on MCMC simulation:</p>
+<!--<p> Structured additive regression based on MCMC simulation:</p>
 
 <ul>
 <li>Brezger, A., Lang, S. (2006)<br>
@@ -331,7 +353,7 @@ More details are given in the following sources and the references therein.</p>
     SFB 386 discussion Paper 271, University of Munich.
 </li>
 </ul>
-
+-->
 
 
 

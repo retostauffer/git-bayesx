@@ -87,11 +87,11 @@ If you want to report a bug, please include any files that are needed to reprodu
 
 <ul>
 <li><b>Does BayesX support spaces in file names?</b><br>
-Unfortunately not. Altough spaces in file names work well in some situations, they should in general be avoided. In particular, an installation directory without 
+Unfortunately not always. Altough spaces in file names work well in some situations, they should in general be avoided. In particular, an installation directory without
 spaces should be chosen.</li>
 
 <li><b>Does BayesX support the specification of relative paths?</b><br>
-Again, unfortunetaly not, at least not yet. 
+Again, unfortunetaly not always and not on all operating systems.
 </li>
 
 <li><b>How do I obtain a map in boundary or graph format?</b><br>
@@ -107,8 +107,11 @@ Unfortunately not. All variables will have to be converted to numerical values b
 </li>
 
 <li><b>Is there a connection to R? Can I call BayesX from R?</b><br>
-Yes, the R-package <span style="font-family:monospace; font-size:medium">R2BayesX</span> (available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>) provides easy and convenient access to the BayesX facilities
-via the usual R-type model specification language. The package basically calls BayesX in the background and then transfers all estimation results back to R. An alternative, manual way to access BayesX from R is the <span style="font-family:monospace; font-size:medium">system</span> 
+Yes, the R-packages <span style="font-family:monospace; font-size:medium">here</span>
+(available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>) and <span style="font-family:monospace; font-size:medium">BayesR</span>
+(available from <a href="http://cran.r-project.org/web/packages/BayesR/index.html">here</a>) provide easy and convenient access to the BayesX facilities
+via the usual R-type model specification language. The packages basically call BayesX in the background and then transfers all estimation results back to R.
+An alternative, manual way to access BayesX from R is the <span style="font-family:monospace; font-size:medium">system</span>
 command in R that allows to call the command line version of BayesX (delivered in the subdirectory <span style="font-family:monospace; font-size:medium">commandline</span>
 of the installation directory) via<br>
 <span style="font-family:monospace; font-size:medium">R> system("BayesX </span><i>filename</i><span style="font-family:monospace; font-size:medium">")</span><br>
@@ -119,19 +122,18 @@ with functionality provided in the <span style="font-family:monospace; font-size
 
 <li><b>Does BayesX work with other operating systems than Windows?</b><br>
 For a long time the answer has been no, but version 2.0 of BayesX is now available in an open source distribution that can be compiled with GNU C++ compiler.
-As a consequence, BayesX now also works under Linux and Mac OS. A possibility to avoind manual compilation on some systems is to use R-package <span style="font-family:monospace; font-size:medium">R2BayesX</span> (available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>)
+As a consequence, BayesX now also works under Linux and Mac OS. A possibility to avoind manual compilation on some systems is to use
+ R-package <span style="font-family:monospace; font-size:medium">R2BayesX</span> (available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>)
 that provides pre-compiled BayesX version for example for Mac OS.<br>
-For older versions of BayesX, some adjustments of the makefile and the main function in main.cpp may be necessary to make them work on Mac OS. Versions of these files that have been used for a successful compilation under Mac OS can be found <a href="install/makefile">here</a> and <a href="install/main.cpp">here</a> 
-(thanks to Anestis Antoniadis for providing these files).
 </li>
 
-<li><b>The installation routine does not work with Windows 7.</b><br>
+<!--<li><b>The installation routine does not work with Windows 7.</b><br>
 This problem should have disappeared with version 2.1 of BayesX. To install older BayesX versions under Windows 7, you will have to start the installation routine manually from the DOS-prompt via<br>
 <span style="font-family:monospace; font-size:medium">c:\temp> BayesX_windows.exe -manual</span><br>
 (from the appropriate location and with the appropriate version number added to the name of the installation routine).
 During the installation process, you will be asked to locate java.exe for BayesX. The reason for this
 manual installation is that Windows 7 has a separate program folder for 32-bit programs.
-</li>
+</li>-->
 
 <li><b>When running BayesX on Windows Vista or Windows 7, an UnsatisfiedLinkError appears.</b><br>
 There may be two reasons for this problem:
@@ -174,7 +176,7 @@ estimation. The estimation results from the model obtained may contain valuable 
 </li>
 
 <li><b>How should I cite BayesX?</b><br>
-The recommended citation is "Belitz, C., Brezger, A., Kneib, T., Lang, S., Umlauf, N. (20xx): BayesX - Software for Bayesian inference in structured additive regression models.
+The recommended citation is "Belitz, C., Brezger, A., Klein, N., Kneib, T., Lang, S., Umlauf, N. (20xx): BayesX - Software for Bayesian inference in structured additive regression models.
 Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". (with x replaced by information corresponding to the version you have used).
 However, please also cite the methodological publications to credit the work of the
 BayesX contributors.
