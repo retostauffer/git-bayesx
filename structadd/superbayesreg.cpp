@@ -324,7 +324,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("frankcopula2_normal_mu");
   families.push_back("frankcopula2_normal_sigma2");
   families.push_back("gaussiancopula_dagum");
-  family = stroption("family",families,"gaussian");
+  family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
   H = intoption("H",6,2,6);
@@ -1475,39 +1475,43 @@ int superbayesreg::parse(const ST::string & c)
 
 bool superbayesreg::create_generaloptions(void)
   {
-
-  if (iterations.getvalue()- burnin.getvalue() < 100)
+  if (equations.size()==1)
     {
-    outerror("ERROR: number of iterations must exceed number of burnin iterations about 100\n");
-    return true;
-    }
+    if (iterations.getvalue()- burnin.getvalue() < 100)
+      {
+      outerror("ERROR: number of iterations must exceed number of burnin iterations about 100\n");
+      return true;
+      }
 
-  if (step.getvalue() >= iterations.getvalue() - burnin.getvalue())
-    {
-    outerror("ERROR: thinning parameter too large\n");
-    return true;
-    }
+    if (step.getvalue() >= iterations.getvalue() - burnin.getvalue())
+      {
+      outerror("ERROR: thinning parameter too large\n");
+      return true;
+      }
 
 
-  generaloptions = MCMC::GENERAL_OPTIONS(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  adminb_p,
-  #endif
-  iterations.getvalue(),burnin.getvalue(),
-                               step.getvalue(),saveestimation.getvalue(),logout,
-                               level1.getvalue(),level2.getvalue());
+    generaloptions = MCMC::GENERAL_OPTIONS(
+    #if defined(JAVA_OUTPUT_WINDOW)
+    adminb_p,
+    #endif
+    iterations.getvalue(),burnin.getvalue(),
+                                step.getvalue(),saveestimation.getvalue(),logout,
+                                 level1.getvalue(),level2.getvalue());
 
-  describetext.push_back("ESTIMATION OPTIONS:\n");
-  describetext.push_back("\n");
-  describetext.push_back("Number of Iterations: "
-                            + ST::inttostring(iterations.getvalue()) + "\n");
-  describetext.push_back("Burnin: " + ST::inttostring(burnin.getvalue()) + "\n");
-  describetext.push_back("Thinning parameter: " +
-                            ST::inttostring(step.getvalue()) + "\n");
+    describetext.push_back("ESTIMATION OPTIONS:\n");
+    describetext.push_back("\n");
+    describetext.push_back("Number of Iterations: "
+                              + ST::inttostring(iterations.getvalue()) + "\n");
+    describetext.push_back("Burnin: " + ST::inttostring(burnin.getvalue()) + "\n");
+    describetext.push_back("Thinning parameter: " +
+                              ST::inttostring(step.getvalue()) + "\n");
 
-//  generaloptions.nrout(iterationsprint.getvalue());
+  //  generaloptions.nrout(iterationsprint.getvalue());
 
-  return false;
+    return false;
+   }
+  else
+    return false;
 
   }
 
@@ -6690,6 +6694,7 @@ bool superbayesreg::create_predict(void)
                              equations[modnr].distrp,"",pathnonp,
                              pathnonp2,D,modelvarnamesv));
 
+          cout << modnr << endl;
           if (predict.getvalue() == "fulls")
             FC_predicts[FC_predicts.size()-1].nosamples=false;
 
