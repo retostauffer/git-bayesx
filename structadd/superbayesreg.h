@@ -220,7 +220,6 @@ using MCMC::FC_mult;
 using MCMC::FC_hrandom;
 using MCMC::FC_nonp_variance;
 using MCMC::FC_nonp_variance_varselection;
-using MCMC::FC_nonp_variance_varselection2;
 using MCMC::FC_varselection_omega;
 using MCMC::FC_hrandom_variance;
 using MCMC::FC_variance_pen_vector;
@@ -620,7 +619,6 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_nonp> FC_nonps;
   vector<FC_nonp_variance> FC_nonp_variances;
   vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;
-  vector<FC_nonp_variance_varselection2> FC_nonp_variance_varselection2s;
   vector<FC_varselection_omega> FC_varselection_omegas;
 
   bool create_nonp(void);

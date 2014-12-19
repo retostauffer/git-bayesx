@@ -149,10 +149,16 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   double a_omega;
   double b_omega;
 
-  double v;
-  double Q;
+  double v1;
+  double v2;
+  double tildev1;
+  double tildev2;
+
+  bool gig;
 
   double r;
+  double r2;
+  bool wei;
 
   datamatrix X;
 
@@ -229,100 +235,6 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   };
 
 
-
-class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
-  {
-
-  protected:
-
-  bool singleomega;
-
-
-  FC FC_psi2;
-  FC FC_omega;
-
-  double a_omega;
-  double b_omega;
-
-  double v;
-  double Q;
-
-//  double scaletau2;
-
-  double r2;
-
-  datamatrix X;
-
-  public:
-
-  double omegas;
-
-  FC FC_delta;
-
-//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
-
-  // DEFAULT CONSTRUCTOR
-
-  FC_nonp_variance_varselection2(void);
-
-  // CONSTRUCTOR
-  // o    : pointer to GENERAL_OPTIONS object
-  // t    : title of the full conditional (for example "fixed effects")
-  // fp   : file path for storing sampled parameters
-
-  FC_nonp_variance_varselection2(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
-           bool so,
-            const ST::string & t,
-           const ST::string & fp,DESIGN * dp,FC_nonp * FCn,
-           vector<ST::string> & op,vector<ST::string> & vn);
-
-  // COPY CONSTRUCTOR
-
-  FC_nonp_variance_varselection2(const FC_nonp_variance_varselection2 & m);
-
-
-  // OVERLOADED ASSIGNMENT OPERATOR
-
-  const FC_nonp_variance_varselection2 & operator=(const FC_nonp_variance_varselection2 & m);
-
-  // DESTRUCTOR
-
-  ~FC_nonp_variance_varselection2()
-    {
-    }
-
-  // FUNCTION: update
-  // TASK: - stores sampled parameters in file 'samplepath'
-  //         storing order: first row, second row, ...
-
-  void update(void);
-
-  bool posteriormode(void);
-
-  // FUNCTION: outoptions
-  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
-
-  void outoptions(void);
-
-  // FUNCTION: outresults
-  // TASK: writes estimation results to logout or into a file
-
-  void outresults(ofstream & out_stata,ofstream & out_R,
-                  const ST::string & pathresults);
-
-  // FUNCTION: reset
-  // TASK: resets all parameters
-
-  void reset(void);
-
-  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
-
-  void get_samples(const ST::string & filename,ofstream & outg) const;
-
-
-  // virtual void transform_beta(void);
-
-  };
 
 
 //------------------------------------------------------------------------------

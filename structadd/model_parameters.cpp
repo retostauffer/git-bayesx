@@ -100,8 +100,6 @@ term_nonp::term_nonp(vector<ST::string> & na)
   priors.push_back("dirichlet");
   priors.push_back("nmig");
   priors.push_back("ssvs");
-//  priors.push_back("ssvs");
-  priors.push_back("ssvs2");
 
   prior = stroption("prior",priors,"iid");
   knotpath = fileoption("knotpath","");
@@ -126,7 +124,14 @@ term_nonp::term_nonp(vector<ST::string> & na)
   cauchy = simpleoption("cauchy",false);
   wei = simpleoption("wei",false);
 
+  v1 = doubleoption("v1",5,0.0000000001,500);
+  v2 = doubleoption("v2",5,0.0000000001,500);
 
+  tildev1 = doubleoption("tildev1",10.5,0.0000000001,500);
+  tildev2 = doubleoption("tildev2",1,0.0000000001,500);
+
+  // gamma prior for tau2 instead of normal prior for tau in ssvs
+  gig = simpleoption("gig",false);
   }
 
 void term_nonp::setdefault(void)
@@ -185,6 +190,12 @@ void term_nonp::setdefault(void)
   cauchy.setdefault();
   wei.setdefault();
   scaletau2.setdefault();
+
+  v1.setdefault();
+  v2.setdefault();
+  tildev1.setdefault();
+  tildev2.setdefault();
+  gig.setdefault();
   }
 
 
@@ -289,7 +300,11 @@ bool term_nonp::check(term & t)
     optlist.push_back(&wei);
     optlist.push_back(&scaletau2);
 
-
+    optlist.push_back(&v1);
+    optlist.push_back(&v2);
+    optlist.push_back(&tildev1);
+    optlist.push_back(&tildev2);
+    optlist.push_back(&gig);
 
     unsigned i;
     bool rec = true;
@@ -448,13 +463,22 @@ bool term_nonp::check(term & t)
       t.options[50] = "false";
     else
       t.options[50] = "true";
-  //  if (prior.getvalue() == "ssvs2")
-   //   t.options[50] = "true";
-   // else
-   //   t.options[50] = "false";
 
     t.options[51] = ST::doubletostring(scaletau2.getvalue());
     t.options[52] = ST::doubletostring(r2.getvalue());
+
+    // pararameters for ssvs psi2 (IG prior)
+    t.options[53] = ST::doubletostring(v1.getvalue());
+    t.options[54] = ST::doubletostring(v2.getvalue());
+
+    // pararameters for ssvs psi2 (weibull prior, needed for IG proposal density)
+    t.options[55] = ST::doubletostring(tildev1.getvalue());
+    t.options[56] = ST::doubletostring(tildev2.getvalue());
+    //normal prior for tau or (if true gig prior for tau2 in class ssvs
+    if (gig.getvalue() == false)
+      t.options[57] = "false";
+    else
+      t.options[57] = "true";
 
     setdefault();
     return true;
