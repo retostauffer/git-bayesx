@@ -160,10 +160,10 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   public:
 
-  double omegas;
+  double omega;
   FC FC_delta;
 
-//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+  //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
   // DEFAULT CONSTRUCTOR
 
@@ -325,6 +325,9 @@ class __EXPORT_TYPE FC_nonp_variance_varselection2  : public FC_nonp_variance
   };
 
 
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: FC_varselection_omega ---------------------
+//------------------------------------------------------------------------------
 
 class __EXPORT_TYPE FC_varselection_omega  : public FC
   {
@@ -342,7 +345,6 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
   public:
 
   vector<FC_nonp_variance_varselection*> FC_tau2s;
- // vector<FC_nonp_variance_varselection*> FC_tau2s;
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
@@ -385,28 +387,27 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 //  // FUNCTION: outoptions
 //  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
 //
-//  void outoptions(void);
+  void outoptions(void);
 //
 //  // FUNCTION: outresults
 //  // TASK: writes estimation results to logout or into a file
 //
-//  void outresults(ofstream & out_stata,ofstream & out_R,
-//                  const ST::string & pathresults);
+  void outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults);
 //
 //  // FUNCTION: reset
 //  // TASK: resets all parameters
 //
-//  void reset(void);
+  void reset(void);
 //
 //  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 //
-//  void get_samples(const ST::string & filename,ofstream & outg) const;
+  void get_samples(const ST::string & filename,ofstream & outg) const;
 //
 //
   // virtual void transform_beta(void);
 
   };
-
 
 
 

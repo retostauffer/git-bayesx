@@ -6973,7 +6973,6 @@ void superbayesreg::create_pspline(unsigned i)
         firstvarselection=false;
         }
 
-
       FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
       (&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1] );
 

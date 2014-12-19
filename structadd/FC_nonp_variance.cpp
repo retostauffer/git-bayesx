@@ -503,14 +503,18 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
 
   //tauold = rand_normal()*sqrt(0.5);
 
-  FC_omega = FC(o,"",1,1,"");
-  FC_omega.setbeta(1,1,0.5);
+  if(!singleomega)
+    {
+    FC_omega = FC(o,"",1,1,"");
+    FC_omega.setbeta(1,1,0.5);
+    }
+  else
+    {
+    omega=0.5;
+    }
 
   v = 5;
-
   Q = 25;
-
-
   }
 
 
@@ -523,7 +527,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
-  omegas = m.omegas;
+  omega = m.omega;
   tauold = m.tauold;
   v = m.v;
   Q = m.Q;
@@ -544,7 +548,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   FC_omega = m.FC_omega;
   a_omega = m.a_omega;
   b_omega = m.b_omega;
-  omegas = m.omegas;
+  omega = m.omega;
   tauold = m.tauold;
   v = m.v;
   Q = m.Q;
@@ -562,9 +566,10 @@ void FC_nonp_variance_varselection::update(void)
   // updating psi2
 
   //if more than one omega, set omegas
-  if(singleomega == false) {
-    omegas = FC_omega.beta(0,0) ;
-  }
+  if(singleomega == false)
+    {
+    omega = FC_omega.beta(0,0) ;
+    }
 
   double r_delta;
   if (FC_delta.beta(0,0) < 1)
@@ -582,7 +587,7 @@ void FC_nonp_variance_varselection::update(void)
 
   double u = uniform();
   double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r-1));
-  double pr1 = 1/(1+ ((1-FC_omega.beta(0,0))/FC_omega.beta(0,0))*L);
+  double pr1 = 1/(1+ ((1-omega)/omega)*L);
 
   if (u <=pr1)
     {
@@ -604,9 +609,9 @@ void FC_nonp_variance_varselection::update(void)
 
   if(singleomega == false) {
 
-    FC_omega.beta(0,0) = 0.1;//randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
-                               //           b_omega+1-FC_delta.beta(0,0));
-    omegas = FC_omega.beta(0,0) ;
+    FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
+                                          b_omega+1-FC_delta.beta(0,0));
+//    omega = FC_omega.beta(0,0);
 
     FC_omega.update();
   }
@@ -1175,7 +1180,6 @@ void FC_nonp_variance_varselection2::reset(void)
   }
 
 
-
 //-------------------------------------------------------------------------------------------------------------
 //------------------------------------  FC_varselection_omega -------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------
@@ -1248,7 +1252,7 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
         for (j=0;j<nfunc;j++)
         {
-        FC_tau2s[j]->omegas=beta(0,0);
+        FC_tau2s[j]->omega=beta(0,0);
         }
 
 
@@ -1261,35 +1265,37 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 //  }
 //
 //
-//  void FC_varselection_omega::outoptions(void)
-//    {
-//
-//
-//    }
-//
-//  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
-//                  const ST::string & pathresults)
-//   {
-//        FC::outresults(out_stata,out_R,pathresults);
-//   }
-//
-//
-//  void FC_varselection_omega::reset(void)
-//    {
-//        FC::reset();
-//    }
-//
+  void FC_varselection_omega::outoptions(void)
+    {
+
+
+    }
+
+
+  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
+                  const ST::string & pathresults)
+   {
+        FC::outresults(out_stata,out_R,pathresults);
+   }
+
+  void FC_varselection_omega::reset(void)
+    {
+        FC::reset();
+    }
+
+
 //  void FC_varselection_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)
 //    {
 //
 //    }
 //
-//  void FC_varselection_omega::get_samples(const ST::string & filename,ofstream & outg) const
-//   {
-//        ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
-//        FC::get_samples(filename_omega,outg);
-//
-//   }
+
+  void FC_varselection_omega::get_samples(const ST::string & filename,ofstream & outg) const
+   {
+        ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
+        FC::get_samples(filename_omega,outg);
+
+   }
 
 
 
