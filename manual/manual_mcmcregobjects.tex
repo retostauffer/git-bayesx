@@ -1186,122 +1186,44 @@ nominal levels (80\%). Adding, for instance,
 to the options list computes credible intervals for a nominal
 level of 70\% rather than 80\%.
 Option #level2# must be specified in the first equation of the model, otherwise the option will be ignored.
-\item \label{predict} #predict# \\
-\index{DIC} \index{Deviance} \index{Saturated deviance}
-\index{Deviance information criterion} \index{Effective number of
-parameters} \index{Predicted values}
+\item \label{MCMCpredict} #predict# \\
+\index{DIC} \index{Deviance} 
+\index{Deviance information criterion} 
+ \index{Predicted values}
 Option #predict# may be specified to compute predicted values, samples of the deviance
 $D$, the deviance
 information criterion $DIC$ etc. The following specifications are possible:
 \begin{itemize}
-\item #predict=full#
+\item #predict=no# \\
+This the default specification, i.e. predicted values are not computed. 
+\item #predict=full# \\
 This specification computes and reports the model
-deviance, the DIC, posterior means, medians, standard deviations and some quantiles of the 
-predictor, the estimated parameter and the expected value. 
+deviance, the DIC, posterior means, medians, standard deviations and some quantiles of the
+predictor, the estimated parameter and the expected value. The deviance and DIC
+are reported in the regression output as well as in a file which ends with 
+``predict\_DIC.res''. The other results are stored in a file which ends with ``predict.res''.
 
-\item #predict=fulls#
-\item #predict=light#
-\item #predict=predictor#
-\item #nosamples#
+Regarding the computation of the DIC and related quantities please take a look at page 
+\pageref{predict}.
+
+\item #predict=fulls# \\
+This specification provides the same output as #predict=full#. If method #getsample#
+is applied after method #hregress# then #predict=fulls# provides an additional file (which ends with
+``predict\_sample.raw'') 
+with all
+samples of the computed quantities. Note that the size of the output file is even for very simple models
+is huge because the number of sampled quantities is proportional to the number of observations. Usually it is
+not necessary to store all samples of the quantities obtained with #predict=full# or #predict=fulls#. Therefore
+the specification #predict=full# is favorable compared to #predict=fulls#. 
+ 
+% \item #predict=light#
+%\item #predict=predictor#
+
+%\item #nosamples#
 \end{itemize}
 
-
-
-
-
-The computation of these quantities is based on the
-unstandardized deviance which is defined as $D(\theta) =
--2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$ for Gaussian
-responses, $\theta = (\mu,\delta)$ for negative binomial responses
-and $\theta = \mu$ for the rest of non-Gaussian responses. The
-effective number of parameters is defined by $p_D =
-\overline{D(\theta)} - D(\bar{\theta})$ where $\overline{D(\theta)}$
-is the posterior mean deviance and $D(\bar{\theta})$ is the deviance
-of the posterior mean of $\theta$. The deviance information
-criterion is defined as
-$$
-DIC = \overline{D(\theta)} + p_D = D(\bar{\theta}) + 2 p_D
-$$.
-{\em
-BayesX} prints sample properties of the deviance, the effective
-number of parameters $p_D$ and the DIC in the {\em output window} or
-in an open log file. The complete sample of the deviance is stored
-in a file with ending #deviance.raw#. The complete filename
-including the storage folder is given in the {\em output window} or
-the log file. The last two entries of that file contain again the
-effective number of parameters $p_D$ and the DIC. Additionally, a
-file with ending #predictmean.raw# is created that contains for
-every observation the posterior mean of the predictor $\eta_i$ and
-the expectation $E(y_i | \eta_i) = \mu_i$ as well as the saturated
-deviance $D^{sat}_i$ and leverage statistics $p_{D_i}$. The
-saturated deviance is defined as $D(\mu,\sigma^2) =
--2\log(p(y|\mu,\sigma^2))+2\log(p(y|\mu=y,\sigma^2))$. For
-non-Gaussian responses the variance $\sigma^2$ disappears and for
-negative binomial responses we have $\delta$ instead. The individual
-saturated deviance $D^{sat}_i$ can be used to compute deviance
-residuals. The deviance residuals are given by $r_i =
-sign(y_i-\mu_i) \sqrt{D^{sat}_i}$. The leverage statistics $p_{D_i}$
-is defined as the contribution of the $i$th observation to $p_D$.
-More details about the quantities discussed above can be found in
-\citeasnoun{SpiBesCar02}. To clarify the computation of $D$,
-$p_D$, $DIC$ etc. \autoref{deviancetable} provides formulas of the
-p.d.f.~and the (unstandardized) deviance $D$ for the different
-response distributions provided in {\em BayesX}.
 \end{itemize}
 
-\begin{table}[ht]
-\begin{center}
-\begin{tabular} {|l|l|l|}
-\hline
-{\bf distribution} & {\bf density} & {\bf D =-2 Loglikelihood} \\
-\hline \hline Gaussian & $p(y|\mu,\sigma^2) = \frac{1}{\sqrt{2 \pi
-\sigma^2/c}}$  &
-$\log(\frac{2 \pi \sigma^2}{c}) + \frac{c}{\sigma^2} (y-\mu)^2$ \\
- & $\exp(-\frac{c}{2 \sigma^2} (y-\mu)^2)$ & \\
-\hline
-Binomial & $p(y | \mu)  \propto \mu^y(1-\mu)^{c-y}$ & $-2 y \log(\mu) - 2 (c-y) \log(1-\mu)$ \\
-\hline
-Poisson & $p(y | \mu) \propto \exp((y \log(\mu) - \mu)c)$  & $-2c(y \log(\mu) - \mu)$ \\
-\hline
-Negative Binomial & $p(y|\mu,\delta) \propto
-\frac{\Gamma(y+\delta)}{\Gamma(\delta)}
-\left(\frac{\delta}{\delta+\mu}\right)^\delta
-\left(\frac{\mu}{\delta+\mu}\right)^y$ &
-$-2\{\log(\Gamma(y+\delta))-\log(\Gamma(\delta))+\delta\log(\delta)$\\
-&&$+y\log(\mu)-(\delta+y)\log(\delta+\mu)\}$\\
-\hline
-Zero inflated  & $p(0|\mu, \theta) = \theta + (1-\theta)\exp(-\mu)$
-& $-2\log(\theta + (1-\theta)\exp(-\mu))$\\
-Poisson & $p(y|\mu, \theta) \propto (1-\theta)\exp(-\mu)\mu^y$
-& $-2\log(1-\theta)-2(y \log(\mu) - \mu)$\\
-\hline
-Zero inflated  & $p(0|\mu, \delta, \theta) = \theta +
-(1-\theta)\!\!\left(\frac{\delta}{\delta+\mu}\right)^\delta$&
-$-2\log\left( \theta + (1-\theta)\left(\frac{\delta}{\delta+\mu}\right)^\delta \right)$\\
-Negative Binomial& $p(y|\mu, \delta, \theta) \propto (1-\theta)\frac{\Gamma(y+\delta)}{\Gamma(\delta)}$
-& $-2\{\log(1-\theta)$\\
-&$\qquad\qquad\qquad\left(\frac{\delta}{\delta+\mu}\right)^\delta \left(\frac{\mu}{\delta+\mu}\right)^y$
-&$+ \log(\Gamma(y+\delta))-\log(\Gamma(\delta))+\delta\log(\delta)$\\
-& & $+ y\log(\mu)-(\delta+y)\log(\delta+\mu)\}$\\
-\hline
-Multinomial logit & $p(y | \mu) \propto \prod \mu_j^{y_j}$ & $-2(\sum y_j \log(\mu_j))$ \\
-\hline
-Multinomial probit & & {\bf not available} \\
-\hline
-Cumulative probit  & $p(y | \mu) \propto \prod \mu_j^{y_j}$ & $-2(\sum y_j \log(\mu_j))$ \\
-\hline
-\end{tabular}
-{\em\caption {\label{deviancetable} \small Formulas of the
-probability densities, the unstandardized deviance and the
-saturated deviance for the various response distributions. The
-quantity $c$ in the formulas corresponds to the weights specified
-in a weight statement, see weightspecification for
-details on how to specify weights. In the case of multinomial
-logit and cumulative probit models the variables $y_j$ are
-indicator variables where $y_j=1$ denotes that the $j$-th category
-of the response $y$ has been observed.}}
-\end{center}
-\end{table}
 
 
 \subsection{Estimation output}
@@ -1312,53 +1234,40 @@ in a tabular form in the {\em output window} and/or in a log file
 (if created before). Shown will be the posterior mean, the
 standard deviation, the 2.5\% and the 97.5\% quantiles. Other
 quantiles may be obtained by specifying the #level1# and/or
-#level2# option, see \autoref{regressoptions} for details.
+#level2# option, see \autoref{mcmcregregressoptions} for details.
 Additionally a file is created where estimation results for fixed
 effects are replicated. The name of the file is given in the {\em
-output window} and/or in a log file. Estimation effects of
+output window} and/or in a log file. 
+
+Estimation effects of
 nonlinear effects of continuous and spatial covariates as well as
 unstructured random effects are presented in a different way.
 Results are stored in an external ASCII-file whose contents can be
 read into any general purpose statistics program (e.g.~STATA, R,
 S-plus) to further analyze and/or visualize the results. The
 structure of the files is as follows: There will be one file for
-every nonparametric effect in the model. The name of the files and
+every (nonparametric) effect in the model. The name of the files and
 the storing directory are displayed in the {\em output window}
-and/or a log file. The files contain ten or eleven columns
+and/or a log file. The files contain 17 or 18 columns
 depending on whether the corresponding model term is an
-interaction effect. The first column contains a parameter index
+interaction effect. 
+The first column contains an index
 (starting with one), the second column (and the third column if
-the estimated effect is a two-dimensional P-spline) contain the
+the estimated effect is an interaction effect) contain the
 values of the covariate(s) whose effect is estimated. In the
 following columns the estimation results are given in form of the
-posterior means and the 2.5\%, 10\%, 50\%, 90\% and 97.5\%
-quantiles. The last two columns contain posterior probabilities
+posterior means, standard deviations and the 2.5\%, 10\%, 50\%, 90\% and 97.5\%
+pointwise credible intervals. 
+Other quantiles may be obtained by specifying the #level1# and/or
+#level2# option, see \autoref{mcmcregregressoptions} for details.
+The next  two columns contain posterior probabilities
 based on nominal levels of 95\% and 80\%. A value of 1 corresponds
 to a strictly positive 95\% or 80\% credible interval and a value
 of -1 to a strictly negative credible interval. A value of 0
 indicates that the corresponding credible interval contains zero.
-Other quantiles may be obtained by specifying the #level1# and/or
-#level2# option, see \autoref{regressoptions} for details. As an
-example compare the following few lines, that are the beginning of
-a file containing the results for a particular covariate, #x# say:
-
-
-\footnotesize
-intnr  \quad #x# \quad  pmean \quad pqu2p5 \quad pqu10 \quad pmed \quad pqu90 \quad pqu97p5 \quad pcat95 \quad   pcat80 \\
-1 \quad   -2.778436 \quad  -0.0730973 \quad  -0.349922 \quad  -0.259827 \quad  -0.0765316 \quad  0.109233  \quad 0.211572 \quad  0 \quad  0 \\
-2 \quad  -2.723671  \quad -0.167492  \quad -0.39718 \quad  -0.322043  \quad -0.168924  \quad -0.0167056  \quad 0.075335  \quad 0  \quad -1 \\
-3  \quad -2.633617  \quad -0.320366  \quad -0.497797 \quad  -0.433861 \quad  -0.321034 \quad  -0.198619 \quad  -0.129246  \quad -1 \quad  -1 \\
-4 \quad  -2.547761  \quad -0.455913  \quad -0.623495 \quad  -0.560266  \quad -0.458746 \quad  -0.347443 \quad  -0.296006  \quad -1  \quad -1 \\
-5 \quad  -2.455208  \quad -0.591498  \quad -0.744878  \quad -0.694039  \quad -0.592381 \quad  -0.484629 \quad  -0.440857  \quad -1  \quad -1 \\
-6 \quad  -2.385378  \quad -0.687709  \quad -0.858153 \quad  -0.802932  \quad -0.687944 \quad  -0.577029 \quad  -0.522391  \quad -1 \quad  -1 \\
-7 \quad  -2.34493  \quad -0.736406   \quad -0.914646 \quad  -0.851548  \quad -0.73536 \quad  -0.623369  \quad -0.561035   \quad -1  \quad -1 \\
-8 \quad  -2.291905  \quad -0.785899  \quad -0.962212 \quad  -0.895262 \quad  -0.783646 \quad  -0.674511 \quad  -0.609532  \quad -1 \quad  -1 \\
-9 \quad  -2.178096  \quad -0.876173   \quad -1.0428  \quad -0.982029 \quad  -0.877516 \quad  -0.768126  \quad -0.708452  \quad -1  \quad -1
-
-\normalsize
-
-Note that the first row always contains the names of the variables
-in the ten columns.
+The remaining 6 columns provide simultaneous credible intervals together 
+with their corresponding posterior probabilities. The simultaneous credible intervals
+are computed according to a proposal by  \citeasnoun{krikne10}.
 
 The estimated nonlinear effects can be visualized by using either
 the graphics capabilities of {\em BayesX} or the {\it BayesX} R package, see \autoref{bayesxplot} and \autoref{rpackage},
@@ -1368,19 +1277,24 @@ with plotting facilities may be used as well.
 \subsection{Examples}
 
 Here we give only a few examples about the usage of method
-#regress#. More detailed examples can be found in chapter
-\ref{zambiaanalysis} of the tutorial manual.
+#hregress#. More detailed examples can be found in chapter
+?? of the tutorial manual.
 
-Suppose that we have a data set #test# with a binary response
-variable #y#, and covariates  #x1#, #x2#, #x3#  and #t#, where #t#
-is assumed to be a time scale measured in months. Suppose further
-that we have already created a {\em bayesreg object} #b#.
+Suppose that we have a data set #test# with a continuous response
+variable #y#, and covariates  #x1#, #x2# and #x3#. Suppose further
+that we have already created a {\em mcmcreg object} #b#.
 
-\subsubsection*{Fixed effects}
+\subsubsection{Single equation and parameter models}
 
-We first specify a model with #y# as the response variable and
+We start by specifying Gaussian regression models for the response variable #y#
+with homoscedastic variance $\sigma^2$, i.e. we define only a predictor for the mean 
+$\mu$ of the normal distribution.  
+
+\paragraph{Fixed effects} 
+$$$$
+We first specify a model with 
 fixed effects for the covariates #x1#, #x2# and #x3#. Hence the
-predictor is
+predictor for $\mu$ is
 
 $$
 \eta = \gamma_0 + \gamma_1 x1 + \gamma_2 x2 + \gamma_3 x3
@@ -1388,62 +1302,31 @@ $$
 
 This model is estimated by typing:
 
-#> b.regress y = x1 + x2 + x3, iterations=12000 burnin=2000# \\
-#  step=10 family=binomial using test#
+#> b.hregress y = const + x1 + x2 + x3, iterations=12000 burnin=2000# \\
+#  step=10 family=normal using test#
 
 Here, #step=10# defines the thinning parameter, i.e.~only every
 10th sampled parameter will be stored and used for estimation.
 #test# is the data set that is used for estimation. By specifying
-option #family=binomial#, a binomial logit model is estimated. A
-probit model can be estimated by specifying
-#family=binomialprobit#.
+option #family=normal#, a Gaussian regression model is estimated. 
 
-\subsubsection*{Additive models}
-
+\paragraph{Additive models}
+$$$$
 Suppose now that we want to allow for possibly nonlinear effects
 of #x2# and #x3#. Defining cubic P-splines with second order
 random walk penalty as smoothness priors, we obtain
 
-#> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), iterations=12000 #\\
-#  burnin=2000 step=10 family=binomial using test#
+#> b.hregress y = const + x1 + x2(pspline) + x3(pspline), iterations=12000 #\\
+#  burnin=2000 step=10 family=normal using test#
 
 which corresponds to the predictor
-
 $$
 \eta = \gamma_0 + \gamma_1 x1 + f_1(x2) + f_2(x3).
 $$
 
-Suppose now for a moment that the response is not binary but
-multicategorical with unordered categories 1, 2 and 3. In that
-case we can estimate either a multinomial logit or a probit model.
-A logit model is estimated by typing:
 
-#> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), iterations=12000# \\
-#  burnin=2000 step=10 family=multinomial reference=2 using test#
-
-That is, #family=binomial# was altered to #family=multinomial#,
-and the option #reference=2# was added in order to define the
-value 2 as the reference category. Accordingly, a multinomial
-probit model is estimated by typing
-
- #> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), iterations=12000 #\\
- #  burnin=2000 step=10 family=multinomialprobit reference=2 using test#
-
-\subsubsection*{Time scales}
-
-In our next step we extend the model by incorporating an
-additional trend and a flexible seasonal component for the time
-scale #t#:
-
-#> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2) + #\\
-#  t(season,period=12), iterations=12000 burnin=2000 step=10#\\
-#  family=binomial using test#
-
-Note that we passed the period of the seasonal component as a
-second argument.
-
-\subsubsection*{Spatial covariates}
-
+\paragraph{Spatial covariates}
+$$$$
 Suppose now that we have an additional spatial covariate #region#,
 which indicates the geographical region an observation belongs to.
 To incorporate a structured spatial effect, we first have to
@@ -1470,170 +1353,82 @@ graph files} is much faster than reading {\em boundary files}.
 
 We can now extend our predictor with a spatial effect:
 
-#> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2) +# \\
-#  t(season,period=12) + region(spatial,map=m), iterations=12000 burnin=2000 #\\
-#  step=10 family=binomial using test#
+#> b.hregress y = const + x1 + x2(pspline) + x3(pspline) + # \\
+#  region(spatial,map=m), iterations=12000 burnin=2000 #\\
+#  step=10 family=normal using test#
 
 In some situations it may be reasonable to incorporate  an
 additional unstructured  random effect into the model in order to
 split the total spatial effect into a structured and an
 unstructured component. This is done by typing
 
-#> b.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2) +# \\
-#  t(season,period=12) + region(spatial,map=m) + region(random), iterations=12000 #\\
-#  burnin=2000 step=10 family=binomial using test#
+#> b.hregress y = const + x1 + x2(psplinerw2) + x3(psplinerw2) + # \\
+#   region(spatial,map=m) + region(random), iterations=12000 #\\
+#  burnin=2000 step=10 family=normal using test#
+
+\subsubsection{Multiple equation and parameter models}
+
+We now add another equation for the variance of the Gaussian regression
+model. We assume the same complex predictor for the mean and variance equation 
+as in the previous section and specify the two equations by: 
+
+#> b.hregress y = const + x1 + x2(psplinerw2) + x3(psplinerw2) + # \\
+#   region(spatial,map=m) + region(random), iterations=12000 #\\
+#  burnin=2000 step=10 family=normal equationtype=sigma2 using test#
+
+
+#> b.hregress y = const + x1 + x2(psplinerw2) + x3(psplinerw2) + # \\
+#   region(spatial,map=m) + region(random),  #\\
+#  family=normal equationtype=mu using test#
+
+Note that we additionally specify the option #equationtype# in both equations
+in order to distinguish between the variance and mean equation.
+Note also that MCMC specific details should only be specified in the first equation.
+In fact, a possible specification in the second or following equations will be ignored.
+
+In both equations we estimate region specific random effects and a smooth spatial effect. It is therefore
+favorable to rewrite the model in multilevel form. This done using the following commands: 
+
+
+#> b.hregress region = const  + region2(spatial,map=m) , iterations=12000 # \\
+#  burnin=2000 step=10 family=gaussian_re equationtype=sigma2 using regiondata# \\
+
+#> b.hregress y =  x1 + x2(psplinerw2) + x3(psplinerw2) + region(hrandom), # \\ 
+#  family=normal equationtype=sigma2 using test#
+
+
+#> b.hregress region = const  + region2(spatial,map=m) ,  # \\
+#   family=gaussian_re equationtype=mu using regiondata# \\
+
+
+#> b.hregress y = const + x1 + x2(psplinerw2) + x3(psplinerw2) + # \\
+#  region(hrandom),  family=normal equationtype=mu using test# \\
+
+The model contains now two more equations for the random effects. We shifted the overall intercept into 
+the random effects equations to improve the mixing of MCMC samples, see \citeasnoun{LanUml14} for an explanation.
+The smooth spatial effect is also contained in the random effects equations to improve mixing and speed up computations. 
 
 \section{Method autocor}
-\label{bayesautocorr} \index{Bayesreg object!Autocor command}
-\index{Autocorrelation functions} \index{Autocorrelation
-functions!Computing of}
+\label{mcmcautocorr} \index{mcmcreg object!Autocor command}
 
-\begin{stanza}{Description}
+
 
 This method is a post estimation command, i.e.~its usage is
-meaningful only if method #regress# has been applied before. Method
+meaningful only if method #hregress# has been applied before. Method
 #autocor# computes the autocorrelation functions of all sampled (and
-stored) parameters. The computed functions will be written to an
-external file whose name and storing path is printed in the {\em
-output window} and/or an additional log file. The computed
-autocorrelations can be visualized by using either
-\hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} or the \hyperref[rpackage]{R function
-#plotautocor#}.
-\end{stanza}
+stored) parameters. 
 
-\begin{stanza}{Syntax}
+The usage of method #autocor# is identical to its corresponding counterpart for {\em
+bayesreg objects}, see section \ref{bayesautocorr} for details.  
 
-#># {\em objectname}.#autocor# [{\em , options}]
-
-The execution of this command computes autocorrelation functions
-for all sampled and stored parameters. An error
- will be raised
-if regression results are not yet available. The computed
-functions will be stored in an external file. The storing
-directory will be the current output directory of the {\em
-bayesreg object}. By default, this directory is
-#<INSTALLDIRECTORY>\output#, but the current output
-directory may be changed by redefining the global option
-#outfile#, see \autoref{bayesregglobopt}. The filename will be
-the current output name extended by the ending #_autocor.raw#. By
-default, the output name is the name of the particular {\em
-bayesreg object}. Thus, if for example your {\em bayesreg object}
- name is #bayes#, the complete
-filename will be #bayes_autocor.raw#. Once again, the  default
-output name may be changed using the global option #outfile#
-(\autoref{bayesregglobopt}). Note that the autocorrelation file
-will be overwritten whenever method #autocor# is applied. As a
-remedy the current output directory and/or output name should be
-changed {\em before} estimating a new model, using the global
-option #outfile#, see \autoref{bayesregglobopt}.
-
-The structure of the file with the stored autocorrelation
-functions is the following: The computed functions are stored in a
-matrix like fashion. For every parameter the autocorrelation
-function will be stored columnwise, with autocorrelation for lag 1
-in row 1, for lag 2 in row 2 and so on. The first column of the
-file contains the lag number. In addition, for each term in the
-estimated model, minimum, mean and maximum autocorrelations will
-be computed and stored. Note finally that the very first row of
-the file contains the column names.
-
-The computed autocorrelations can be visualized by using either
-\hyperref[graphplotautocor]{method #plotautocor#} of {\em graph
-objects} or the \hyperref[rpackage]{R function
-#plotautocor#}. However, since the structure of the file is very
-simple, the visualization of the functions can be done with every
-software package which has graphics capabilities.
-\end{stanza}
-
-\subheader{Options}
-
-\begin{itemize}
-\item  #maxlag = #{\em integer } \\
-With the #maxlag# option, the maximum lag number for computing
-autocorrelations may be specified.
-{\em integer} must be a positive integer valued number. \\
-DEFAULT: #maxlag=250#
-\end{itemize}
-
-\begin{stanza}{Examples}
-
-Suppose we have already defined a {\em bayesreg object} #b# and
-estimated a (simple) regression model with Gaussian responses
-using the following #regress# statement
-
-#> b.regress Y = X, family=gaussian using d#
-
-where #d# is the analyzed data set. The model contains only a
-fixed effect for covariate #X# and an intercept. We may now want
-to check the mixing of the sampled parameters (one for the overall
-variance parameter, one for the intercept and one for the fixed
-effect of #X#) by computing autocorrelation functions. The
-following statement computes autocorrelations up to lag 100 and
-stores the result in the default output directory with filename
-#b_autocor.raw#:
-
-#> b.autocor, maxlag=100#
-
-The default output directory is
-{\em$<$INSTALLDIRECTORY$>$}#\output#. So if, for instance, {\em
-BayesX} is installed in #c:\bayes#, the autocorrelation functions
-will the stored in #c:\bayes\output\b_autocor.raw#. If you wish to
-store the file in another directory, #c:\data# say, and under
-another name, for example #estimate1#, you must use the global
-option #outfile# before estimation (see also
-\autoref{bayesregglobopt}). The following commands produce the
-desired result (program output between the different statements
-omitted):
-
-#> b.outfile = c:\data\estimate1# \\
-#> b.regress Y = X, family=gaussian using d# \\
-#> b.autocor , maxlag=100#
-
-Now the autocorrelation functions will be stored under
-#c:#$\backslash$#data#$\backslash$#estimate1_autocor.raw#.
-
-The computed autocorrelation functions may now be visualized using
-the \hyperref[rpackage]{R function #plotautocor#}.
-The function plots the autocorrelation functions for all estimated
-parameters (in our example only three) against the lag number. If
-the option #mean.autocor=T# is specified, only minimum, mean and
-maximum autocorrelations for each term in the model are plotted
-against the lag number. Obviously, this is much faster than the
-first alternative, where the autocorrelation functions of all
-parameters are plotted.
-
-The autocorrelation functions can be plotted directly in {\em
-BayesX} using \hyperref[graphplotautocor]{method #plotautocor#} of
-{\em graph objects}. For that purpose, the computed autocorrelation
-functions must be first read into {\em BayesX} as a new data set,
-#a# say, and then visualized using method #plotautocor# of {\em
-graph objects}. The following commands produce the desired results:
-
-#> b.outfile = c:\data\estimate1# \\
-#> b.regress Y = X, family=gaussian using d# \\
-#> b.autocor, maxlag=100# \\
-#> dataset a# \\
-#> a.infile using c:\data\estimate1_autocor.raw# \\
-#> graph g# \\
-#> g.plotautocor using a#
-
-A third way for plotting autocorrelation functions is given by
-applying \hyperref[plotautocor]{method #plotautocor#} of {\em
-bayesreg objects}. Here autocorrelations are computed and plotted in
-one step.
-\end{stanza}
-
-\clearpage
 
 \section{Method getsample}
-\label{bayesgetsample} \index{Bayesreg object!Getsample command}
+\label{mcmcgetsample} \index{mcmcreg object!Getsample command}
 \index{Sampled parameters}
 
-\begin{stanza}{Description}
 
 This method is a post estimation command, that is only meaningful if
-method #regress# has been applied before. With method #getsample#
+method #hregress# has been applied before. With method #getsample#
 all sampled parameters will be stored in (one or more) ASCII
 file(s). Afterwards, sampling paths can be plotted and stored in a
 postscript file either by using \hyperref[graphplotsample]{method
@@ -1641,122 +1436,16 @@ postscript file either by using \hyperref[graphplotsample]{method
 \hyperref[rpackage]{R function #plotsample#}. Of
 course, any other program with graphics capacities could be used as
 well.
-\end{stanza}
 
-\begin{stanza}{Syntax}
+The usage of method #getsample# is identical to its corresponding counterpart for {\em
+bayesreg objects}, see section \ref{bayesgetsample} for details.
 
-#># {\em objectname}.#getsample#
-
-This command stores all sampled parameters in ASCII file(s). An
-error will be raised, if regression results are not yet available.
-The storing directory will be the current output directory of the
-{\em bayesreg object}. By default, this directory is {\em
-$<$INSTALLDIRECTORY$>$}#\output#, but you can change the current
-output directory by redefining the \hyperref[bayesregglobopt]{global
-option #outfile#}. The filenames will be the current output name
-extended by an ending depending on the type of the estimated effect.
-For example for fixed effects, the complete filename will be
-#b_FixedEffects1_sample.raw#, if #b# is the name of the {\em
-bayesreg object}. The total number of created files and their
-filenames are printed in the {\em output window} and/or an open log
-file. By default, the output name is the name of the {\em bayesreg
-object}. Once again, the default name may be changed using the
-\hyperref[bayesregglobopt]{global option #outfile#}. Note that it
-can happen that some or all files will be overwritten, if method
-#getsample# is applied more than once with the same {\em bayesreg
-object}. To avoid such problems change the current output directory
-and/or output name {\em before} estimating a new model using the
-\hyperref[bayesregglobopt]{global option #outfile#}.
-
-The structure of the created files is as follows: The very first
-row contains the parameter names. In the following lines, the
-parameters are stored in a matrix like fashion. In the first row
-(to be precise the second row, since the first contains the names)
-the first sampled value of each parameter separated by blanks is
-stored. In the second row the second value is stored and so on. In
-the first column of each row the sampling number is printed.
-\end{stanza}
-
-\begin{stanza}{Options}
-
-not allowed
-
-\end{stanza}
-
-\begin{stanza}{Examples}
-
-Suppose we have already defined a {\em bayesreg object} #b# and
-estimated a (simple) regression model with Gaussian errors using
-the following #regress# statement:
-
-#> b.regress Y = X, family=gaussian using d#
-
-The model contains only a fixed effect for covariate #X# and an
-intercept. We may now want to check the mixing of the sampled
-parameters (one for the overall variance $\sigma^2$, one for the
-intercept and one for #X#) by storing sampled parameters in an
-ASCII-file and visualizing sampling paths. The statement
-
-#> b.getsample#
-
-forces {\em BayesX} to store the sampled parameters in files
-named:
-
-#b_FixedEffects1_sample.raw# \\
-#b_intercept_sample.raw# \\
-#b_scale_sample.raw#
-
-The storing directory is the current output directory, which is by
-default #<INSTALLDIRECTORY\output#. The current output directory
-can be changed using the \hyperref[bayesregglobopt]{global option
-#outfile#}. For example the two commands
-
-#> b.outfile = c:\data\estimate1# \\
-#> b.getsample#
-
-force the program  to store the sampled parameters in the files:
-
-#c:\data\estimate1_FixedEffects1_sample.raw#. \\
-#c:\data\estimate1_intercept_sample.raw# \\
-#c:\data\estimate1_scale_sample.raw#
-
-
-The first few lines of the first file look like this:
-
-intnr \quad b\_1  \\
-1 \quad -2.00499  \\
-2 \quad -1.97745  \\
-3 \quad -1.98498  \\
-4 \quad -1.97108  \\
-5 \quad -2.00004
-
-\hspace {1cm} $\vdots$
-
-We can now visualize the sampling paths directly using
-\hyperref[graphplotsample]{method #plotsample#} of {\em graph
-objects}. We first read in sampled parameters by typing:
-
-#> dataset s1# \\
-#> s1.infile using c:\data\estimate1_FixedEffects1_sample.raw#
-
-We proceed by creating a {\em graph object} #g# and applying
-method #plotsample#:
-
-#> graph g #\\
-#> g.plotsample using s1#
-
-Alternatively we could use \hyperref[rpackage]{R function #plotsample#} for visualizing sampling paths. We type,
-for instance
-
-#> plotsample("c:\\data\\estimate1_FixedEffects1_sample.raw")#
-
-\end{stanza}
 
 \section{Global options}
-\label{bayesregglobopt} \index{Bayesreg object!Global options}
+\label{mcmcregglobopt} \index{mcmcreg object!Global options}
 
 The purpose of global options is to affect the global behavior of
-a {\em bayesreg object}. The main characteristic of global options
+a {\em mcmcreg object}. The main characteristic of global options
 is, that they are not associated with a certain method.
 
 The syntax for specifying global options is
@@ -1767,24 +1456,24 @@ where {\em newvalue} is the new value of the option. The type of
 the value depends on the respective option.
 
 The following global options are currently available for {\em
-bayesreg objects}:
+mcmcreg objects}:
 
 \begin{itemize}
 \item #outfile = #{\em filename} \\
-By default, the estimation output produced by the #regress#
+By default, the estimation output produced by the #hregress#
 procedure will be written to the default output directory, which
 is
 
 {\em $<$INSTALLDIRECTORY$>$}#\output#.
 
-The default filename is composed of the name of the {\em bayesreg
+The default filename is composed of the name of the {\em mcmcreg
 object} and the type of the file. For example, if you estimated a
 nonparametric effect for a covariate #X#, say, then the estimation
 output will be written to
 
 {\em$<$INSTALLDIRECTORY$>$}#\output\b_nonpX.res#
 
-where #b# is the name of the {\em bayesreg object}. In most cases,
+where #b# is the name of the {\em mcmcreg object}. In most cases,
 however, it may be necessary to save estimation results into a
 different directory and/or under a different filename than the
 default. This can be done using the #outfile# option. With the

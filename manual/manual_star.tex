@@ -18,7 +18,7 @@
 
 In this manual we provide a brief review of the methodological background for the four regression tools currently implemented
 in {\em BayesX}. The first two regression tools ({\em bayesreg objects} and {\em mcmcreg objects}) rely on Markov chain Monte Carlo (MCMC) simulation
-techniques and yields fully Bayesian posterior mean or posterior mode estimates. While {\em bayesreg objects} provide access to exponential family structured additive regression as well as survival times and multi-state models, {\em mcmcreg objects} implement distributional and quantile structured additive regression models as well as multilevel extensions of structure additive regression. 
+techniques and yields fully Bayesian posterior mean or posterior mode estimates. While {\em bayesreg objects} provide access to exponential family structured additive regression as well as survival times and multi-state models, {\em mcmcreg objects} implement distributional and quantile structured additive regression models as well as multilevel extensions of structure additive regression.
 The third regression tool ({\em remlreg objects}) is based on the mixed model representation of penalised regression models with inference being based on penalised
 maximum likelihood and marginal likelihood (a generalisation of restricted maximum likelihood) estimation. The fourth regression
 tool ({\em stepwisereg objects}) simultaneously performs model choice and estimation with inference being based on penalised
@@ -1169,7 +1169,7 @@ identifiability.
 \label{inference}
 
 {\em BayesX} provides four alternative approaches for Bayesian inference. {\em Bayesreg objects} (chapter \ref*{bayesreg} of
-the reference manual) estimate exponential family, categorical and duration time STAR models using MCMC simulation techniques described in \autoref{fullbayes}. 
+the reference manual) estimate exponential family, categorical and duration time STAR models using MCMC simulation techniques described in \autoref{fullbayes}.
 {\em MCMCreg objects} (chapter \ref*{mcmcreg} of the reference manual) provide the counterpart for distributional and quantile regression as well as multilevel models (see \autoref{distreg_star}).
 {\em Remlreg objects} (chapter \ref*{remlreg} of the reference manual) use mixed model representations of STAR models for empirical Bayesian
 inference, see \autoref{glmmmeth}. {\em Stepwisereg objects} (chapter \ref*{stepwisereg} of the reference manual)
@@ -2580,6 +2580,37 @@ with $\xi = \frac{1-2\varphi}{\varphi(1-\varphi)}$ and $\delta^2 = \frac{2}{\var
 \subsection{Multilevel models}
 
 
+Recently \citeasnoun{LanUml14} have proposed  a multilevel version of STAR models to cope with the hierarchical nature of many data sets. 
+Suppose that covariate $x_j \in \{1,\dots,K\}$ is a unit- or cluster index   and $x_{ij}$ indicates the cluster
+observation $i$ pertains to. 
+Then the design  matrix $\mathbf{X}_j$ is a $n \times K$ incidence matrix with $\mathbf{X}_j[i,k] = 1$ if the $i$-th observation
+belongs to cluster $k$ and zero else. The $K \times 1$ parameter vector $\boldsymbol{\beta}_j$ is the vector of regression parameters,
+i.e.~the $k$-th element
+in $\boldsymbol{\beta}$ corresponds to the regression coefficient of the $k$-th cluster.
+We now define a second level equation
+\begin{equation}
+\label{eq:compprior}
+\boldsymbol{\beta}_j = \boldsymbol{\eta}_j + \boldsymbol{\varepsilon}_j =
+\mathbf{X}_{j1} \boldsymbol{\beta}_{j1} + \ldots + \mathbf{X}_{jq_j} \boldsymbol{\beta}_{jq_j} +
+\mathbf{U}_j \boldsymbol{\gamma}_j +  \boldsymbol{\varepsilon}_j,
+\end{equation}
+where the terms $\mathbf{X}_{j1} \boldsymbol{\beta}_{j1},\dots,\mathbf{X}_{jq_j} \boldsymbol{\beta}_{jq_j}$ correspond to additional nonlinear
+functions $f_{j1},\dots,f_{jq_j}$ and
+$\mathbf{U}_j \boldsymbol{\gamma}_j$ comprises additional linear effects of cluster level covariates.
+The ``errors'' $\boldsymbol{\varepsilon}_j \sim N(\mathbf{0}, \tau^2_j \mathbf{I})$
+comprise a vector of i.i.d.\ Gaussian random effects.
+Using the compound prior (\ref{eq:compprior}) we obtain an additive
+decomposition of the cluster specific effect. By allowing a full STAR predictor (as in the level-1 equation), a rather complex decomposition of
+the cluster effect
+$\boldsymbol{\beta}_j$ including interactions is possible. A special case arises if cluster specific covariates are not available. Then the
+prior for $\boldsymbol{\beta}_j$ collapses to
+$\boldsymbol{\beta}_j = \boldsymbol{\varepsilon}_j \sim N(\mathbf{0}, \tau^2_j \mathbf{I})$ and we obtain a simple i.i.d. Gaussian cluster
+specific random effect with variance parameter $\tau^2_j$.
+
+A third or fourth level in the hierarchy is possible by assuming that the second or third level regressions
+contain additional cluster-specific random effects whose parameters are again modeled through  STAR predictors of cluster level covariates.
+
+
 
 %In a multilevel STAR model (\shortciteN{lanuml14}) the regression coefficients $\betavec_j$ of a function $f_j$ may themselves obey a regression model with a structured additive predictor, i.e.
 %\begin{align}
@@ -2950,6 +2981,12 @@ Cambridge University Press, New York.
  {\scshape Lang, S. \& Brezger, A.} (2004).
  Bayesian P-splines.
  {\it Journal of Computational and Graphical Statistics}, {\bf 13}, 183--212.
+
+\harvarditem{Lang et al.}{2014}{LanUml14}
+ {\scshape Lang, S., Umlauf, N., Wechselberger, P., Harttgen, K.  \& Kneib, T.} (2014).
+ Multilevel Structured Additive Regression.
+ {\it Statistics and Computing}, {\bf 24}, 223--238.
+
 
 \harvarditem{Lin \& Zhang}{1999}{LinZha99}
  {\scshape Lin, X. \& Zhang, D.} (1999).
