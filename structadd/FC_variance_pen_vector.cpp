@@ -851,6 +851,18 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    optionsp->out("\n");
    optionsp->out("\n");
 
+   ST::string pathresults_theta = pathresults.substr(0,pathresults.length()-7)+"omega.res";
+
+
+   theta.outresults(out_stata,out_R,"");
+   theta.outresults_singleparam(out_stata,out_R,pathresults_theta);
+
+   optionsp->out("\n");
+   optionsp->out("    Results for linear effects omega parameters are also stored in file\n");
+   optionsp->out("    " + pathresults_theta + "\n");
+   optionsp->out("\n");
+   optionsp->out("\n");
+
   }
 
 

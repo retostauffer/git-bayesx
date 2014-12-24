@@ -663,14 +663,14 @@ void FC_nonp_variance_varselection::update(void)
     else
       r_delta = 1;
 
-    double gamma = rand_invgamma(tildev1+0.5,tildev2+0.5*FC_psi2.beta(0,0)/r_delta);
+    double gamma = rand_invgamma(tildev1+0.5,tildev2+0.5*beta(0,0)/r_delta);
     //double gamma = rand_invgamma(v+0.5,Q/r_delta);
     double logu = log(uniform());
 
     double fcold = -log(FC_psi2.beta(0,0))-pow(FC_psi2.beta(0,0)/scaletau2, 0.5)-beta(0,0)/(2*r_delta*FC_psi2.beta(0,0));
     double fcnew = -log(gamma)-pow(gamma/scaletau2, 0.5)-beta(0,0)/(2*r_delta*gamma);
-    double proposalold = -(tildev1+0.5+1)*log(beta(0,0)) - (tildev2+0.5*FC_psi2.beta(0,0)/r_delta) / beta(0,0);
-    double proposalnew = -(tildev1+0.5+1)*log(gamma) - (tildev2+0.5*FC_psi2.beta(0,0)/r_delta) / gamma;
+    double proposalold = -(tildev1+0.5+1)*log(FC_psi2.beta(0,0)) - (tildev2+0.5*FC_psi2.beta(0,0)/r_delta) / FC_psi2.beta(0,0);
+    double proposalnew = -(tildev1+0.5+1)*log(gamma) - (tildev2+0.5*beta(0,0)/r_delta) / gamma;
 
     if (logu <= (fcnew - fcold + proposalold - proposalnew))
       {
