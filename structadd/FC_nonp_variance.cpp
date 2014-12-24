@@ -73,6 +73,19 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
   else
     wei = false;
 
+  if (op[58] == "iwls")
+    {
+    proposal = 1;
+    }
+  else if(op[58] == "gamma")
+    {
+    proposal = 2;
+    }
+  else
+    {
+    proposal = 0;
+    }
+
   }
 
 
@@ -130,6 +143,7 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   cauchy = m.cauchy;
   wei = m.wei;
   scaletau2 = m.scaletau2;
+  proposal = m.proposal;
   }
 
 
@@ -154,6 +168,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   cauchy = m.cauchy;
   wei = m.wei;
   scaletau2 = m.scaletau2;
+  proposal = m.proposal;
   return *this;
   }
 
@@ -229,25 +244,71 @@ void FC_nonp_variance::update(void)
       }
     else if (wei == true)
       {
-
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
-
-      double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
-
       double u = log(uniform());
 
-      double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-pow(beta(0,0)/scaletau2, 0.5)-1/(2*beta(0,0))*quadf;
-      double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-pow(gamma/scaletau2, 0.5)-1/(2*gamma)*quadf;
-      double proposalold = -(designp->rankK/2 +tildea+1)*log(beta(0,0)) - (0.5*quadf+tildeb) / beta(0,0);
-      double proposalnew = -(designp->rankK/2 +tildea+1)*log(gamma) - (0.5*quadf+tildeb) / gamma;
-
-      if (u <= (fcnew - fcold - proposalnew + proposalold))
+      if(proposal == 0) //simply draw proposal as if tau^2 would be IG distributed with tildea and tildeb
         {
+        double gamma = rand_invgamma(designp->rankK/2 +tildea ,0.5*quadf+tildeb);
 
-        beta(0,0) = gamma;
-        acceptance++;
+        double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-pow(beta(0,0)/scaletau2, 0.5)-1/(2*beta(0,0))*quadf;
+        double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-pow(gamma/scaletau2, 0.5)-1/(2*gamma)*quadf;
+        double proposalold = -(designp->rankK/2 +tildea+1)*log(beta(0,0)) - (0.5*quadf+tildeb) / beta(0,0);
+        double proposalnew = -(designp->rankK/2 +tildea+1)*log(gamma) - (0.5*quadf+tildeb) / gamma;
+
+        if (u <= (fcnew - fcold - proposalnew + proposalold))
+          {
+
+          beta(0,0) = gamma;
+          acceptance++;
+          }
         }
+      else if(proposal == 1) // gamma approximation of weibull distribution
+        {
+        double tmp1 = 3.0;
+        double tmp2 = 5.0;
+        double ew = randnumbers::gamma_exact(tmp1) *scaletau2;
+        double varw = scaletau2 * scaletau2 * (randnumbers::gamma_exact(tmp2) - pow(randnumbers::gamma_exact(tmp1), 2));
+        double bgamma = ew / varw;
+        double agamma = bgamma * ew;
+        double p = -designp->rankK/2 + agamma;
+        double a = 2 * bgamma;
+        double b = quadf;
+        double gamma = randnumbers::GIG2(p, a, b);
 
+        double fcold = -(0.5*designp->rankK+0.5)*log(beta(0,0))-pow(beta(0,0)/scaletau2, 0.5)-1/(2*beta(0,0))*quadf;
+        double fcnew = -(0.5*designp->rankK+0.5)*log(gamma)-pow(gamma/scaletau2, 0.5)-1/(2*gamma)*quadf;
+        double proposalold = (p-1)*log(beta(0,0)) - 0.5*(a*beta(0,0)+b/beta(0,0));
+        double proposalnew = (p-1)*log(gamma) - 0.5*(a*gamma+b/gamma);
+
+        if (u <= (fcnew - fcold - proposalnew + proposalold))
+          {
+
+          beta(0,0) = gamma;
+          acceptance++;
+          }
+        }
+      else // iwls proposal for tau
+        {
+        double vartau = 1/ ((3 * quadf / beta(0,0) - designp->rankK) / beta(0,0));
+        double mutau = sqrt(beta(0,0)) + vartau * (-designp->rankK / sqrt(beta(0,0)) + quadf / pow(beta(0, 0), 1.5) - 1/sqrt(scaletau2));
+
+        double gamma = mutau + rand_normal() * sqrt(vartau);
+        double fcold = -(0.5*designp->rankK)*log(beta(0,0))-pow(beta(0,0)/scaletau2, 0.5)-1/(2*beta(0,0))*quadf;
+        double fcnew = -(designp->rankK)*log(gamma)-pow(gamma*gamma/scaletau2, 0.5)-1/(2*gamma*gamma)*quadf;
+
+        double vartauold = 1/ ((3 * quadf / (gamma*gamma) - designp->rankK) / (gamma*gamma));
+        double mutauold = gamma + vartau * (-designp->rankK / gamma + quadf / pow(gamma, 3) - 1/sqrt(scaletau2));
+        double proposalold = -0.5*log(vartauold)-0.5*pow((sqrt(beta(0,0))-mutauold), 2)/vartauold;
+        double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
+
+        if (u <= (fcnew - fcold - proposalnew + proposalold))
+          {
+          gamma = gamma*gamma;
+          beta(0,0) = gamma;
+          acceptance++;
+          }
+        }
       }
     else
       {
@@ -608,8 +669,10 @@ void FC_nonp_variance_varselection::update(void)
 
     double fcold = -log(FC_psi2.beta(0,0))-pow(FC_psi2.beta(0,0)/scaletau2, 0.5)-beta(0,0)/(2*r_delta*FC_psi2.beta(0,0));
     double fcnew = -log(gamma)-pow(gamma/scaletau2, 0.5)-beta(0,0)/(2*r_delta*gamma);
+    double proposalold = -(tildev1+0.5+1)*log(beta(0,0)) - (tildev2+0.5*FC_psi2.beta(0,0)/r_delta) / beta(0,0);
+    double proposalnew = -(tildev1+0.5+1)*log(gamma) - (tildev2+0.5*FC_psi2.beta(0,0)/r_delta) / gamma;
 
-    if (logu <= (fcnew - fcold ))
+    if (logu <= (fcnew - fcold + proposalold - proposalnew))
       {
 
       FC_psi2.beta(0,0) = gamma;

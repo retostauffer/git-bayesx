@@ -89,6 +89,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   intoption regiterates;
   simpleoption center;
 
+  stroption proposal;
   doubleoption tildea;
   doubleoption tildeb;
   simpleoption cauchy;

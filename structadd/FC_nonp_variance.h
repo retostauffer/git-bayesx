@@ -66,6 +66,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   bool wei;
   double scaletau2;
 
+  int proposal;
+
   public:
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------

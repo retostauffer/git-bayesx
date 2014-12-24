@@ -118,6 +118,14 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   center = simpleoption("center",false);
 
+  //test different options for proposal for scale dependent weibull  prior
+  vector<ST::string> proposals;
+  proposals.push_back("gamma");
+  proposals.push_back("iwls");
+  proposals.push_back("IG");
+
+  proposal = stroption("proposal",proposals,"IG");
+
   tildea = doubleoption("tildea",0.001,-1.0,500);
   tildeb = doubleoption("tildeb",0.001,0,500);
   scaletau2 = doubleoption("scaletau2",0.00877812,0.0000000001,1000000000);
@@ -185,6 +193,7 @@ void term_nonp::setdefault(void)
   regiterates.setdefault();
   center.setdefault();
 
+  proposal.setdefault();
   tildea.setdefault();
   tildeb.setdefault();
   cauchy.setdefault();
@@ -285,6 +294,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&datasetref);
     optlist.push_back(&lambdaconst);
 
+    optlist.push_back(&proposal);
     optlist.push_back(&abeta);
     optlist.push_back(&bbeta);
     optlist.push_back(&r);
@@ -479,6 +489,9 @@ bool term_nonp::check(term & t)
       t.options[57] = "false";
     else
       t.options[57] = "true";
+
+    //type of proposal for weibull prior
+    t.options[58] = proposal.getvalue();
 
     setdefault();
     return true;
