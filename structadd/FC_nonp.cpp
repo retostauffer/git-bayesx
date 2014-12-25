@@ -2102,6 +2102,16 @@ void FC_nonp::reset(void)
   }
 
 
+double FC_nonp::compute_log_proposal(void)
+  {
+  return 0;
+  }
+
+double FC_nonp::compute_log_FC(void)
+  {
+  return 0;
+  }
+
 } // end: namespace MCMC
 
 

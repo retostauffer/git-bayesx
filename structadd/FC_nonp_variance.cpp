@@ -845,7 +845,13 @@ void FC_nonp_variance_varselection::update(void)
 
   double fcnew = 0;
 
-  if (u <= (fcnew - fcold ))
+  //calculate proposal evaluated at new tau2 with parameter  based on tauold2
+  double qold = get_log_proposal();
+
+  //calculate proposal evaluated at tauold with parameters based on tau2
+  double qnew = get_log_proposal();
+
+  if (u <= (fcnew - fcold + qold - qnew))
     {
     acceptance++;
     }
