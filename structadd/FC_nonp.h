@@ -218,10 +218,12 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void get_effect(datamatrix & effect);
 
-  //return log-proposal density
+/*  //return log-proposal density
   double compute_log_proposal(void);
   //return log-full conditional
-  double compute_log_FC(void);
+  double compute_log_FC(void);*/
+
+
   };
 
 
