@@ -121,7 +121,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   //test different options for proposal for scale dependent weibull  prior
   vector<ST::string> proposals;
   proposals.push_back("gamma");
-  proposals.push_back("iwls");
+  proposals.push_back("iwls_tau");
+  proposals.push_back("iwls_logtau2");
   proposals.push_back("IG");
 
   proposal = stroption("proposal",proposals,"IG");

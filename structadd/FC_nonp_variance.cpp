@@ -73,13 +73,17 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
   else
     wei = false;
 
-  if (op[58] == "iwls")
+  if (op[58] == "iwls_tau")
     {
-    proposal = 1;
+    proposal = 2;
     }
   else if(op[58] == "gamma")
     {
-    proposal = 2;
+    proposal = 1;
+    }
+  else if(op[58] == "iwls_logtau2")
+    {
+    proposal = 3;
     }
   else
     {
@@ -288,7 +292,7 @@ void FC_nonp_variance::update(void)
           acceptance++;
           }
         }
-      else // iwls proposal for tau
+      else if(proposal == 2)// iwls proposal for tau
         {
         double vartau = 1/ ((3 * quadf / beta(0,0) - designp->rankK) / beta(0,0));
         double mutau = sqrt(beta(0,0)) + vartau * (-designp->rankK / sqrt(beta(0,0)) + quadf / pow(beta(0, 0), 1.5) - 1/sqrt(scaletau2));
@@ -305,6 +309,27 @@ void FC_nonp_variance::update(void)
         if (u <= (fcnew - fcold - proposalnew + proposalold))
           {
           gamma = gamma*gamma;
+          beta(0,0) = gamma;
+          acceptance++;
+          }
+        }
+      else // iwls proposal for log(tau^2)
+        {
+        double vartau = 1/(0.5*quadf/beta(0,0) + 0.25*sqrt(beta(0,0))/sqrt(scaletau2));
+        double mutau = log(beta(0,0)) + vartau * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/beta(0,0) - 0.5*sqrt(beta(0,0))/sqrt(scaletau2));
+
+        double gamma = mutau + rand_normal() * sqrt(vartau);
+        double fcold = log(beta(0,0)) - 0.5*(designp->rankK+1)*log(beta(0,0)) - 0.5*pow(beta(0,0)/scaletau2, 0.5) - 1/(2*beta(0,0))*quadf;
+        double fcnew = gamma- 0.5*(designp->rankK+1)*gamma - 0.5*pow(exp(gamma)/scaletau2, 0.5) - 1/(2*exp(gamma))*quadf;
+
+        double vartauold = 1/(0.5*quadf/exp(gamma) + 0.25*sqrt(exp(gamma))/sqrt(scaletau2));
+        double mutauold = gamma + vartau * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/exp(gamma) - 0.5*sqrt(exp(gamma))/sqrt(scaletau2));
+        double proposalold = -0.5*log(vartauold)-0.5*pow((log(beta(0,0))-mutauold), 2)/vartauold;
+        double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
+
+        if (u <= (fcnew - fcold - proposalnew + proposalold))
+          {
+          gamma = exp(gamma);
           beta(0,0) = gamma;
           acceptance++;
           }
