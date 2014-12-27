@@ -937,6 +937,8 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
 
     optionsp->out("    Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,0),6)  + "\n");
     optionsp->out("\n");
+	optionsp->out("  Rao-Blackwellised Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,1),6)  + "\n");
+    optionsp->out("\n");
     optionsp->out("    Results for the inclusion probabilities are also stored in file\n");
     optionsp->out("    " +  pathresults_delta + "\n");
     optionsp->out("\n");
