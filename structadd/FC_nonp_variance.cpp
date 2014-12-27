@@ -596,8 +596,11 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
 
   singleomega = so;
 
-  FC_delta = FC(o,"",1,1,"");
+//  FC_delta = FC(o,"",1,1,"");
+//  FC_delta.setbeta(1,1,0);
+  FC_delta = FC(o,"",1,2,"");
   FC_delta.setbeta(1,1,0);
+  FC_delta.setbeta(1,2,0.5);
 
   FC_psi2 = FC(o,"",1,1,"");
   FC_psi2.setbeta(1,1,0.5);
@@ -724,6 +727,7 @@ void FC_nonp_variance_varselection::update(void)
       FC_delta.beta(0,0) = 0;
       r_delta = r2;
       }
+    FC_delta.beta(0,1) = pr1;
 
     FC_delta.update();
 
@@ -760,6 +764,7 @@ void FC_nonp_variance_varselection::update(void)
       r_delta = r;
       }
 
+    FC_delta.beta(0,1) = pr1;
     FC_delta.update();
 
   // end: updating delta
