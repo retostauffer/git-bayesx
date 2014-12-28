@@ -922,7 +922,7 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
 
     ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
-    ST::string pathresults_psi2 = pathresults.substr(0,pathresults.length()-4) + "_psi.res";
+    ST::string pathresults_psi2 = pathresults.substr(0,pathresults.length()-4) + "_psi2.res";
 
     if(singleomega == false)
     {
@@ -932,12 +932,10 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
 
     FC_nonp_variance::outresults(out_stata,out_R,pathresults);
 
-    FC_delta.outresults(out_stata,out_R,"");
-
 
     optionsp->out("    Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,0),6)  + "\n");
     optionsp->out("\n");
-	optionsp->out("  Rao-Blackwellised Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,1),6)  + "\n");
+	optionsp->out("    Rao-Blackwellised inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,1),6)  + "\n");
     optionsp->out("\n");
     optionsp->out("    Results for the inclusion probabilities are also stored in file\n");
     optionsp->out("    " +  pathresults_delta + "\n");
@@ -958,8 +956,13 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     // deltas
     ofstream ou(pathresults_delta.strtochar());
 
-    ou << "pmean" << endl;
-    ou << FC_delta.betamean(0,0) << endl;
+    ou << "pmean_delta " << "pmean_prob" << endl;
+    ou << FC_delta.betamean(0,0) << " " << FC_delta.betamean(0,1) << endl;
+   /* ou<< "pmean_delta ";
+    ou << "pmean_prob" << endl;
+    ou << FC_delta.betamean(0,0) ;
+    ou << " ";
+    ou << FC_delta.betamean(0,1) << endl;*/
 
     FC_psi2.outresults(out_stata,out_R,pathresults_psi2);
 
