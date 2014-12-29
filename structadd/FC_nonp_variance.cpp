@@ -504,12 +504,27 @@ void FC_nonp_variance::outoptions(void)
     optionsp->out("  Scale parameter: " +
                 ST::doubletostring(scaletau2) + "\n" );
 
-    optionsp->out("  Hyperparameter tildea for proposal density: " +
+    if(proposal == 0)
+      {
+      optionsp->out("  Inverse gamma proposal density \n" );
+      optionsp->out("  Hyperparameter tildea for proposal density: " +
                 ST::doubletostring(tildea) + "\n" );
 
-    optionsp->out("  Hyperparameter tildeb for proposal density: " +
+      optionsp->out("  Hyperparameter tildeb for proposal density: " +
                 ST::doubletostring(tildeb) + "\n" );
-
+      }
+    else if(proposal == 1)
+      {
+      optionsp->out("  Generalised inverse Gaussian proposal density \n" );
+      }
+    else if(proposal == 2)
+      {
+      optionsp->out("  IWLS proposal density for tau \n" );
+      }
+    else
+      {
+      optionsp->out("  IWLS proposal density for log(tau^2) \n" );
+      }
     }
   else
     {

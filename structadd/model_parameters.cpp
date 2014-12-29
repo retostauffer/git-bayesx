@@ -125,7 +125,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   proposals.push_back("iwls_logtau2");
   proposals.push_back("IG");
 
-  proposal = stroption("proposal",proposals,"IG");
+  proposal = stroption("proposal",proposals,"iwls_logtau2");
 
   tildea = doubleoption("tildea",0.001,-1.0,500);
   tildeb = doubleoption("tildeb",0.001,0,500);
