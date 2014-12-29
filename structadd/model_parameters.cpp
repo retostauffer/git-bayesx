@@ -134,7 +134,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   wei = simpleoption("wei",false);
 
   v1 = doubleoption("v1",5,0.0000000001,500);
-  v2 = doubleoption("v2",5,0.0000000001,500);
+  v2 = doubleoption("v2",25,0.0000000001,500);
 
   tildev1 = doubleoption("tildev1",10.5,0.0000000001,500);
   tildev2 = doubleoption("tildev2",1,0.0000000001,500);
@@ -482,7 +482,7 @@ bool term_nonp::check(term & t)
     t.options[53] = ST::doubletostring(v1.getvalue());
     t.options[54] = ST::doubletostring(v2.getvalue());
 
-    // pararameters for ssvs psi2 (weibull prior, needed for IG proposal density)
+    // pararameters for ssvs if tau2 has gig FC
     t.options[55] = ST::doubletostring(tildev1.getvalue());
     t.options[56] = ST::doubletostring(tildev2.getvalue());
     //normal prior for tau or (if true gig prior for tau2 in class ssvs

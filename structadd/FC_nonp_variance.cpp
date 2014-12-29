@@ -574,6 +574,7 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
   f = op[40].strtodouble(b_omega);
 
   f = op[41].strtodouble(r);
+  f = op[51].strtodouble(scaletau2);
   f = op[52].strtodouble(r2);
 
   f = op[53].strtodouble(v1);
@@ -651,6 +652,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   tildev1 = m.tildev1;
   tildev2 = m.tildev2;
   r = m.r;
+  scaletau2 = m.scaletau2;
   r2 = m.r2;
   X = m.X;
   gig = m.gig;
@@ -677,6 +679,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   tildev1 = m.tildev1;
   tildev2 = m.tildev2;
   r = m.r;
+  scaletau2 = m.scaletau2;
   r2 = m.r2;
   X = m.X;
   gig = m.gig;
@@ -699,6 +702,7 @@ void FC_nonp_variance_varselection::update(void)
 
   double r_delta;
 
+  //update of psi2 depedent on prior of its prior (weibull means wei=true, IG else)
   if(wei==true)
     {
     if (FC_delta.beta(0,0) < 1)
@@ -706,47 +710,28 @@ void FC_nonp_variance_varselection::update(void)
     else
       r_delta = 1;
 
-    double gamma = rand_invgamma(tildev1+0.5,tildev2+0.5*beta(0,0)/r_delta);
-    //double gamma = rand_invgamma(v+0.5,Q/r_delta);
-    double logu = log(uniform());
+    double vartau = 1/(0.5*beta(0,0)/(r_delta*FC_psi2.beta(0,0)) + 0.25*sqrt(FC_psi2.beta(0,0))/sqrt(scaletau2));
+    double mutau = log(FC_psi2.beta(0,0)) + vartau * (0.5*beta(0,0)/(r_delta*FC_psi2.beta(0,0)) - 0.5*sqrt(FC_psi2.beta(0,0))/sqrt(scaletau2));
 
-    double fcold = -log(FC_psi2.beta(0,0))-pow(FC_psi2.beta(0,0)/scaletau2, 0.5)-beta(0,0)/(2*r_delta*FC_psi2.beta(0,0));
-    double fcnew = -log(gamma)-pow(gamma/scaletau2, 0.5)-beta(0,0)/(2*r_delta*gamma);
-    double proposalold = -(tildev1+0.5+1)*log(FC_psi2.beta(0,0)) - (tildev2+0.5*FC_psi2.beta(0,0)/r_delta) / FC_psi2.beta(0,0);
-    double proposalnew = -(tildev1+0.5+1)*log(gamma) - (tildev2+0.5*beta(0,0)/r_delta) / gamma;
+    double gamma = mutau + rand_normal() * sqrt(vartau);
+    double fcold =  - 0.5*pow(beta(0,0)/scaletau2, 0.5) - 1/(2*r_delta*FC_psi2.beta(0,0))*beta(0,0);
+    double fcnew =  - 0.5*pow(exp(gamma)/scaletau2, 0.5) - 1/(2*r_delta*exp(gamma))*beta(0,0);
 
-    if (logu <= (fcnew - fcold + proposalold - proposalnew))
+    double vartauold = 1/(0.5*beta(0,0)/(r_delta*exp(gamma)) + 0.25*sqrt(exp(gamma))/sqrt(scaletau2));
+    double mutauold = gamma + vartau * (0.5*beta(0,0)/(r_delta*exp(gamma)) - 0.5*sqrt(exp(gamma))/sqrt(scaletau2));
+    double proposalold = -0.5*log(vartauold)-0.5*pow((log(FC_psi2.beta(0,0))-mutauold), 2)/vartauold;
+    double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
+
+    double u = log(uniform());
+    if (u <= (fcnew - fcold - proposalnew + proposalold))
       {
-
+      gamma = exp(gamma);
       FC_psi2.beta(0,0) = gamma;
       FC_psi2.acceptance++;
       }
 
     FC_psi2.update();
-
     // end: updating psi2
-
-    // updating delta
-
-    double u = uniform();
-    double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r2-1));
-    double pr1 = 1/(1+ ((1-omega)/omega)*L);
-
-    if (u <=pr1)
-      {
-      FC_delta.beta(0,0) = 1;
-      r_delta = 1;
-      }
-    else
-      {
-      FC_delta.beta(0,0) = 0;
-      r_delta = r2;
-      }
-    FC_delta.beta(0,1) = pr1;
-
-    FC_delta.update();
-
-    //end: updating delta
     }
   else
    {
@@ -758,36 +743,31 @@ void FC_nonp_variance_varselection::update(void)
     FC_psi2.beta(0,0) = rand_invgamma(v1+0.5,v2+0.5*beta(0,0)/r_delta);
 
     FC_psi2.update();
-
-
     // end: updating psi2
-
-    // updating delta
-
-    double u = uniform();
-    double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r-1));
-    double pr1 = 1/(1+ ((1-omega)/omega)*L);
-
-    if (u <=pr1)
-      {
-      FC_delta.beta(0,0) = 1;
-      r_delta = 1;
-      }
-    else
-      {
-      FC_delta.beta(0,0) = 0;
-      r_delta = r;
-      }
-
-    FC_delta.beta(0,1) = pr1;
-    FC_delta.update();
-
-  // end: updating delta
    }
+   //end: if wei
 
+   // updating delta
+  double u = uniform();
+  double L = 1/sqrt(r)*exp(- beta(0,0)/(2*FC_psi2.beta(0,0))*(1/r-1));
+  double pr1 = 1/(1+ ((1-omega)/omega)*L);
+
+  if (u <=pr1)
+    {
+    FC_delta.beta(0,0) = 1;
+    r_delta = 1;
+    }
+  else
+    {
+    FC_delta.beta(0,0) = 0;
+    r_delta = r;
+    }
+
+  FC_delta.beta(0,1) = pr1;
+  FC_delta.update();
+  // end: updating delta
 
   // updating w
-
   if(singleomega == false) {
 
     FC_omega.beta(0,0) = randnumbers::rand_beta(a_omega+FC_delta.beta(0,0),
@@ -796,13 +776,11 @@ void FC_nonp_variance_varselection::update(void)
 
     FC_omega.update();
   }
-
    // end: updating w
 
+   // updating tau2
    if(gig)
      {
-
-   // updating tau2
 
     //double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
      double tau2 = randnumbers::GIG2(0, 1/(r_delta*FC_psi2.beta(0,0)), designp->penalty_compute_quadform(FCnonpp->param));
@@ -816,7 +794,6 @@ void FC_nonp_variance_varselection::update(void)
      }
     else
     {
-
   //variante stefan, für GAUSS fall
     double Sigmatau;
     double mutau;
@@ -852,7 +829,6 @@ void FC_nonp_variance_varselection::update(void)
     beta(0,1) = likep->get_scale()/beta(0,0);
 
     FCnonpp->tau2 = beta(0,0);
-
     // end: updating tau2
 
     acceptance++;
@@ -914,6 +890,7 @@ void FC_nonp_variance_varselection::update(void)
 
   // end: updating tau2
     }
+    //end: if gig
   }
 
 
@@ -957,31 +934,14 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     optionsp->out("\n");
     optionsp->out("\n");
 
-    if(singleomega == false)
-    {
-        optionsp->out("    Inclusion probability parameter omega:\n");
-        optionsp->out("\n");
-        FC_omega.outresults_singleparam(out_stata,out_R,"");
-        optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
-        optionsp->out("    " +  pathresults_omega + "\n");
-        optionsp->out("\n");
-        optionsp->out("\n");
-    }
-
     // deltas
     ofstream ou(pathresults_delta.strtochar());
 
     ou << "pmean_delta " << "pmean_prob" << endl;
     ou << FC_delta.betamean(0,0) << " " << FC_delta.betamean(0,1) << endl;
-   /* ou<< "pmean_delta ";
-    ou << "pmean_prob" << endl;
-    ou << FC_delta.betamean(0,0) ;
-    ou << " ";
-    ou << FC_delta.betamean(0,1) << endl;*/
+
 
     FC_psi2.outresults(out_stata,out_R,pathresults_psi2);
-
-
     optionsp->out("    Psi2: " + ST::doubletostring(FC_psi2.betamean(0,0),6)  + "\n");
     optionsp->out("\n");
 
@@ -1020,6 +980,17 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
       optionsp->out("\n");
       }
 
+    if(singleomega == false)
+    {
+        optionsp->out("    Inclusion probability parameter omega:\n");
+        optionsp->out("\n");
+        FC_omega.outresults_singleparam(out_stata,out_R,"");
+        optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+        optionsp->out("    " +  pathresults_omega + "\n");
+        optionsp->out("\n");
+        optionsp->out("\n");
+    }
+
     }
   }
 
@@ -1044,27 +1015,34 @@ void FC_nonp_variance_varselection::get_samples(
 
 void FC_nonp_variance_varselection::outoptions(void)
   {
+  FC_nonp_variance::outoptions();
   if (wei)
     {
-    optionsp->out("  Weibull prior\n");
+    optionsp->out("  Weibull prior for psi2 \n");
 
-    optionsp->out("  Scale parameter: " +
+    optionsp->out("  Scale parameter for prior: " +
                 ST::doubletostring(scaletau2) + "\n" );
 
-    optionsp->out("  Hyperparameter tildev1 for prior: " +
-                ST::doubletostring(tildev1) + "\n" );
-
-    optionsp->out("  Hyperparameter tildev2 for prior: " +
-                ST::doubletostring(tildev2) + "\n" );
+    optionsp->out("  Parameter r2 for spike: " +
+                ST::doubletostring(r2) + "\n" );
     }
   else
     {
-    FC_nonp_variance::outoptions();
+    optionsp->out("  IG prior for psi2 \n");
+
+    optionsp->out("  Hyperparameter v1 for prior: " +
+                ST::doubletostring(v1) + "\n" );
+
+    optionsp->out("  Hyperparameter v2 for prior: " +
+                ST::doubletostring(v2) + "\n" );
+
+    optionsp->out("  Parameter r for spike: " +
+                ST::doubletostring(r) + "\n" );
     }
   if(singleomega==false)
     {
     optionsp->out("\n");
-    optionsp->out("  Inclusion probability omega\n");
+    optionsp->out("  Prior inclusion probability omega\n");
     optionsp->out("  Parameter a_omega: " +
                 ST::doubletostring(a_omega) + "\n" );
 
@@ -1169,7 +1147,7 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 //
   void FC_varselection_omega::outoptions(void)
     {
-    optionsp->out("  Inclusion probability omega\n");
+    optionsp->out("  Prior inclusion probability omega\n");
     optionsp->out("  Parameter a_omega: " +
                 ST::doubletostring(a_omega) + "\n" );
 
@@ -1182,12 +1160,12 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
                   const ST::string & pathresults)
    {
         ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
-        optionsp->out("    Inclusion probability parameter omega: " + ST::doubletostring(FC::betamean(0,0),6)  + "\n");
+        optionsp->out("    Prior inclusion probability parameter omega: " + ST::doubletostring(FC::betamean(0,0),6)  + "\n");
         optionsp->out("\n");
         FC::outresults(out_stata,out_R,pathresults_omega);
 
         optionsp->out("\n");
-        optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+        optionsp->out("    Results for the prior inclusion probability parameter omega are also stored in file\n");
         optionsp->out("    " +  pathresults_omega + "\n");
         optionsp->out("\n");
         optionsp->out("\n");

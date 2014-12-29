@@ -159,6 +159,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   bool gig;
 
   double r;
+  double scaletau2;
   double r2;
   bool wei;
 

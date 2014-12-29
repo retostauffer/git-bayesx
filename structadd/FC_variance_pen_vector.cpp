@@ -617,9 +617,9 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
 
   nrpen++;
 
-  delta = FC(optionsp,"",nrpen,1,"");
+  delta = FC(optionsp,"",nrpen,2,"");
   delta.setbeta(nrpen,1,0);
-
+  delta.setbeta(nrpen,2,0.5);
   setbeta(nrpen,1,0.1);
 
   Cp->tau2 = datamatrix(nrpen,1,0);
@@ -782,7 +782,7 @@ void FC_variance_pen_vector_ssvs::update(void)
   //  thetanew = (theta.beta(0,0) * helpIG1)/(theta.beta(0,0) * helpIG1 + (1-theta.beta(0,0))*helpIG2);
 
 //    cout << "theta: " << thetanew << endl;
-
+    delta.beta(j,1) = thetanew;
     if (u <= thetanew)
       delta.beta(j,0) = 1;
     else
@@ -840,11 +840,19 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
 
 
    ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-7)+"delta.res";
-
+   ST::string pathresults_delta_prob = pathresults.substr(0,pathresults.length()-7)+"delta_prob.res";
 
    delta.outresults(out_stata,out_R,"");
    delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
 
+   unsigned j;
+   ofstream ou(pathresults_delta_prob.strtochar());
+
+   ou << "pmean_prob" << endl;
+   for(j=0;j<nrpen;j++)
+     {
+    ou  << " " << delta.betamean(j,1) << endl;
+     }
    optionsp->out("\n");
    optionsp->out("    Results for linear effects delta parameters are also stored in file\n");
    optionsp->out("    " + pathresults_delta + "\n");
