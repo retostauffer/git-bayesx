@@ -323,7 +323,7 @@ void FC_nonp_variance::update(void)
         double fcnew = gamma- 0.5*(designp->rankK+1)*gamma - 0.5*pow(exp(gamma)/scaletau2, 0.5) - 1/(2*exp(gamma))*quadf;
 
         double vartauold = 1/(0.5*quadf/exp(gamma) + 0.25*sqrt(exp(gamma))/sqrt(scaletau2));
-        double mutauold = gamma + vartau * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/exp(gamma) - 0.5*sqrt(exp(gamma))/sqrt(scaletau2));
+        double mutauold = gamma + vartauold * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/exp(gamma) - 0.5*sqrt(exp(gamma))/sqrt(scaletau2));
         double proposalold = -0.5*log(vartauold)-0.5*pow((log(beta(0,0))-mutauold), 2)/vartauold;
         double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
 
