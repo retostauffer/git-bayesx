@@ -626,13 +626,13 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
         workmean++;
 
         outres << *workmean << "   ";
-
+/*
         outres << likep->compute_quantile_residual(responsep,workmean,weightp,&scalehelp) << "   ";
         outres << likep->compute_quadr()    << "   ";
         outres << likep->compute_log(responsep,workmean,weightp,&scalehelp)    << "   ";
         outres << likep->compute_spherical()    << "   ";
         outres << likep->compute_CRPS()    << "   ";
-
+*/
         outres << endl;
 
 //            std::ofstream out;
