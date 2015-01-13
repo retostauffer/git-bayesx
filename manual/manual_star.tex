@@ -26,7 +26,7 @@ likelihood. MCMC techniques are partly used for computing interval estimates. Al
 additive regression (STAR) models (\citeasnoun{BelLan08}, \citeasnoun{BreLan06}, \citeasnoun{FahKneLan04}) with complex semiparametric predictors.
 STAR models cover a number of well
 known model classes as special cases, including {\em generalized additive models} \cite{HasTib90}, {\em generalized additive
-mixed models} \cite{LinZha99}, {\em geoadditive models} \cite{KamWan03}, {\em varying coefficient models}\cite{HasTib93}, and
+mixed models} \cite{LinZha99}, {\em geoadditive models} \cite{KamWan03}, {\em varying coefficient models} \cite{HasTib93}, and
 {\em geographically weighted regression} \citeasnoun{FotBruCha02}. Besides models for responses from univariate exponential
 families, BayesX also supports non-standard regression situations such as models for categorical responses with either ordered
 or unordered categories, uni- and multivariate distributional regression in the spirit of generalised additive models for location, scale and shape with parametric response distributions beyond the exponential family framework, Bayesian quantile regression, continuous time survival data, or continuous time multi-state models. To provide a first impression of
@@ -38,34 +38,36 @@ multi-state data while Section~\ref{distreg_star} considers extensions for distr
 simulation}
 
 \begin{itemize}
-\item Brezger, A., Lang, S. (2006): Generalized structured additive regression based on Bayesian P-Splines. {\it
+\item Brezger, A., Lang, S. (2006): Generalized Structured Additive Regression based on Bayesian P-Splines. {\it
     Computational Statistics and Data Analysis}, {\bf 50}, 967--991.
     \vspace{-0.25cm}
 \item Brezger, A., Lang, S. (2008)
-      Simultaneous Probability statements for Bayesian P-splines.
+      Simultaneous Probability Statements for Bayesian P-splines.
       {\it Statistical Modelling}, {\bf 8},
       141--168.\vspace{-0.25cm}
-\item Brezger, A., Steiner, W. (2008): Monotonic regression based on Bayesian P-splines: an application to estimating price response functions from
-store-level scanner data. {\it Journal of Economic and Business Statistics}, {\bf 26}, 90--104. \vspace{-0.25cm}
-\item Fahrmeir, L., Lang, S. (2001): Bayesian Inference for Generalized Additive Mixed Models Based on Markov Random Field
+\item Brezger, A., Steiner, W. (2008): Monotonic Regression based on Bayesian P-Splines: an Application to Estimating Price Response Functions from Store-level Scanner Data. {\it Journal of Economic and Business Statistics}, {\bf 26}, 90--104. \vspace{-0.25cm}
+\item Fahrmeir, L.,  Kneib, T., Lang, S., Marx, B. (2013):
+{\it Regression: Models, Methods and Applications},
+ New York: Springer-Verlag.
+ \item Fahrmeir, L., Lang, S. (2001): Bayesian Inference for Generalized Additive Mixed Models based on Markov Random Field
     Priors. {\it Journal of the Royal Statistical Society C (Applied Statistics)}, {\bf 50}, 201--220.\vspace{-0.25cm}
 \item Fahrmeir, L., Lang, S. (2001): Bayesian Semiparametric Regression Analysis of Multicategorical Time-Space Data. {\it
     Annals of the Institute of Statistical Mathematics}, {\bf 53}, 10--30.\vspace{-0.25cm}
-\item Fahrmeir, L., Osuna, L.. (2006): Structured additive regression for overdispersed and zero-inflated count data. {\it
+\item Fahrmeir, L., Osuna, L.. (2006): Structured Additive Regression for Overdispersed and Zero-Inflated Count Data. {\it
     Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369.\vspace{-0.25cm}
-\item Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006): Geoadditive survival models. {\it Journal of the American
+\item Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006): Geoadditive Survival Models. {\it Journal of the American
     Statistical Association}, {\bf 101}, 1065--1075.\vspace{-0.25cm}
-\item Klein, N., Kneib, T., Lang, S., Sohn, A. (2014): Bayesian structured additive distributional regression.  Under revision for {\it Annals of Applied Statistics}.
+\item Klein, N., Kneib, T., Lang, S., Sohn, A. (2014): Bayesian Structured Additive Distributional Regression.  Under revision for {\it Annals of Applied Statistics}.
 \item Klein, N., Kneib, T., Lang, S. (2014): Bayesian Generalized Additive Models for Location, Scale and Shape for Zero-Inflated and Overdispersed Count Data. To appear in {\it Journal of the American Statistical Association}.
-\item Klein, N., Kneib, T., Klasen, S., Lang, S.(2014): Bayesian structured additive distributional regression for Multivariate Responses. To appear in {\it Journal of the Royal Statistical Society C}.
+\item Klein, N., Kneib, T., Klasen, S., Lang, S.(2014): Bayesian Structured Additive Distributional Regression for Multivariate Responses. To appear in {\it Journal of the Royal Statistical Society C}.
 \item Kneib, T., Hennerfeind, A. (2006) Bayesian Semiparametric Multi-State Models. {\it Statistical Modelling}, {\bf 8},
     169--198..\vspace{-0.25cm}
 \item Lang, S., Brezger, A. (2004): Bayesian P-Splines {\it Journal of Computational and Graphical Statistics}, {\bf 13},
     183--212.
-\item Lang, S., Umlauf, N., Wechselberger, P., Hartgen, K. and Kneib, T. (2014): Multilevel Structured Additive Regression, {\it Statistics and Computing}, {\bf 24}, 223--238
+\item Lang, S., Umlauf, N., Wechselberger, P., Harttgen, K. and Kneib, T. (2014): Multilevel Structured Additive Regression, {\it Statistics and Computing}, {\bf 24}, 223--238
 \end{itemize}
 
-Presumably the best starting point is the paper by \citeasnoun{BreLan06}.
+Presumably the best starting point is the paper by \citeasnoun{BreLan06} or the monograph by Fahrmeir et al. (2013).
 
 \begin{figure}[ht]
 \footnotesize
@@ -150,17 +152,17 @@ manual.}}
 methodology}
 
 \begin{itemize}
-\item Fahrmeir, L., Kneib, T., Lang, S. (2004): Penalized structured additive regression for space-time data: a Bayesian
-    perspective. {\it Statistica Sinica}, {\bf 14}, 715--745.\vspace{-0.25cm}
-\item Kneib, T. (2006): Mixed model based inference in structured additive regression. Dr. Hut Verlag, M\"{u}nchen. Available
+\item Fahrmeir, L., Kneib, T., Lang, S. (2004): Penalized Structured Additive Regression for Space-Time Data: a Bayesian
+    Perspective. {\it Statistica Sinica}, {\bf 14}, 715--745.\vspace{-0.25cm}
+\item Kneib, T. (2006): Mixed Model based Inference in Structured Additive Regression. Dr. Hut Verlag, M\"{u}nchen. Available
     online from
     \href{http://edoc.ub.uni-muenchen.de/archive/00005011/}{http://edoc.ub.uni-muenchen.de/archive/00005011/}\vspace{-0.25cm}
-\item Kneib, T. (2006): Geoadditive hazard regression for interval censored survival times. {\it Computational Statistics
+\item Kneib, T. (2006): Geoadditive Hazard Regression for Interval Censored Survival Times. {\it Computational Statistics
     and Data Analysis}, {\bf 51}, 777--792.\vspace{-0.25cm}
-\item Kneib, T., Fahrmeir, L. (2007): A mixed model approach for geoadditive hazard regression. {\it Scandinavian Journal
+\item Kneib, T., Fahrmeir, L. (2007): A Mixed Model Approach for Geoadditive Hazard Regression. {\it Scandinavian Journal
     of Statistics}, {\bf 34}, 207--228.\vspace{-0.25cm}
-\item Kneib, T., Fahrmeir, L. (2006): Structured additive regression for multicategorical space-time data: A mixed model
-    approach. {\it Biometrics}, {\bf 62}, 109--118.\vspace{-0.25cm}
+\item Kneib, T., Fahrmeir, L. (2006): Structured Additive Regression for Multicategorical Space-Time Data: A Mixed Model
+    Approach. {\it Biometrics}, {\bf 62}, 109--118.\vspace{-0.25cm}
 \item Kneib, T., Hennerfeind, A. (2006): Bayesian Semiparametric Multi-State Models. {\it Statistical Modelling}, {\bf 8},
     169--198.
 \end{itemize}
@@ -170,9 +172,9 @@ Presumably the best starting point is the paper by \citeasnoun{FahKneLan04} or t
 \subsubsection*{Structured additive regression including model selection}
 
 \begin{itemize}
-\item Belitz, C. (2007): Model selection in Generalised Structured Additive Regression Models. Dr. Hut Verlag, M\"{u}nchen.
-\item Belitz, C., Lang, S. (2008) Simultaneous selection of variables and smoothing parameters
-in structured additive regression models. {\it
+\item Belitz, C. (2007): Model Selection in Generalised Structured Additive Regression Models. Dr. Hut Verlag, M\"{u}nchen.
+\item Belitz, C., Lang, S. (2008) Simultaneous Selection of Variables and Smoothing Parameters
+in Structured Additive Regression Models. {\it
 Computational Statistics and Data Analysis}, {\bf 53} , 61-81.
 \end{itemize}
 
@@ -2474,13 +2476,13 @@ More details on multi-state models, including an exemplary analysis on human sle
 
 Structured additive regression models assume that the distribution of the response variable $y$, given covariates $\xvec$ and $\uvec$, belongs to an exponential family. The conditional mean $\mu_i = E(y_i|\xvec,\uvec)$ is linked to a structured additive predictor
 \begin{align*}
-\eta_i = f_1(x_{i1}) + \ldots + f_q(x_{ip}) + \uvec_i' \gammavec, \,\,\,\,\,\,\,\, i = 1, \ldots, n,
+\eta_i = f_1(x_{i1}) + \ldots + f_p(x_{ip}) + \uvec_i' \gammavec, \,\,\,\,\,\,\,\, i = 1, \ldots, n,
 \end{align*}
-by $\mu_i = h(\eta_i)$, see Chapter \ref{obsmodel}. In matrix notation we obtain
+by $\mu_i = h(\eta_i)$, see Chapter \ref{obsmodel}. In matrix notation we obtain for the predictor
 $$
 \etavec = \Xvec_1 \betavec_1 + \ldots + \Xvec_p \betavec_p + \Uvec \gammavec,
 $$
-for the predictor, see again Chapter \ref{obsmodel} for details.
+see again Chapter \ref{obsmodel} for details.
 For the most basic model with Gaussian responses  and the  identity response function we have
 \begin{align*}
 y_i \sim  \mathcal{N}(\eta_i, \sigma^2) = \mathcal{N}(f_1(x_{i1}) + \ldots + f_p(x_{ip}) + \uvec_i' \gammavec,\sigma^2)
@@ -2493,9 +2495,9 @@ $$
 
 Here and in other convential STAR models only the conditional mean is modeled in dependence of covariates.
 
-A more flexible approach is given by distributional regression as introduced in  \citeasnoun{kleknelan14a} and \citeasnoun{kleknelan14b}. On the one hand, the class of distributions that can be estimated with distributional regression is not restricted to the exponential family. On the other hand, distributional regression allows to model not only the conditional mean of the response variable but the whole set of distribution parameters $\varthetavec_1,\ldots,\varthetavec_K$, i.e.~all $K$ parameters of the response distribution can be related to a set of predictor variables, which of course may vary between the different parameters. Using response functions $h_1, \ldots, h_K$ each of these parameters can be linked to a structured additive predictor via
+A more flexible approach is given by distributional regression as introduced in  \citeasnoun{kleknelan14a} and \citeasnoun{kleknelan14b}. On the one hand, the class of distributions that can be estimated with distributional regression is no longer restricted to the exponential family. On the other hand, distributional regression allows to model not only the conditional mean of the response variable but the whole set of distribution parameters $\varthetavec_1,\ldots,\varthetavec_K$, i.e.~all $K$ parameters of the response distribution can be related to a set of predictor variables, which of course may vary between the different parameters. Using response functions $h_1, \ldots, h_K$ each of these parameters can be linked to a structured additive predictor via
 \[
-\varthetavec_k = h_k(\etavec_k) = h_k(\Xvec_{1k} \betavec_{1k} + \ldots + \Xvec_{qk} \betavec_{qk} + \Uvec_k \gammavec_k), \quad k=1,\ldots,K.
+\varthetavec_k = h_k(\etavec_k) = h_k(\Xvec_{1k} \betavec_{1k} + \ldots + \Xvec_{pk} \betavec_{pk} + \Uvec_k \gammavec_k), \quad k=1,\ldots,K.
 \]
 Usually, the response functions are chosen to ensure appropriate restrictions on the parameter spaces. We use, for example, the exponential function to ensure positivity of the scale parameter.
 
@@ -2538,7 +2540,7 @@ Setting up a regression model both the mean and the shape parameter are linked t
 \end{array}
 \end{align*}
 
-A comprehensive list of all distributional regression models available in BayesX can be found in ??
+A comprehensive list of all distributional regression models available in BayesX can be found in Tables \ref{tab:distrBayesX1}  to \ref{tab:distrBayesX4} of the Reference Manual.
 
 
 \subsection{Quantile Regression} \label{sec:quantreg}
@@ -2570,7 +2572,7 @@ p(y_i | \eta_{i,\varphi},\sigma^2,\varphi) = \frac{\varphi(1-\varphi)}{\sigma^2}
 \end{align*}
 Maximizing the corresponding posterior (for fixed $\sigma^2$ and $\varphi$) obviously is equivalent to minimizing the AWE criterion (\ref{eq:quantmin}) in case of a linear predictor. However, in contrast to frequentist quantile regression the linear predictor can be replaced by a hierarchical structured additive predictor without any further difficulties, see \citeasnoun{WalKneLanYue12} for details.
 
-Since the check function $\rho_{\varphi}$ is non-differentiable, inference based on Markov chain Monte Carlo (MCMC) simulations at a first glance seems to be complicated. However, the asymmetric Laplace distribution can be represented as a scaled mixture of normals:
+Since the check function $\rho_{\varphi}$ is non-differentiable, inference based on Markov chain Monte Carlo (MCMC) simulations at a first glance seems to be complicated. However, the asymmetric Laplace distribution can be represented as a scaled mixture of normals
 \begin{align*}
 Y = \eta + \xi W + \delta Z \sqrt{\sigma^2 W}
 \end{align*}
@@ -2580,22 +2582,22 @@ with $\xi = \frac{1-2\varphi}{\varphi(1-\varphi)}$ and $\delta^2 = \frac{2}{\var
 \subsection{Multilevel models}
 
 
-Recently \citeasnoun{LanUml14} have proposed  a multilevel version of STAR models to cope with the hierarchical nature of many data sets. 
+Recently \citeasnoun{LanUml14} have proposed  a multilevel version of STAR models to cope with the hierarchical nature of many data sets.
 Suppose that covariate $x_j \in \{1,\dots,K\}$ is a unit- or cluster index   and $x_{ij}$ indicates the cluster
-observation $i$ pertains to. 
+observation $i$ pertains to.
 Then the design  matrix $\mathbf{X}_j$ is a $n \times K$ incidence matrix with $\mathbf{X}_j[i,k] = 1$ if the $i$-th observation
 belongs to cluster $k$ and zero else. The $K \times 1$ parameter vector $\boldsymbol{\beta}_j$ is the vector of regression parameters,
 i.e.~the $k$-th element
-in $\boldsymbol{\beta}$ corresponds to the regression coefficient of the $k$-th cluster.
+in $\boldsymbol{\beta}_j$ corresponds to the regression coefficient of the $k$-th cluster.
 We now define a second level equation
 \begin{equation}
 \label{eq:compprior}
 \boldsymbol{\beta}_j = \boldsymbol{\eta}_j + \boldsymbol{\varepsilon}_j =
-\mathbf{X}_{j1} \boldsymbol{\beta}_{j1} + \ldots + \mathbf{X}_{jq_j} \boldsymbol{\beta}_{jq_j} +
+\mathbf{X}_{j1} \boldsymbol{\beta}_{j1} + \ldots + \mathbf{X}_{jp_j} \boldsymbol{\beta}_{jp_j} +
 \mathbf{U}_j \boldsymbol{\gamma}_j +  \boldsymbol{\varepsilon}_j,
 \end{equation}
-where the terms $\mathbf{X}_{j1} \boldsymbol{\beta}_{j1},\dots,\mathbf{X}_{jq_j} \boldsymbol{\beta}_{jq_j}$ correspond to additional nonlinear
-functions $f_{j1},\dots,f_{jq_j}$ and
+where the terms $\mathbf{X}_{j1} \boldsymbol{\beta}_{j1},\dots,\mathbf{X}_{jp_j} \boldsymbol{\beta}_{jp_j}$ correspond to additional nonlinear
+functions $f_{j1},\dots,f_{jp_j}$ and
 $\mathbf{U}_j \boldsymbol{\gamma}_j$ comprises additional linear effects of cluster level covariates.
 The ``errors'' $\boldsymbol{\varepsilon}_j \sim N(\mathbf{0}, \tau^2_j \mathbf{I})$
 comprise a vector of i.i.d.\ Gaussian random effects.
@@ -2732,7 +2734,7 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Albert \& Chib}{1993}{AlbChi93}
  {\scshape Albert, J. \& Chib, S.} (1993).
- Bayesian analysis of binary and polychotomous response data.
+ Bayesian Analysis of Binary and Polychotomous Response Data.
  {\it Journal of the American Statistical Association}, {\bf 88}, 669--679.
 
 \harvarditem{Andersen et al.}{1993}{Andetal93}
@@ -2742,7 +2744,7 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Andrews \& Mallows}{1974}{AndMal74}
  {\scshape Andrews, D. F. \& Mallows, C. L.} (1974).
- Scale mixtures of normal distributions.
+ Scale mixtures of Normal Distributions.
  {\it Journal of the Royal Statistical Society B}, {\bf 36}, 99--102.
 
 \harvarditem{Bollaerts, Eilers \& van Mechelen}{2006}{BolEilvMe06}
@@ -2757,17 +2759,17 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Belitz \& Lang}{2008}{BelLan08}
 {\scshape Belitz, C. \& Lang, S.} (2008).
- Simultaneous selection of variables and smoothing parameters in structured additive regression models.
+ Simultaneous Selection of Variables and Smoothing Parameters in Structured Additive Regression Models.
 {\it Computational Statistics and Data Analysis}, {\bf 53} , 61-81.
 
 \harvarditem{Besag, York \& Molli\'{e}}{1991}{BesYorMol91}
  {\scshape Besag, J., York, J. \& Molli\'{e}, A.} (1991).
- Bayesian image restoration with two applications in spatial statistics (with discussion).
+ Bayesian Image Restoration with two Applications in Spatial Statistics (with discussion).
  {\it Annals of the Institute of Statistical Mathematics}, {\bf 43}, 1--59.
 
 \harvarditem{Brezger \& Lang}{2006}{BreLan06}
  {\scshape Brezger, A. \& Lang, S.} (2006).
- Generalized additive regression based on Bayesian P-splines.
+ Generalized Additive Regression based on Bayesian P-Splines.
  {\it Computational Statistics and Data Analysis} {\bf 50}, 967--991.
 
 \harvarditem{Devroye}{1986}{Dev86}
@@ -2777,12 +2779,12 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Eilers \& Marx}{1996}{EilMar96}
  {\scshape Eilers, P. H. C. \& Marx, B. D.} (1996).
- Flexible smoothing using B-splines and penalized likelihood (with comments and rejoinder).
+ Flexible Smoothing using B-Splines and Penalized Likelihood (with comments and rejoinder).
  {\it Statistical Science}, {\bf 11}, 89--121.
 
 \harvarditem{Fahrmeir, Kneib \& Lang}{2004}{FahKneLan04}
  {\scshape Fahrmeir, L., Kneib, T. \& Lang, S.} (2004).
- Penalized structured additive regression for space-time data: A Bayesian perspective.
+ Penalized Structured Additive regression for Space-Time Data: A Bayesian Perspective.
  {\it Statistica Sinica}, {\bf 14}, 715--745.
 
 \harvarditem{Fahrmeir et al.}(2013){fahkne13}
@@ -2803,7 +2805,7 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Fahrmeir \& Osuna}{2006}{FahOsu06}
  {\scshape Fahrmeir, L. \& Osuna, L.} (2006).
- Structured additive regression for overdispersed and zero-inflated count data.
+ Structured Additive Regression for Overdispersed and Zero-Inflated Count Data.
  {\it Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369
 
  \harvarditem{Fahrmeir \& Tutz}{2001}{FahTut01}
@@ -2818,7 +2820,7 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Gamerman}{1997}{Gam97}
  {\scshape Gamerman, D.} (1997).
- Efficient Sampling from the posterior distribution in generalized linear models.
+ Efficient Sampling from the Posterior Distribution in Generalized Linear Models.
  {\it Statistics and Computing}, {\bf 7}, 57--68.
 
 \harvarditem{Gelfand, Sahu \& Carlin}{1996}{GelSahCar96}
@@ -2835,7 +2837,7 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Green}{1987}{Gre87}
  {\scshape Green, P. J.} (1987).
- Penalized likelihood for general semiparametric regression models.
+ Penalized Likelihood for General Semiparametric Regression Models.
  {\it International Statistical Review}, {\bf 55}, 245--259.
 
 \harvarditem{Green}{2001}{Gre01}
@@ -2851,23 +2853,23 @@ contain additional cluster-specific random effects whose parameters are again mo
  Chapman and Hall, London.
 
 \harvarditem{Griffin \& Brown}{2005}{GriBro05}
- {\scshape Griffin, J. E., and Brown, P. J.} (2005). Alternative prior distributions
- for variable selection with very many more variables than observations. Technical
+ {\scshape Griffin, J. E., and Brown, P. J.} (2005). Alternative Prior Distributions
+ for Variable Selection with very many more Variables than Observations. Technical
  report, University of Warwick, Dept. of Statistics.
 
 \harvarditem{Harville}{1977}{Har77}
  {\scshape Harville, D. A.} (1977).
- Maximum Likelihood approaches to variance component estimation and to related problems.
+ Maximum Likelihood Approaches to Variance Component Estimation and to related Problems.
  {\it Journal of the American Statistical Association}, {\bf 72}, 320--338.
 
 \harvarditem{Hastie \& Tibshirani}{1990}{HasTib90}
  {\scshape Hastie, T. \& Tibshirani, R.} (1990).
- {\it Generalized additive models.}
+ {\it Generalized Additive Models.}
  Chapman and Hall, London.
 
 \harvarditem{Hastie \& Tibshirani}{1993}{HasTib93}
  {\scshape Hastie, T. \& Tibshirani, R.} (1993).
- Varying-coefficient Models.
+ Varying-Coefficient Models.
  {\it Journal of the Royal Statistical Society B}, {\bf 55}, 757--796.
 
 \harvarditem{Hastie \& Tibshirani}{2000}{HasTib00}
@@ -2882,17 +2884,17 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Hennerfeind, Brezger \& Fahrmeir}{2006}{HenBreFah06}
  {\scshape Hennerfeind, A., Brezger, A. \& Fahrmeir, L.} (2006).
- Geoadditive survival models.
+ Geoadditive Survival Models.
  {\it Journal of the American Statistical Association}, {\bf 101}, 1065--1075.
 
 \harvarditem{Holmes \& Held}{2006}{HolHel06}
  {\scshape Holmes, C., Held, L.} (2006).
- Bayesian auxiliary variable models for binary and multinomial regression.
+ Bayesian Auxiliary Variable Models for Binary and Multinomial Regression.
  {\it Bayesian Analysis}, {\bf 1}, 145--168.
 
 \harvarditem{Hurvich, Simonoff \& Tsai}{1998}{HurSimTsa98}
  {\scshape Hurvich, C. M., Simonoff, J. S. \& Tsai, C. L.} (1998).
- Smoothing parameter selection in nonparametric regression using an improved {A}kaike information criterion.
+ Smoothing Parameter Selection in Nonparametric Regression using an improved {A}kaike Information Criterion.
  {\it Journal of the Royal Statistical Society B}, {\bf 60}, 271--293.
 
 \harvarditem{Ishwaran \& Rao}{2005}{IshRao05}
@@ -2902,7 +2904,7 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Johnson, Moore \& Ylvisaker}{1990}{JohMooYlv90}
  {\scshape Johnson, M.E., Moore, L.M. \& Ylvisaker, D.} (1990).
- Minimax and maximin designs.
+ Minimax and Maximin Designs.
  {\it Journal of Statistical Planning and Inference}, {\bf 26}, 131--148.
 
 \harvarditem{Kammann \& Wand}{2003}{KamWan03}
@@ -2913,13 +2915,13 @@ contain additional cluster-specific random effects whose parameters are again mo
 
 \harvarditem{Klein et al.}{2014a}{KleDenKneLan14}
 {\scshape Klein, N., Denuit, M., Kneib, T. \& Lang, S.}(2014).
-Nonlife ratemaking and risk management with Bayesian additive models for location, scale and shape.
+Nonlife Ratemaking and Risk Management with Bayesian additive Models for Location, Scale and Shape.
 {\it Insurance: Mathematics and Economics}, {\bf 55}, 225--249.
 
 
 \harvarditem{Klein et al.}{2014b}{kleknelan14a}
 {\scshape Klein, N., Kneib, T., Lang, S. \& Sohn, A.}(2014).
-Bayesian structured additive distributional regression.
+Bayesian Structured Additive Distributional Regression.
 {\it Under revision for Annals of Applied Statistics}.
 
 
@@ -2931,7 +2933,7 @@ To appear in {\it Journal of the American Statistical Association}.
 
 \harvarditem{Klein et al.}{2014c}{KleKneLan14c}
 {\scshape Klein, N., Kneib, T., Klasen, S. \& Lang, S.}(2014).
-Bayesian structured additive distributional regression for Multivariate Responses.
+Bayesian Structured Additive Distributional Regression for Multivariate Responses.
 To appear in {\it Journal of the Royal Statistical Society C}.
 
 
@@ -2944,7 +2946,7 @@ Cambridge University Press, New York.
 
 \harvarditem{Kneib}{2006}{Kne06}
  {\scshape Kneib, T.} (2006).
- Geoadditive hazard regression for interval censored survival times.
+ Geoadditive Hazard Regression for Interval Censored Survival Times.
  {\it Computational Statistics and Data Analysis}, {\bf 51}, 777--792
 
 \harvarditem{Kneib \& Hennerfeind}{2006}{KneHen06}
@@ -2954,12 +2956,12 @@ Cambridge University Press, New York.
 
 \harvarditem{Kneib \& Fahrmeir}{2006}{KneFah06}
  {\scshape Kneib, T. \& Fahrmeir, L.} (2006).
- Structured additive regression for categorical space-time data: A mixed model approach.
+ Structured Additive Regression for Categorical Space-Time Data: A Mixed Model approach.
  {\it Biometrics}, {\bf 62}, 109--118.
 
 \harvarditem{Kneib \& Fahrmeir}{2007}{KneFah07}
  {\scshape Kneib, T. \& Fahrmeir, L.} (2007).
- A mixed model approach to structured hazard regression.
+ A Mixed Model Approach to Structured Hazard Regression.
  {\it Scandinavian Journal of Statistics}, {\bf 34}, 207--228.
 
 \harvarditem{Kneib et al.}{2009}{Kne09}
@@ -2979,7 +2981,7 @@ Cambridge University Press, New York.
 
 \harvarditem{Lang \& Brezger}{2004}{LanBre04}
  {\scshape Lang, S. \& Brezger, A.} (2004).
- Bayesian P-splines.
+ Bayesian P-Splines.
  {\it Journal of Computational and Graphical Statistics}, {\bf 13}, 183--212.
 
 \harvarditem{Lang et al.}{2014}{LanUml14}
@@ -2990,7 +2992,7 @@ Cambridge University Press, New York.
 
 \harvarditem{Lin \& Zhang}{1999}{LinZha99}
  {\scshape Lin, X. \& Zhang, D.} (1999).
- Inference in generalized additive mixed models by using smoothing splines.
+ Inference in Generalized Additive Mixed Models by using Smoothing Splines.
  {\it Journal of the Royal Statistical Society B}, {\bf 61}, 381--400.
 
 \harvarditem{McCullagh \& Nelder}{1989}{McCNel89}
@@ -3029,12 +3031,12 @@ Cambridge University Press, New York.
 
 \harvarditem{Spiegelhalter et al.}{2002}{SpiBesCar02}
  {\scshape Spiegelhalter, D. J., Best, N. G., Carlin, B. P. \& van der Linde, A.} (2002).
- Bayesian measures of model complexity and fit.
+ Bayesian Measures of Model Complexity and Fit.
  {\it Journal of the Royal Statistical Society B}, {\bf 65}, 583--639.
 
 \harvarditem {Waldmann et al.}{2013}{WalKneLanYue12}
 {\scshape Waldmann, E. and Kneib, T. and Lang, S. and Yue, Y.}(2013)
-Bayesian semiparametric additive  quantile regression.
+Bayesian Semiparametric Additive  Quantile Regression.
 {\it Statistical Modelling}, {\bf 13}, 223--252.
 
 
