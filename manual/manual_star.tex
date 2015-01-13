@@ -48,7 +48,7 @@ simulation}
 \item Brezger, A., Steiner, W. (2008): Monotonic Regression based on Bayesian P-Splines: an Application to Estimating Price Response Functions from Store-level Scanner Data. {\it Journal of Economic and Business Statistics}, {\bf 26}, 90--104. \vspace{-0.25cm}
 \item Fahrmeir, L.,  Kneib, T., Lang, S., Marx, B. (2013):
 {\it Regression: Models, Methods and Applications},
- New York: Springer-Verlag.
+ New York: Springer-Verlag.\vspace{-0.25cm}
  \item Fahrmeir, L., Lang, S. (2001): Bayesian Inference for Generalized Additive Mixed Models based on Markov Random Field
     Priors. {\it Journal of the Royal Statistical Society C (Applied Statistics)}, {\bf 50}, 201--220.\vspace{-0.25cm}
 \item Fahrmeir, L., Lang, S. (2001): Bayesian Semiparametric Regression Analysis of Multicategorical Time-Space Data. {\it
@@ -57,13 +57,13 @@ simulation}
     Applied Stochastic Models in Business and Industry}, {\bf 22}, 351--369.\vspace{-0.25cm}
 \item Hennerfeind, A., Brezger, A., Fahrmeir, L. (2006): Geoadditive Survival Models. {\it Journal of the American
     Statistical Association}, {\bf 101}, 1065--1075.\vspace{-0.25cm}
-\item Klein, N., Kneib, T., Lang, S., Sohn, A. (2014): Bayesian Structured Additive Distributional Regression.  Under revision for {\it Annals of Applied Statistics}.
-\item Klein, N., Kneib, T., Lang, S. (2014): Bayesian Generalized Additive Models for Location, Scale and Shape for Zero-Inflated and Overdispersed Count Data. To appear in {\it Journal of the American Statistical Association}.
-\item Klein, N., Kneib, T., Klasen, S., Lang, S.(2014): Bayesian Structured Additive Distributional Regression for Multivariate Responses. To appear in {\it Journal of the Royal Statistical Society C}.
+\item Klein, N., Kneib, T., Lang, S., Sohn, A. (2014): Bayesian Structured Additive Distributional Regression.  Under revision for {\it Annals of Applied Statistics}.\vspace{-0.25cm}
+\item Klein, N., Kneib, T., Lang, S. (2014): Bayesian Generalized Additive Models for Location, Scale and Shape for Zero-Inflated and Overdispersed Count Data. To appear in {\it Journal of the American Statistical Association}.\vspace{-0.25cm}
+\item Klein, N., Kneib, T., Klasen, S., Lang, S.(2014): Bayesian Structured Additive Distributional Regression for Multivariate Responses. To appear in {\it Journal of the Royal Statistical Society C}.\vspace{-0.25cm}
 \item Kneib, T., Hennerfeind, A. (2006) Bayesian Semiparametric Multi-State Models. {\it Statistical Modelling}, {\bf 8},
     169--198..\vspace{-0.25cm}
 \item Lang, S., Brezger, A. (2004): Bayesian P-Splines {\it Journal of Computational and Graphical Statistics}, {\bf 13},
-    183--212.
+    183--212.\vspace{-0.25cm}
 \item Lang, S., Umlauf, N., Wechselberger, P., Harttgen, K. and Kneib, T. (2014): Multilevel Structured Additive Regression, {\it Statistics and Computing}, {\bf 24}, 223--238
 \end{itemize}
 
@@ -2574,9 +2574,9 @@ Maximizing the corresponding posterior (for fixed $\sigma^2$ and $\varphi$) obvi
 
 Since the check function $\rho_{\varphi}$ is non-differentiable, inference based on Markov chain Monte Carlo (MCMC) simulations at a first glance seems to be complicated. However, the asymmetric Laplace distribution can be represented as a scaled mixture of normals
 \begin{align*}
-Y = \eta + \xi W + \delta Z \sqrt{\sigma^2 W}
+Y_i = \eta_i + \xi W_i + \delta Z_i \sqrt{\sigma^2 W_i}
 \end{align*}
-with $\xi = \frac{1-2\varphi}{\varphi(1-\varphi)}$ and $\delta^2 = \frac{2}{\varphi(1-\varphi)}$.  $W \sim \textnormal{Exp}(\frac{1}{\sigma^2})$ and $Z \sim \mathcal{N}(0,1)$ are independent random variables following an exponential distribution with mean $\sigma^2$ and a standard normal distribution, respectively. Thus, using offsets $\xi W$ and weights $\delta \sqrt{\sigma^2 W}$ the Bayesian quantile regression problem can be interpreted as a conditionally Gaussian regression model after imputing $W$ as a part of the MCMC sampler.
+with $\xi = \frac{1-2\varphi}{\varphi(1-\varphi)}$ and $\delta^2 = \frac{2}{\varphi(1-\varphi)}$.  $W_i \sim \textnormal{Exp}(\frac{1}{\sigma^2})$ and $Z_i \sim \mathcal{N}(0,1)$ are independent random variables following an exponential distribution with mean $\sigma^2$ and a standard normal distribution, respectively. Thus, using offsets $\xi W_i$ and weights $\delta \sqrt{\sigma^2 W_i}$ the Bayesian quantile regression problem can be interpreted as a conditionally Gaussian regression model after imputing $W_i$ as a part of the MCMC sampler.
 
 
 \subsection{Multilevel models}
