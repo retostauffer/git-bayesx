@@ -2531,7 +2531,7 @@ A popular two parameter distribution for modeling skewed distributions is the ga
 \begin{equation*}
 f(y_i|\mu_i, \sigma_i) = \left( \frac{\sigma_i}{\mu_i} \right)^{\sigma_i} \cdot \frac{y_i^{\sigma_i-1}}{\Gamma(\sigma_i)} \cdot \exp\left(- \frac{\sigma_i}{\mu_i} \cdot y_i \right),
 \end{equation*}
-with $\Gamma(x) = \int_0^{\infty} u^{x-1} \exp(-u) \mathrm{d}u$ for $x>0$ being the gamma function. The mean of the gamma distribution corresponds to $\mu$, the variance is given by $\mu^2/\sigma$.
+The mean of the gamma distribution corresponds to $\mu$, the variance is given by $\mu^2/\sigma$.
 Setting up a regression model both the mean and the shape parameter are linked to a STAR predictor via the exponential function due to the positivity constraints:
 \begin{align*}
 \begin{array}{lllll}
