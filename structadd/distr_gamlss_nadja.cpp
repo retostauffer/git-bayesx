@@ -708,7 +708,9 @@ double DISTR_t_sigma2::get_intercept_start(void)
 
   void DISTR_t_sigma2::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = pow(exp(*linpred[1]), 0.5);
+  // this was for Alex paper
+  //*param = pow(exp(*linpred[1]), 0.5);
+  *param = exp(*linpred[1]);
   }
 
 
@@ -1125,7 +1127,7 @@ double DISTR_invgaussian_sigma2::get_intercept_start(void)
 
 void DISTR_invgaussian_sigma2::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = pow(exp((*linpred[0])),0.5);
+  *param = exp((*linpred[0]));
   }
 
 double DISTR_invgaussian_sigma2::loglikelihood_weightsone(double * response,
@@ -4383,7 +4385,9 @@ double DISTR_gamma_mu::get_intercept_start(void)
 
 void DISTR_gamma_mu::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp((*linpred[1])) * exp((*linpred[1])) / exp((*linpred[0]));
+  //this was for Alex paper
+  //*param = exp((*linpred[1])) / exp((*linpred[0]));
+  *param = exp((*linpred[1]));
   }
 
  double DISTR_gamma_mu::pdf_mult(vector<double *> response,
@@ -4967,7 +4971,9 @@ double DISTR_lognormal_sigma2::get_intercept_start(void)
 
 void DISTR_lognormal_sigma2::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = pow(exp((*linpred[0])),0.5);
+  //standarddeviation
+  //*param = pow(exp((*linpred[0])),0.5);
+  *param = exp((*linpred[0]));
   }
 
 
@@ -6167,7 +6173,9 @@ double DISTR_normal_sigma2::get_intercept_start(void)
 
 void DISTR_normal_sigma2::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = pow(exp((*linpred[0])),0.5);
+  //standarddeviations
+  //*param = pow(exp((*linpred[0])),0.5);
+  *param = exp((*linpred[0]));
   }
 
 double DISTR_normal_sigma2::loglikelihood_weightsone(double * response,
