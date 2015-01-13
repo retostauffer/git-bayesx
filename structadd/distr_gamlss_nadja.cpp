@@ -4383,7 +4383,7 @@ double DISTR_gamma_mu::get_intercept_start(void)
 
 void DISTR_gamma_mu::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp((*linpred[1])) / exp((*linpred[0]));
+  *param = exp((*linpred[1])) * exp((*linpred[1])) / exp((*linpred[0]));
   }
 
  double DISTR_gamma_mu::pdf_mult(vector<double *> response,
