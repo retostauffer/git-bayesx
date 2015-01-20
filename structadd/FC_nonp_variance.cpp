@@ -267,14 +267,18 @@ void FC_nonp_variance::update(void)
           acceptance++;
           }
         }
-      else if(proposal == 1) // gamma approximation of weibull distribution
+      else if(proposal == 1) // gamma approximation of weibull distribution (such that mode is also at zero and that E_gamma = E_weibull
         {
-        double tmp1 = 3.0;
+      /*  double tmp1 = 3.0;
         double tmp2 = 5.0;
         double ew = randnumbers::gamma_exact(tmp1) *scaletau2;
         double varw = scaletau2 * scaletau2 * (randnumbers::gamma_exact(tmp2) - pow(randnumbers::gamma_exact(tmp1), 2));
         double bgamma = ew / varw;
-        double agamma = bgamma * ew;
+        double agamma = bgamma * ew;*/
+        double tmp1 = 3.0;
+        double ew = randnumbers::gamma_exact(tmp1) *scaletau2;
+        double bgamma = 1/ew; // equal expectation for agamma = 1
+        double agamma = 1; //yields mode at zero
         double p = -designp->rankK/2 + agamma;
         double a = 2 * bgamma;
         double b = quadf;
