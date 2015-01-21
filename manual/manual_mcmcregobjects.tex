@@ -3,7 +3,7 @@
 
 
 
-{\em mcmcreg objects} are used to fit (multivariate) distributional regression models with {\em
+{\em mcmcreg objects} are used to fit Bayesian quantile regression and (multivariate) distributional regression models with {\em
 structured additive predictor}, see \citeasnoun{kleknelan14a}. Hierarchical data structures may be considered using
 hierarchical or multilevel structured additive predictors. For multilevel structured additive models  see
 \citeasnoun{LanUml14}. Inference is based on a fully Bayesian approach implemented via Markov Chain Monte Carlo (MCMC)
@@ -110,7 +110,7 @@ mcmcreg objects} is given in \autoref{mcmcterms}.
 covariates are specified. Full details about all available options
 are given in \autoref{mcmclocaloptions}.
 
-Throughout this section #Y# will denote the dependent variable.
+Throughout this section, #Y# will denote the dependent variable.
 
 \subsubsection*{Offset}\index{Offset}
 
@@ -126,6 +126,7 @@ effects (if #family=poisson# is specified in addition):
 
 #Y = offs(offset) + W1 + W2#
 
+Note that the offset variable is included on the level of the predictor.
 \end{itemize}
 
 \subsubsection*{Fixed effects}\index{Fixed effects}
@@ -136,7 +137,7 @@ effects (if #family=poisson# is specified in addition):
 \item[] {\em Syntax}: #W1#
 \item[] {\em Example}:
 
-The following model statement specified a model with $q$ fixed
+The following model statement specifies a model with $q$ fixed
 (linear) effects and an intercept:
 
 \texttt{Y = const + W1 + W2 + $\cdots$ + Wq}
@@ -148,9 +149,9 @@ The following model statement specified a model with $q$ fixed
 
 
 \begin{itemize}
-\item[] {\em Description}: Defines a shrinkage-prior for the corresponding
+\item[] {\em Description}: Defines a shrinkage prior for the corresponding
   parameters $\gamma _{j} $, $j=1,\ldots,q$, $q \ge 1$ of the linear effects
-  #X1,...Xq#. There are two priors possible: ridge and
+  #X1#,\ldots,#Xq#. There are two priors possible: ridge and
   lasso type priors.
 
 \item[] {\em Predictor}: $\eta =\cdots +\gamma _{1} {\kern 1pt} X1+\cdots +
@@ -172,20 +173,20 @@ The following model statement specified a model with $q$ fixed
  By default, the starting value of the shrinkage parameter in the Markov chain is
  set to 1 and the shrinkage parameter is estimated by the data. It is also possible
  to fix the shrinkage parameter through the iterations in order to use a prespecified
- amount for shrinkage. To do so the option #shrinkagefix# have to be set
+ amount of shrinkage. To do so, the option #shrinkagefix# has to be set
  in the corresponding terms and this results in fixing the shrinkage parameter at
  the starting value assigned in the option #shrinkage#.
 
- The following model term defines a lasso-penalty with shrinkage parameter
+ The following model term defines a lasso penalty with shrinkage parameter
  fixed at the value 1.5:
 
  #Y = X1(lasso)+...+ Xq(lasso,shrinkage=1.5,shrinkagefix)#
 
- Full details about all possible options for shrinkage-effects are given in Section \ref{localoptions}.
+ Full details about all possible options for shrinkage effects are given in Section \ref{localoptions}.
 
- {\em Important Remark}: Except the option #tau2# for the variances of lasso or ridge
- (and resp. the options #I# and #t2# for nigmix),
- all the other possible options used in the shrinkage-methods are those which are
+ {\em Important Remark}: Except for the option #tau2# for the variances of lasso and ridge
+ (and the options #I# and #t2# for nigmix),
+ all the other possible options used in the shrinkage methods are those which are
  specified in the first term of the corresponding penalty, e.g.
 
  #Y = X2(lasso,shrinkagepar=2,shrinkagefix)+ X1(lasso,shrinkagepar=1.5)#
@@ -204,7 +205,7 @@ The following model statement specified a model with $q$ fixed
 
 \begin{itemize}
 \item[] {\em Description}: Defines a P-spline with a first or
-second order random walk penalty for the parameters of the spline.
+second order random walk prior for the parameters of the spline.
 
 \item[] {\em Predictor}: $\eta =  \cdots + f_1(X1) + \cdots$
 
@@ -213,13 +214,13 @@ second order random walk penalty for the parameters of the spline.
 
 \item[] {\em Example}:
 
-A P-spline with second order random walk penalty is obtained by:
+A P-spline with second order random walk prior is obtained by:
 
 #Y = X1(pspline)#
 
-By default, a second order random walk penalty is used, the degree of the spline is 3 and the number of inner
+By default, a second order random walk prior is used, the degree of the spline is 3 and the number of inner
 knots is 20. The following model term defines a quadratic P-spline
-with 30 knots and a first order random walk penalty:
+with 30 knots and a first order random walk prior:
 
 #Y = X1(pspline,degree=2,nrknots=30,difforder=1)#
 
@@ -332,7 +333,7 @@ random effect is defined by
 #Y = grvar(random)#
 
 Note that {\em BayesX} allows the specification of hierarchical or multilevel models that go far beyond
-the simple random intercept term described above, see section \autoref{mcmcregmultilevelsyntax}.
+the simple random intercept term described above, see \autoref{mcmcregmultilevelsyntax}.
 \end{itemize}
 
 
@@ -348,7 +349,7 @@ effect modifier}
 Defines a varying coefficient term, where the effect of #X1#
 varies smoothly over the range of #X2#. The smoothness prior for
 $f(X2)$ is a P-spline with first or second order random walk
-penalty. \item[] {\em Predictor}: $\eta= \cdots + f(X2)X1 +
+prior. \item[] {\em Predictor}: $\eta= \cdots + f(X2)X1 +
 \cdots$ \item[] {\em Syntax}:
 
 #X1*X2(pspline#[, {\em options}]#) #
@@ -438,7 +439,7 @@ A random slope  is specified as follows:
 #Y = X1*grvar(random)#
 
 Note that {\em BayesX} allows the specification of hierarchical or multilevel models that go far beyond
-the simple random intercept term described above, see section \autoref{mcmcregmultilevelsyntax}.
+the simple random intercept term described above, see \autoref{mcmcregmultilevelsyntax}.
 \end{itemize}
 
 
@@ -531,9 +532,9 @@ Offset & #offs(offset)#  & Variable #offs# is an offset term. \\
 \hline
 Linear effect & #W1#  & Linear effect of #W1#. \\
 \hline
-Ridge effect & #X1(ridge)#  & Linear effect of #X1# with ridge-penalty. \\
+Ridge effect & #X1(ridge)#  & Linear effect of #X1# with ridge prior. \\
 \hline
-Lasso effect & #X1(lasso)#  & Linear effect of #X1# with lasso-penalty. \\
+Lasso effect & #X1(lasso)#  & Linear effect of #X1# with lasso prior. \\
 %\hline
 %NMIG effect & #X1(ssvs)#  & Linear effect of #X1# with ssvs-penalty. \\
 \hline
@@ -681,11 +682,9 @@ function estimate are computed (for P-splines only). & - \\
 #nrknots# & Specifies the number of inner knots for a P-spline
 term. & #nrknots=20# \\
 \hline
-#maxdist# & FEHLT (kriging) & maxdist=-1 \\
-\hline
+%#maxdist# & FEHLT (kriging) & maxdist=-1 \\
+%\hline
 #meaneffect# & Indicates that mean effects (expected values) of the response in dependence of the covariate (with other covariates held fixed at mean values) should be computed. &  - \\
-\hline
-% #meaneffectconst# & FEHLT & \\
 \hline
 #round# & Rounds the covariate before estimation, e.g. #round=2# rounds to 2 digits after the decimal point. & round=-1 (no rounding) \\
 \hline
@@ -793,11 +792,10 @@ Supported multivariate distributions are presented in Table~\ref{tab:distrBayesX
 {\em mcmcreg objects}
 allow to define for each parameter of a specific distribution a full STAR predictor. This is done
 by defining for each parameter of the distribution a separate model equation. To define the equation
-type the user has to specify the (global) options #family# and #equationtype#.
+type, the user has to specify the (global) options #family# and #equationtype#.
 In some cases, one or more additional
 options associated with the specified response distribution can be
-specified. An example is the #reference# option for multinomial
-responses, which defines the reference category. In the following
+specified. In the following,
 we give detailed instructions on how to specify the various
 models for two distributions, the Gaussian and Gamma distribution. For the other distributions
 the specification is analogous.
@@ -847,7 +845,7 @@ Dagum & $p(y|a,b,p)=\frac{a p y^{a p-1}}{b^{a p}\left(1+\left(y/b\right)^{a}\rig
 &&$b>0$&#dagum#&#b#\\
 &&$a>0$&#dagum#&#a#\\\hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of possible response distributions in distributional regression.}\label{tab:distrBayesX1}
+\end{center}\caption{List of possible response distributions in distributional regression.}\label{tab:distrBayesX1}
 \end{sidewaystable}
 
 \begin{sidewaystable}[htbp]
@@ -890,7 +888,7 @@ Cloglog &$p(y|\pi)=\begin{cases}
 			\end{cases}$&$\pi\in(0,1)$&#binomialglog#&#cloglog#\\
 \hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of possible response distributions.}\label{tab:distrBayesX2}
+\end{center}\caption{List of possible response distributions.}\label{tab:distrBayesX2}
 \end{sidewaystable}
 
 \begin{sidewaystable}[htbp]
@@ -928,7 +926,7 @@ One-inflated Beta & $p(y|\mu,\sigma^2,\tau)=\begin{cases}
 					\end{matrix}$&$\begin{matrix} \text{#sigma2#}\\\text{#mu#}\\\text{#tau#}
 					\end{matrix}$\\\hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of possible response distributions.}\label{tab:distrBayesX3}
+\end{center}\caption{List of possible response distributions.}\label{tab:distrBayesX3}
 \end{sidewaystable}
 
 \begin{sidewaystable}[htbp]
@@ -976,7 +974,7 @@ Dirichlet &$p(y_1,\ldots,y_{D-1}) = \frac{1}{\B(\alphavec)}\prod_{d=1}^{D}y_d^{\
 &$\sum_{d=1}^D y_d = 1$&$D\geq 2$&&\\
 \hline\hline
 \end{tabular}
-\end{center}\caption{\footnotesize List of possible response distributions.}\label{tab:distrBayesX4}
+\end{center}\caption{List of possible response distributions.}\label{tab:distrBayesX4}
 \end{sidewaystable}
 
 
@@ -1065,12 +1063,12 @@ C X2
 5 -1.6
 \end{verbatim}
 
-Note that the values of the cluster variable C must be stored in increasing order (!). Now the model can be reformulated in hierarchical order as
-follows: 
+Note that the values of the cluster variable $C$ must be stored in increasing order! Now the model can be reformulated in hierarchical order as
+follows:
 
 #b.hregress C = X2(pspline) , family=gaussian_re equationtype=mu using dC#
 
-#b.hregress y = const + X1(pspline)  + C(hrandom) , family=normal# 
+#b.hregress y = const + X1(pspline)  + C(hrandom) , family=normal#
 
 #equationtype=mu using d#
 
@@ -1099,25 +1097,25 @@ The same model in hierarchical form is given as:
 
 #d.generate C2 = C#
 
-#b.hregress y = const + X1(pspline)  + C(hrandom) + X1*C2(hrandom) ,# 
+#b.hregress y = const + X1(pspline)  + C(hrandom) + X1*C2(hrandom) ,#
 
 #family=normal equationtype=mu using d#
 
-Note that we have to duplicate the cluster variable C in both datasets in order to distinguish the random slope equation
-from the random intercept equation. 
+Note that we have to duplicate the cluster variable $C$ in both datasets in order to distinguish the random slope equation
+from the random intercept equation.
 
 
 \paragraph{Three level models}
 
 $ $ \\
 
-BayesX is able to estimate hierarchical models with arbitrary number of hierarchy levels. Suppose there is another cluster variable 
-D which is nested in C. Suppose further that we have an additional covariate X3 at cluster level D. Then a three level random intercept 
+BayesX is able to estimate hierarchical models with arbitrary number of hierarchy levels. Suppose there is another cluster variable
+$D$ which is nested in $C$. Suppose further that we have an additional covariate X3 at cluster level $D$. Then a three level random intercept
 model is defined hierarchically as follows:
 
 #b.hregress C = X3   , family=gaussian_re equationtype=mu using dD#
 
-#b.hregress C = X2(pspline) + D(hrandom)  , family=gaussian_re# 
+#b.hregress C = X2(pspline) + D(hrandom)  , family=gaussian_re#
 
 #equationtype=mu using dC#
 
@@ -1125,17 +1123,17 @@ model is defined hierarchically as follows:
 
 #equationtype=mu using d#
 
-Here the cluster level dataset for variable D is dD. For the cluster level covariate X3 a linear effect is assumed. 
+Here the cluster level dataset for variable $D$ is dD. For the cluster level covariate X3 a linear effect is assumed.
 
-Random slope models could be defined analogously. 
+Random slope models could be defined analogously.
 
 \paragraph{Placing the overall intercept}
 
 $ $ \\
- 
+
 Placing the overall intercept in hierarchical models is a delicate issue as it can have a strong impact on the
 mixing behaviour of the resulting Markov chains.
-Usually the best option is to place the overall intercept in the lowest level random intercept equation. In doing so our 
+Usually the best option is to place the overall intercept in the lowest level random intercept equation. In doing so our
 previous model becomes
 
 #b.hregress C = const + X3   , family=gaussian_re equationtype=mu using dD#
@@ -1228,18 +1226,12 @@ distribution of the response is given in \autoref{mcmcregfamilysyntax}. \\
 DEFAULT: #family=normal#
 
 \item #reference = #{\em realvalue} \\
-Option #reference# is meaningful only if either #family=multinomial# or #family=multinomialprobit# is
+Option #reference# is meaningful only if #family=multinom_probit# is
 specified as the response distribution. In this case #reference#
 defines the reference category to be chosen. Suppose, for
 instance, that the response is three categorical with categories
 1, 2 and 3. Then #reference=2# defines the value 2 to be the
 reference category.
-
-\item #zipdistopt = #{\em characterstring} \\
-Defines the zero inflated distribution for the regression analysis.
-The two possibilities are to work with a zero inflated Poisson
-distribution (#zipdistopt=zip#) or to work with the
-zero inflated negative binomial likelihood (#zipdistopt=zinb#).
 \end{itemize}
 
 \begin{table}[ht]
@@ -1386,7 +1378,7 @@ with plotting facilities may be used as well.
 \subsection{Examples}
 
 Here we give only a few examples about the usage of method
-#hregress#. 
+#hregress#.
 % More detailed examples can be found in chapter ?? of the tutorial manual.
 
 Suppose that we have a data set #test# with a continuous response
@@ -1423,7 +1415,7 @@ option #family=normal#, a Gaussian regression model is estimated.
 $$$$
 Suppose now that we want to allow for possibly nonlinear effects
 of #x2# and #x3#. Assuming cubic P-splines with second order
-random walk penalty as smoothness priors, we obtain
+random walk prior as smoothness priors, we obtain
 
 #> b.hregress y = const + x1 + x2(pspline) + x3(pspline), iterations=12000 #\\
 #  burnin=2000 step=10 family=normal using test#
