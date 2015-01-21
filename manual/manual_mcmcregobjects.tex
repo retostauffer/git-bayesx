@@ -8,12 +8,12 @@ structured additive predictor}, see \citeasnoun{kleknelan14a}. Hierarchical data
 hierarchical or multilevel structured additive predictors. For multilevel structured additive models  see
 \citeasnoun{LanUml14}. Inference is based on a fully Bayesian approach implemented via Markov Chain Monte Carlo (MCMC)
 simulation techniques. The methodology manual provides a brief introduction to (multilevel) structured additive regression and MCMC-based
-inference. More details can be found in the references cited above and in the book by \citeasnoun{fahkne13}
+inference. More details can be found in the references cited above and in the book by \citeasnoun{fahkne13}.
 
-First steps with {\em mcmcreg objects} can be done with the
-tutorial like example in chapter ?? of the
-tutorials manual which provides a self-contained demonstrating
-example.
+%First steps with {\em mcmcreg objects} can be done with the
+%tutorial like example in chapter ?? of the
+%tutorials manual which provides a self-contained demonstrating
+%example.
 
 
 \clearpage
@@ -181,7 +181,7 @@ The following model statement specified a model with $q$ fixed
 
  #Y = X1(lasso)+...+ Xq(lasso,shrinkage=1.5,shrinkagefix)#
 
- Full details about all possible options for shrinkage-effects are given in \ref{localoptions}.
+ Full details about all possible options for shrinkage-effects are given in Section \ref{localoptions}.
 
  {\em Important Remark}: Except the option #tau2# for the variances of lasso or ridge
  (and resp. the options #I# and #t2# for nigmix),
@@ -310,11 +310,10 @@ precision matrix. This can be achieved using method #reorder# of
 \index{Random effects}
 \index{Random intercept}
 
-STEFAN: MUSS SO NOCH IMPLEMENTIERT WERDEN
+% STEFAN: MUSS SO NOCH IMPLEMENTIERT WERDEN
 
 \begin{itemize}
-\item[]{\bf\sffamily Unit- or cluster-specific unstructured effect}
-
+%\item[]{\bf\sffamily Unit- or cluster-specific unstructured effect}
 \item[] {\em Description}: Defines an unstructured (uncorrelated)
 random effect with respect to grouping variable #grvar#. \item[]
 {\em Predictor}: $\eta = \cdots + f(grvar) + \cdots$ \item[] {\em
@@ -419,7 +418,7 @@ map object} #germany# (see \autoref{mapinfile}).
 (random slopes)}
 \index{Random effects}\index{Random slope}
 
-STEFAN: NOCH IMPLEMENTIEREN
+% STEFAN: NOCH IMPLEMENTIEREN
 
 \begin{itemize}
 \item[] {\em Description}:
@@ -429,7 +428,7 @@ over the range of the group indicator #grvar#. Models of this type
 are usually referred to as models with random slopes. A Gaussian
 i.i.d.~random effect with respect to grouping variable #grvar# is
 assumed for $f(grvar)$.
-{\em Syntax}:
+\item[]{\em Syntax}:
 
 #X1*grvar(random#[, {\em options}]#) #
 \item[] {\em Example}:
@@ -630,14 +629,14 @@ covariates #X1# and #X2#. \\
 
 \begin{table}[ht] \footnotesize \centering
 \begin{tabular}{|l|p{0.6\linewidth}|c|}
-\hline Option & Description & Default\\
+\hline {\bf Option} & {\bf Description} & {\bf Default} \\
 \hline
 \hline
-#a#,#b# & The options #a# and #b# specify the hyperparameters of
+#a#, #b# & The options #a# and #b# specify the hyperparameters of
   the inverse Gamma prior for the variance $\tau^2$ of nonlinear effects (e.g. P-splines or Markov random fields).
 & #a=0.001#, #b=0.001# \\
 \hline
-#a_re#,#b_re# & The options #a_re# and #b_re# specify the hyperparameters of
+#a_re#, #b_re# & The options #a_re# and #b_re# specify the hyperparameters of
 the inverse Gamma prior for the variance $\tau^2$ of random effects (random or hrandom).
 & #a_re=0.001#, #b_re=0.001# \\
 \hline
@@ -662,12 +661,12 @@ the inverse Gamma prior for the variance $\tau^2$ of random effects (random or h
 increasing nonlinear functions and #constraints=decreasing# yields decreasing functions. &
 #constraints = unrestricted# \\
 \hline
-#degree# & Specifies the degree of B-spline basis functions. & #degree=3# \\
+#degree# & Specifies the degree of B-spline basis functions for P-splines. & #degree=3# \\
 \hline
 #derivative# & If specified, first order derivatives of the
 function estimate are computed (for P-splines only). & - \\
 \hline
-#difforder# & Specifies the difference order (1 or 2) of random walks for P-spline priors & 2 \\
+#difforder# & Specifies the difference order (1 or 2) of random walks for P-spline priors. & 2 \\
 \hline
 #lambda#
 & Provides a starting value for the smoothing parameter $\lambda$. & #lambda=0.1# \\
@@ -704,15 +703,15 @@ object terms in alphabetical order (1).}}
 \begin{table}[ht] \footnotesize \centering
 \begin{tabular}{|l|p{0.6\linewidth}|c|}
 \hline
-Option & Description & Default \\
+{\bf Option} & {\bf Description} & {\bf Default} \\
 \hline
 #samplederivative# & Indicates that samples of the derivatives should be stored. If this is the case, credible intervals,
-standard errors etc. for derivatives are computed in addition to mean estimates. This pption is only meaningful in combination with option #derivative#. & - \\
+standard errors etc. for derivatives are computed in addition to mean estimates. This option is only meaningful in combination with option #derivative#. & - \\
 \hline
 #samplef# & Indicates that samples for the nonlinear functions in addition to samples of regression coefficients should be stored. & - \\
 \hline
 #updatem# & Specifies the method for updating regression coefficients in the MCMC sampler. #update=direct# uses direct updating
-by sampling from the full conditionals in case of gaussian responses or by IWLS proposals in case of nongaussian responses  , #update=orthogonal# uses orthogonal bases as described in \citeasnoun{LanUml14}. & #updatem=direct# \\
+by sampling from the full conditionals in case of gaussian responses or by IWLS proposals in case of non-gaussian responses  , #update=orthogonal# uses orthogonal bases as described in \citeasnoun{LanUml14}. & #updatem=direct# \\
 \hline
 \end{tabular}
 {\em\caption{\label{mcmcregoptions2} Optional arguments for mcmcreg
@@ -1039,6 +1038,117 @@ A model with constant parameter $\sigma$ not depending on covariates is given by
 \index{Hierarchical models} \label{mcmcregmultilevelsyntax}
 \index{Multilevel models}
 
+\paragraph{Random intercept models}
+
+$ $ \\
+
+As already mentioned at various places in the manuals, BayesX is able to specify and estimate hierarchical or
+multilevel models, see section \ref{star_multilevel} in the methodology manual and in particular the paper by
+\citeasnoun{LanUml14}. Suppose we want to estimate a homoscedastic Gaussian regression model with response variable
+$y$, P-spline effects $f_1(X1)$ and $f_2(X2)$ for the continuous covariates $X1$ and $X2$, and a random intercept for the
+cluster variable $C$. Assume further that $X1$ is an individual specific covariate whereas $X2$ is a cluster specific covariate
+according to the cluster variable $C$. Then the model can be specified as:
+
+#b.hregress y = const + X1(pspline)  + X2(pspline) + C(random) , family=normal#
+
+#equationtype=mu using d#
+
+As an alternative to this specification, the model could be defined in hierarchical form. To do so we first need a second dataset dC, say,
+where the unique observations of the two cluster variables $C$ and $x2$ are stored. The first 5 lines of this dataset in ASCII format may look like this:
+
+\begin{verbatim}
+C X2
+1 -2.3
+2 2.2
+3 1.4
+4 3
+5 -1.6
+\end{verbatim}
+
+Note that the values of the cluster variable C must be stored in increasing order (!). Now the model can be reformulated in hierarchical order as
+follows: 
+
+#b.hregress C = X2(pspline) , family=gaussian_re equationtype=mu using dC#
+
+#b.hregress y = const + X1(pspline)  + C(hrandom) , family=normal# 
+
+#equationtype=mu using d#
+
+In this form we have defined the random intercept with additional nonlinear covariate effect of the cluster specific
+variable $X2$ using a separate equation. While this specification is formally equivalent to the first
+model definition, estimation is now carried out in the hierarchical way as described in detail in \citeasnoun{LanUml14}. The hierarchical
+formulation is usually more favorable as the computing time for every iteration is reduced and also the mixing of the MCMC sampler (sometimes
+dramatically) improves.
+
+\paragraph{Random slope models}
+
+$ $ \\
+
+It is also possible estimate random slopes hierarchically. Suppose we want to estimate an interaction effect (random slope) between the individual specific covariate $X1$ and the cluster variable $C$. In non-hierarchical form we obtain:
+
+#b.hregress y = const + X1(pspline)  + X2(pspline) + C(random) + X1*C(random) ,#
+#family=normal equationtype=mu using d#
+
+The same model in hierarchical form is given as:
+
+#b.hregress C = X2(pspline) , family=gaussian_re equationtype=mu using dC#
+
+#dC.generate C2 = C#
+
+#b.hregress C2 = const , family=gaussian_re equationtype=mu using dC#
+
+#d.generate C2 = C#
+
+#b.hregress y = const + X1(pspline)  + C(hrandom) + X1*C2(hrandom) ,# 
+
+#family=normal equationtype=mu using d#
+
+Note that we have to duplicate the cluster variable C in both datasets in order to distinguish the random slope equation
+from the random intercept equation. 
+
+
+\paragraph{Three level models}
+
+$ $ \\
+
+BayesX is able to estimate hierarchical models with arbitrary number of hierarchy levels. Suppose there is another cluster variable 
+D which is nested in C. Suppose further that we have an additional covariate X3 at cluster level D. Then a three level random intercept 
+model is defined hierarchically as follows:
+
+#b.hregress C = X3   , family=gaussian_re equationtype=mu using dD#
+
+#b.hregress C = X2(pspline) + D(hrandom)  , family=gaussian_re# 
+
+#equationtype=mu using dC#
+
+#b.hregress y = const + X1(pspline)  + C(hrandom) , family=normal#
+
+#equationtype=mu using d#
+
+Here the cluster level dataset for variable D is dD. For the cluster level covariate X3 a linear effect is assumed. 
+
+Random slope models could be defined analogously. 
+
+\paragraph{Placing the overall intercept}
+
+$ $ \\
+ 
+Placing the overall intercept in hierarchical models is a delicate issue as it can have a strong impact on the
+mixing behaviour of the resulting Markov chains.
+Usually the best option is to place the overall intercept in the lowest level random intercept equation. In doing so our 
+previous model becomes
+
+#b.hregress C = const + X3   , family=gaussian_re equationtype=mu using dD#
+
+#b.hregress C = X2(pspline) + D(hrandom)  , family=gaussian_re#
+
+#equationtype=mu using dC#
+
+#b.hregress y = X1(pspline)  + C(hrandom) , family=normal#
+#equationtype=mu using d#
+
+
+
 \subsection{Options}
 \label{mcmcregregressoptions}
 
@@ -1162,7 +1272,7 @@ pointwise posterior credible intervals for every effect in the
 model. In a Bayesian approach based on MCMC simulation techniques
 credible intervals are estimated by computing the respective
 quantiles of the sampled effects. By default, {\em BayesX}
-computes (pointwise) credible intervals for nominal levels of 80\%
+computes pointwise as well as simultaneous credible intervals for nominal levels of 80\%
 and 95\%. The option #level1# allows to redefine one of the
 nominal levels (95\%). Adding, for instance,
 
@@ -1177,7 +1287,7 @@ pointwise posterior credible intervals for every effect in the
 model. In a Bayesian approach based on MCMC simulation techniques
 credible intervals are estimated by computing the respective
 quantiles of the sampled effects. By default, {\em BayesX}
-computes (pointwise) credible intervals for nominal levels of 80\%
+computes pointwise as well as simultaneous credible intervals for nominal levels of 80\%
 and 95 \%. The option #level2# allows to redefine one of the
 nominal levels (80\%). Adding, for instance,
 
@@ -1187,35 +1297,35 @@ to the options list computes credible intervals for a nominal
 level of 70\% rather than 80\%.
 Option #level2# must be specified in the first equation of the model, otherwise the option will be ignored.
 \item \label{MCMCpredict} #predict# \\
-\index{DIC} \index{Deviance} 
-\index{Deviance information criterion} 
+\index{DIC} \index{Deviance}
+\index{Deviance information criterion}
  \index{Predicted values}
 Option #predict# may be specified to compute predicted values, samples of the deviance
 $D$, the deviance
-information criterion $DIC$ etc. The following specifications are possible:
+information criterion $DIC$, etc. The following specifications are possible:
 \begin{itemize}
 \item #predict=no# \\
-This the default specification, i.e. predicted values are not computed. 
+This the default specification, i.e. predicted values are not computed.
 \item #predict=full# \\
 This specification computes and reports the model
 deviance, the DIC, posterior means, medians, standard deviations and some quantiles of the
 predictor, the estimated parameter and the expected value. The deviance and DIC
-are reported in the regression output as well as in a file which ends with 
+are reported in the regression output as well as in a file which ends with
 ``predict\_DIC.res''. The other results are stored in a file which ends with ``predict.res''.
 
-Regarding the computation of the DIC and related quantities please take a look at page 
+Regarding the computation of the DIC and related quantities please take a look at page
 \pageref{predict}.
 
 \item #predict=fulls# \\
 This specification provides the same output as #predict=full#. If method #getsample#
 is applied after method #hregress# then #predict=fulls# provides an additional file (which ends with
-``predict\_sample.raw'') 
+``predict\_sample.raw'')
 with all
-samples of the computed quantities. Note that the size of the output file is even for very simple models
-is huge because the number of sampled quantities is proportional to the number of observations. Usually it is
+samples of the computed quantities. Note that the size of the output file is huge even for very simple models
+because the number of sampled quantities is proportional to the number of observations. Usually it is
 not necessary to store all samples of the quantities obtained with #predict=full# or #predict=fulls#. Therefore
-the specification #predict=full# is favorable compared to #predict=fulls#. 
- 
+the specification #predict=full# is favorable compared to #predict=fulls#.
+
 % \item #predict=light#
 %\item #predict=predictor#
 
@@ -1237,27 +1347,26 @@ quantiles may be obtained by specifying the #level1# and/or
 #level2# option, see \autoref{mcmcregregressoptions} for details.
 Additionally a file is created where estimation results for fixed
 effects are replicated. The name of the file is given in the {\em
-output window} and/or in a log file. 
+output window} and/or in a log file.
 
 Estimation effects of
 nonlinear effects of continuous and spatial covariates as well as
 unstructured random effects are presented in a different way.
 Results are stored in an external ASCII-file whose contents can be
-read into any general purpose statistics program (e.g.~STATA, R,
-S-plus) to further analyze and/or visualize the results. The
+read into any general purpose statistics program (e.g.~STATA, R) to further analyze and/or visualize the results. The
 structure of the files is as follows: There will be one file for
 every (nonparametric) effect in the model. The name of the files and
 the storing directory are displayed in the {\em output window}
 and/or a log file. The files contain 17 or 18 columns
 depending on whether the corresponding model term is an
-interaction effect. 
+interaction effect.
 The first column contains an index
 (starting with one), the second column (and the third column if
 the estimated effect is an interaction effect) contain the
 values of the covariate(s) whose effect is estimated. In the
 following columns the estimation results are given in form of the
 posterior means, standard deviations and the 2.5\%, 10\%, 50\%, 90\% and 97.5\%
-pointwise credible intervals. 
+pointwise credible intervals.
 Other quantiles may be obtained by specifying the #level1# and/or
 #level2# option, see \autoref{mcmcregregressoptions} for details.
 The next  two columns contain posterior probabilities
@@ -1265,7 +1374,7 @@ based on nominal levels of 95\% and 80\%. A value of 1 corresponds
 to a strictly positive 95\% or 80\% credible interval and a value
 of -1 to a strictly negative credible interval. A value of 0
 indicates that the corresponding credible interval contains zero.
-The remaining 6 columns provide simultaneous credible intervals together 
+The remaining 6 columns provide simultaneous credible intervals together
 with their corresponding posterior probabilities. The simultaneous credible intervals
 are computed according to a proposal by  \citeasnoun{krikne10}.
 
@@ -1277,8 +1386,8 @@ with plotting facilities may be used as well.
 \subsection{Examples}
 
 Here we give only a few examples about the usage of method
-#hregress#. More detailed examples can be found in chapter
-?? of the tutorial manual.
+#hregress#. 
+% More detailed examples can be found in chapter ?? of the tutorial manual.
 
 Suppose that we have a data set #test# with a continuous response
 variable #y#, and covariates  #x1#, #x2# and #x3#. Suppose further
@@ -1287,17 +1396,17 @@ that we have already created a {\em mcmcreg object} #b#.
 \subsubsection{Single equation and parameter models}
 
 We start by specifying Gaussian regression models for the response variable #y#
-with homoscedastic variance $\sigma^2$, i.e. we define only a predictor for the mean 
-$\mu$ of the normal distribution.  
+with homoscedastic variance $\sigma^2$, i.e. we define only a predictor for the mean
+$\mu$ of the normal distribution.
 
-\paragraph{Fixed effects} 
+\paragraph{Fixed effects}
 $$$$
-We first specify a model with 
+We first specify a model with
 fixed effects for the covariates #x1#, #x2# and #x3#. Hence the
 predictor for $\mu$ is
 
 $$
-\eta = \gamma_0 + \gamma_1 x1 + \gamma_2 x2 + \gamma_3 x3
+\eta = \gamma_0 + \gamma_1 x1 + \gamma_2 x2 + \gamma_3 x3.
 $$
 
 This model is estimated by typing:
@@ -1305,15 +1414,15 @@ This model is estimated by typing:
 #> b.hregress y = const + x1 + x2 + x3, iterations=12000 burnin=2000# \\
 #  step=10 family=normal using test#
 
-Here, #step=10# defines the thinning parameter, i.e.~only every
+Here, #step=10# defines the thinning parameter, i.e.~every
 10th sampled parameter will be stored and used for estimation.
 #test# is the data set that is used for estimation. By specifying
-option #family=normal#, a Gaussian regression model is estimated. 
+option #family=normal#, a Gaussian regression model is estimated.
 
 \paragraph{Additive models}
 $$$$
 Suppose now that we want to allow for possibly nonlinear effects
-of #x2# and #x3#. Defining cubic P-splines with second order
+of #x2# and #x3#. Assuming cubic P-splines with second order
 random walk penalty as smoothness priors, we obtain
 
 #> b.hregress y = const + x1 + x2(pspline) + x3(pspline), iterations=12000 #\\
@@ -1369,8 +1478,8 @@ unstructured component. This is done by typing
 \subsubsection{Multiple equation and parameter models}
 
 We now add another equation for the variance of the Gaussian regression
-model. We assume the same complex predictor for the mean and variance equation 
-as in the previous section and specify the two equations by: 
+model. We assume the same complex predictor for the mean and variance equation
+as in the previous section and specify the two equations by:
 
 #> b.hregress y = const + x1 + x2(psplinerw2) + x3(psplinerw2) + # \\
 #   region(spatial,map=m) + region(random), iterations=12000 #\\
@@ -1387,13 +1496,13 @@ Note also that MCMC specific details should only be specified in the first equat
 In fact, a possible specification in the second or following equations will be ignored.
 
 In both equations we estimate region specific random effects and a smooth spatial effect. It is therefore
-favorable to rewrite the model in multilevel form. This done using the following commands: 
+favorable to rewrite the model in multilevel form. This done using the following commands:
 
 
 #> b.hregress region = const  + region2(spatial,map=m) , iterations=12000 # \\
 #  burnin=2000 step=10 family=gaussian_re equationtype=sigma2 using regiondata# \\
 
-#> b.hregress y =  x1 + x2(psplinerw2) + x3(psplinerw2) + region(hrandom), # \\ 
+#> b.hregress y =  x1 + x2(psplinerw2) + x3(psplinerw2) + region(hrandom), # \\
 #  family=normal equationtype=sigma2 using test#
 
 
@@ -1404,9 +1513,9 @@ favorable to rewrite the model in multilevel form. This done using the following
 #> b.hregress y = const + x1 + x2(psplinerw2) + x3(psplinerw2) + # \\
 #  region(hrandom),  family=normal equationtype=mu using test# \\
 
-The model contains now two more equations for the random effects. We shifted the overall intercept into 
+The model contains now two more equations for the random effects. We shifted the overall intercept into
 the random effects equations to improve the mixing of MCMC samples, see \citeasnoun{LanUml14} for an explanation.
-The smooth spatial effect is also contained in the random effects equations to improve mixing and speed up computations. 
+The smooth spatial effect is also contained in the random effects equations to improve mixing and speed up computations.
 
 \section{Method autocor}
 \label{mcmcautocorr} \index{mcmcreg object!Autocor command}
@@ -1416,10 +1525,10 @@ The smooth spatial effect is also contained in the random effects equations to i
 This method is a post estimation command, i.e.~its usage is
 meaningful only if method #hregress# has been applied before. Method
 #autocor# computes the autocorrelation functions of all sampled (and
-stored) parameters. 
+stored) parameters.
 
 The usage of method #autocor# is identical to its corresponding counterpart for {\em
-bayesreg objects}, see section \ref{bayesautocorr} for details.  
+bayesreg objects}, see section \ref{bayesautocorr} for details.
 
 
 \section{Method getsample}
@@ -1505,476 +1614,3 @@ after every 100th iteration.
 
 Visualization of estimation results is described in
 \autoref{visualization}.
-
-\section{Examples}
-\label{bayesregexamples}
-
-In this Section we present a couple of complex examples about the
-usage of {\em bayesreg objects}. The first example contains a
-reanalysis of the 'credit scoring' data set that is described in
-\autoref{creditdata}, which contains also a (incomplete) list of
-some publications where the 'credit scoring' data set has already
-been analyzed. The second example is a Bayesian analysis of
-determinants of childhood undernutrition in Zambia. The data set is
-described in \autoref{zambia}. This section contains also a list of
-publications where the data set has been analyzed. Both data sets
-are shipped together with {\em BayesX} and are stored in the
-directory #examples#, which is a subdirectory of the installation
-directory. Since the main focus here is on illustrating the usage of
-{\em bayesreg objects}, we omit any interpretation of estimated
-effects.
-
-
-\subsection{Binary data: credit scoring}
-\label{creditanalyse}
-
-All {\em BayesX} statements of this section can be found in the
-#examples# directory in the file #credit.prg#. In principle, the
-commands in #credit.prg# can be executed using the #usefile# command
-for running batch files, see \autoref{batch}. Note, however, that
-the specified directories therein may not exist on your computer.
-Thus, to avoid errors, the file must be modified first to execute
-correctly.
-
-\subsubsection{Reading the data into BayesX}
-
-
-In order to analyze the 'credit scoring' data set, we first have to
-load the data set into {\em BayesX}. For the rest of this section we
-assume that {\em BayesX} is installed in the directory
-#c:#$\backslash$#bayes#. In this case, the 'credit scoring' data set
-can be found in #c:#$\backslash$#bayes#$\backslash$#examples# under
-the name #credit.raw#. With the following two commands (entered in
-the {\em command window}) we first create a {\em dataset object}
-#credit# and afterwards load the data set into {\em BayesX} using
-the #infile# command:
-
-#> dataset credit# \\
-#> credit.infile using c:\bayes\examples\credit.res#
-
-Since the first row of the file already contains the variable names,
-it is not necessary to specify variable names in the #infile#
-statement. If the first row of the data set does not contain the
-variable names, they must be additionally specified in the #infile#
-command, e.g.~for the 'credit scoring' data set we get
-
-#> credit.infile y account duration amount payment intuse marstat# \\
-#  using c:\bayes\examples\credit.res#
-
-
-We now compute effect coded versions of the categorical covariates
-#account#, #payment#, #intuse# and #marstat#:
-
-#> credit.generate account1  = 1*(account=1)-1*(account=3)# \\
-#> credit.generate account2  = 1*(account=2)-1*(account=3)# \\
-#> credit.generate payment1 = 1*(payment=1)-1*(payment=2)# \\
-#> credit.generate intuse1 = 1*(intuse=1)-1*(intuse=2)# \\
-#> credit.generate marstat1 = 1*(marstat=1)-1*(marstat=2)#
-
-The reference categories for the covariates are chosen to be 3 for
-#account# and 2 for the others.
-
-\subsubsection{Creating a bayesreg object}
-
-Before we are able to estimate Bayesian regression models, we first
-have to create a {\em bayesreg object}:
-
-#> bayesreg b# \\
-#> b.outfile = c:\results\credit#
-
-The second command changes the default output directory and name
-(which is #c:\bayes\output\b#) to #c:\results\credit#. This means
-that subsequent regression output is stored in the directory
-#c:\results# and that all filenames start with #credit#.
-
-\subsubsection{Probit models}
-
-\label{credit_probit} We can now start estimating models. We first
-describe how probit models are estimated. The estimation of probit
-models is slightly faster than logit models because the full
-conditionals of the effects are Gaussian.
-
-We first estimate a model with fixed effects only:
-
-#> b.regress  y = account1 + account2 + duration + amount + payment1 + intuse1 #\\
-#  + marstat1, predict iterations=6000 burnin=1000 step=5 family=binomialprobit # \\
-#  using credit #
-
-Here we specified 6000 iterations, a burnin period of 1000
-iterations and a thinning parameter of 5, i.e.~every 5th sampled
-parameter will be stored and used for estimation. The additional
-option \hyperref[predict]{#predict#} is used to compute samples of
-the deviance, the effective number of parameters, the deviance
-information criterion (DIC), predicted means etc.
-
-Executing the command yields the following output (simulation output
-omitted):
-
-\small
-
-\begin{verbatim}
-
-SIMULATION TERMINATED
-
-SIMULATION RUN TIME: 13 seconds
-
-
-ESTIMATION RESULTS:
-
-  Predicted values:
-
-  Estimated mean of predictors, expectation of response and
-  individual deviances are stored in file
-  c:\results\credit_predictmean.raw
-
-  Estimation results for the Deviance:
-
-  Unstandardized Deviance (-2*Loglikelihood(y|mu))
-
-  Mean:             1027.05
-  Std. Dev:         4.22501
-  2.5% Quantile:    1021.01
-  10% Quantile:     1022.48
-  50% Quantile:     1026.29
-  90% Quantile:     1032.73
-  97.5% Quantile:   1037.28
-
-  Saturated Deviance (-2*Loglikelihood(y|mu) + 2*Loglikelihood(y|mu=y))
-
-  Mean:             1027.05
-  Std. Dev:         4.22501
-  2.5% Quantile:    1021.01
-  10% Quantile:     1022.48
-  50% Quantile:     1026.29
-  90% Quantile:     1032.73
-  97.5% Quantile:   1037.28
-
-  Samples of the deviance are stored in file
-  c:\results\credit_deviance_sample.raw
-
-  Estimation results for the DIC:
-
-  DIC based on the unstandardized Deviance
-
-  Deviance(bar_mu):           1018.85
-  pD:                         8.20049
-  DIC:                        1035.26
-
-  DIC based on the saturated Deviance
-
-  Deviance(bar_mu):           1018.85
-  pD:                         8.20049
-  DIC:                        1035.26
-
-
-
-
-  FixedEffects1
-
-
-  Acceptance rate:    100 %
-
-
-  Variable  mean           Std. Dev.      2.5% quant.    median         97.5% quant.
-  const     -0.715437      0.117673       -0.9464        -0.710836      -0.49298
-  account1  -0.629553      0.0684571      -0.764526      -0.6244        -0.50343
-  account2  0.50699        0.0625032      0.389608       0.506698       0.63888
-  duration  0.0204795      0.00471734     0.0111948      0.0205776      0.0298505
-  amount    0.0172111      0.0189096      -0.0173778     0.0167277      0.0542619
-  payment1  -0.2919        0.0762402      -0.438703      -0.288309      -0.152512
-  intuse1   -0.137287      0.0477423      -0.228492      -0.137755      -0.041511
-  marstat1  -0.158195      0.0476991      -0.254198      -0.157534      -0.0663364
-
-  Results for fixed effects are also stored in file
-  c:\results\credit_FixedEffects1.res
-\end{verbatim}
-
-
-\normalsize
-
-Somewhat surprisingly, we observe that the amount of credit seems to
-have no ('significant') influence on the response. To check this
-phenomenon more carefully, we run a second estimation, now allowing
-for possibly nonlinear effects of the continuous covariates #amount#
-and #duration#. We choose cubic P-splines with second order random
-walk penalty as smoothness priors and modify the #regress# statement
-above according to the new model:
-
-#> b.regress  y = account1 + account2 + duration(psplinerw2) + amount(psplinerw2)# \\
-#  + payment1 + intuse1 + marstat1, predict iterations=6000 burnin=1000 step=5# \\
-#  family=binomialprobit using credit #
-
-We get the following output for the nonlinear functions (output for
-the rest omitted):
-
-\small
-
-\begin{verbatim}
-
-  f_duration_pspline
-
-
-  Acceptance rate:    100 %
-
-  Results are stored in file c:\results\credit_f_duration_pspline.res
-
-  Postscript file is stored in file c:\results\credit_f_duration_pspline.ps
-
-  Results may be visualized using method 'plotnonp'
-  Type for example: objectname.plotnonp 1
-
-
-  f_duration_pspline_variance
-
-
-  Acceptance rate:    100 %
-
-  Estimation results for the variance component:
-
-  Mean:             0.00787338
-  Std. dev.:        0.0100301
-  2.5% Quantile:    0.00128376
-  10% Quantile:     0.00190016
-  50% Quantile:     0.00487717
-  90% Quantile:     0.0157856
-  97.5% Quantile:   0.0315107
-
-  Results for the variance component are also stored in file
-  c:\results\credit_f_duration_pspline_var.res
-
-
-  f_amount_pspline
-
-
-  Acceptance rate:    100 %
-
-  Results are stored in file c:\results\credit_f_amount_pspline.res
-
-  Postscript file is stored in file c:\results\credit_f_amount_pspline.ps
-
-  Results may be visualized using method 'plotnonp'
-  Type for example: objectname.plotnonp 3
-
-
-  f_amount_pspline_variance
-
-
-  Acceptance rate:    100 %
-
-  Estimation results for the variance component:
-
-  Mean:             0.00870842
-  Std. dev.:        0.0115895
-  2.5% Quantile:    0.0013844
-  10% Quantile:     0.00220351
-  50% Quantile:     0.00570725
-  90% Quantile:     0.0164858
-  97.5% Quantile:   0.0340326
-
-  Results for the variance component are also stored in file
-  c:\results\credit_f_amount_pspline_var.res
-\end{verbatim}
-
-
-\normalsize
-
-
-We  visualize estimated effects for #amount# and #duration# using
-method #plotnonp# (as advised by the program):
-
-#> b.plotnonp 1, outfile="c:\results\credit_duration.ps"#\\
-#> b.plotnonp 3, outfile="c:\results\credit_amount.ps"#
-
-This produces the graphs (stored in postscript files) shown in
-\autoref{creditfigures}.
-
-\begin{figure}[ht]
-\vspace{0.5cm}
-\begin{center}
-\includegraphics[scale=0.65]{grafiken/credit_duration.ps}
-
-\vspace{0.5cm}
-\includegraphics[scale=0.65]{grafiken/credit_amount.ps}
-\end{center}
-{\em\caption{ \label{creditfigures} Estimated effects of {\em\tt duration}
-and {\em\tt amount} of credit. Shown is the posterior mean within 80\% and
-95\% credible regions.}}
-\end{figure}
-
-We add a title, x-axis and y-axis labels by typing \hfill
-
-#> b.plotnonp 1, outfile="c:\results\credit_duration.ps" replace #\\
-#  xlab="duration" ylab="f(duration)" title="effect of duration"#
-
-#> b.plotnonp 3, outfile="c:\results\credit_amount.ps" replace# \\
-#  xlab="amount" ylab="f(amount)" title="effect of amount"#
-
-and obtain the improved graphs shown in \autoref{creditfigures_2}.
-The option #replace# is specified to allow {\em BayesX} to overwrite
-the previously generated postscript files. If the #outfile# option
-is omitted, the graphs are printed on the screen rather than being
-stored as postscript files.
-
-\begin{figure}[ht]
-\vspace{0.5cm}
-\begin{center}
-\includegraphics[scale=0.65]{grafiken/credit_duration_2.ps}
-
-\vspace{0.5cm}
-\includegraphics[scale=0.65]{grafiken/credit_amount_2.ps}
-\end{center}
-{\em\caption{ \label{creditfigures_2} Improved plots of the effect
-of {\em\tt duration} and {\em\tt amount}.}}
-\end{figure}
-
-
-We now want to check the mixing of the generated Markov chains,
-although the mixing for probit models is usually excellent. For that
-reason we compute and plot the autocorrelation functions by typing:
-
-#> b.plotautocor, outfile="c:\results\credit_autocor.ps"#
-
-We obtain the file
-#c:#$\backslash$#results#$\backslash$#credit_autocor.ps# containing
-9 pages of autocorrelation functions for all parameters in the
-model. The first page of this file is shown in
-\autoref{credit_autocor1}. We see that autocorrelations die off very
-quickly.
-
-\begin{figure}[ht]
-\vspace{0.5cm}
-\begin{center}
-\includegraphics[scale=0.8]{grafiken/credit_autocor1.ps}
-\end{center}
-{\em\caption{ \label{credit_autocor1} First page of the
-autocorrelation file.}}
-\end{figure}
-
-\clearpage
-
-\subsubsection{Logit models}
-
-A logit model rather than a probit model is estimated by replacing
-#family=binomialprobit# with #family=binomial#:
-
-#> b.regress  y = account1 + account2 + duration(psplinerw2) + amount(psplinerw2)# \\
-#  + payment1 + intuse1 + marstat1, predict iterations=6000 burnin=1000 step=5# \\
-#  family=binomial using credit#
-
-In contrast to binary probit models, the full conditionals for the
-regression coefficients are no longer Gaussian. {\em BayesX} offers
-3 different types of proposal densities. These are iteratively
-weighted least squares (IWLS) proposals based either on the current
-state of the parameters or on the posterior modes as described in
-\autoref{IWLS} or \citeasnoun{BreLan06}, and conditional prior
-proposals as described in \citeasnoun{FahLan01b}. We recommend
-the usage of IWLS proposals, since no tuning is required and mixing
-properties are superior to those of conditional prior proposals. The
-default are IWLS proposals based on the current state of the
-parameters. The following statement causes {\em BayesX} to use IWLS
-proposals based on posterior modes, which usually yield even higher
-acceptance probabilities compared to ordinary IWLS proposals:
-
-#> b.regress  y = account1 + account2 + duration(psplinerw2,proposal=iwlsmode)# \\
-#  + amount(psplinerw2,proposal=iwlsmode) + payment1 + intuse1 + marstat1,# \\
-#  predict iterations=6000 burnin=1000 step=5# \\
-#  family=binomial using credit#
-
-As for the probit model, we visualize the estimated nonlinear
-effects of #duration# and #amount# using method #plotnonp#:
-
-#> b.plotnonp 1 , outfile="c:\results\credit_logit_duration.ps" replace# \\
-#  xlab="duration" ylab="f(duration)" title="effect of duration" #
-
-#> b.plotnonp 3 , outfile="c:\results\credit_logit_amount.ps" replace# \\
-#  xlab="amount" ylab="f(amount)" title="effect of amount" #
-
-The resulting graphs are shown in \autoref{creditlogit}. As could
-have been expected only the scale of the estimated effects differs
-(because of the logit link).
-
-\begin{figure}[ht]
-\vspace{0.5cm}
-\begin{center}
-\includegraphics[scale=0.65]{grafiken/credit_logit_duration.ps}
-
-\vspace{0.5cm}
-\includegraphics[scale=0.65]{grafiken/credit_logit_amount.ps}
-\end{center}
-{\em\caption{ \label{creditlogit} Effect of {\em\tt duration} and
-{\em\tt amount}, if a logit model is estimated rather than a probit
-model.}}
-\end{figure}
-
-Once again, to check the mixing of the sampled parameters we compute
-and plot the autocorrelation functions using method #plotautocor#:
-
-#> b.plotautocor, outfile="c:\results\credit_logit_autocor.ps"#
-
-The first page of the resulting postscript file is shown in
-\autoref{creditautocorlogit_1}. As can be seen, the autocorrelations
-for the logit model with IWLS proposals are almost as low as for the
-probit model.
-
-\begin{figure}[ht]
-\vspace{0.5cm}
-\begin{center}
-\includegraphics[scale=0.8]{grafiken/credit_logit_autocor1.ps}
-\end{center}
-{\em\caption{ \label{creditautocorlogit_1} First page of the
-autocorrelation file, if a logit model is estimated.}}
-\end{figure}
-
-\clearpage
-
-\subsubsection{Varying the hyperparameters}
-
-In the preceding examples we used the default hyperparameters
-#a=0.001# and #b=0.001# for the inverse gamma prior of the
-variances. In some situations, however, the estimated nonlinear
-functions may considerably depend on the particular choice of
-hyperparameters #a# and #b#. This may be the case for very low
-signal to noise ratios or/and small sample sizes. It is therefore
-highly recommended to estimate all models under consideration using
-a (small) number of {\em different} choices for #a# and #b#
-(e.g.~#a=1#,#b=0.005#; #a=0.001#,#b=0.001#; #a=0.0001#,#b=0.0001#)
-to assess the dependence of results on minor changes in the model
-assumptions. In that sense, the variation of hyperparameters can be
-used as a tool for model diagnostics.
-
-We estimate our probit model from \autoref{credit_probit} again, but
-now with hyperparameters #a=1.0#, #b=0.005# and #a=0.0001#,
-#b=0.0001#, respectively.
-
- #> b.regress  y = account1 + account2 + duration(psplinerw2,a=1.0,b=0.005) +# \\
- #  amount(psplinerw2,a=1.0,b=0.005) + payment1 + intuse1 + marstat1,# \\
- #  predict iterations=6000 burnin=1000 step=5 family=binomialprobit using credit #
-
- #> b.regress  y = account1 + account2 + duration(psplinerw2,a=0.0001,b=0.0001) +# \\
- #  amount(psplinerw2,a=0.0001,b=0.0001) + payment1 + intuse1 + marstat1, #\\
- #  predict iterations=6000 burnin=1000 step=5 family=binomialprobit using credit#
-
-\autoref{credit_varhyper} shows the estimated nonlinear effects of
-variables #duration# and #amount# with the different choices for #a#
-and #b#. We see that in this example estimation results differ only
-slightly for the different choices of #a# and #b#.
-
-
-\begin{figure}[ht]
-\vspace{0.5cm}
-\begin{center}
-\includegraphics[scale=0.4]{grafiken/credit_duration_a001b001.ps} \hspace{0.3cm}
-\includegraphics[scale=0.4]{grafiken/credit_amount_a001b001.ps}
-
-\vspace{0.5cm}
-\includegraphics[scale=0.4]{grafiken/credit_duration_a1b005.ps} \hspace{0.3cm}
-\includegraphics[scale=0.4]{grafiken/credit_amount_a1b005.ps}
-
-\vspace{0.5cm}
-\includegraphics[scale=0.4]{grafiken/credit_duration_a0001b0001.ps} \hspace{0.3cm}
-\includegraphics[scale=0.4]{grafiken/credit_amount_a0001b0001.ps}
-\end{center}
-{\em\caption{ \label{credit_varhyper} Results for the effect of
-{\em\tt duration} and {\em\tt amount} for different values of the
-hyperparameters for the variances.}}
-\end{figure}

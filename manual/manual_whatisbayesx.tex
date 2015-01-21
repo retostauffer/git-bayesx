@@ -29,7 +29,7 @@ separate regression objects:
     regression models in case of exponential family responses, categorical responses, hazard regression and multi-state models.
     Suitable proposal densities have been developed to obtain rapidly mixing, well-behaved sampling
     schemes without the need for manual tuning.
-\item {\bf\sffamily MCMC simulation techniques (mcmcreg objects):} Mcmcreg objects provide similar functionality for fully Bayesian inference as bayesreg objects but implement distributional regression models for responses beyond simple exponential families (distributional regression), quantile regression and multilevel models.
+\item {\bf\sffamily MCMC simulation techniques (mcmcreg objects):} Mcmcreg objects provide similar functionality for fully Bayesian inference as bayesreg objects but implement distributional regression models for responses beyond simple exponential families (distributional regression), quantile regression and multilevel models. Generally, estimation is more efficient (in terms of computing time) than with bayesreg objects. Therefore mcmcreg objects should be preferred to bayesreg objects if possible.
 \item{\bf\sffamily Mixed model based estimation (remlreg objects):} An increasingly popular way to estimate semiparametric
     regression models is the representation of penalisation approaches as mixed models. Within {\em BayesX }this concept
     has been extended to structured additive regression  models and several types of non-standard regression situations.
@@ -131,14 +131,14 @@ combinations of the following model terms:
 
 Note that parts of the functionality may be available for one of the regression objects only. For example, bayesreg objects do
 not support interval censored survival times while multinomial probit models can not be estimated with remlreg objects. Details
-can be found in the reference manual.
+can be found in the chapters corresponding to the specific object types.
 \end{stanza}
 
 \begin{stanza}{Further functionality}
 
 \begin{itemize}
 \item{\bf\sffamily Handling and manipulation of data sets:} {\em
-BayesX} provides a growing number of functions for handling and
+BayesX} provides a number of functions for handling and
 manipulating data sets, e.g. for reading ASCII data sets, creating
 new variables, obtaining summary statistics etc. Compare
 \autoref{datasetobj} for details.
