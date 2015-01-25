@@ -1784,7 +1784,9 @@ double spline_basis::deriv_f(const double & x)
   for(unsigned i=0;i<nrpar;i++)
     res += beta(i,0)*(X(i,0)-X(i+1,0));
 
-  return res/h;
+  res = res/h;
+
+  return res;
   }
 
 
