@@ -127,9 +127,11 @@ const string & string::operator=(string & s)
   }
 
 
-const string & string::operator=(const char * s)
+const string & string::operator=(char * s)
   {
   delete [] str;
+//  char * help = s;
+//  len = strlen(help);
   len = strlen(s);
   str = new char[len+1];
   strcpy(str,s);
