@@ -548,7 +548,7 @@ bool STEPWISErun::single_stepwise(const vector<unsigned> & start,
     fullcond_alle[0]->setbeta(fullcond_alle[0]->get_nrpar(),1,0);
     }
 
-  if(hierarchical == true)
+  if(hierarchical)
     {
     for(i=fullcond_alle.size()-1;i>=1;i--)   // Abfrage, ob Startmodell hierarchisch ist!
        {
@@ -837,7 +837,7 @@ void STEPWISErun::schaetzen(int z, double & kriterium, bool neu, ST::string vari
   else if(variante == "nonpleer")
     {
     ST::string possible = "alles";
-    if(hierarchical == true)
+    if(hierarchical)
       fullcond_alle[z]->hierarchical(possible);
 
     if(criterion != "CV5" && criterion != "CV10")
@@ -1674,7 +1674,7 @@ void STEPWISErun::stepmin_nonp_fix(unsigned & z, vector<double> & krit_fkt, doub
   unsigned i;
 
   ST::string possible = "alles";
-  if(hierarchical == true)
+  if(hierarchical)
     fullcond_alle[z]->hierarchical(possible);
   if(possible == "valles")
     possible = "alles";
@@ -1781,7 +1781,7 @@ void STEPWISErun::stepmin_nonp_leer(unsigned & z, vector<double> & krit_fkt, dou
   unsigned i=0;
 
   ST::string possible = "alles";
-  if(hierarchical == true)
+  if(hierarchical)
     fullcond_alle[z]->hierarchical(possible);
   if(possible == "valles")
     possible = "alles";
