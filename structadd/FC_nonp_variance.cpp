@@ -312,8 +312,8 @@ void FC_nonp_variance::update(void)
 
         if (u <= (fcnew - fcold - proposalnew + proposalold))
           {
-          gamma = gamma*gamma;
-          beta(0,0) = gamma;
+          double tau2 = gamma*gamma;
+          beta(0,0) = tau2;
           acceptance++;
           }
         }
@@ -333,8 +333,8 @@ void FC_nonp_variance::update(void)
 
         if (u <= (fcnew - fcold - proposalnew + proposalold))
           {
-          gamma = exp(gamma);
-          beta(0,0) = gamma;
+          double tau2 = exp(gamma);
+          beta(0,0) = tau2;
           acceptance++;
           }
         }
