@@ -641,6 +641,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_hrandom_variance_ssvs> FC_hrandom_variance_ssvss;
 
   bool create_hrandom(unsigned i);
+  bool create_random(unsigned i);
 
 //------------------- end for hierarchical random effects ----------------------
 

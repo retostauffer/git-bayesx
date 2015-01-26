@@ -56,9 +56,10 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   protected:
 
-  DISTR * likep_RE;
 
   public:
+
+  DISTR * likep_RE;
 
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
@@ -74,6 +75,10 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
              GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl, DISTR * dp_RE,
              vector<ST::string> & op,
              vector<ST::string> & vn);
+
+  DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
+                                 GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl);
+
 
   // COPY CONSTRUCTOR
 

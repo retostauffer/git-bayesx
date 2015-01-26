@@ -635,10 +635,25 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     ST::string pathbasis = pathresults.substr(0,pathresults.length()-4) +
                                  "_basisR.res";
 
+   ofstream out2("c:\\bayesx\\trunk\\testh\\results\\tout.raw");
+
     outbasis_R(pathbasis);
+
 
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
+
+    out2 << paths << endl;
+
+    out2 << "family=" << likep->family.strtochar() << ",";
+    out2 << "hlevel=" << likep->hlevel << ",";
+    out2 << "equationtype=" << likep->equationtype.strtochar() << ",";
+    out2 << "term=sx("  << designp->datanames[0].strtochar()  << "),";
+    out2 << "filetype=nonlinear,";
+    out2 << "pathsamples=" << paths.strtochar() << ",";
+    out2 << "pathbasis=" << pathbasis.strtochar() << ",";
+
+   out2.close();
 
     out_R << "family=" << likep->family.strtochar() << ",";
     out_R << "hlevel=" << likep->hlevel << ",";

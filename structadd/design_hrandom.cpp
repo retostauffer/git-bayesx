@@ -86,7 +86,37 @@ DESIGN_hrandom::DESIGN_hrandom(void)
   }
 
 
+DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
+                               GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl)
+      : DESIGN(o,dp,fcl)
+  {
 
+  discrete = true;
+
+  type = Hrandom;
+
+  init_data(dm,iv);
+  nrpar = posbeg.size();
+
+  Zout = datamatrix(posbeg.size(),1,1);
+  index_Zout = statmatrix<int>(Zout.rows(),1);
+  index_Zout.indexinit();
+
+  consecutive = 1;
+
+  compute_Zout_transposed();
+
+  compute_penalty();
+
+  XWX = envmatdouble(0,nrpar);
+  XWres = datamatrix(nrpar,1);
+  Wsum = datamatrix(nrpar,1,1);
+
+  compute_precision(1.0);
+
+  centermethod=meansimplevar;
+
+  }
 
 
 DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
@@ -126,6 +156,8 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   centermethod=meansimplevar;
 
   }
+
+
 
 
 DESIGN_hrandom::DESIGN_hrandom(const DESIGN_hrandom & m)
