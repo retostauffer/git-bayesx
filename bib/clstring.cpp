@@ -129,12 +129,22 @@ const string & string::operator=(string & s)
 
 const string & string::operator=(char * s)
   {
-  delete [] str;
-//  char * help = s;
-//  len = strlen(help);
+/*  delete [] str;
   len = strlen(s);
   str = new char[len+1];
   strcpy(str,s);
+  return *this;*/
+  delete [] str;
+  char * help = s;
+  len = 0;
+  for(; *help != '\0'; ++help )
+    ++len;
+
+  str = new char[len+1];
+//  while ( *str++ = *s++ )
+//    ;
+  strcpy(str,s);
+
   return *this;
   }
 

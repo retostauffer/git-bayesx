@@ -1564,7 +1564,7 @@ void STEPWISErun::stepmin_nonp_nonp(unsigned & z, vector<double> & krit_fkt,doub
       fullcond_alle[0]->posteriormode_const();
     }
 
-  if(hierarchical == false)
+  if(!hierarchical)
     possible = "alles";
 
   fullcondp[0]->safe_const();

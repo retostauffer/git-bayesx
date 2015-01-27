@@ -1,7 +1,7 @@
 % usefile c:\bayesx\test\prg\binomial_logit_fixed.prg
 
 dataset d
-d.infile using c:\bayesx\test\testdata\binomial_logit_fixed.raw
+d.infile using c:\bayesx\trunk\test\testdata\binomial_logit_fixed.raw
 
 bayesreg b
 b.outfile = c:\cprog\bayesx\results\binomial_logit_fixed
