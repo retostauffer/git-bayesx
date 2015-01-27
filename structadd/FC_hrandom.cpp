@@ -83,9 +83,26 @@ FC_hrandom::FC_hrandom(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR
   {
   read_options(op,vn);
   likep_RE = lp_RE;
+  simplerandom=false;
   FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
   derivative=false;
   }
+
+
+FC_hrandom::FC_hrandom(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+                 const ST::string & t,const ST::string & fp,
+                 const ST::string & fp2, DESIGN * Dp,
+                 vector<ST::string> & op, vector<ST::string> & vn)
+     : FC_nonp(mp,enr,o,lp,t,fp,Dp,op,vn)
+  {
+  read_options(op,vn);
+  simplerandom=true;
+  simplerandom_linpred=datamatrix(beta.rows(),1,0);
+
+  FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
+  derivative=false;
+  }
+
 
 
 FC_hrandom::FC_hrandom(const FC_hrandom & m)
@@ -93,6 +110,8 @@ FC_hrandom::FC_hrandom(const FC_hrandom & m)
   {
   rtype = m.rtype;
   likep_RE = m.likep_RE;
+  simplerandom= m.simplerandom;
+  simplerandom_linpred = m.simplerandom_linpred;
   FCrcoeff = m.FCrcoeff;
   response_o = m.response_o;
   linpred_o = m.linpred_o;
@@ -110,6 +129,8 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   FC_nonp::operator=(FC_nonp(m));
   rtype = m.rtype;
   likep_RE = m.likep_RE;
+  simplerandom= m.simplerandom;
+  simplerandom_linpred = m.simplerandom_linpred;
   FCrcoeff = m.FCrcoeff;
   response_o = m.response_o;
   linpred_o = m.linpred_o;
@@ -128,13 +149,19 @@ void FC_hrandom::set_rcoeff(void)
 
 
   double * linpredREp;
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
-  else
-    linpredREp = likep_RE->linearpred2.getV();
 
-  for (i=0;i<beta.rows();i++,betap++,betarcoeffp++,linpredREp++)
-    *betarcoeffp = *betap - *linpredREp;
+  if (simplerandom)
+    linpredREp=simplerandom_linpred.getV();
+  else
+    {
+    if (likep_RE->linpred_current==1)
+      linpredREp = likep_RE->linearpred1.getV();
+    else
+      linpredREp = likep_RE->linearpred2.getV();
+
+    for (i=0;i<beta.rows();i++,betap++,betarcoeffp++,linpredREp++)
+      *betarcoeffp = *betap - *linpredREp;
+    }
 
   }
 
@@ -154,10 +181,15 @@ void FC_hrandom::update_IWLS(void)
   double * betaoldp = betaold.getV();
 
   double * linpredREp;
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
+  if (simplerandom)
+    linpredREp=simplerandom_linpred.getV();
   else
-    linpredREp = likep_RE->linearpred2.getV();
+    {
+    if (likep_RE->linpred_current==1)
+      linpredREp = likep_RE->linearpred1.getV();
+    else
+      linpredREp = likep_RE->linearpred2.getV();
+    }
 
   if (likelihoodc.rows() <=1)
     {
@@ -229,10 +261,15 @@ void FC_hrandom::update_IWLS(void)
     betap = beta.getV();
     betaoldp = betaold.getV();
 
-    if (likep_RE->linpred_current==1)
-      linpredREp = likep_RE->linearpred1.getV();
+    if (simplerandom)
+      linpredREp=simplerandom_linpred.getV();
     else
-      linpredREp = likep_RE->linearpred2.getV();
+      {
+      if (likep_RE->linpred_current==1)
+        linpredREp = likep_RE->linearpred1.getV();
+      else
+        linpredREp = likep_RE->linearpred2.getV();
+      }
 
     double * betadiffp = betadiff.getV();
 
@@ -295,8 +332,11 @@ void FC_hrandom::update(void)
   FCrcoeff.acceptance++;
   FCrcoeff.update();
 
-  likep_RE->workingresponse.assign(beta);
-  likep_RE->response.assign(beta);
+  if (simplerandom==false)
+    {
+    likep_RE->workingresponse.assign(beta);
+    likep_RE->response.assign(beta);
+    }
 
   // TEST
   //  ofstream out("c:\\bayesx\\testh\\results\\response_h.res");
@@ -497,9 +537,11 @@ bool FC_hrandom::posteriormode_additive(void)
 
   bool conv2 = FCrcoeff.posteriormode();
 
-  likep_RE->workingresponse.assign(beta);
-  likep_RE->response.assign(beta);
-
+  if (simplerandom==false)
+    {
+    likep_RE->workingresponse.assign(beta);
+    likep_RE->response.assign(beta);
+    }
 
   // TEST
   /*
@@ -635,25 +677,12 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
     ST::string pathbasis = pathresults.substr(0,pathresults.length()-4) +
                                  "_basisR.res";
 
-   ofstream out2("c:\\bayesx\\trunk\\testh\\results\\tout.raw");
-
     outbasis_R(pathbasis);
 
 
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out2 << paths << endl;
-
-    out2 << "family=" << likep->family.strtochar() << ",";
-    out2 << "hlevel=" << likep->hlevel << ",";
-    out2 << "equationtype=" << likep->equationtype.strtochar() << ",";
-    out2 << "term=sx("  << designp->datanames[0].strtochar()  << "),";
-    out2 << "filetype=nonlinear,";
-    out2 << "pathsamples=" << paths.strtochar() << ",";
-    out2 << "pathbasis=" << pathbasis.strtochar() << ",";
-
-   out2.close();
 
     out_R << "family=" << likep->family.strtochar() << ",";
     out_R << "hlevel=" << likep->hlevel << ",";

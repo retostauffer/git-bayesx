@@ -61,6 +61,8 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   DISTR * likep_RE;
 
+  bool simplerandom;
+  datamatrix simplerandom_linpred;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -77,7 +79,8 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
              vector<ST::string> & vn);
 
   DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-                                 GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl);
+                                 GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl,
+                                 vector<ST::string> & vn);
 
 
   // COPY CONSTRUCTOR

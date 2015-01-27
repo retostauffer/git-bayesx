@@ -7118,45 +7118,21 @@ bool superbayesreg::create_random(unsigned i)
   {
 
   unsigned modnr = equations.size()-1;
-  unsigned fnr=modnr+1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
              "_hrandom.raw","random_effect_of","Random effect of ");
 
   ST::string pathnonp2 = pathnonp.substr(0,pathnonp.length()-4)  + "_2.res";
 
-
-  equations.push_back(equation(fnr+1,2,equations[modnr].equationtype));
-
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
   design_hrandoms.push_back(DESIGN_hrandom(d,iv,&generaloptions,
                             equations[modnr].distrp,
-                            &FC_linears[FC_linears.size()-1]));
-
-  unsigned j;
-  unsigned diff = design_hrandoms[design_hrandoms.size()-1].posbeg.size();
-  datamatrix ddiff(diff,1,0);
-  datamatrix w(diff,1,1);
-
-  for (j=0;j<diff;j++)
-    {
-    ddiff(j,0) = design_hrandoms[design_hrandoms.size()-1].data(design_hrandoms[design_hrandoms.size()-1].posbeg[j],0);
-    }
-
-
-  distr_gaussian_res.push_back(DISTR_gaussian_re(&generaloptions,ddiff,w));
-  design_hrandoms[design_hrandoms.size()-1].likep_RE =  &distr_gaussian_res[distr_gaussian_res.size()-1];
-
-
-  equations[fnr].distrp = &distr_gaussian_res[distr_gaussian_res.size()-1];
-  equations[fnr].pathd = "";
-
-
+                            &FC_linears[FC_linears.size()-1],terms[i].varnames));
 
   FC_hrandoms.push_back(FC_hrandom(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
-                        equations[fnr].distrp, title,pathnonp,pathnonp2,
+                         title,pathnonp,pathnonp2,
                         &design_hrandoms[design_hrandoms.size()-1],
                         terms[i].options,terms[i].varnames));
 
@@ -7167,11 +7143,8 @@ bool superbayesreg::create_random(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_hrandom_var.raw","variance_of_random_effect_of","Variance of random effect of ");
 
-  if (terms[i].options[35] == "iid")
-    {
-    FC_hrandom_variances.push_back(FC_hrandom_variance(&master,nrlevel1,
+  FC_hrandom_variances.push_back(FC_hrandom_variance(&master,nrlevel1,
                                    &generaloptions,equations[modnr].distrp,
-                                   equations[fnr].distrp,
                                   title,pathnonp,
                                   &design_hrandoms[design_hrandoms.size()-1],
                                   &FC_hrandoms[FC_hrandoms.size()-1],
@@ -7179,49 +7152,7 @@ bool superbayesreg::create_random(unsigned i)
 
     equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
 
-    }
-  else if (terms[i].options[35] == "lasso")
-    {
 
-    FC_hrandom_variance_vecs.push_back(FC_hrandom_variance_vec(&master,nrlevel1,
-                                   &generaloptions,equations[modnr].distrp,
-                                   equations[fnr].distrp,
-                                  title,pathnonp,
-                                  &design_hrandoms[design_hrandoms.size()-1],
-                                  &FC_hrandoms[FC_hrandoms.size()-1],
-                                  terms[i].options, terms[i].varnames));
-
-    equations[modnr].add_FC(&FC_hrandom_variance_vecs[FC_hrandom_variance_vecs.size()-1],pathres);
-
-    }
-  else if (terms[i].options[35] == "nmig")
-    {
-
-    FC_hrandom_variance_vec_nmigs.push_back(FC_hrandom_variance_vec_nmig(&master,
-                                        nrlevel1,&generaloptions,equations[modnr].distrp,
-                                        equations[fnr].distrp,
-                                        title,pathnonp,
-                                        &design_hrandoms[design_hrandoms.size()-1],
-                                        &FC_hrandoms[FC_hrandoms.size()-1],
-                                        terms[i].options, terms[i].varnames));
-
-    equations[modnr].add_FC(&FC_hrandom_variance_vec_nmigs[FC_hrandom_variance_vec_nmigs.size()-1],pathres);
-
-    }
-  else if ((terms[i].options[35] == "ssvs"))
-    {
-
-    FC_hrandom_variance_ssvss.push_back(FC_hrandom_variance_ssvs(&master,nrlevel1,
-                                        &generaloptions,equations[modnr].distrp,
-                                        equations[fnr].distrp,
-                                        title,pathnonp,
-                                        &design_hrandoms[design_hrandoms.size()-1],
-                                        &FC_hrandoms[FC_hrandoms.size()-1],
-                                        terms[i].options, terms[i].varnames));
-
-    equations[modnr].add_FC(&FC_hrandom_variance_ssvss[FC_hrandom_variance_ssvss.size()-1],pathres);
-
-    }
 
   if (imeasures.getvalue() == true && FC_hrandoms.size() >= 1)
       FC_hrandoms[FC_hrandoms.size()-1].imeasures=true;

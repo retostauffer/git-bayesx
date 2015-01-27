@@ -51,6 +51,9 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   datamatrix likelihoodc,likelihoodn;
 
+  bool simplerandom;
+  datamatrix simplerandom_linpred;
+
   DISTR * likep_RE;
 
   FC FCrcoeff;
@@ -82,6 +85,12 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
              const ST::string & t,
            const ST::string & fp, const ST::string & fp2, DESIGN * dp,
            vector<ST::string> & op,vector<ST::string> & vn);
+
+  FC_hrandom(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+             const ST::string & t,
+           const ST::string & fp, const ST::string & fp2, DESIGN * dp,
+           vector<ST::string> & op,vector<ST::string> & vn);
+
 
   // COPY CONSTRUCTOR
 

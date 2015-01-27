@@ -87,7 +87,7 @@ DESIGN_hrandom::DESIGN_hrandom(void)
 
 
 DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
-                               GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl)
+                               GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl,vector<ST::string> & vn)
       : DESIGN(o,dp,fcl)
   {
 
@@ -97,6 +97,11 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
 
   init_data(dm,iv);
   nrpar = posbeg.size();
+
+  simplerandom = true;
+  simplerandom_linpred = datamatrix(nrpar,1,0);
+  datanames = vn;
+
 
   Zout = datamatrix(posbeg.size(),1,1);
   index_Zout = statmatrix<int>(Zout.rows(),1);
@@ -129,6 +134,7 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   read_options(op,vn);
 
   likep_RE = dp_RE;
+  simplerandom = false;
 
   discrete = true;
 
@@ -164,6 +170,7 @@ DESIGN_hrandom::DESIGN_hrandom(const DESIGN_hrandom & m)
   : DESIGN(DESIGN(m))
   {
   likep_RE = m.likep_RE;
+  simplerandom = m.simplerandom;
   }
 
 
@@ -173,6 +180,7 @@ const DESIGN_hrandom & DESIGN_hrandom::operator=(const DESIGN_hrandom & m)
     return *this;
   DESIGN::operator=(DESIGN(m));
   likep_RE = m.likep_RE;
+  simplerandom = m.simplerandom;
   return *this;
 
   }
@@ -243,10 +251,16 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
   double * workXWres = XWres.getV();
 
   double * linpredREp;
-  if (likep_RE->linpred_current==1)
-    linpredREp = likep_RE->linearpred1.getV();
+
+  if (simplerandom==true)
+    linpredREp = simplerandom_linpred.getV();
   else
-    linpredREp = likep_RE->linearpred2.getV();
+    {
+    if (likep_RE->linpred_current==1)
+      linpredREp = likep_RE->linearpred1.getV();
+    else
+      linpredREp = likep_RE->linearpred2.getV();
+    }
 
   double * partresp = partres.getV();
 
@@ -328,15 +342,24 @@ void DESIGN_hrandom::compute_meaneffect(DISTR * level1_likep,double & meaneffect
 
   double * linpredREp;
   double linm;
-  if (likep_RE->linpred_current==1)
+
+  if (simplerandom==true)
     {
-    linpredREp = likep_RE->linearpred1.getV();
-    linm = likep_RE->linearpred1(meaneffectnr,0);
+    linpredREp = simplerandom_linpred.getV();
+    linm = 0;
     }
   else
     {
-    linpredREp = likep_RE->linearpred2.getV();
-    linm = likep_RE->linearpred2(meaneffectnr,0);
+    if (likep_RE->linpred_current==1)
+      {
+      linpredREp = likep_RE->linearpred1.getV();
+      linm = likep_RE->linearpred1(meaneffectnr,0);
+      }
+    else
+      {
+      linpredREp = likep_RE->linearpred2.getV();
+      linm = likep_RE->linearpred2(meaneffectnr,0);
+      }
     }
 
   meaneffect = meaneffectintvar*(beta(meaneffectnr,0) - linm);

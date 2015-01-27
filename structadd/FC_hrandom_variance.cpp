@@ -90,14 +90,31 @@ FC_hrandom_variance::FC_hrandom_variance(MASTER_OBJ * mp,unsigned & enr,
      : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
   {
   read_options(op,vn);
+  simplerandom=false;
   likepRE = lpRE;
   }
+
+
+FC_hrandom_variance::FC_hrandom_variance(MASTER_OBJ * mp,unsigned & enr,
+                 GENERAL_OPTIONS * o,DISTR * lp,
+                 const ST::string & t,const ST::string & fp,
+                 DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
+                 vector<ST::string> & vn)
+     : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
+  {
+  read_options(op,vn);
+  simplerandom=true;
+  simplerandom_linpred=datamatrix(FCn->beta.rows(),1,0);
+  }
+
 
 
 FC_hrandom_variance::FC_hrandom_variance(const FC_hrandom_variance & m)
   : FC_nonp_variance(FC_nonp_variance(m))
   {
   likepRE = m.likepRE;
+  simplerandom=m.simplerandom;
+  simplerandom_linpred=m.simplerandom_linpred;
   mult = m.mult;
   }
 
@@ -110,6 +127,8 @@ const FC_hrandom_variance & m)
 	 return *this;
   FC_nonp_variance::operator=(FC_nonp_variance(m));
   likepRE = m.likepRE;
+  simplerandom=m.simplerandom;
+  simplerandom_linpred=m.simplerandom_linpred;
   mult = m.mult;
   return *this;
   }
@@ -127,10 +146,17 @@ double FC_hrandom_variance::compute_quadform(void)
 
 
   double * linpredREp;
-  if (likepRE->linpred_current==1)
-    linpredREp = likepRE->linearpred1.getV();
+
+  if (simplerandom==true)
+    linpredREp = simplerandom_linpred.getV();
   else
-    linpredREp = likepRE->linearpred2.getV();
+    {
+    if (likepRE->linpred_current==1)
+      linpredREp = likepRE->linearpred1.getV();
+    else
+      linpredREp = likepRE->linearpred2.getV();
+    }
+
 
   for(i=0;i<n;i++,workbeta++,linpredREp++)
     {
@@ -159,7 +185,9 @@ void FC_hrandom_variance::update(void)
     beta(0,1) = likep->get_scale()/beta(0,0);
 
     FCnonpp->tau2 = beta(0,0);
-    likepRE->sigma2=beta(0,0);
+
+    if (simplerandom==false)
+      likepRE->sigma2=beta(0,0);
 
     acceptance++;
     FC::update();
