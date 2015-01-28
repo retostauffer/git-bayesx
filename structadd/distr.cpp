@@ -678,7 +678,7 @@ void DISTR::compute_MSE_all(datamatrix & meanpred, double & MSE,
   double * responsep = response.getV();
   double * weightp = weight.getV();
   double * linpredp = meanpred.getV();
-  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=2)
+  for(i=0;i<nrobs;i++,responsep++,weightp++,linpredp+=3)
     if (*weightp==0)
       {
       MSEzeroweight += compute_MSE(responsep,weightp,linpredp,t,v);
