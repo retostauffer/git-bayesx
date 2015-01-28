@@ -561,7 +561,7 @@ public BayesX()
 	jDesktopPanel.add(output);
 	output.setBounds(registryArray[2],registryArray[3],registryArray[4],registryArray[5]);
 	Out("BayesX - Software for Bayesian Inference in Structured Additive Regression Models\n\n",true,false,(short)11,0,0,0);
-	Out("Version 2.1 (07.05.2012)\n\n");
+	Out("Version 3.0 (30.01.2015)\n\n");
 
 //	Out("Note: When running time consuming computations it is useful to reduce the priority of BayesX in the Windows Task-Manager!\n\n");
 	hasBeenSaved = false;
@@ -1164,15 +1164,17 @@ public void actionPerformed(ActionEvent ae)
         else if(source.equals("About BayesX"))
                 {
 		JOptionPane.showMessageDialog(this,"BayesX\n\nSoftware for Bayesian Inference in Structured Additive Regression Models\n"+
-			"Version 2.1 (07.05.2012)\n\n"+
+			"Version 3.0 (30.01.2015)\n\n"+
 			"developed by\n"+
 			"  Christiane Belitz\n"+
 			"  Andreas Brezger\n"+
+			"  Nadja Klein\n"+
 			"  Thomas Kneib\n"+
 			"  Stefan Lang\n"+
 			"  Nikolaus Umlauf\n\n"+
 			"with contributions by\n"+
 			"  Daniel Adler\n"+
+			"  Jan Fahrenholz\n"+
 			"  Eva-Maria Fronk\n"+
 			"  Felix Heinzl\n"+
 			"  Andrea Hennerfeind\n"+
