@@ -129,12 +129,20 @@ const string & string::operator=(string & s)
 
 const string & string::operator=(const char * s)
   {
-/*  delete [] str;
+  delete [] str;
   len = strlen(s);
   str = new char[len+1];
   strcpy(str,s);
+  return *this;
+/*  delete [] str;
+  size_t maxsize = 1000;
+  len = strnlen(s, maxsize);
+  str = new char[len+1];
+  strncpy(str, s, maxsize);
+  if(len == maxsize)
+    str[maxsize] = '\0';
   return *this;*/
-  delete [] str;
+/*  delete [] str;
   const char * help = s;
   len = 0;
   for(; *help != '\0'; ++help )
@@ -145,7 +153,7 @@ const string & string::operator=(const char * s)
 //    ;
   strcpy(str,s);
 
-  return *this;
+  return *this;*/
   }
 
 
