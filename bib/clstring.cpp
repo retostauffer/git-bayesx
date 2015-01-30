@@ -127,7 +127,7 @@ const string & string::operator=(string & s)
   }
 
 
-const string & string::operator=(char * s)
+const string & string::operator=(const char * s)
   {
 /*  delete [] str;
   len = strlen(s);
@@ -135,7 +135,7 @@ const string & string::operator=(char * s)
   strcpy(str,s);
   return *this;*/
   delete [] str;
-  char * help = s;
+  const char * help = s;
   len = 0;
   for(; *help != '\0'; ++help )
     ++len;

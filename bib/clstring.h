@@ -118,7 +118,7 @@ class __EXPORT_TYPE string
 
   const string & operator=(const string & s);
   const string & operator=(string & s);
-  const string & operator=(char * s);
+  const string & operator=(const char * s);
   const string & operator=(const std::string & s);
 
   // OVERLOADED + OPERATORS
