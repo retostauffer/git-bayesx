@@ -492,7 +492,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
 
         }
 
-      outres << "quantile_res quadratic_score logarithmic_score spherical_score CRPS";
+ //     outres << "quantile_res quadratic_score logarithmic_score spherical_score CRPS";
 
       outres << endl;
 
@@ -636,7 +636,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           outres << "pmean_param_" << likep[i]->predictor_name << "   ";
         }
 
-      outres << "quantile_res quadratic_score logarithmic_score spherical_score CRPS";
+ //     outres << "quantile_res quadratic_score logarithmic_score spherical_score CRPS";
 
       outres << endl;
 
