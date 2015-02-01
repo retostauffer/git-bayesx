@@ -325,6 +325,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("frankcopula2_normal_mu");
   families.push_back("frankcopula2_normal_sigma2");
   families.push_back("gaussiancopula_dagum");
+  families.push_back("dirichlet");
   family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
