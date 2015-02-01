@@ -596,12 +596,12 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           }
         // end: parameter
 
-          outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+ /*         outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
           outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
           outres << likep[likep.size()-1]->compute_log_mult(responsep,workmeanmat,weightpmat,auxhelp)    << "   ";
           outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
           outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
-
+*/
         if (i < designmatrix.rows()-1)
           {
           for (j=0;j<likep.size();j++)
@@ -670,12 +670,12 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
           }
 
 
-        outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
+ /*       outres << likep[likep.size()-1]->compute_quantile_residual_mult(responsep,workmeanmat,weightpmat,auxhelp) << "   ";
         outres << likep[likep.size()-1]->compute_quadr_mult()    << "   ";
         outres << likep[likep.size()-1]->compute_log_mult(responsep,workmeanmat,weightpmat,auxhelp)    << "   ";
         outres << likep[likep.size()-1]->compute_spherical_mult()    << "   ";
         outres << likep[likep.size()-1]->compute_CRPS_mult()    << "   ";
-
+*/
 //        std::ofstream out;
 //  // helpmat1.prettyPrint(out);
 //    out.open ("C:\\tmp\\res.raw", std::ofstream::out | std::ofstream::app);
