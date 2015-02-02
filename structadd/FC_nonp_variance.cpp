@@ -58,7 +58,6 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
 
   f = op[47].strtodouble(tildea);
   f = op[48].strtodouble(tildeb);
-  f = op[51].strtodouble(scaletau2);
   if (op[49] == "true")
     {
     cauchy = true;
@@ -72,6 +71,7 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
     }
   else
     wei = false;
+  f = op[51].strtodouble(scaletau2);
 
   if (op[58] == "iwls_tau")
     {
@@ -221,6 +221,13 @@ void FC_nonp_variance::update(void)
     double sec = (clkend-clkbegin)/clk;
 
     cout << "time GIG: " << sec << endl;*/
+
+    cout << "proposal: " << proposal << endl;
+    cout << "tildea: " << tildea << endl;
+    cout << "tildeb: " << tildeb << endl;
+    cout << "scaletau2: " << scaletau2 << endl;
+    cout << "cauchy: " << cauchy << endl;
+    cout << "wei: " << wei << endl;
 
   b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
@@ -576,6 +583,10 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
   f = op[40].strtodouble(b_omega);
 
   f = op[41].strtodouble(r);
+  if (op[50] == "true")
+    wei = true;
+  else
+    wei = false;
   f = op[51].strtodouble(scaletau2);
   f = op[52].strtodouble(r2);
 
@@ -583,10 +594,7 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
   f = op[54].strtodouble(v2);
   f = op[55].strtodouble(tildev1);
   f = op[56].strtodouble(tildev2);
-  if (op[50] == "true")
-    wei = true;
-  else
-    wei = false;
+
 
   if (op[57] == "true")
     gig = true;

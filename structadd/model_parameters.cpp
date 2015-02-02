@@ -110,7 +110,6 @@ term_nonp::term_nonp(vector<ST::string> & na)
   abeta = doubleoption("abeta",1,0.00000001,500);
   bbeta = doubleoption("bbeta",1,0.00000001,500);
   r = doubleoption("r",0.000025,0.0000000001,1);
-  r2 = doubleoption("r2",0.00456356,0,1);
   v = doubleoption("v",5,0.0000000001,500);
   aQ = doubleoption("aQ",1,0.00000001,500);
   bQ = doubleoption("bQ",1,0.00000001,500);
@@ -118,20 +117,12 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   center = simpleoption("center",false);
 
-  //test different options for proposal for scale dependent weibull  prior
-  vector<ST::string> proposals;
-  proposals.push_back("gamma");
-  proposals.push_back("iwls_tau");
-  proposals.push_back("iwls_logtau2");
-  proposals.push_back("IG");
-
-  proposal = stroption("proposal",proposals,"iwls_logtau2");
-
   tildea = doubleoption("tildea",0.001,-1.0,500);
-  tildeb = doubleoption("tildeb",0.001,0,500);
-  scaletau2 = doubleoption("scaletau2",0.00877812,0.0000000001,1000000000);
+  tildeb = doubleoption("tildeb",0.001,0,500);  
   cauchy = simpleoption("cauchy",false);
   wei = simpleoption("wei",false);
+  r2 = doubleoption("r2",0.00456356,0,1);
+  scaletau2 = doubleoption("scaletau2",0.00877812,0.0000000001,1000000000);
 
   v1 = doubleoption("v1",5,0.0000000001,500);
   v2 = doubleoption("v2",25,0.0000000001,500);
@@ -141,6 +132,15 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   // gamma prior for tau2 instead of normal prior for tau in ssvs
   gig = simpleoption("gig",false);
+  
+  //test different options for proposal for scale dependent weibull  prior
+  vector<ST::string> proposals;
+  proposals.push_back("gamma");
+  proposals.push_back("iwls_tau");
+  proposals.push_back("iwls_logtau2");
+  proposals.push_back("IG");
+
+  proposal = stroption("proposal",proposals,"iwls_logtau2");
   }
 
 void term_nonp::setdefault(void)
@@ -187,25 +187,25 @@ void term_nonp::setdefault(void)
   abeta.setdefault();
   bbeta.setdefault();
   r.setdefault();
-  r2.setdefault();
   v.setdefault();
   aQ.setdefault();
   bQ.setdefault();
   regiterates.setdefault();
   center.setdefault();
-
-  proposal.setdefault();
+  
   tildea.setdefault();
   tildeb.setdefault();
   cauchy.setdefault();
   wei.setdefault();
   scaletau2.setdefault();
+  r2.setdefault();
 
   v1.setdefault();
   v2.setdefault();
   tildev1.setdefault();
   tildev2.setdefault();
   gig.setdefault();
+  proposal.setdefault();
   }
 
 
@@ -295,20 +295,21 @@ bool term_nonp::check(term & t)
     optlist.push_back(&datasetref);
     optlist.push_back(&lambdaconst);
 
-    optlist.push_back(&proposal);
+    
     optlist.push_back(&abeta);
     optlist.push_back(&bbeta);
     optlist.push_back(&r);
-    optlist.push_back(&r2);
     optlist.push_back(&v);
     optlist.push_back(&aQ);
     optlist.push_back(&bQ);
     optlist.push_back(&regiterates);
     optlist.push_back(&center);
+	
     optlist.push_back(&tildea);
     optlist.push_back(&tildeb);
     optlist.push_back(&cauchy);
     optlist.push_back(&wei);
+	optlist.push_back(&r2);
     optlist.push_back(&scaletau2);
 
     optlist.push_back(&v1);
@@ -316,6 +317,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildev1);
     optlist.push_back(&tildev2);
     optlist.push_back(&gig);
+	optlist.push_back(&proposal);
 
     unsigned i;
     bool rec = true;
