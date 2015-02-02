@@ -222,12 +222,12 @@ void FC_nonp_variance::update(void)
 
     cout << "time GIG: " << sec << endl;*/
 
-    cout << "proposal: " << proposal << endl;
+/*    cout << "proposal: " << proposal << endl;
     cout << "tildea: " << tildea << endl;
     cout << "tildeb: " << tildeb << endl;
     cout << "scaletau2: " << scaletau2 << endl;
     cout << "cauchy: " << cauchy << endl;
-    cout << "wei: " << wei << endl;
+    cout << "wei: " << wei << endl;*/
 
   b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
