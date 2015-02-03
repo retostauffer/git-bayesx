@@ -9,6 +9,7 @@ c:\env\cmake.bat
 # add codeblocks mingw to the path to enable access to mingw32-make 
 c:\env\mingw-cb.bat
 
+# set path to directory with pre-compiled GSL stuff
 set GSL_DIR=c:\gsl
 
 # call cmake with explicit compiler specification for 64bit comilation

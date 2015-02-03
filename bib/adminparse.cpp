@@ -100,6 +100,7 @@ administrator::administrator(void)
 
   objecttyps.push_back("dataset");
   objecttyps.push_back("bayesreg");
+  objecttyps.push_back("mcmcreg");
   objecttyps.push_back("stepwisereg");
   objecttyps.push_back("remlreg");
   objecttyps.push_back("map");
@@ -186,6 +187,20 @@ void administrator::dropobjects(ST::string name, ST::string type)
 		i++;
 		}
 	 }  // end: type bayesreg
+  else if (type == "mcmcreg")
+	 {
+	 while ( (i < mcmcregobjects.size()) && (recognized == 0) )
+		{
+
+		if ( name == mcmcregobjects[i].getname())
+		  {
+
+		  mcmcregobjects.erase(mcmcregobjects.begin()+i,mcmcregobjects.begin()+i+1);
+		  recognized = 1;
+		  }
+		i++;
+		}
+	 }  // end: type mcmcreg
   else if (type == "stepwisereg")
 	 {
 	 while ( (i < stepwiseregobjects.size()) && (recognized == 0) )
@@ -305,8 +320,11 @@ ST::string administrator::create(const ST::string & in)
 	 else
 		{
 		if (alreadyexisting(token[1]) == true)
+		  {
 		  errormessages.push_back(
 		  "ERROR: object " + token[1] + " is already existing\n");
+		  return "";
+		  }
 		else
     	  {
 		  if (token[0] == "dataset")
@@ -319,6 +337,12 @@ ST::string administrator::create(const ST::string & in)
 			 bayesreg newobject(&adminb,&adminp,
              token[1],&logout,input,defaultpath,&objects);
 			 bayesregobjects.push_back(newobject);
+			 }
+          else if (token[0] == "mcmcreg")
+			 {
+			 superbayesreg newobject(&adminb,&adminp,
+			 token[1],&logout,input,defaultpath,&objects);
+			 mcmcregobjects.push_back(newobject);
 			 }
 		  else if (token[0] == "stepwisereg")
 			 {
@@ -404,6 +428,9 @@ void administrator::adjustobjects(void)
 
   for (i=0;i<bayesregobjects.size();i++)
 	 objects.push_back(&bayesregobjects[i]);
+
+  for (i=0;i<mcmcregobjects.size();i++)
+	 objects.push_back(&mcmcregobjects[i]);
 
   for (i=0;i<stepwiseregobjects.size();i++)
 	 objects.push_back(&stepwiseregobjects[i]);
