@@ -80,49 +80,33 @@ Ende: Allgemeiner Teil der Seite
   <tr>
     <td>
 
-<p>BayesX is available in three different versions. 
+<p>BayesX is distributed in two different versions. 
 <ul>
 <li>
-A precompiled binary including installer (developed with the free open source license of <a href="http://www.ej-technologies.com/products/install4j/overview.html">install4j</a>) is available for the various version of the
+<!--A precompiled binary including installer (developed with the free open source license of <a href="http://www.ej-technologies.com/products/install4j/overview.html">install4j</a>) is available for the various version of the
 Windows operating system. This version consists of a C++ computing kernel with a Java graphical user interface and contains built-in
-graphics facilities. Most of the documentation and the tutorials available on this webpage are written for the Windows version of BayesX.
-</li>
+graphics facilities. Most of the documentation and the tutorials available on this webpage are written for the Windows version of BayesX.-->
+A precompiled binary including installer that provides you with both a command line version of BayesX and a version with graphical user interface (implemented in java).</li>
 <li>
-A command line version of BayesX is distributed as a source code bundle. It contains a makefile and should work (possibly after minor modifications)
-on most operating systems. 
+A source code package with a makefile. 
 </li>
-<li>The R package <span style="font-family:monospace; font-size:medium">R2BayesX</span> (available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>) provides a third variant of BayesX that
-allows to call BayesX from within R via the usual model specification language.</li>
-<li>
-Up to version 1.30, a fourth variant with Borland C++ graphical user interface has been distributed. This version of BayesX is no longer supported.
-</li>
-<!--<li>
-Three manuals are available for BayesX: The <a href="manual/reference_manual.pdf">reference manual</a> containing a detailled documentation of the software and all its features, 
-the <a href="manual/methodology_manual.pdf">methodology manual</a> presenting a brief introduction to the statistical background of structured additive regression, and
-the <a href="manual/tutorials_manual.pdf">tutorials manual</a> containing three tutorials that may serve as a first introduction to BayesX.
-</li>-->
 </ul>
 </p>
+<p>We suggest to work with the pre-compiled version as a standard. In addition, two R packages (R2BayesX, BayesR) provide access to BayesX from within R via the usual model specification language (see also the <a href="bayesxfaq.html">FAQ</a>).</p>
+
 
 <p style="font-weight:bold">Download</p>
 
-<p>Last Update: Version 2.1 (07.05.2012)
+<p>Last Update: Version 3.0 (30.01.2015)
 </p> 
 
+<ul>
+<li><a href="install/bayesx_linux_3_0.exe">Windows Installer</a></li>
+<li><a href="install/bayesx_linux_3_0.tar.gz">Linux Installer</a></li>
+<li><a href="install/bayesxsource_3_0.zip">Source Code Distribution</a></li>
+</ul>
 
-
-<!--<p>Download the complete package (including manuals and tutorials) by clicking on the 'download' button below. Store the file 
-installBayesX.exe in a temporary directory. Execute this file and follow the installation 
-instructions on the screen. After a successful installation, BayesX can be executed using the 
-Windows start button or the icon on the desktop (depending on your choice during the installation process).
-The manuals of the program can be found in the 'doc' directory 
-(a subdirectory of the installation directory) and are also available from the BayesX help menu.</p>-->
-
-<!--<p><a href="http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl"><input type="submit" value="Download"></a></p>-->
-
-<!--<p><input type="button" value="Download" onClick="self.location.href='http://www.statistik.lmu.de/sys/cgi/perl/bayesx-down-new.pl'"></p>-->
-
-<p>Please select the version of BayesX you want to download from the pull down menu below and click on the 'download' button.
+<!--<p>Please select the version of BayesX you want to download from the pull down menu below and click on the 'download' button.
 
 <p><table><form action="http://www.statistik.lmu.de/cgi-bin/perl/bayesx-down.pl" method="post" name="regunddown">
 
@@ -138,7 +122,7 @@ The manuals of the program can be found in the 'doc' directory
 </form></tr>
 </table></p>
 
-<p>The R-version of BayesX is available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>.</p>
+<p>The R-version of BayesX is available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>.</p>-->
 
 <p style="font-weight:bold">Manuals</p>
 
@@ -169,6 +153,7 @@ or if severe bugs have been found in the current version.</p>
 <ul>
 <li>Version 2.0: <a href="install/BayesX_windows_2_0.exe">Installer</a>, <a href="install/bayesxsource_2_0.zip">Source code</a></li>
 <li>Version 2.0.1: <a href="install/BayesX_windows_2_0_1.exe">Installer</a>, <a href="install/bayesxsource_2_0_1.zip">Source code</a></li>
+<li>Version 2.1: <a href="install/BayesX_windows_2_1.exe">Installer</a>, <a href="install/bayesxsource_2_1.zip">Source code</a>
 </ul>
 </p>
 
@@ -177,19 +162,7 @@ or if severe bugs have been found in the current version.</p>
 <p>Anonymous, read-only SVN access to the BayesX source code is available via <span style="font-family:monospace; font-size:medium">https://svn.gwdg.de/svn/bayesx/</span> with user name "anonymous" and empty password.
 
 
-<!--<p style="font-weight:bold">Limitations of the current version</p>
-
-<p>Please take note of the following limitations:</p>
-
-<ul>
-<li>For bayesreg objects cumulative threshold models are restricted to responses with three categories.</li>
-<li>The manual describes automatic determination of block sizes for block move updates.
-For first and second order random walk priors this not implemented yet, but works properly with P-splines.</li>
-</ul>
-
-<p>The <a href=bayesxbugs.html>bug list</a> contains a complete list of (severe) bugs of the different versions of BayesX. </p>-->
-
-    </td>
+   </td>
   </tr>
 
   </table>

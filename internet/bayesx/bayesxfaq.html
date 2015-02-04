@@ -86,6 +86,11 @@ If you want to report a bug, please include any files that are needed to reprodu
 </p>
 
 <ul>
+<li><b>I can not start the GUI version of BayesX under Windows</b><br>
+Running BayesX in the GUI version requires a java installation (64 bit, version>=1.7.0). In addition, java has to be included in the path to be able to run the GUI 
+(see for example <a href="https://www.java.com/en/download/help/path.xml">here</a> on how to adjust the path variable). You can check whether java is available and which version you have installed by typing
+<span style="font-family:monospace; font-size:medium">java -version</span> in the command line prompt. In general, it is also recommended to run BayesX in administrator mode.</li>
+
 <li><b>Does BayesX support spaces in file names?</b><br>
 Unfortunately not always. Altough spaces in file names work well in some situations, they should in general be avoided. In particular, an installation directory without
 spaces should be chosen.</li>
@@ -107,13 +112,12 @@ Unfortunately not. All variables will have to be converted to numerical values b
 </li>
 
 <li><b>Is there a connection to R? Can I call BayesX from R?</b><br>
-Yes, the R-packages <span style="font-family:monospace; font-size:medium">here</span>
-(available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">CRAN</a>) and <span style="font-family:monospace; font-size:medium">BayesR</span>
+Yes, the R-packages <span style="font-family:monospace; font-size:medium">R2BayesX</span>
+(available from <a href="http://cran.r-project.org/web/packages/R2BayesX/index.html">here</a>) and <span style="font-family:monospace; font-size:medium">BayesR</span>
 (available from <a href="http://cran.r-project.org/web/packages/BayesR/index.html">here</a>) provide easy and convenient access to the BayesX facilities
 via the usual R-type model specification language. The packages basically call BayesX in the background and then transfers all estimation results back to R.
 An alternative, manual way to access BayesX from R is the <span style="font-family:monospace; font-size:medium">system</span>
-command in R that allows to call the command line version of BayesX (delivered in the subdirectory <span style="font-family:monospace; font-size:medium">commandline</span>
-of the installation directory) via<br>
+command in R that allows to call the command line version of BayesX via<br>
 <span style="font-family:monospace; font-size:medium">R> system("BayesX </span><i>filename</i><span style="font-family:monospace; font-size:medium">")</span><br>
 where <i>filename</i> contains a batch file with BayesX commands. Before calling <span style="font-family:monospace; font-size:medium">system</span>, you will have to ensure that all data sets and geographical information
 have been stored at the places specified in the batch file. After completion of the </span>system</span> call, the estimation results can be visualised
@@ -177,7 +181,7 @@ estimation. The estimation results from the model obtained may contain valuable 
 
 <li><b>How should I cite BayesX?</b><br>
 The recommended citation is "Belitz, C., Brezger, A., Klein, N., Kneib, T., Lang, S., Umlauf, N. (20xx): BayesX - Software for Bayesian inference in structured additive regression models.
-Version x.x. Available from http://www.stat.uni-muenchen.de/~bayesx". (with x replaced by information corresponding to the version you have used).
+Version x.x. Available from http://www.bayesx.org". (with x replaced by information corresponding to the version you have used).
 However, please also cite the methodological publications to credit the work of the
 BayesX contributors.
 </li>
