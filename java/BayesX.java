@@ -1121,9 +1121,11 @@ public void actionPerformed(ActionEvent ae)
 		Runtime r = Runtime.getRuntime();
 		try
 			{
-			String[] comms = new String[2];
-			comms[0]="ShellExec";
-			comms[1]="doc\\reference_manual.pdf";
+//			String[] comms = new String[2];
+//			comms[0]="ShellExec";
+//			comms[1]="doc\\reference_manual.pdf";
+			String[] comms = new String[1];
+			comms[0]="doc\\reference_manual.pdf";
 			Process p = r.exec(comms);
 			}
 		catch(IOException ioe)
