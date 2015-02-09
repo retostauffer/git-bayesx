@@ -718,6 +718,7 @@ stepwisereg::stepwisereg(const stepwisereg & b) : statobject(statobject(b))
   distr_poisson = b.distr_poisson;
   distr_gamma = b.distr_gamma;
   distr_vargaussian = b.distr_vargaussian;
+  hierarchical_model_yesno = b.hierarchical_model_yesno;
 //  distr_nbinomial = b.distr_nbinomial;
   terms = b.terms;
   normalconst = b.normalconst;

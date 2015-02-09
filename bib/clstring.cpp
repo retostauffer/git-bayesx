@@ -211,9 +211,13 @@ string operator+(const char * s,const string & st)
 
 istream & operator>>(istream & i, string & s)
   {
-  char buffer[256];
-  i >> buffer;
-  s = buffer;
+  std::string ss;
+  i >> ss;
+  s = ss;
+
+  // char buffer[256];
+  // i >> buffer;
+  // s = buffer;
   return i;
   }
 
