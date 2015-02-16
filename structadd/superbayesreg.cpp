@@ -2253,7 +2253,7 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
     equations[modnr].pathd = "";
 
-    predict_sigma2lt_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+    predict_mult_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
 
     }
 //---------------------------- END: betainf0_sigma2 -------------------------------
@@ -2325,7 +2325,7 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
     equations[modnr].pathd = "";
 
-    predict_sigma2lt_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
+    predict_mult_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
 
     }
 //---------------------------- END: betainf_1sigma2 -------------------------------
