@@ -2242,21 +2242,21 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: betainf_tau -------------------------------
 
 
-//-------------------------------- betainf0_mu ---------------------------------
-  else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="mu")
+//-------------------------------- betainf0_sigma2 ---------------------------------
+  else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+    distr_beta_sigma2s.push_back(DISTR_beta_sigma2(&generaloptions,D.getCol(0),w));
 
-    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+    predict_sigma2lt_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
 
     }
-//---------------------------- END: betainf_1mu -------------------------------
+//---------------------------- END: betainf0_sigma2 -------------------------------
 
 //-------------------------------- betainf0_mu ---------------------------------
   else if (family.getvalue() == "betainf0" && equationtype.getvalue()=="mu")
@@ -2314,21 +2314,21 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: betainf0_nu -------------------------------
 
-//-------------------------------- betainf1_mu ---------------------------------
-  else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="mu")
+//-------------------------------- betainf1_sigma2 ---------------------------------
+  else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
+    distr_beta_sigma2s.push_back(DISTR_beta_sigma2(&generaloptions,D.getCol(0),w));
 
-    equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
+    equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
     equations[modnr].pathd = "";
 
-    predict_mult_distrs.push_back(&distr_beta_mus[distr_beta_mus.size()-1]);
+    predict_sigma2lt_distrs.push_back(&distr_beta_sigma2s[distr_beta_sigma2s.size()-1]);
 
     }
-//---------------------------- END: betainf_1mu -------------------------------
+//---------------------------- END: betainf_1sigma2 -------------------------------
 
 //-------------------------------- betainf1_mu ---------------------------------
   else if (family.getvalue() == "betainf1" && equationtype.getvalue()=="mu")
@@ -2627,7 +2627,7 @@ bool superbayesreg::create_distribution(void)
    else if (family.getvalue() == "bivt" && equationtype.getvalue()=="rho")
      {
 
-     mainequation=true;
+     //mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2643,7 +2643,7 @@ bool superbayesreg::create_distribution(void)
    else if (family.getvalue() == "bivt" && equationtype.getvalue()=="df")
      {
 
-     mainequation=true;
+     //mainequation=true;
 
      computemodeforstartingvalues = true;
 
@@ -2688,9 +2688,9 @@ bool superbayesreg::create_distribution(void)
            )
      {
 
-     mainequation=true;
+     //mainequation=true;
 
-     // computemodeforstartingvalues = true;
+      computemodeforstartingvalues = true;
 
      unsigned pos;
       if (distr_bivt_mus.size()==0)
