@@ -5288,7 +5288,7 @@ mainequation=true;
 
 
 //------------------------------- hurdle_lambda ------------------------------------
-  else if (family.getvalue() == "hurdle_poisson" && equationtype.getvalue()=="lambda")
+  else if (family.getvalue() == "hurdle" && equationtype.getvalue()=="lambda")
     {
 
     mainequation=true;
@@ -5321,7 +5321,7 @@ mainequation=true;
 //------------------------------- END: hurdle_lambda -------------------------------
 
 //-------------------------------- hurdle delta --------------------------------
-  else if (family.getvalue() == "hurdle_negbin" && equationtype.getvalue()=="delta")
+  else if (family.getvalue() == "hurdle" && equationtype.getvalue()=="delta")
     {
 
     computemodeforstartingvalues = true;
@@ -5342,7 +5342,7 @@ mainequation=true;
 //---------------------------- END: hurdle delta -------------------------------
 
 //------------------------------- hurdle mu ------------------------------------
-  else if (family.getvalue() == "hurdle_negbin" && equationtype.getvalue()=="mu")
+  else if (family.getvalue() == "hurdle" && equationtype.getvalue()=="mu")
     {
 
     mainequation=true;
