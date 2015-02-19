@@ -1146,8 +1146,8 @@ double DISTRIBUTION::loglikelihood2(const unsigned & beg,const unsigned & end,
     worklinpred = &((*linpred_proposed)(index(beg,0),0));
 
   for (i=beg;i<=end;i++,workind2++,
-       workresponse += *workind2*response.cols(),workweight += *workind2,
-       obsnr += *workind2,worklinpred+=*workind2*linearpred.cols())
+       workresponse += (*workind2)*((int)response.cols()),workweight += *workind2,
+       obsnr += *workind2,worklinpred+=(*workind2)*((int)linearpred.cols()))
     {
     workresponsehelp = workresponse;
     if (*workweight != 0)
@@ -1371,9 +1371,9 @@ double DISTRIBUTION::compute_sumweight_sumy(double beta,
     worklinpred = &((*linpred_proposed)(index(beg,0),0));
 
   for (i=beg;i<=end;i++,workind2++,workind++,
-       workresponse += *workind2*response.cols(),
+       workresponse += (*workind2)*((int)response.cols()),
        workweight += *workind2,obsnr += *workind2,
-       worklinpred+=*workind2*linearpred.cols())
+       worklinpred+=(*workind2)*((int)linearpred.cols()))
     {
     workresponsehelp = workresponse;
     compute_IWLS_weight_tildey(
@@ -1424,9 +1424,9 @@ double beta,double & sumweight,const unsigned & beg, const unsigned & end,
     worklinpred = &((*linpred_proposed)(*workind,0));
 
   for (i=beg;i<=end;i++,workind2++,
-       workresponse += *workind2*response.cols(),
+       workresponse += (*workind2)*((int)response.cols()),
        workweight += *workind2,obsnr += *workind2,
-       worklinpred+=*workind2*linearpred.cols(),workdata++)
+       worklinpred+=(*workind2)*((int)linearpred.cols()),workdata++)
     {
     workresponsehelp = workresponse;
     compute_IWLS_weight_tildey(
@@ -1479,9 +1479,10 @@ double DISTRIBUTION::compute_loglikelihood_sumweight_sumy(
     worklinpred = &((*linpred_proposed)(index(beg,0),0));
 
   for (i=beg;i<=end;i++,workind2++,workind++,
-       workresponse += *workind2*response.cols(),
-       workweight += *workind2,obsnr += *workind2,
-       worklinpred+=*workind2*linearpred.cols())
+       workresponse += (*workind2)*((int)response.cols()),
+       workweight += *workind2,
+       obsnr += *workind2,
+       worklinpred += (*workind2)*((int)linearpred.cols()))
     {
     workresponsehelp = workresponse;
 
@@ -1535,9 +1536,9 @@ double DISTRIBUTION::compute_loglikelihood_sumweight_sumy(
     worklinpred = &((*linpred_proposed)(*workind,0));
 
   for (i=beg;i<=end;i++,workind2++,
-       workresponse += *workind2*response.cols(),
+       workresponse += (*workind2)*((int)response.cols()),
        workweight += *workind2,obsnr += *workind2,
-       worklinpred+=*workind2*linearpred.cols(),workdata++)
+       worklinpred+=(*workind2)*((int)linearpred.cols()),workdata++)
     {
     workresponsehelp = workresponse;
 
@@ -7160,6 +7161,7 @@ double DISTRIBUTION_binomial::compute_IWLS(double * response,double * linpred,
                             bool weightyes,
                             const unsigned & col)
   {
+
   double el = exp(*linpred);
   double mu = el/(1+el);
   if(mu > 0.999)
