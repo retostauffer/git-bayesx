@@ -273,6 +273,10 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
   : FULLCOND_nonp_basis(o,dp,ft,ti,fp,pres,c)
   {
 
+  // ASAN/UBSAN checks
+  refcheck=false;
+  // end: ASAN/UBSAN checks
+
   fcconst = fcc;
 
   lambdaconst = false;
