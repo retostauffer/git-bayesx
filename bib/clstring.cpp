@@ -718,16 +718,16 @@ int string::issubscribing(string & varname,string & argument) const
 
 int string::isexistingfile(void) const
   {
-  ifstream fin(str,ios::in);
+  /*ifstream fin(str,ios::in);
   if (fin.fail() != 0)
 	 return 1;
   else
-	 return 0;
-/*  ifstream file(str);
+	 return 0;*/
+  ifstream file(str);
   if(!file)            // If the file was not found, then file is 0, i.e. !file=1 or true.
     return 1;    // The file was not found.
   else                 // If the file was found, then file is non-0.
-    return 0;     // The file was found.*/
+    return 0;     // The file was found.
 
   }
 
