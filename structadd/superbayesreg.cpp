@@ -1645,19 +1645,18 @@ bool superbayesreg::check_errors(void)
 
   bool err=false;
 
-
   unsigned j,k;
 
   for (k=0;k<equations.size();k++)
     {
-    bool test = equations[k].distrp->errors;
-    int test2 = k;
+//    bool test = equations[k].distrp->errors;
+//    int test2 = k;
     if (equations[k].distrp->errors == true)
       {
       err = true;
       for (j=0;j<equations[k].distrp->errormessages.size();j++)
         {
-        ST::string test3 = equations[k].distrp->errormessages[j];
+//        ST::string test3 = equations[k].distrp->errormessages[j];
         outerror(equations[k].distrp->errormessages[j]);
         }
       }

@@ -6557,6 +6557,8 @@ DISTR_beta_sigma2::DISTR_beta_sigma2(GENERAL_OPTIONS * o,
   predictor_name = "sigma2";
     linpredminlimit=-10;
   linpredmaxlimit=10;
+
+  check_errors();
   }
 
 
@@ -6772,6 +6774,8 @@ DISTR_beta_mu::DISTR_beta_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
   linpredminlimit=-10;
   linpredmaxlimit=10;
+
+  check_errors();
   }
 
 
