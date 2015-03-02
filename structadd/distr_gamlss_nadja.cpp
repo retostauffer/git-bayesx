@@ -870,6 +870,7 @@ DISTR_t_mu::DISTR_t_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
    // linpredminlimit=-10;
   //linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -1283,6 +1284,7 @@ DISTR_invgaussian_mu::DISTR_invgaussian_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -2421,6 +2423,7 @@ DISTR_pareto_b::DISTR_pareto_b(GENERAL_OPTIONS * o,
   predictor_name = "b";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -2968,6 +2971,7 @@ DISTR_dagum_a::DISTR_dagum_a(GENERAL_OPTIONS * o,
   predictor_name = "a";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -3380,6 +3384,7 @@ DISTR_weibull_lambda::DISTR_weibull_lambda(GENERAL_OPTIONS * o,
   predictor_name = "lambda";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -3931,6 +3936,7 @@ DISTR_gengamma_mu::DISTR_gengamma_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -4330,6 +4336,7 @@ DISTR_gamma_mu::DISTR_gamma_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -4720,6 +4727,7 @@ DISTR_lognormal2_mu::DISTR_lognormal2_mu(GENERAL_OPTIONS * o,
   updateIWLS =false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
+ check_errors();
   }
 
 
@@ -5129,6 +5137,7 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   outexpectation = true;
   predictor_name = "mu";
   updateIWLS =false;
+  check_errors();
    // linpredminlimit=-10;
   //linpredmaxlimit=15;
   }
@@ -5533,6 +5542,7 @@ DISTR_truncnormal2_mu::DISTR_truncnormal2_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
+  check_errors();
 //    linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -5919,6 +5929,7 @@ DISTR_normal2_mu::DISTR_normal2_mu(GENERAL_OPTIONS * o,
   outexpectation = true;
   predictor_name = "mu";
   updateIWLS =false;
+  check_errors();
 //    linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -6323,7 +6334,7 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-
+  check_errors();
   updateIWLS = false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
@@ -6557,7 +6568,7 @@ DISTR_beta_sigma2::DISTR_beta_sigma2(GENERAL_OPTIONS * o,
   predictor_name = "sigma2";
     linpredminlimit=-10;
   linpredmaxlimit=10;
-
+  maindistribution=false;
   check_errors();
   }
 
@@ -6727,7 +6738,7 @@ void DISTR_beta_mu::check_errors(void)
 
       if (*workweight > 0)
         {
-
+        //cout << "workweight: " << *workweight << endl;
         if (*workresp <= 0)
           {
           errors=true;
@@ -7060,6 +7071,7 @@ DISTR_cloglog::DISTR_cloglog(GENERAL_OPTIONS * o,
   predictor_name = "mu";
   linpredminlimit=-7.5;
   linpredmaxlimit=2.2;
+  check_errors();
   }
 
 
@@ -7785,7 +7797,7 @@ DISTR_claytoncopula2_rho::DISTR_claytoncopula2_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-10;
   linpredmaxlimit=15;
-
+  check_errors();
   }
 
 
@@ -8039,6 +8051,7 @@ DISTR_claytoncopula_rho::DISTR_claytoncopula_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
 
   }
 
@@ -8781,6 +8794,7 @@ DISTR_gumbelcopula2_rho::DISTR_gumbelcopula2_rho(GENERAL_OPTIONS * o,
   predictor_name = "true";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
 
   }
 
@@ -9791,7 +9805,7 @@ DISTR_gaussiancopula_dagum_rho::DISTR_gaussiancopula_dagum_rho(GENERAL_OPTIONS *
   predictor_name = "rho";
     linpredminlimit=-100;
   linpredmaxlimit=100;
-
+  check_errors();
   }
 
 
@@ -10059,6 +10073,7 @@ DISTR_gumbelcopula_rho::DISTR_gumbelcopula_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
 
   }
 
@@ -10372,7 +10387,7 @@ DISTR_gaussiancopula_rho::DISTR_gaussiancopula_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-100;
   linpredmaxlimit=100;
-
+  check_errors();
   }
 
 
@@ -10629,7 +10644,7 @@ DISTR_gaussiancopula_rhofz::DISTR_gaussiancopula_rhofz(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-20.6;
   linpredmaxlimit=20.6;
-
+  check_errors();
   }
 
 
@@ -11750,7 +11765,7 @@ DISTR_frankcopula2_rho::DISTR_frankcopula2_rho(GENERAL_OPTIONS * o,
     linearpred1.plus(d);
   else
     linearpred2.plus(d);
-
+  check_errors();
   }
 
 
@@ -12522,7 +12537,7 @@ DISTR_frankcopula_exp_rho::DISTR_frankcopula_exp_rho(GENERAL_OPTIONS * o,
   predictor_name = "rho";
     linpredminlimit=-10;
   linpredmaxlimit=15;
-
+  check_errors();
   }
 
 
@@ -12953,6 +12968,7 @@ DISTR_dirichlet::DISTR_dirichlet(GENERAL_OPTIONS * o,
   linpredmaxlimit=15;
   nrcat = nrc;
   pos = p;
+  check_errors();
   }
 
 
@@ -13830,6 +13846,7 @@ DISTR_bivt_mu::DISTR_bivt_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -14364,6 +14381,7 @@ DISTR_bivnormal_mufz::DISTR_bivnormal_mufz(GENERAL_OPTIONS * o,
   updateIWLS = false;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -15076,6 +15094,7 @@ DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
   updateIWLS = false;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -15632,6 +15651,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(GENERAL_OPTIONS * o,
   responseorig = response;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -16208,6 +16228,7 @@ DISTR_bivlogit_mu::DISTR_bivlogit_mu(GENERAL_OPTIONS * o,
   predictor_name = "mu";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -16906,6 +16927,7 @@ DISTR_BCCG_mu::DISTR_BCCG_mu(GENERAL_OPTIONS * o,
     predictor_name = "mu";
     linpredminlimit=-10;
     linpredmaxlimit=15;
+	check_errors();
   }
 
 
@@ -17509,6 +17531,7 @@ DISTR_sfa0_mu_y::DISTR_sfa0_mu_y(GENERAL_OPTIONS * o,
   predictor_name = "mu_y";
 //   linpredminlimit=-10;
 //  linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -18538,6 +18561,7 @@ DISTR_sfa_mu_y::DISTR_sfa_mu_y(GENERAL_OPTIONS * o,
   predictor_name = "mu_y";
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -19008,6 +19032,7 @@ DISTR_sfa_mu_y_id::DISTR_sfa_mu_y_id(GENERAL_OPTIONS * o,
   predictor_name = "mu_y";
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -19842,6 +19867,7 @@ DISTR_sfa2_mu_y::DISTR_sfa2_mu_y(GENERAL_OPTIONS * o,
   predictor_name = "mu_y";
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -20303,6 +20329,7 @@ DISTR_sfa2_mu_y_id::DISTR_sfa2_mu_y_id(GENERAL_OPTIONS * o,
   predictor_name = "mu_y";
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
+  check_errors();
   }
 
 
@@ -20764,6 +20791,7 @@ DISTR_hurdle_lambda::DISTR_hurdle_lambda(GENERAL_OPTIONS * o,
   predictor_name = "lamba";
     linpredminlimit=-10;
   linpredmaxlimit=15;
+  check_errors();
   }
 
 
