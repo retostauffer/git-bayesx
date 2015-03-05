@@ -326,6 +326,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("frankcopula2_normal_sigma2");
   families.push_back("gaussiancopula_dagum");
   families.push_back("dirichlet");
+  families.push_back("sndp"); // sn111
+  families.push_back("sncp");
   family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -368,7 +370,9 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("scale");
   equationtypes.push_back("shape2");
   equationtypes.push_back("shape1");
-
+  equationtypes.push_back("xi"); // sn111
+  equationtypes.push_back("omega");
+  equationtypes.push_back("gamma");
   equationtype = stroption("equationtype",equationtypes,"mu");
 
   predictop.reserve(20);
@@ -941,6 +945,25 @@ void superbayesreg::clear(void)
   distr_gaussiancopula_rhofzs.erase(distr_gaussiancopula_rhofzs.begin(),distr_gaussiancopula_rhofzs.end());
   distr_gaussiancopula_rhofzs.reserve(20);
 
+  // sn111
+  distr_sndp_alphas.erase(distr_sndp_alphas.begin(), distr_sndp_alphas.end());
+  distr_sndp_alphas.reserve(20);
+
+  distr_sndp_omegas.erase(distr_sndp_omegas.begin(), distr_sndp_omegas.end());
+  distr_sndp_omegas.reserve(20);
+
+  distr_sndp_xis.erase(distr_sndp_xis.begin(), distr_sndp_xis.end());
+  distr_sndp_xis.reserve(20);
+
+  distr_sncp_gammas.erase(distr_sncp_gammas.begin(), distr_sncp_gammas.end());
+  distr_sncp_gammas.reserve(20);
+
+  distr_sncp_sigmas.erase(distr_sncp_sigmas.begin(), distr_sncp_sigmas.end());
+  distr_sncp_sigmas.reserve(20);
+
+  distr_sncp_mus.erase(distr_sncp_mus.begin(), distr_sncp_mus.end());
+  distr_sncp_mus.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -1213,6 +1236,12 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_sfa_sigma_us = b.distr_sfa_sigma_us;
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
+  distr_sndp_alphas = b.distr_sndp_alphas; //sn111
+  distr_sndp_omegas = b.distr_sndp_omegas;
+  distr_sndp_xis = b.distr_sndp_xis;
+  distr_sncp_gammas = b.distr_sncp_gammas;
+  distr_sncp_sigmas = b.distr_sncp_sigmas;
+  distr_sncp_mus = b.distr_sncp_mus;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1412,7 +1441,12 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_sfa_sigma_us = b.distr_sfa_sigma_us;
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
-
+  distr_sndp_alphas = b.distr_sndp_alphas; //sn111
+  distr_sndp_omegas = b.distr_sndp_omegas;
+  distr_sndp_xis = b.distr_sndp_xis;
+  distr_sncp_gammas = b.distr_sncp_gammas;
+  distr_sncp_sigmas = b.distr_sncp_sigmas;
+  distr_sncp_mus = b.distr_sncp_mus;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -6576,6 +6610,164 @@ mainequation=true;
 
     }
 //-------------------------- END: Binomial response probit ---------------------
+
+// sn111
+  //---------------------------------- sndp_alpha -----------------------------------
+   else if (family.getvalue() == "sndp" && equationtype.getvalue()=="alpha")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_sndp_alphas.push_back(DISTR_sndp_alpha(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_sndp_alphas[distr_sndp_alphas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: sndp_alpha ---------------------------------
+
+ //---------------------------------- sndp_omega --------------------------------
+   else if (family.getvalue() == "sndp" && equationtype.getvalue()=="omega")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_sndp_omegas.push_back(DISTR_sndp_omega(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_sndp_omegas[distr_sndp_omegas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: sndp_omega -------------------------------
+
+
+ // ----------------------------------- sndp_xi ----------------------------------
+   else if (family.getvalue() == "sndp" && equationtype.getvalue()=="xi")
+     {
+     mainequation=true;
+
+     computemodeforstartingvalues = true;
+
+     distr_sndp_xis.push_back(DISTR_sndp_xi(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_sndp_xis[distr_sndp_xis.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_sndp_alphas.size() != 1)
+       {
+       outerror("ERROR: Equation for alpha is missing");
+       return true;
+       }
+
+     if (distr_sndp_omegas.size() != 1)
+       {
+       outerror("ERROR: Equation for omega is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_sndp_alphas[distr_sndp_alphas.size()-1]);
+     predict_mult_distrs.push_back(&distr_sndp_omegas[distr_sndp_omegas.size()-1]);
+     predict_mult_distrs.push_back(&distr_sndp_xis[distr_sndp_xis.size()-1]);
+
+     distr_sndp_alphas[distr_sndp_alphas.size()-1].distrp.push_back(
+     &distr_sndp_omegas[distr_sndp_omegas.size()-1]);
+
+	   distr_sndp_alphas[distr_sndp_alphas.size()-1].distrp.push_back(
+     &distr_sndp_xis[distr_sndp_xis.size()-1]);
+
+     distr_sndp_omegas[distr_sndp_omegas.size()-1].distrp.push_back(
+     &distr_sndp_alphas[distr_sndp_alphas.size()-1]);
+
+     distr_sndp_omegas[distr_sndp_omegas.size()-1].distrp.push_back(
+     &distr_sndp_xis[distr_sndp_xis.size()-1]);
+
+     distr_sndp_xis[distr_sndp_xis.size()-1].distrp.push_back(
+     &distr_sndp_alphas[distr_sndp_alphas.size()-1]);
+
+     distr_sndp_xis[distr_sndp_xis.size()-1].distrp.push_back(
+     &distr_sndp_omegas[distr_sndp_omegas.size()-1]);
+
+     }
+ //------------------------------ END: sndp_xi ----------------------------------
+
+ //---------------------------------- sncp_gamma -----------------------------------
+   else if (family.getvalue() == "sncp" && equationtype.getvalue()=="gamma")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_sncp_gammas.push_back(DISTR_sncp_gamma(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_sncp_gammas[distr_sncp_gammas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: sncp_gamma ---------------------------------
+
+ //---------------------------------- sncp_sigma --------------------------------
+   else if (family.getvalue() == "sncp" && equationtype.getvalue()=="sigma")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_sncp_sigmas.push_back(DISTR_sncp_sigma(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_sncp_sigmas[distr_sncp_sigmas.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------ END: sncp_sigma -------------------------------
+
+
+ // ----------------------------------- sncp_mu ----------------------------------
+   else if (family.getvalue() == "sncp" && equationtype.getvalue()=="mu")
+     {
+     mainequation=true;
+
+     computemodeforstartingvalues = true;
+
+     distr_sncp_mus.push_back(DISTR_sncp_mu(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_sncp_mus[distr_sncp_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_sncp_gammas.size() != 1)
+       {
+       outerror("ERROR: Equation for gamma is missing");
+       return true;
+       }
+
+     if (distr_sncp_sigmas.size() != 1)
+       {
+       outerror("ERROR: Equation for sigma is missing");
+       return true;
+       }
+
+     predict_mult_distrs.push_back(&distr_sncp_gammas[distr_sncp_gammas.size()-1]);
+     predict_mult_distrs.push_back(&distr_sncp_sigmas[distr_sncp_sigmas.size()-1]);
+     predict_mult_distrs.push_back(&distr_sncp_mus[distr_sncp_mus.size()-1]);
+
+     distr_sncp_gammas[distr_sncp_gammas.size()-1].distrp.push_back(
+     &distr_sncp_sigmas[distr_sncp_sigmas.size()-1]);
+
+	   distr_sncp_gammas[distr_sncp_gammas.size()-1].distrp.push_back(
+     &distr_sncp_mus[distr_sncp_mus.size()-1]);
+
+     distr_sncp_sigmas[distr_sncp_sigmas.size()-1].distrp.push_back(
+     &distr_sncp_gammas[distr_sncp_gammas.size()-1]);
+
+     distr_sncp_sigmas[distr_sncp_sigmas.size()-1].distrp.push_back(
+     &distr_sncp_mus[distr_sncp_mus.size()-1]);
+
+     distr_sncp_mus[distr_sncp_mus.size()-1].distrp.push_back(
+     &distr_sncp_gammas[distr_sncp_gammas.size()-1]);
+
+     distr_sncp_mus[distr_sncp_mus.size()-1].distrp.push_back(
+     &distr_sncp_sigmas[distr_sncp_sigmas.size()-1]);
+
+     }
+ //------------------------------ END: sncp_mu ----------------------------------
+
   else
     {
     outerror("ERROR: Invalid distribution specification (check family and/or equationtype option)\n");

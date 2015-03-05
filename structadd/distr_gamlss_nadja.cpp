@@ -21565,6 +21565,1137 @@ void DISTR_hurdle_mu::update_end(void)
   }
 
 
+//--------SNDP------------------------------
+
+// bereits ersetzt
+//  double ll_sn_dp(double x, double xi, double om, double al){
+//    double l = 0;
+//    l = -0.5*log(2*PI) - log(om) - 0.5*pow(x-xi, 2)/om/om+log(randnumbers::Phi2(al*(x-xi)/om));
+//    return l;
+//  }
+
+ double sn_a0(double al){
+    double a = al * 0.96;
+    return 2/PI/sqrt(1 + 8*a*a/PI/PI);
+  }
+
+  double sn_a1(double al){
+    double a = al;
+    double b = 2/PI;
+    return - 0.975 * pow(sqrt(b),3)*a/pow(sqrt(1 + 8*a*a / (PI*PI)),3) / sqrt(1 + a*a/(1 + 8*a*a/(PI*PI)));
+  }
+
+  double sn_a2(double al){
+    double a = al * 0.96;
+    return 2/PI/pow(sqrt(1 + 8*a*a/PI/PI), 3);
+  }
+
+
+// Constructor:
+DISTR_sndp_alpha::DISTR_sndp_alpha(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w) // <-----
+  {
+  family = "Skew Normal Distribution, Direct Parametrization - alpha";
+  outpredictor = true;
+  outexpectation = false; // only true if main parameter
+  predictor_name = "alpha";
+
+  // linpredminlimit=-10; // necessary for log-link
+  // linpredmaxlimit=15; // necessary for log-link
+
+  // updateIWLS = false; // only false and necessary if gibbs sampling?
+  }
+
+
+// Copy Constructor:
+DISTR_sndp_alpha::DISTR_sndp_alpha(const DISTR_sndp_alpha & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+// Operator:
+const DISTR_sndp_alpha & DISTR_sndp_alpha::operator=(
+                            const DISTR_sndp_alpha & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+
+double DISTR_sndp_alpha::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_sndp_alpha::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = (*linpred[0]); // <--- c.f. linpred info
+  }
+
+
+
+double DISTR_sndp_alpha::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double x = (*response);
+  double xi = *worklin[1];
+  double om = exp(*worklin[0]);
+  double al = (*linpred);
+
+  double l;
+
+  l = - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // calculate log-likelihood (possibly simplified)
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sndp_alpha::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double x = (*response);
+    double xi = (*worklin[1]);
+    double om = exp(*worklin[0]);
+    double al = (*linpred);
+    double z = (x - xi)/om;
+
+    double nu = randnumbers::phi(al*z) / randnumbers::Phi2(al*z) * z; // v
+
+//    *workingweight = zeta2(al*z)*z*z; //
+    *workingweight = sn_a2(al); // w
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // loglikelihood
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_sndp_alpha::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("Link function (alpha): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sndp_alpha::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+// Constructor:
+DISTR_sndp_omega::DISTR_sndp_omega(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w) // <-----
+  {
+  family = "Skew Normal Distribution, Direct Parametrization - omega";
+  outpredictor = true;
+  outexpectation = false; // only true if main parameter
+  predictor_name = "omega";
+
+   linpredminlimit=-10; // necessary for log-link
+   linpredmaxlimit=15; // necessary for log-link
+
+  // updateIWLS = false; // only false and necessary if gibbs sampling?
+  }
+
+
+// Copy Constructor:
+DISTR_sndp_omega::DISTR_sndp_omega(const DISTR_sndp_omega & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+// Operator:
+const DISTR_sndp_omega & DISTR_sndp_omega::operator=(
+                            const DISTR_sndp_omega & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_sndp_omega::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_sndp_omega::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp(*linpred[1]); // <--- c.f. linpred info
+  }
+
+
+double DISTR_sndp_omega::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double x = (*response);
+  double xi = (*worklin[1]);
+  double om = exp(*linpred);
+  double al = (*worklin[0]);
+
+  double l;
+
+  l = - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // calculate log-likelihood (possibly simplified)
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sndp_omega::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double x = (*response);
+    double xi = (*worklin[1]);
+    double om = exp(*linpred);
+    double al = (*worklin[0]);
+    double z = (x - xi)/om;
+
+    double nu = (z*z - 1 - al*randnumbers::phi(al*z) / randnumbers::Phi2(al*z)*z)/om/om; // v
+
+    *workingweight = (2 + al*al*sn_a2(al)); // w /pow(om,4) ???
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // loglikelihood
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+
+void DISTR_sndp_omega::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("Link function (omega): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sndp_omega::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+// ONLY FOR THE MAIN PARAMETER:
+void DISTR_sndp_xi::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+// Constructor:
+DISTR_sndp_xi::DISTR_sndp_xi(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w) // <-----
+  {
+  family = "Skew Normal Distribution, Direct Parametrization - xi";
+  outpredictor = true;
+  outexpectation = true; // only true if main parameter
+  predictor_name = "xi";
+
+  // linpredminlimit=-10; // necessary for log-link
+  // linpredmaxlimit=15; // necessary for log-link
+
+  // updateIWLS = false; // only false and necessary if gibbs sampling?
+  }
+
+
+// Copy Constructor:
+DISTR_sndp_xi::DISTR_sndp_xi(const DISTR_sndp_xi & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+// Operator:
+const DISTR_sndp_xi & DISTR_sndp_xi::operator=(
+                            const DISTR_sndp_xi & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+// ONLY FOR THE MAIN PARAMETER:
+void DISTR_sndp_xi::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+   if (*weight[2] == 0) // <---
+     *deviance=0;
+   else
+     {
+
+     double x = (*response[0]);
+     double xi = (*linpred[2]);
+     double om = exp(*linpred[1]);
+     double al = (*linpred[0]);
+     double l;
+
+     l = -0.5*log(2*PI) - log(om) - 0.5*pow(x-xi, 2)/om/om + log(2*randnumbers::Phi2(al*(x-xi)/om)); // Compute log-likelihood (complete)
+
+    *deviance = -2*l;
+    }
+  }
+
+
+double DISTR_sndp_xi::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_sndp_xi::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = (*linpred[2]); // <--- c.f. linpred info
+  }
+
+// ONLY FOR THE MAIN PARAMETER:
+double DISTR_sndp_xi::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    return 0; // calculate cdf for observation using param!
+    }
+
+// ONLY FOR THE MAIN PARAMETER:
+double DISTR_sndp_xi::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0; // usually set to be zero
+    }
+
+
+
+
+double DISTR_sndp_xi::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double x = (*response);
+  double xi = (*linpred);
+  double om = exp(*worklin[1]);
+  double al = (*worklin[0]);
+
+  double l;
+
+  l = - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // calculate log-likelihood (possibly simplified)
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sndp_xi::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double x = (*response);
+    double xi = (*linpred);
+    double om = exp(*worklin[1]);
+    double al = (*worklin[0]);
+    double z = (x - xi)/om;
+
+    double nu = (z - al*randnumbers::phi(al*z) / randnumbers::Phi2(al*z))/om; // v
+
+    *workingweight = (1 + al * al * sn_a0(al))/om/om; // w
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // loglikelihood
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+// ONLY FOR THE MAIN PARAMETER:
+void DISTR_sndp_xi::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = ((*linpred[predstart_mumult+2])); // <--- depends on the number of parameters
+  }
+
+
+void DISTR_sndp_xi::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("Link function (xi): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sndp_xi::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+DISTR_sncp_gamma::DISTR_sncp_gamma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w) // <-----
+  {
+  family = "Skew Normal Distribution, Centered Parametrization - Gamma";
+  outpredictor = true;
+  outexpectation = false; // only true if main parameter
+  predictor_name = "gamma";
+
+  linpredminlimit=-10; // necessary for log-link
+  linpredmaxlimit=10; // necessary for log-link
+
+  // updateIWLS = false; // only false and necessary if gibbs sampling?
+  }
+
+
+// Copy Constructor:
+DISTR_sncp_gamma::DISTR_sncp_gamma(const DISTR_sncp_gamma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+// Operator:
+const DISTR_sncp_gamma & DISTR_sncp_gamma::operator=(
+                            const DISTR_sncp_gamma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+
+
+double DISTR_sncp_gamma::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_sncp_gamma::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = 0.9952716*((*linpred[0])/(sqrt(1 + (*linpred[0])*(*linpred[0])))); // <--- c.f. linpred info
+  }
+
+
+
+
+double DISTR_sncp_gamma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double x = (*response);
+  double m = *worklin[1];
+  double s = exp(*worklin[0]);
+  double g = 0.9952716*((*linpred)/(sqrt(1 + (*linpred)*(*linpred))));
+  double R = cbrt(2*g/(4-PI));
+  double b2 = 2.0/PI;
+  double al = R/sqrt(b2-(1-b2)*R*R);
+  double d = al/sqrt(1 + al*al);
+  double om = s/sqrt(1 - b2*d*d);
+  double xi = m - sqrt(b2)*om*d;
+
+  double l = 0;
+
+  l = - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // calculate log-likelihood (possibly simplified)
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sncp_gamma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double x = (*response);
+  double m = (*worklin[1]);
+  double s = exp(*worklin[0]);
+  double g = 0.9952716*((*linpred)/(sqrt(1 + (*linpred)*(*linpred))));
+  double g1 = g;
+  if(abs(g) < 0.001){
+    g = 0.001;
+  }
+  double R = cbrt(2*g/(4-PI));
+  double R1 = cbrt(2*g1/(4-PI));
+  double b2 = 2.0/PI;
+  double b = sqrt(b2);
+  double al = R/sqrt(b2-(1-b2)*R*R);
+  double al1 = R1/sqrt(b2-(1-b2)*R1*R1);
+  double d = al/sqrt(1 + al*al);
+  double d2 = d*d;
+  double om = s/sqrt(1 - b2*d2);
+  double xi = m - b*om*d;
+  double z = (x - xi) / om;
+  double zt1 = randnumbers::phi(al*z) / randnumbers::Phi2(al*z);
+  double a0 = sn_a0(al);
+  double a1 = sn_a1(al);
+  double a2 = sn_a2(al);
+
+  double nu = 0;
+
+      nu = (((al * b * zt1 - z * b + b2 * d / (1 - b2 * d2) * (al * (b * d - z) * zt1 - z * b * d - 1 + z * z))
+                 / pow(1 + al * al, 1.5) + z * zt1)
+                 * (1 / sqrt(b2 - (1 - b2) * R * R) + (1 - b2) * R * R / pow(sqrt(b2 - (1 - b2) * R * R),3)) * cbrt(2 / (4 - PI) / pow(g,2)) / 3
+                 * 0.9952716 / pow(sqrt(1 + (*linpred) * (*linpred)), 3));//v_g(x, m, s, g); // v
+      *workingweight = ((a2 + 2 / pow(sqrt(1 + al * al), 3) * (b * al * a1 + (b * d * al * a1 - al * a2) * b2 * d / (1 - b2 * d2))
+                       + (b2 * (al * al * a0 - 1) - 2 * b2 * b * d / (1 - b2 * d2) * (b * d2 * d + al * al *a1 + b * d * (1 - al * al * a0))
+                          + b2 * b2 * d2 / pow(1 - b2 * d2, 2) * (2 - b2 * d2 * (1 + 2 * d2) + al * al * (a2 - 2 * b * d * a1 + b2 * d2 * a0)))
+                      / pow(1 + al * al, 3))
+                      * pow((1 / sqrt(b2 - (1 - b2) * R * R) + (1 - b2) * R * R / pow(sqrt(b2 - (1 - b2) * R * R),3)) * cbrt(2 / (4 - PI) / pow(g,2)) / 3
+                      * 0.9952716 / pow(sqrt(1 + (*linpred) * (*linpred)), 3), 2)); //w_g(x, m, s, g); // w
+
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - log(om) - 0.5*pow(x-xi, 2)/om/om + log(2*randnumbers::Phi2(al1*(x-xi)/om)); // loglikelihood
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+
+void DISTR_sncp_gamma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("Link function (gamma): custom\n"); // HIER custom ersetzen
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sncp_gamma::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = 0.9952716*((*worklin)/(sqrt(1 + (*worklin)*(*worklin))));
+//    double t = 0;
+    }
+
+  }
+
+
+  // Constructor:
+DISTR_sncp_sigma::DISTR_sncp_sigma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w) // <-----
+  {
+  family = "Skew Normal Distribution, Centered Parametrization - sigma";
+  outpredictor = true;
+  outexpectation = false; // only true if main parameter
+  predictor_name = "sigma";
+
+   linpredminlimit=-10; // necessary for log-link
+   linpredmaxlimit=15; // necessary for log-link
+
+  // updateIWLS = false; // only false and necessary if gibbs sampling?
+  }
+
+
+// Copy Constructor:
+DISTR_sncp_sigma::DISTR_sncp_sigma(const DISTR_sncp_sigma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+// Operator:
+const DISTR_sncp_sigma & DISTR_sncp_sigma::operator=(
+                            const DISTR_sncp_sigma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+
+double DISTR_sncp_sigma::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_sncp_sigma::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp(*linpred[1]); // <--- c.f. linpred info
+  }
+
+
+
+double DISTR_sncp_sigma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double x = (*response);
+  double m = (*worklin[1]);
+  double s = exp(*linpred);
+  double g = 0.9952716*((*worklin[0])/(sqrt(1 + (*worklin[0])*(*worklin[0]))));
+  double R = cbrt(2*g/(4-PI));
+  double b2 = 2.0/PI;
+  double al = R/sqrt(b2-(1-b2)*R*R);
+  double d = al/sqrt(1 + al*al);
+  double om = s/sqrt(1 - b2*d*d);
+  double xi = m - sqrt(b2)*om*d;
+
+  double l = 0;
+
+  l = - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // calculate log-likelihood (possibly simplified)
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sncp_sigma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double x = (*response);
+    double m = (*worklin[1]);
+    double s = exp(*linpred);
+    double g = 0.9952716*((*worklin[0])/(sqrt(1 + (*worklin[0])*(*worklin[0]))));
+    double R = cbrt(2*g/(4-PI));
+    double b2 = 2.0/PI;
+    double b = sqrt(b2);
+    double al = R/sqrt(b2-(1-b2)*R*R);
+    double d = al/sqrt(1 + al*al);
+    double d2 = d*d;
+    double om = s/sqrt(1 - b2*d2);
+    double xi = m - b*om*d;
+    double z = (x - xi) / om;
+
+    double nu = (z * z - b * d * z - 1 - al * randnumbers::phi(al*z) / randnumbers::Phi2(al*z) * (z - b * d));//v_s(x, m, s, g);
+
+    *workingweight = b2 * d2 * (1 + al * al * sn_a0(al) - 2 * (1 + 2 * al * al) / (1 + al * al)) - 2 * b * d * al * al * sn_a1(al) + 2 + al * al * sn_a2(al);
+    //(b2 * d * (d * (1 + al * al * sn_a0(al) - 2 * (1 - al * al) / (1 + al * al)) - 2 * al * al * sn_a1(al)) + 2 + al * al * sn_a2(al));//w_s(x, m, s, g);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // loglikelihood
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+
+
+void DISTR_sncp_sigma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("Link function (sigma): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sncp_sigma::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+//    double t = 0;
+    }
+
+  }
+
+
+// ONLY FOR THE MAIN PARAMETER:
+void DISTR_sncp_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+// Constructor:
+DISTR_sncp_mu::DISTR_sncp_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w) // <-----
+  {
+  family = "Skew Normal Distribution, Centered Parametrization - mu";
+  outpredictor = true;
+  outexpectation = true; // only true if main parameter
+  predictor_name = "mu";
+
+  // linpredminlimit=-10; // necessary for log-link
+  // linpredmaxlimit=15; // necessary for log-link
+
+  // updateIWLS = false; // only false and necessary if gibbs sampling?
+  }
+
+
+// Copy Constructor:
+DISTR_sncp_mu::DISTR_sncp_mu(const DISTR_sncp_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+// Operator:
+const DISTR_sncp_mu & DISTR_sncp_mu::operator=(
+                            const DISTR_sncp_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+// ONLY FOR THE MAIN PARAMETER:
+void DISTR_sncp_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+   if (*weight[2] == 0) // <---
+     *deviance=0;
+   else
+     {
+     double x = (*response[0]);
+     double m = (*linpred[2]);
+     double s = exp(*linpred[1]);
+     double g = 0.9952716*((*linpred[0])/(sqrt(1 + (*linpred[0])*(*linpred[0]))));
+     double R = cbrt(2*g/(4-PI));
+     double b2 = 2.0/PI;
+     double al = R/sqrt(b2-(1-b2)*R*R);
+     double d = al/sqrt(1 + al*al);
+     double om = s/sqrt(1 - b2*d*d);
+     double xi = m - sqrt(b2)*om*d;
+
+     double l;
+
+     l = -0.5*log(2*PI) - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // Compute log-likelihood (complete)
+
+    *deviance = -2*l;
+    }
+  }
+
+
+double DISTR_sncp_mu::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+void DISTR_sncp_mu::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = (*linpred[2]); // <--- c.f. linpred info
+  }
+
+// ONLY FOR THE MAIN PARAMETER:
+double DISTR_sncp_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    return 0; // calculate cdf for observation using param!
+    }
+
+// ONLY FOR THE MAIN PARAMETER:
+double DISTR_sncp_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0; // usually set to be zero
+    }
+
+
+
+
+double DISTR_sncp_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double x = (*response);
+  double m = (*linpred);
+  double s = exp(*worklin[1]);
+  double g = 0.9952716*((*worklin[0])/(sqrt(1 + (*worklin[0])*(*worklin[0]))));
+  double R = cbrt(2*g/(4-PI));
+  double b2 = 2.0/PI;
+  double al = R/sqrt(b2-(1-b2)*R*R);
+  double d = al/sqrt(1 + al*al);
+  double om = s/sqrt(1 - b2*d*d);
+  double xi = m - sqrt(b2)*om*d;
+
+  double l;
+
+  l = - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // calculate log-likelihood (possibly simplified)
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_sncp_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double x = (*response);
+  double m = (*linpred);
+  double s = exp(*worklin[1]);
+  double g = 0.9952716*((*worklin[0])/(sqrt(1 + (*worklin[0])*(*worklin[0]))));
+  double R = cbrt(2*g/(4-PI));
+  double b2 = 2.0/PI;
+  double al = R/sqrt(b2-(1-b2)*R*R);
+  double d = al/sqrt(1 + al*al);
+  double om = s/sqrt(1 - b2*d*d);
+  double xi = m - sqrt(b2)*om*d;
+  double z = (x - xi) / om;
+
+    double nu = z / om - al / om * randnumbers::phi(al*z) / randnumbers::Phi2(al*z);//v_m(x, m, s, g);
+
+    *workingweight = (1 + al * al * sn_a0(al)) / om / om;//w_m(x, m, s, g);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += - log(om) - 0.5*pow(x-xi, 2)/om/om+log(2*randnumbers::Phi2(al*(x-xi)/om)); // loglikelihood
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+// ONLY FOR THE MAIN PARAMETER:
+void DISTR_sncp_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = ((*linpred[predstart_mumult+2])); // <--- depends on the number of parameters
+  }
+
+
+void DISTR_sncp_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("Link function (mu): identitiy\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_sncp_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
 
 
 } // end: namespace MCMC

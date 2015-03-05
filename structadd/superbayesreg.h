@@ -201,6 +201,13 @@ using MCMC::DISTR_frankcopula2_normal_sigma2;
 using MCMC::DISTR_tcopula_df;
 using MCMC::DISTR_tcopula_rho;
 
+using MCMC::DISTR_sndp_alpha; // sn111
+using MCMC::DISTR_sndp_omega;
+using MCMC::DISTR_sndp_xi;
+using MCMC::DISTR_sncp_gamma;
+using MCMC::DISTR_sncp_sigma;
+using MCMC::DISTR_sncp_mu;
+
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
@@ -523,6 +530,12 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_sfa2_mu_u> distr_sfa2_mu_us;
   vector<DISTR_sfa2_sigma_u> distr_sfa2_sigma_us;
   vector<DISTR_sfa2_sigma_v> distr_sfa2_sigma_vs;
+  vector<DISTR_sndp_alpha> distr_sndp_alphas; // sn111
+  vector<DISTR_sndp_omega> distr_sndp_omegas;
+  vector<DISTR_sndp_xi> distr_sndp_xis;
+  vector<DISTR_sncp_gamma> distr_sncp_gammas;
+  vector<DISTR_sncp_sigma> distr_sncp_sigmas;
+  vector<DISTR_sncp_mu> distr_sncp_mus;
 
   bool create_distribution(void);
 
