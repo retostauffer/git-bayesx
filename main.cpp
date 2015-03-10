@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 #else
   ST::string tempstring = ST::string(path) + "\\temp";
 #endif
-  char* pathtemp = tempstring.strtochar();
+  const char* pathtemp = tempstring.strtochar();
   int testtemp = access(pathtemp, 06);
   if(testtemp==-1)
     {
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 #else
   ST::string outputstring = ST::string(path) + "\\output";
 #endif
-  char* pathoutput = outputstring.strtochar();
+  const char* pathoutput = outputstring.strtochar();
   int testoutput = access(pathoutput, 00);
   if(testoutput==-1)
     {

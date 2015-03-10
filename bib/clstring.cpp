@@ -816,11 +816,12 @@ int string::isint(void) const
   }
 
 
-char * string::strtochar() const
+const char * string::strtochar() const
   {
-  char * h = new char[len+1];
-  strcpy(h,str);
-  return h;
+//  char * h = new char[len+1];
+//  strcpy(h,str);
+//  return h;
+  return str;
   }
 
 

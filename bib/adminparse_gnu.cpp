@@ -635,7 +635,7 @@ bool admin_gnu::parse(ST::string & in)
              #else
                ST::string tempstring = defaultpath + "\\temp";
              #endif
-               char* pathtemp = tempstring.strtochar();
+               const char* pathtemp = tempstring.strtochar();
                int testtemp = access(pathtemp, 06);
                if(testtemp==-1)
                  {
@@ -661,7 +661,7 @@ bool admin_gnu::parse(ST::string & in)
              #else
                ST::string outputstring = defaultpath + "\\output";
              #endif
-               char* pathoutput = outputstring.strtochar();
+               const char* pathoutput = outputstring.strtochar();
                int testoutput = access(pathoutput, 00);
                if(testoutput==-1)
                  {
