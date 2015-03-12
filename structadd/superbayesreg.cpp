@@ -2149,7 +2149,16 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+      if((*rp)==0)
+        *wp = 0;
+	  else if((*rp)==1)
+	    *wp = 0;
+      }
     distr_betainf_mus.push_back(DISTR_betainf_mu(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_betainf_mus[distr_betainf_mus.size()-1];
@@ -2164,7 +2173,16 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+      if((*rp)==0)
+        *wp = 0;
+	  else if((*rp)==1)
+	    *wp = 0;
+      }
     distr_betainf_sigma2s.push_back(DISTR_betainf_sigma2(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_betainf_sigma2s[distr_betainf_sigma2s.size()-1];
@@ -2246,7 +2264,14 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+      if((*rp)==0)
+        *wp = 0;
+      }
     distr_beta_sigma2s.push_back(DISTR_beta_sigma2(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
@@ -2262,7 +2287,14 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+      if((*rp)==0)
+        *wp = 0;
+      }
     distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
@@ -2318,7 +2350,14 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+	  else if((*rp)==1)
+	    *wp = 0;
+      }
     distr_beta_sigma2s.push_back(DISTR_beta_sigma2(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_beta_sigma2s[distr_beta_sigma2s.size()-1];
@@ -2334,7 +2373,14 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+	  else if((*rp)==1)
+	    *wp = 0;
+      }
     distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_beta_mus[distr_beta_mus.size()-1];
@@ -5342,7 +5388,14 @@ mainequation=true;
     bool sl = slow.getvalue();
     int nb = nrbetween.getvalue();
     double sts = stopsum.getvalue();
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+      if((*rp)==0)
+        *wp = 0;
+      }
     distr_hurdle_deltas.push_back(DISTR_hurdle_delta(&generaloptions,D.getCol(0),
     sts,strmax,nb,sl,w));
 
@@ -5359,7 +5412,14 @@ mainequation=true;
     mainequation=true;
 
     computemodeforstartingvalues = true;
-
+    int i;
+    double * wp = w.getV();
+    double * rp = D.getV();
+    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
+      {
+      if((*rp)==0)
+        *wp = 0;
+      }
     distr_hurdle_mus.push_back(DISTR_hurdle_mu(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_hurdle_mus[distr_hurdle_mus.size()-1];
