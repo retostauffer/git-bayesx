@@ -164,6 +164,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   bool wei;
 
   datamatrix X;
+  datamatrix diff;
 
   double tauold;
 
@@ -203,6 +204,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   ~FC_nonp_variance_varselection()
     {
     }
+
+  void add_linpred(datamatrix & l);
 
   // FUNCTION: update
   // TASK: - stores sampled parameters in file 'samplepath'

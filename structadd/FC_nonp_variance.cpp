@@ -364,7 +364,6 @@ void FC_nonp_variance::update(void)
 
 bool FC_nonp_variance::posteriormode(void)
   {
-
   b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
   beta(0,0) = likep->get_scale()/beta(0,1);
@@ -642,6 +641,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
     {
     omega=0.5;
     }
+  diff = datamatrix(likep->nrobs, 1, 0);
   }
 
 
@@ -665,6 +665,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   scaletau2 = m.scaletau2;
   r2 = m.r2;
   X = m.X;
+  diff = m.diff;
   gig = m.gig;
   }
 
@@ -692,10 +693,19 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   scaletau2 = m.scaletau2;
   r2 = m.r2;
   X = m.X;
+  diff = m.diff;
   gig = m.gig;
   return *this;
   }
 
+void FC_nonp_variance_varselection::add_linpred(datamatrix & l)
+  {
+
+  if (likep->linpred_current==1)
+    likep->linearpred1.plus(l);
+  else
+    likep->linearpred2.plus(l);
+  }
 
 void FC_nonp_variance_varselection::update(void)
   {
@@ -804,6 +814,101 @@ void FC_nonp_variance_varselection::update(void)
      }
     else
     {
+    if(FCnonpp->IWLS)
+      {
+      double Sigmatauprop, Sigmataucurr;
+      double mutauprop, mutaucurr;
+
+      // compute X = design matrix * scaled regression coefficients (Z * tilde gamma)
+      FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+      double * Xp = X.getV();
+      for(i=0; i<X.rows(); i++, Xp++)
+        {
+        *Xp /= sqrt(beta(0,0));
+        }
+
+      double * worklin;
+      if (likep->linpred_current==1)
+        worklin = likep->linearpred1.getV();
+      else
+        worklin = likep->linearpred2.getV();
+
+      double logold = likep->compute_iwls(true, true);
+
+      Xp = X.getV();
+      double * responsep = likep->workingresponse.getV();
+      double varinv = 1/(likep->get_scale());
+      double * weightp = likep->workingweight.getV();
+      double xtx=0;
+      for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,weightp++)
+        {
+        xtx += (*weightp) * pow(*Xp,2);
+        mutaucurr += (*weightp) * (*Xp) * ((*responsep) - (*worklin) + sqrt(beta(0,0))*(*Xp));
+        }
+    Sigmataucurr = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
+    mutaucurr *= Sigmataucurr/(likep->get_scale());
+
+    double tauprop = mutaucurr + sqrt(Sigmataucurr) * rand_normal();
+
+    double * diffp = diff.getV();
+    Xp = X.getV();
+    for(i=0; i<X.rows(); i++, Xp++, diffp++)
+      {
+      *diffp = (tauprop - sqrt(beta(0,0))) * (*Xp);
+      }
+    add_linpred(diff);
+
+    double logprop = likep->compute_iwls(true, true);
+
+    Xp = X.getV();
+    responsep = likep->workingresponse.getV();
+    varinv = 1/(likep->get_scale());
+    weightp = likep->workingweight.getV();
+    if (likep->linpred_current==1)
+      worklin = likep->linearpred1.getV();
+    else
+      worklin = likep->linearpred2.getV();
+
+    xtx=0;
+    for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,weightp++)
+      {
+      xtx += (*weightp) * pow(*Xp,2);
+      mutauprop += (*weightp) * (*Xp) * ((*responsep) - (*worklin) + tauprop*(*Xp));
+      }
+    Sigmatauprop = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
+    mutauprop *= Sigmatauprop/(likep->get_scale());
+
+    double u = log(uniform());
+
+    double qold = -0.5*log(Sigmataucurr) -0.5*(tauprop-mutaucurr)*(tauprop-mutaucurr)/Sigmataucurr;
+    double qnew = -0.5*log(Sigmatauprop) -0.5*(sqrt(beta(0,0))-mutauprop)*(sqrt(beta(0,0))-mutauprop)/Sigmatauprop;
+
+    if(u <= logprop - logold - qnew + qold)
+      {
+      acceptance++;
+      double tau2 = tauprop*tauprop;
+      if (tau2 < 0.000000001)
+        tau2 = 0.000000001;
+      beta(0,0) = tau2;
+      }
+    else
+      {
+      diffp = diff.getV();
+      for(i=0; i<diff.rows(); i++, diffp++)
+        *diffp = -(*diffp);
+      add_linpred(diff);
+      }
+
+
+      beta(0,1) = likep->get_scale()/beta(0,0);
+      FCnonpp->tau2 = beta(0,0);
+    // end: updating tau2
+
+      FC::update();
+
+      }
+    else
+      {
   //variante stefan, für GAUSS fall
     double Sigmatau;
     double mutau;
@@ -843,7 +948,7 @@ void FC_nonp_variance_varselection::update(void)
 
     acceptance++;
     FC::update();
-
+      }
 //---------------------------------------------------------------------------------------
 /*
 //  extension to GAMLSS case

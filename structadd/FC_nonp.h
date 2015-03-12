@@ -59,10 +59,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   bool samplederivative;
   FC derivativesample;
 
-
-  bool IWLS;
-
-
   bool orthogonal;
   datamatrix acuteparam;
 
@@ -87,6 +83,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
 
   public:
+
+  bool IWLS;
 
   DESIGN * designp;                          // Pointer to design object
 
