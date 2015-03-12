@@ -100,6 +100,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   priors.push_back("dirichlet");
   priors.push_back("nmig");
   priors.push_back("ssvs");
+  priors.push_back("nn");
 
   prior = stroption("prior",priors,"iid");
   knotpath = fileoption("knotpath","");
@@ -118,7 +119,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   center = simpleoption("center",false);
 
   tildea = doubleoption("tildea",0.001,-1.0,500);
-  tildeb = doubleoption("tildeb",0.001,0,500);  
+  tildeb = doubleoption("tildeb",0.001,0,500);
   cauchy = simpleoption("cauchy",false);
   wei = simpleoption("wei",false);
   r2 = doubleoption("r2",0.00456356,0,1);
@@ -132,7 +133,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   // gamma prior for tau2 instead of normal prior for tau in ssvs
   gig = simpleoption("gig",false);
-  
+
   //test different options for proposal for scale dependent weibull  prior
   vector<ST::string> proposals;
   proposals.push_back("gamma");
@@ -192,7 +193,7 @@ void term_nonp::setdefault(void)
   bQ.setdefault();
   regiterates.setdefault();
   center.setdefault();
-  
+
   tildea.setdefault();
   tildeb.setdefault();
   cauchy.setdefault();
@@ -295,7 +296,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&datasetref);
     optlist.push_back(&lambdaconst);
 
-    
+
     optlist.push_back(&abeta);
     optlist.push_back(&bbeta);
     optlist.push_back(&r);
@@ -304,7 +305,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&bQ);
     optlist.push_back(&regiterates);
     optlist.push_back(&center);
-	
+
     optlist.push_back(&tildea);
     optlist.push_back(&tildeb);
     optlist.push_back(&cauchy);

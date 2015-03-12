@@ -679,8 +679,10 @@ bool FC_linear::posteriormode(void)
 
       double h = likep->compute_iwls(true,false);
 
+
       compute_XWX(XWX);
       datamatrix test = XWX.cinverse();
+
       if (test.rows() < XWX.rows())
         {
         rankXWX_ok = false;

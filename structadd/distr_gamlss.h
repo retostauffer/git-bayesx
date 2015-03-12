@@ -183,6 +183,10 @@ class __EXPORT_TYPE DISTR_negbin_delta : public DISTR_gamlss
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
+  double compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like);
+
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
                                               double * workingweight,

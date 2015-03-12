@@ -221,19 +221,7 @@ const int & seed, const bool & computemode)
   //-------------- end: Compute posterior mode as starting value ---------------
 
 
-  #if defined(MICROSOFT_VISUAL)
-    {
-
-    }
-  #elif!defined(__BUILDING_GNU)
-    {
-    srand((unsigned)time(0));
-    }
-  #else
-    {
-    srand((unsigned)time(0));
-    }
-  #endif
+//    srand((unsigned)time(0));
 
   if(seed >= 0)
     srand(seed);
@@ -490,7 +478,6 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
   for (i=0;i<nrmodels;i++)
     {
-
     if (!presim)
       {
 

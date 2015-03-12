@@ -5032,19 +5032,7 @@ bool STEPWISErun::simulate(const vector<ST::string> & header, const int & seed,
   unsigned it;
   //unsigned iterations = genoptions_mult[0]->get_iterations();
 
-  #if defined(MICROSOFT_VISUAL)
-    {
-
-    }
-  #elif!defined(__BUILDING_GNU)
-    {
-    srand((unsigned)time(0));
-    }
-  #else
-    {
-    srand((unsigned)time(0));
-    }
-  #endif
+//    srand((unsigned)time(0));
 
   if(seed >= 0)
     srand(seed);

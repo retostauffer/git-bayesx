@@ -225,6 +225,7 @@ using MCMC::FC_linear;
 using MCMC::FC_linear_pen;
 using MCMC::FC_mult;
 using MCMC::FC_hrandom;
+using MCMC::FC_hrandom_distributional;
 using MCMC::FC_nonp_variance;
 using MCMC::FC_nonp_variance_varselection;
 using MCMC::FC_varselection_omega;
@@ -648,6 +649,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   vector<DESIGN_hrandom>  design_hrandoms;
   vector<FC_hrandom> FC_hrandoms;
+  vector<FC_hrandom_distributional> FC_hrandom_distributionals;
   vector<FC_hrandom_variance> FC_hrandom_variances;
   vector<FC_hrandom_variance_vec> FC_hrandom_variance_vecs;
   vector<FC_hrandom_variance_vec_nmig> FC_hrandom_variance_vec_nmigs;

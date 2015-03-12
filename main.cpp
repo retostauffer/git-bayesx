@@ -45,6 +45,8 @@ int main(int argc, char *argv[])
   char path[100] = "";
   getcwd(path, 100);
 
+  srand((unsigned)time(NULL));
+
 #if defined(__BUILDING_LINUX)
   ST::string tempstring = ST::string(path) + "/temp";
 #else

@@ -215,6 +215,19 @@ void DISTR_negbin_delta::compute_expectation(void)
 
   }
 
+double DISTR_negbin_delta::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+  // Stefan: checken!
+  if (counter==0)
+    {
+    set_worklin();
+    Ep = E_dig_y_delta_m.getV();
+    Ep_trig = E_trig_y_delta_m.getV();
+    }
+  DISTR_gamlss::compute_iwls(response, linpred, weight, workingweight, workingresponse, like);
+  }
 
 void DISTR_negbin_delta::compute_iwls_wweightschange_weightsone(
                                               double * response,

@@ -1035,6 +1035,164 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
 
   }
 
+
+// -----------------------------------------------------------------//
+// class: FC_hrandom_distributional (for non-normal random effects)
+// -----------------------------------------------------------------//
+
+FC_hrandom_distributional::FC_hrandom_distributional(void)
+  {
+  }
+
+
+void FC_hrandom_distributional::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+  {
+  //FC_hrandom::read_options(op, vn);
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  13      samplemult
+  14      constraints
+
+  17     internal_multexp
+  */
+
+/*  if (op[14] == "increasing")
+    stype = increasing;
+  else if (op[14] == "decreasing")
+    stype = decreasing;
+  else
+*/
+    stype = unconstrained;
+
+  rtype = additive;
+  if (op[12] == "true")
+    rtype = mult;
+
+  if (op[17] == "true")
+    rtype = multexp;
+  }
+
+FC_hrandom_distributional::FC_hrandom_distributional(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,DISTR * lp_RE,
+                 const ST::string & t,const ST::string & fp,
+                 const ST::string & fp2, DESIGN * Dp,
+                 vector<ST::string> & op, vector<ST::string> & vn)
+     : FC_hrandom(mp,enr,o,lp,lp_RE,t,fp,fp2,Dp,op,vn)
+  {
+  read_options(op,vn);
+  offset_RE = datamatrix(beta.rows(),1,0);
+  offsetold_RE = datamatrix(beta.rows(),1,0);
+  }
+
+
+FC_hrandom_distributional::FC_hrandom_distributional(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
+                 const ST::string & t,const ST::string & fp,
+                 const ST::string & fp2, DESIGN * Dp,
+                 vector<ST::string> & op, vector<ST::string> & vn)
+     : FC_hrandom(mp,enr,o,lp,t,fp,fp2,Dp,op,vn)
+  {
+//  read_options(op,vn);
+  offset_RE = datamatrix(beta.rows(),1,0);
+  offsetold_RE = datamatrix(beta.rows(),1,0);
+  }
+
+
+
+FC_hrandom_distributional::FC_hrandom_distributional(const FC_hrandom_distributional & m)
+  : FC_hrandom(FC_hrandom(m))
+  {
+  offset_RE = m.offset_RE;
+  offsetold_RE = m.offsetold_RE;
+  }
+
+
+const FC_hrandom_distributional & FC_hrandom_distributional::operator=(const FC_hrandom_distributional & m)
+  {
+
+  if (this==&m)
+	 return *this;
+  FC_hrandom_distributional::operator=(FC_hrandom_distributional(m));
+
+  offset_RE = m.offset_RE;
+  offsetold_RE = m.offsetold_RE;
+
+  return *this;
+  }
+
+void FC_hrandom_distributional::update(void)
+  {
+  unsigned i;
+  // update den offset und hyperparameter geeignet
+  double * offsetp = offset_RE.getV();
+  double * offsetoldp = offsetold_RE.getV();
+  for(i=0; i<beta.rows(); i++, offsetp++, offsetoldp++)
+    {
+    *offsetoldp = *offsetp;
+    *offsetp = 0.0;
+    }
+
+  double * betap = beta.getV();
+  double * betarcoeffp = FCrcoeff.beta.getV();
+
+
+  double * linpredREp;
+  offsetoldp = offsetold_RE.getV();
+  offsetp = offset_RE.getV();
+
+  if (simplerandom)
+    linpredREp=simplerandom_linpred.getV();
+  else
+    {
+    if (likep_RE->linpred_current==1)
+      linpredREp = likep_RE->linearpred1.getV();
+    else
+      linpredREp = likep_RE->linearpred2.getV();
+
+    for (i=0;i<beta.rows();i++,betap++,betarcoeffp++,linpredREp++,offsetp++,offsetoldp++)
+      *linpredREp += *offsetp - *offsetoldp;
+    }
+
+  FC_hrandom::update();
+  }
+
+void FC_hrandom_distributional::compute_autocorr_all(const ST::string & path,
+                                      unsigned lag, ofstream & outg) const
+  {
+  FC_hrandom::compute_autocorr_all(path,lag,outg);
+  }
+
+void FC_hrandom_distributional::get_samples(const ST::string & filename,ofstream & outg) const
+  {
+  FC_hrandom::get_samples(filename,outg);
+  }
+
+void FC_hrandom_distributional::outgraphs(ofstream & out_stata, ofstream & out_R,
+                          const ST::string & path)
+  {
+  FC_hrandom::outgraphs(out_stata, out_R, path);
+  }
+
+void FC_hrandom_distributional::outresults(ofstream & out_stata,ofstream & out_R,
+                            const ST::string & pathresults)
+  {
+  FC_hrandom::outresults(out_stata, out_R, pathresults);
+  }
+
+
+
+
+
+
 } // end: namespace MCMC
 
 

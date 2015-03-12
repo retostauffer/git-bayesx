@@ -826,7 +826,6 @@ void FC_nonp_variance_varselection::update(void)
         {
         *Xp /= sqrt(beta(0,0));
         }
-
       double * worklin;
       if (likep->linpred_current==1)
         worklin = likep->linearpred1.getV();
