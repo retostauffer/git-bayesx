@@ -245,6 +245,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_exp");
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
+  families.push_back("za_binomial_logit");
   families.push_back("binomial_probit");
   families.push_back("binomial_svm");
   families.push_back("binomial_cloglog");
@@ -270,6 +271,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("truncnormal");
   families.push_back("truncnormal2");
   families.push_back("gamma");
+  families.push_back("za_gamma");
   families.push_back("hetgaussian");
   families.push_back("pareto");
   families.push_back("invgaussian");
@@ -285,7 +287,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("betainf0");
   families.push_back("betainf1");
   families.push_back("betainf2");
-  families.push_back("zero_adjusted");
+  families.push_back("za");
   families.push_back("BCCG");
   families.push_back("gumbelcopula");
   families.push_back("gumbelcopula2_rho");
@@ -3566,12 +3568,28 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: weibull_lambda -------------------------------
 
 //-------------------------------- gamma_sigma ---------------------------------
-  else if (family.getvalue() == "gamma" && equationtype.getvalue()=="sigma")
+  else if ((family.getvalue() == "gamma" || family.getvalue() == "za_gamma")
+           && equationtype.getvalue()=="sigma")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_gamma_sigmas.push_back(DISTR_gamma_sigma(&generaloptions,D.getCol(0),w));
+    datamatrix dnew = D.getCol(0);
+    if(family.getvalue() == "za_gamma")
+      {
+      if(w.rows()==1)
+        w = datamatrix(dnew.rows(),1,1);
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(D(i,0)==0)
+          {
+          w(i,0) = 0;
+          dnew(i,0) = 0.1;
+          }
+        }
+      }
+
+    distr_gamma_sigmas.push_back(DISTR_gamma_sigma(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_gamma_sigmas[distr_gamma_sigmas.size()-1];
     equations[modnr].pathd = "";
@@ -3583,15 +3601,44 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- gamma_mu ------------------------------------
-  else if ((family.getvalue() == "gamma") && ((equationtype.getvalue()=="mu"))
+  else if ((family.getvalue() == "gamma" || family.getvalue() == "za_gamma")
+           && ((equationtype.getvalue()=="mu"))
           )
     {
+    datamatrix dnew= D.getCol(0);
 
-    mainequation=true;
+    ofstream out("c:\\temp\\dnew.raw");
+    dnew.prettyPrint(out);
+    out.close();
+
+    if(family.getvalue() == "gamma")
+      mainequation=true;
+    else
+      {
+      mainequation=false;
+      if(w.rows()==1)
+        w = datamatrix(dnew.rows(),1,1);
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(D(i,0)==0)
+          {
+          w(i,0) = 0;
+          dnew(i,0) = 0.1;
+          }
+        }
+      }
+
+    ofstream out2("c:\\temp\\dnew2.raw");
+    dnew.prettyPrint(out2);
+    out2.close();
+
+    ofstream out3("c:\\temp\\w.raw");
+    w.prettyPrint(out3);
+    out3.close();
 
     computemodeforstartingvalues = true;
 
-    distr_gamma_mus.push_back(DISTR_gamma_mu(&generaloptions,D.getCol(0),w));
+    distr_gamma_mus.push_back(DISTR_gamma_mu(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_gamma_mus[distr_gamma_mus.size()-1];
     equations[modnr].pathd = "";
@@ -5452,8 +5499,10 @@ mainequation=true;
 
 //------------------------------  Zero adjusted --------------------------------
 
-  else if (family.getvalue() == "zero_adjusted")
+  else if (family.getvalue() == "za")
     {
+
+    mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -6403,6 +6452,8 @@ mainequation=true;
 
     computemodeforstartingvalues = true;
 
+    equations[modnr].equationtype="lambda";
+
     distr_poissons.push_back(DISTR_poisson(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_poissons[distr_poissons.size()-1];
@@ -6418,6 +6469,8 @@ mainequation=true;
     mainequation=true;
 
     computemodeforstartingvalues = true;
+
+    equations[modnr].equationtype="lambda";
 
     distr_poisson_exts.push_back(DISTR_poisson_ext(
     &generaloptions,D.getCol(0),aexp.getvalue(),
@@ -6436,6 +6489,8 @@ mainequation=true;
     mainequation=true;
 
     computemodeforstartingvalues = true;
+
+    equations[modnr].equationtype="lambda";
 
     distr_poisson_extlins.push_back(DISTR_poisson_extlin(
     &generaloptions,D.getCol(0),w));
@@ -6580,15 +6635,25 @@ mainequation=true;
     }
 //------------------------- END: Gaussian random effect ------------------------
 //---------------------------- Binomial response -------------------------------
-  else if (family.getvalue() == "binomial_logit")
+  else if (family.getvalue() == "binomial_logit" || family.getvalue() == "za_binomial_logit")
     {
-
-    mainequation=true;
+    datamatrix dnew = D.getCol(0);
+    if(family.getvalue() == "binomial_logit")
+      mainequation=true;
+    else
+      {
+      mainequation=false;
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(dnew(i,0)>0)
+          dnew(i,0) = 1;
+        }
+      }
 
     computemodeforstartingvalues = true;
+    equations[modnr].equationtype="pi";
 
-    distr_binomials.push_back(DISTR_binomial(&generaloptions,D.getCol(0),w));
-
+    distr_binomials.push_back(DISTR_binomial(&generaloptions,dnew,w));
     equations[modnr].distrp = &distr_binomials[distr_binomials.size()-1];
     equations[modnr].pathd = "";
 
@@ -6608,6 +6673,7 @@ mainequation=true;
     ST::string path = defaultpath + "\\temp\\" + name  + "_latentutilities.raw";
     #endif
 
+    equations[modnr].equationtype="pi";
 
     distr_binomialprobits.push_back(DISTR_binomialprobit(
     &generaloptions,D.getCol(0),utilities.getvalue(),path,w));
@@ -6624,6 +6690,8 @@ mainequation=true;
 
     computemodeforstartingvalues = false;
 
+    equations[modnr].equationtype="pi";
+
     distr_binomialsvms.push_back(DISTR_binomialsvm(
     &generaloptions,D.getCol(0),w));
 
@@ -6639,6 +6707,8 @@ mainequation=true;
     mainequation=true;
 
     computemodeforstartingvalues = true;
+
+    equations[modnr].equationtype="pi";
 
     distr_logit_fruehwirths.push_back(DISTR_logit_fruehwirth(H.getvalue(),
     &generaloptions,D.getCol(0),w));
