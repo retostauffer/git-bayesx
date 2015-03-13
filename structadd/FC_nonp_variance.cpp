@@ -887,7 +887,28 @@ void FC_nonp_variance_varselection::update(void)
       acceptance++;
       double tau2 = tauprop*tauprop;
       if (tau2 < 0.000000001)
+        {
         tau2 = 0.000000001;
+        tauprop = sqrt(tau2);
+        }
+
+      // standardise tau and tilde gamma to achieve identifiability
+      double * betap = FCnonpp->beta.getV();
+      double helpsum=0.0;
+      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
+        {
+        helpsum += abs(*betap);
+        }
+      helpsum /= (double)FCnonpp->beta.rows() * sqrt(beta(0,0));
+
+      betap = FCnonpp->beta.getV();
+      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
+        {
+        *betap *= tauprop/(helpsum*sqrt(beta(0,0)));
+        }
+      tauprop *= helpsum;
+
+      tau2 = tauprop*tauprop;
       beta(0,0) = tau2;
       }
     else
@@ -909,98 +930,45 @@ void FC_nonp_variance_varselection::update(void)
     else
       {
   //variante stefan, für GAUSS fall
-    double Sigmatau;
-    double mutau;
+      double Sigmatau;
+      double mutau;
 
-    FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+      FCnonpp->designp->compute_effect(X,FCnonpp->beta);
 
-    double * worklin;
-    if (likep->linpred_current==1)
-      worklin = likep->linearpred1.getV();
-    else
-      worklin = likep->linearpred2.getV();
+      double * worklin;
+      if (likep->linpred_current==1)
+        worklin = likep->linearpred1.getV();
+      else
+        worklin = likep->linearpred2.getV();
 
-    double * Xp = X.getV();
-    double * responsep = likep->workingresponse.getV();
-    double varinv = 1/(likep->get_scale()*beta(0,0));
-    double xtx=0;
-    for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
-      {
-      xtx += pow(*Xp,2);
-      mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
+      double * Xp = X.getV();
+      double * responsep = likep->workingresponse.getV();
+      double varinv = 1/(likep->get_scale()*beta(0,0));
+      double xtx=0;
+      for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
+        {
+        xtx += pow(*Xp,2);
+        mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
+        }
+      Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
+      mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
+
+      double tau = mutau + sqrt(Sigmatau) * rand_normal();
+
+      double tau2 = tau*tau;
+      if (tau2 < 0.000000001)
+        tau2 = 0.000000001;
+
+      beta(0,0) = tau2;
+
+      beta(0,1) = likep->get_scale()/beta(0,0);
+
+      FCnonpp->tau2 = beta(0,0);
+      // end: updating tau2
+
+      acceptance++;
+      FC::update();
       }
-    Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
-    mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
-
-    double tau = mutau + sqrt(Sigmatau) * rand_normal();
-
-    double tau2 = tau*tau;
-    if (tau2 < 0.000000001)
-      tau2 = 0.000000001;
-
-    beta(0,0) = tau2;
-
-    beta(0,1) = likep->get_scale()/beta(0,0);
-
-    FCnonpp->tau2 = beta(0,0);
-    // end: updating tau2
-
-    acceptance++;
-    FC::update();
-      }
-//---------------------------------------------------------------------------------------
-/*
-//  extension to GAMLSS case
-
-  Sigmatau = 1/(FCnonpp->designp->XWX_p->compute_quadform(FCnonpp->beta, 0) +
-                      1/(r_delta*FC_psi2.beta(0,0)));
-  double * p1 = FCnonpp->beta.getV();
-  double * p2 = FCnonpp->designp->XWres_p->getV();
-  for(i=0; i<FCnonpp->beta.rows(); i++, p1++, p2++)
-    {
-    mutau += *p1 * *p2;
-    }
-
-  mutau *= Sigmatau;
-
-  double stand_new = rand_normal();
-  double tau = mutau + sqrt(Sigmatau) * stand_new;
-  double tau2 = tau*tau;
-  if (tau2 < 0.000000001)
-    tau2 = 0.000000001;
-
-  double tau2old = tauold*tauold;
-
-  u = log(uniform());
-
-  double fcold = likep->compute_iwls(true, true) - 0.5*pow(tauold,2)/(r_delta*FC_psi2.beta(0,0)) +
-                 log(randnumbers::phi(stand_new));
-
-  // ToDO: calculate fcnew!
-
-  double fcnew = 0;
-
-  //calculate proposal evaluated at new tau2 with parameter  based on tauold2
-  double qold = get_log_proposal();
-
-  //calculate proposal evaluated at tauold with parameters based on tau2
-  double qnew = get_log_proposal();
-
-  if (u <= (fcnew - fcold + qold - qnew))
-    {
-    acceptance++;
-    }
-  else
-    {
-    tau = tauold;
-    tau2 = tau2old;
-    }
-
-  beta(0,0) = tau;
-  beta(0,1) = likep->get_scale()/beta(0,0);
-  FCnonpp->tau2 = beta(0,0);
-
-  FC::update();*/
 
   // end: updating tau2
     }
