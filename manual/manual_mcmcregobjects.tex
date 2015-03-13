@@ -1031,48 +1031,48 @@ A model with constant parameter $\sigma$ not depending on covariates is given by
 
 
 
-\subsubsection*{Hurdle models}
-
-
-For hurdle models additional weights have to be specified and need to be put in the #lambda# equation (hurdle Poisson) and the #mu#, #delta# equations (hurdle negbin). Note also that the first observation in the data set needs to be with a response variable greater than zero!
-
-#d.generate w=1#
-
-#d.replace w=0 if depvar=0#
-
-#b.hregress depvar = const + s_term1 + ..., family=hurdle equationtype=pi#
-#using d#
-
-#b.hregress depvar = const + m_term1 + ... weight w, family=hurdle equationtype=lambda#
-#using d#
-
-Analogue the hurdle negbin model is specified.
-
-
-\subsubsection*{Beta inflated models}
-
-
-For families #betainf#, #betainf0# and #betainf1# additional weights for the #mu# and #sigma2# equation have to be defined:
-
-#d.generate w=1#
-
-#d.replace w=0 if depvar=0#
-
-#d.replace w=0 if depvar=1#
-
-#b.hregress depvar = const + s_term1 + ... weight w, family=betainf equationtype=sigma2#
-#using d#
-
-#b.hregress depvar = const + m_term1 + ... weight w, family=betainf equationtype=mu#
-#using d#
-
-#b.hregress depvar = const + m_term1 + ..., family=betainf equationtype=nu#
-#using d#
-
-#b.hregress depvar = const + m_term1 + ..., family=betainf equationtype=tau#
-#using d#
-
-Analogue the #betainf0# and #betainf1# models are specified.
+%\subsubsection*{Hurdle models}
+%
+%
+%For hurdle models additional weights have to be specified and need to be put in the #lambda# equation (hurdle Poisson) and the #mu#, #delta# equations (hurdle negbin). Note also that the first observation in the data set needs to be with a response variable greater than zero!
+%
+%#d.generate w=1#
+%
+%#d.replace w=0 if depvar=0#
+%
+%#b.hregress depvar = const + s_term1 + ..., family=hurdle equationtype=pi#
+%#using d#
+%
+%#b.hregress depvar = const + m_term1 + ... weight w, family=hurdle equationtype=lambda#
+%#using d#
+%
+%Analogue the hurdle negbin model is specified.
+%
+%
+%\subsubsection*{Beta inflated models}
+%
+%
+%For families #betainf#, #betainf0# and #betainf1# additional weights for the #mu# and #sigma2# equation have to be defined:
+%
+%#d.generate w=1#
+%
+%#d.replace w=0 if depvar=0#
+%
+%#d.replace w=0 if depvar=1#
+%
+%#b.hregress depvar = const + s_term1 + ... weight w, family=betainf equationtype=sigma2#
+%#using d#
+%
+%#b.hregress depvar = const + m_term1 + ... weight w, family=betainf equationtype=mu#
+%#using d#
+%
+%#b.hregress depvar = const + m_term1 + ..., family=betainf equationtype=nu#
+%#using d#
+%
+%#b.hregress depvar = const + m_term1 + ..., family=betainf equationtype=tau#
+%#using d#
+%
+%Analogue the #betainf0# and #betainf1# models are specified.
 
 
 \subsubsection{Hierarchical or multilevel models}
