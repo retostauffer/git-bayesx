@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 administrator::administrator(void)
   {
 
+  srand((unsigned)time(NULL));
+
   adminb = administrator_basic();
   adminp = administrator_pointer();
 
