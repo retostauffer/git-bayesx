@@ -272,6 +272,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("truncnormal2");
   families.push_back("gamma");
   families.push_back("za_gamma");
+  families.push_back("za_lognormal");
+  families.push_back("za_invgaussian");
   families.push_back("hetgaussian");
   families.push_back("pareto");
   families.push_back("invgaussian");
@@ -1902,12 +1904,30 @@ bool superbayesreg::create_distribution(void)
 
 
 //-------------------------------- lognormal sigma2 ---------------------------------
-  else if (family.getvalue() == "lognormal" && equationtype.getvalue()=="sigma2")
+  else if ((family.getvalue() == "lognormal" || family.getvalue() == "za_lognormal")
+           && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_lognormal_sigma2s.push_back(DISTR_lognormal_sigma2(&generaloptions,D.getCol(0),w));
+    datamatrix dnew = D.getCol(0);
+    if(family.getvalue() == "za_lognormal")
+      {
+      if(w.rows()==1)
+        w = datamatrix(dnew.rows(),1,1);
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(D(i,0)==0)
+          {
+          w(i,0) = 0;
+          dnew(i,0) = 0.1;
+          }
+        }
+      }
+
+    computemodeforstartingvalues = true;
+
+    distr_lognormal_sigma2s.push_back(DISTR_lognormal_sigma2(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_lognormal_sigma2s[distr_lognormal_sigma2s.size()-1];
     equations[modnr].pathd = "";
@@ -1918,16 +1938,31 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: lognormal sigma2 -------------------------------
 
 //------------------------------- lognormal mu ------------------------------------
-  else if ((family.getvalue() == "lognormal") && (equationtype.getvalue()=="mu") &&
-           (distr_lognormal_sigma2s.size()==1) )
-
+  else if ((family.getvalue() == "lognormal" || family.getvalue() == "za_lognormal")
+           && ((equationtype.getvalue()=="mu"))
+          )
     {
+    datamatrix dnew= D.getCol(0);
 
-     mainequation=true;
-
+    if(family.getvalue() == "lognormal")
+      mainequation=true;
+    else
+      {
+      mainequation=false;
+      if(w.rows()==1)
+        w = datamatrix(dnew.rows(),1,1);
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(D(i,0)==0)
+          {
+          w(i,0) = 0;
+          dnew(i,0) = 0.1;
+          }
+        }
+      }
     computemodeforstartingvalues = true;
 
-    distr_lognormal_mus.push_back(DISTR_lognormal_mu(&generaloptions,D.getCol(0),w));
+    distr_lognormal_mus.push_back(DISTR_lognormal_mu(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_lognormal_mus[distr_lognormal_mus.size()-1];
     equations[modnr].pathd = "";
@@ -2152,6 +2187,8 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -2176,6 +2213,8 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -2198,6 +2237,7 @@ bool superbayesreg::create_distribution(void)
     {
 
     computemodeforstartingvalues = true;
+
 
     distr_betainf_nus.push_back(DISTR_betainf_nu(&generaloptions,D.getCol(0),w));
 
@@ -2267,6 +2307,8 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -2290,6 +2332,8 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -2353,6 +2397,8 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -2376,6 +2422,8 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -3607,10 +3655,6 @@ bool superbayesreg::create_distribution(void)
     {
     datamatrix dnew= D.getCol(0);
 
-    ofstream out("c:\\temp\\dnew.raw");
-    dnew.prettyPrint(out);
-    out.close();
-
     if(family.getvalue() == "gamma")
       mainequation=true;
     else
@@ -3627,15 +3671,6 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-
-    ofstream out2("c:\\temp\\dnew2.raw");
-    dnew.prettyPrint(out2);
-    out2.close();
-
-    ofstream out3("c:\\temp\\w.raw");
-    w.prettyPrint(out3);
-    out3.close();
-
     computemodeforstartingvalues = true;
 
     distr_gamma_mus.push_back(DISTR_gamma_mu(&generaloptions,dnew,w));
@@ -3663,12 +3698,31 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: gamma_mu -------------------------------
 
 //-------------------------------- invgaussian sigma2 ---------------------------------
-  else if (family.getvalue() == "invgaussian" && equationtype.getvalue()=="sigma2")
+  else if ((family.getvalue() == "invgaussian" || family.getvalue() == "za_invgaussian")
+           && equationtype.getvalue()=="sigma2")
     {
 
     computemodeforstartingvalues = true;
 
-    distr_invgaussian_sigma2s.push_back(DISTR_invgaussian_sigma2(&generaloptions,D.getCol(0),w));
+    datamatrix dnew = D.getCol(0);
+    if(family.getvalue() == "za_invgaussian")
+      {
+      if(w.rows()==1)
+        w = datamatrix(dnew.rows(),1,1);
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(D(i,0)==0)
+          {
+          w(i,0) = 0;
+          dnew(i,0) = 0.1;
+          }
+        }
+      }
+
+
+    computemodeforstartingvalues = true;
+
+    distr_invgaussian_sigma2s.push_back(DISTR_invgaussian_sigma2(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_invgaussian_sigma2s[distr_invgaussian_sigma2s.size()-1];
     equations[modnr].pathd = "";
@@ -3679,15 +3733,32 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: invgaussian sigma2 -------------------------------
 
 //------------------------------- invgaussian mu ------------------------------------
-  else if ((family.getvalue() == "invgaussian") && (equationtype.getvalue()=="mu"))
-
+  else if ((family.getvalue() == "invgaussian" || family.getvalue() == "za_invgaussian")
+           && ((equationtype.getvalue()=="mu"))
+          )
     {
+    datamatrix dnew= D.getCol(0);
 
-     mainequation=true;
+    if(family.getvalue() == "invgaussian")
+      mainequation=true;
+    else
+      {
+      mainequation=false;
+      if(w.rows()==1)
+        w = datamatrix(dnew.rows(),1,1);
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(D(i,0)==0)
+          {
+          w(i,0) = 0;
+          dnew(i,0) = 0.1;
+          }
+        }
+      }
 
     computemodeforstartingvalues = true;
 
-    distr_invgaussian_mus.push_back(DISTR_invgaussian_mu(&generaloptions,D.getCol(0),w));
+    distr_invgaussian_mus.push_back(DISTR_invgaussian_mu(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_invgaussian_mus[distr_invgaussian_mus.size()-1];
     equations[modnr].pathd = "";
@@ -5392,6 +5463,9 @@ mainequation=true;
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
+
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -5399,6 +5473,7 @@ mainequation=true;
       if((*rp)==0)
         *wp = 0;
       }
+
     distr_hurdle_lambdas.push_back(DISTR_hurdle_lambda(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_hurdle_lambdas[distr_hurdle_lambdas.size()-1];
@@ -5436,6 +5511,8 @@ mainequation=true;
     int nb = nrbetween.getvalue();
     double sts = stopsum.getvalue();
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.cols(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
@@ -5460,6 +5537,8 @@ mainequation=true;
 
     computemodeforstartingvalues = true;
     int i;
+    if(w.rows()==1)
+        w = datamatrix(D.rows(),1,1);
     double * wp = w.getV();
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
