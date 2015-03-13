@@ -219,14 +219,34 @@ double DISTR_negbin_delta::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)
   {
-  // Stefan: checken!
-  if (counter==0)
+  if (*weight == 0)
     {
-    set_worklin();
-    Ep = E_dig_y_delta_m.getV();
-    Ep_trig = E_trig_y_delta_m.getV();
+    if (counter==0)
+      {
+      set_worklin();
+      Ep = E_dig_y_delta_m.getV();
+      Ep_trig = E_trig_y_delta_m.getV();
+      }
+
+    *workingweight = 0;
+
+    modify_worklin();
+
+    return 0;
     }
-  DISTR_gamlss::compute_iwls(response, linpred, weight, workingweight, workingresponse, like);
+  else
+    {
+
+    double l=0;
+    compute_iwls_wweightschange_weightsone(response,linpred, workingweight,
+                                           workingresponse, l,
+                                           like);
+     *workingweight *= (*weight);
+
+     return (*weight)*l;
+
+    }
+
   }
 
 void DISTR_negbin_delta::compute_iwls_wweightschange_weightsone(
