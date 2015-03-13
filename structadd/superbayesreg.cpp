@@ -2355,7 +2355,7 @@ bool superbayesreg::create_distribution(void)
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
       {
-	  else if((*rp)==1)
+	  if((*rp)==1)
 	    *wp = 0;
       }
     distr_beta_sigma2s.push_back(DISTR_beta_sigma2(&generaloptions,D.getCol(0),w));
@@ -2378,7 +2378,7 @@ bool superbayesreg::create_distribution(void)
     double * rp = D.getV();
     for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
       {
-	  else if((*rp)==1)
+	  if((*rp)==1)
 	    *wp = 0;
       }
     distr_beta_mus.push_back(DISTR_beta_mu(&generaloptions,D.getCol(0),w));
