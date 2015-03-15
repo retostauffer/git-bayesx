@@ -1835,8 +1835,8 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: normal sigma2 -------------------------------
 
 //------------------------------- normal mu ------------------------------------
-  else if (((family.getvalue() == "normal") || (family.getvalue() == "gumbelcopula2_normal"))
-           && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()==1))
+  else if (((family.getvalue() == "normal") && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()==1))
+           || ((family.getvalue() == "gumbelcopula2_normal")) && (equationtype.getvalue()=="mu"))
 
     {
     if(family.getvalue() == "normal")
