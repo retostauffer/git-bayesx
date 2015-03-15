@@ -1818,7 +1818,8 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: Gaussian response ----------------------------
 
 //-------------------------------- normal sigma2 ---------------------------------
-  else if (family.getvalue() == "normal" && equationtype.getvalue()=="sigma2")
+  else if ( ((family.getvalue() == "normal") || (family.getvalue() == "gumbelcopula2_normal"))
+           && equationtype.getvalue()=="sigma2")
     {
 
     mainequation=false;
@@ -1834,11 +1835,12 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: normal sigma2 -------------------------------
 
 //------------------------------- normal mu ------------------------------------
-  else if ((family.getvalue() == "normal") && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()==1))
+  else if (((family.getvalue() == "normal") || (family.getvalue() == "gumbelcopula2_normal"))
+           && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()==1))
 
     {
-
-     mainequation=true;
+    if(family.getvalue() == "normal")
+      mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -1924,8 +1926,6 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-
-    computemodeforstartingvalues = true;
 
     distr_lognormal_sigma2s.push_back(DISTR_lognormal_sigma2(&generaloptions,dnew,w));
 
