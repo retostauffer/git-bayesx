@@ -1848,15 +1848,17 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_normal_mus[distr_normal_mus.size()-1];
     equations[modnr].pathd = "";
+   
+    if(family.getvalue() == "normal")
+	  {
+      predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+      predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
+      distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back
+      (&distr_normal_mus[distr_normal_mus.size()-1]);
 
-    predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
-    predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
-    distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back
-    (&distr_normal_mus[distr_normal_mus.size()-1]);
-
-    distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back
-    (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
-
+      distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back
+      (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+      }
     }
 //------------------------------- END: normal mu -------------------------------
 
