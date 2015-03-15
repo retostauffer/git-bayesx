@@ -296,7 +296,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gumbelcopula2_normal_rho");
   families.push_back("gumbelcopula2_normal_mu");
   families.push_back("gumbelcopula2_normal_sigma2");
-  families.push_back("claytoncopula2_normal");
+  families.push_back("gumbelcopula2_normal");
   families.push_back("claytoncopula2_rho");
   families.push_back("claytoncopula");
   families.push_back("claytoncopula2_normal_mu");
