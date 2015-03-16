@@ -7370,7 +7370,7 @@ double DISTR_claytoncopula2_normal_sigma2::get_intercept_start(void)
 
 void DISTR_claytoncopula2_normal_sigma2::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = pow(exp((*linpred[pos])),0.5);
+  *param = pow(exp((*linpred[2*pos])),0.5);
   }
 
 double DISTR_claytoncopula2_normal_sigma2::loglikelihood_weightsone(double * response,
@@ -7571,7 +7571,7 @@ double DISTR_claytoncopula2_normal_mu::get_intercept_start(void)
 
 void DISTR_claytoncopula2_normal_mu::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = (*linpred[pos + 2]);
+  *param = (*linpred[2*pos + 1]);
   }
 
  double DISTR_claytoncopula2_normal_mu::pdf_mult(vector<double *> response,
@@ -8316,7 +8316,7 @@ double DISTR_gumbelcopula2_normal_sigma2::get_intercept_start(void)
 
 void DISTR_gumbelcopula2_normal_sigma2::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = pow(exp((*linpred[pos])),0.5);
+  *param = exp((*linpred[2*pos]));
   }
 
 double DISTR_gumbelcopula2_normal_sigma2::loglikelihood_weightsone(double * response,
@@ -8541,7 +8541,7 @@ double DISTR_gumbelcopula2_normal_mu::get_intercept_start(void)
 
 void DISTR_gumbelcopula2_normal_mu::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = (*linpred[pos + 2]);
+  *param = (*linpred[2*pos + 1]);
   }
 
  double DISTR_gumbelcopula2_normal_mu::pdf_mult(vector<double *> response,
@@ -8743,6 +8743,403 @@ void DISTR_gumbelcopula2_normal_mu::update_end(void)
     }
 
   }
+
+
+//--------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_gumbelcopula2_normal_sigma2_2 --------------------
+//--------------------------------------------------------------------------------
+
+
+DISTR_gumbelcopula2_normal_sigma2_2::DISTR_gumbelcopula2_normal_sigma2_2(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "gumbel Copula - sigma2";
+  pos =p;
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "sigma2";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_gumbelcopula2_normal_sigma2_2::DISTR_gumbelcopula2_normal_sigma2_2(const DISTR_gumbelcopula2_normal_sigma2_2 & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  }
+
+
+const DISTR_gumbelcopula2_normal_sigma2_2 & DISTR_gumbelcopula2_normal_sigma2_2::operator=(
+                            const DISTR_gumbelcopula2_normal_sigma2_2 & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+void DISTR_gumbelcopula2_normal_sigma2_2::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_gumbelcopula2_normal_sigma2_2::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+double DISTR_gumbelcopula2_normal_sigma2_2::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_gumbelcopula2_normal_sigma2_2::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = exp((*linpred[2*pos]));
+  }
+
+double DISTR_gumbelcopula2_normal_sigma2_2::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = (eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double sigma_2 = exp((*linpred));
+
+  double l;
+
+  l = -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_gumbelcopula2_normal_sigma2_2::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu)/(1+exp(eta_mu));
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double sigma_2 = exp(*linpred);
+
+  double nu = -0.5 + (pow(((*response)-(*worklin[0])),2))/(2*sigma_2);
+
+  *workingweight = 0.5;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like +=  -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
+    }
+
+  modify_worklin();
+
+  }
+
+void DISTR_gumbelcopula2_normal_sigma2_2::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = 0;
+  }
+
+
+void DISTR_gumbelcopula2_normal_sigma2_2::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma2): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gumbelcopula2_normal_sigma2_2::update_end(void)
+  {
+
+  // helpmat1 stores sigma2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = exp(*worklin);
+    }
+
+  }
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gumbelcopula2_normal_mu_2 ----------------
+//------------------------------------------------------------------------------
+
+
+DISTR_gumbelcopula2_normal_mu_2::DISTR_gumbelcopula2_normal_mu_2(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  pos=p;
+  family = "gumbel Copula - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+
+  updateIWLS = false;
+ //   linpredminlimit=-10;
+ // linpredmaxlimit=15;
+  }
+
+
+DISTR_gumbelcopula2_normal_mu_2::DISTR_gumbelcopula2_normal_mu_2(const DISTR_gumbelcopula2_normal_mu_2 & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+    pos = nd.pos;
+    response2 = nd.response2;
+    response2p = nd.response2p;
+  }
+
+
+const DISTR_gumbelcopula2_normal_mu_2 & DISTR_gumbelcopula2_normal_mu_2::operator=(
+                            const DISTR_gumbelcopula2_normal_mu_2 & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  response2 = nd.response2;
+  response2p = nd.response2p;
+  return *this;
+  }
+
+void DISTR_gumbelcopula2_normal_mu_2::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  response2p = response2.getV();
+
+  }
+
+
+
+void DISTR_gumbelcopula2_normal_mu_2::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs-1)
+    {
+    response2p++;
+    }
+
+  }
+
+double DISTR_gumbelcopula2_normal_mu_2::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_gumbelcopula2_normal_mu_2::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = (*linpred[2*pos + 1]);
+  }
+
+ double DISTR_gumbelcopula2_normal_mu_2::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_gumbelcopula2_normal_mu_2::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    return 0;
+    }
+
+//double DISTR_gumbelcopula2_normal_mu_2::compute_quantile_residual_mult(vector<double *> response,
+//                                             vector<double *> param,
+//                                             vector<double *> weight,
+//                                             vector<datamatrix *> aux)
+//  {
+//  double u_est;
+//  u_est = cdf_mult(response,param,weight,aux);
+//  double res_est = randnumbers::invPhi2(u_est);
+//  return res_est;
+//  }
+
+double DISTR_gumbelcopula2_normal_mu_2::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = (*linpred);
+
+  double l;
+  l = -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_gumbelcopula2_normal_mu_2::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = (*linpred);
+
+  double nu = ((*response)-mu)/(*worktransformlin[0]);
+
+  *workingweight = 1/(*worktransformlin[0]);
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like += -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
+    }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_gumbelcopula2_normal_mu_2::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = ((*linpred[predstart_mumult+2 * pos+1]));
+  }
+
+
+void DISTR_gumbelcopula2_normal_mu_2::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+/*void DISTR_gumbelcopula2_normal_mu_2::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinp;
+  double * workweight;
+
+  worktransformlinp = distrp[0]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+        *workweight = 1/(*worktransformlinp);
+    }
+
+  }*/
+
+
+void DISTR_gumbelcopula2_normal_mu_2::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+    }
+
+  }
+
 
 
 //------------------------------------------------------------------------------

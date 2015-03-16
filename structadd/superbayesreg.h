@@ -165,6 +165,8 @@ using MCMC::DISTR_gumbelcopula_rho;
 using MCMC::DISTR_gumbelcopula2_rho;
 using MCMC::DISTR_gumbelcopula2_normal_mu;
 using MCMC::DISTR_gumbelcopula2_normal_sigma2;
+using MCMC::DISTR_gumbelcopula2_normal_mu_2;
+using MCMC::DISTR_gumbelcopula2_normal_sigma2_2;
 using MCMC::DISTR_gaussiancopula_dagum_rho;
 using MCMC::DISTR_gaussiancopula_dagum_a;
 using MCMC::DISTR_gaussiancopula_dagum_b;
@@ -499,6 +501,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_gumbelcopula2_rho> distr_gumbelcopula2_rhos;
   vector<DISTR_gumbelcopula2_normal_mu> distr_gumbelcopula2_normal_mus;
   vector<DISTR_gumbelcopula2_normal_sigma2> distr_gumbelcopula2_normal_sigma2s;
+  vector<DISTR_gumbelcopula2_normal_mu_2> distr_gumbelcopula2_normal_mu_2s;
+  vector<DISTR_gumbelcopula2_normal_sigma2_2> distr_gumbelcopula2_normal_sigma2_2s;
   vector<DISTR_gaussiancopula_dagum_rho> distr_gaussiancopula_dagum_rhos;
   vector<DISTR_gaussiancopula_dagum_a> distr_gaussiancopula_dagum_as;
   vector<DISTR_gaussiancopula_dagum_b> distr_gaussiancopula_dagum_bs;

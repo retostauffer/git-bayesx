@@ -2825,6 +2825,144 @@ class __EXPORT_TYPE DISTR_gumbelcopula2_normal_mu : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_gumbelcopula2_normal_sigma2_2 ------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gumbelcopula2_normal_sigma2_2 : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gumbelcopula2_normal_sigma2_2(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gumbelcopula2_normal_sigma2_2(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gumbelcopula2_normal_sigma2_2(const DISTR_gumbelcopula2_normal_sigma2_2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gumbelcopula2_normal_sigma2_2 & operator=(const DISTR_gumbelcopula2_normal_sigma2_2 & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gumbelcopula2_normal_sigma2_2() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_gumbelcopula2_normal_mu_2 ----------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gumbelcopula2_normal_mu_2 : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix response2;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gumbelcopula2_normal_mu_2(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gumbelcopula2_normal_mu_2(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gumbelcopula2_normal_mu_2(const DISTR_gumbelcopula2_normal_mu_2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gumbelcopula2_normal_mu_2 & operator=(const DISTR_gumbelcopula2_normal_mu_2 & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gumbelcopula2_normal_mu_2() {}
+
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+ // void update(void);
+
+  };
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_gumbelcopula2_rho ------------------------
