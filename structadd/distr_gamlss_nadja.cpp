@@ -17576,7 +17576,7 @@ void DISTR_sfa0_mu_y::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-       l = -0.5*log(2*PI) + log(2) - 0.5*log(hilfs) - 0.5*pow(epsi,2)/hilfs + log(randnumbers::Phi2(-epsi*sigu/(pow(hilfs,0.5)*sigv)));
+       l = -0.5*log(2.0*PI) + log(2.0) - 0.5*log(hilfs) - 0.5*pow(epsi,2)/hilfs + log(randnumbers::Phi2(-epsi*sigu/(pow(hilfs,0.5)*sigv)));
 
 
     *deviance = -2*l;

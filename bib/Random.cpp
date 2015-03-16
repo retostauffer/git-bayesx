@@ -889,7 +889,7 @@ double GIG2(double lambda, double a, double b)
 
     if(mfpsim1>2)
       {
-      s = sqrt(4/(alpha*cosh(1)+lambda));
+      s = sqrt(4/(alpha*cosh(1.0)+lambda));
       }
     else if(mfpsim1<0.5)
       {

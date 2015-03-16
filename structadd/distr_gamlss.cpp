@@ -630,7 +630,7 @@ DISTR_zip_cloglog_pi::DISTR_zip_cloglog_pi(GENERAL_OPTIONS * o,
 
   family = "Zero_Inflated_Poisson - pi";
 
-  helpmat1 = datamatrix(nrobs,1,1-exp(-exp(0)));
+  helpmat1 = datamatrix(nrobs, 1, 1.0-exp(-1.0));
 
   linpredminlimit=-10;
   linpredmaxlimit=10;
