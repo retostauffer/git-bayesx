@@ -322,7 +322,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("tcopula");
   families.push_back("tcopula");
   families.push_back("gaussiancopula");
-  families.push_back("gaussiancopula");
+  families.push_back("frankcopula");
   families.push_back("frankcopula_rho");
   families.push_back("frankcopula2_rho");
   families.push_back("frankcopula2_exp");
