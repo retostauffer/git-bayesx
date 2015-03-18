@@ -325,7 +325,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("frankcopula");
   families.push_back("frankcopula_rho");
   families.push_back("frankcopula2_rho");
-  families.push_back("frankcopula2_exp");
+  families.push_back("frankcopula2_exp_rho");
   families.push_back("frankcopula_exp");
   families.push_back("frankcopula2_normal_mu");
   families.push_back("frankcopula2_normal_sigma2");
@@ -4542,8 +4542,8 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: gumbelcopula2_rho ---------------------
 
 
-//-------------------------------- gumbelcopula2_dagum_p ---------------------------------
-  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="shape2")
+//-------------------------------- gaussiancopula_dagum_p ---------------------------------
+  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="p")
     {
 
 	unsigned pos;
@@ -4567,10 +4567,10 @@ bool superbayesreg::create_distribution(void)
 
 
     }
-//---------------------------- END: gumbelcopula2_dagum_p -------------------------------
+//---------------------------- END: gaussiancopula_dagum_p -------------------------------
 
-//-------------------------------- gumbelcopula2_dagum_b ---------------------------------
-  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="scale")
+//-------------------------------- gaussiancopula_dagum_b ---------------------------------
+  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="b")
     {
 
 	unsigned pos;
@@ -4594,10 +4594,10 @@ bool superbayesreg::create_distribution(void)
 
 
     }
-//---------------------------- END: gumbelcopula2_dagum_b -------------------------------
+//---------------------------- END: gaussiancopula_dagum_b -------------------------------
 
-//------------------------------- gumbelcopula2_dagum_a ------------------------------------
-  else if ((family.getvalue() == "gaussiancopula_dagum") && equationtype.getvalue()=="shape1")
+//------------------------------- gaussiancopula_dagum_a ------------------------------------
+  else if ((family.getvalue() == "gaussiancopula_dagum") && equationtype.getvalue()=="a")
     {
 
 	unsigned pos;
@@ -4620,15 +4620,16 @@ bool superbayesreg::create_distribution(void)
        }*/
 
     }
-//------------------------------- END: gumbelcopula2_dagum_a -------------------------------
+//------------------------------- END: ggaussiancopula_dagum_a -------------------------------
 
 
 
 //----------------------------- gaussiancopula_dagum_rho ----------------------
-  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="mean")
+  else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="rho")
     {
-    //computemodeforstartingvalues = true;
-mainequation=true;
+	mainequation = true;
+    computemodeforstartingvalues = true;
+
     distr_gaussiancopula_dagum_rhos.push_back(DISTR_gaussiancopula_dagum_rho(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1];
@@ -5201,6 +5202,7 @@ mainequation=true;
 //----------------------------- frankcopula2_exp_rho ----------------------
   else if (family.getvalue() == "frankcopula2_exp_rho" && equationtype.getvalue()=="mean")
     {
+	mainequation = true;
     computemodeforstartingvalues = true;
 
     distr_frankcopula2_exp_rhos.push_back(DISTR_frankcopula2_exp_rho(&generaloptions,D.getCol(0),w));
@@ -5383,10 +5385,11 @@ mainequation=true;
 
 
 //----------------------------- frankcopula_exp_rho ----------------------
-  else if (family.getvalue() == "frankcopula_exp_rho")
+  else if (family.getvalue() == "frankcopula_exp"  && (equationtype.getvalue()=="rho"))
     {
+	mainequation = true;
     computemodeforstartingvalues = true;
-
+    
     distr_frankcopula_exp_rhos.push_back(DISTR_frankcopula_exp_rho(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_frankcopula_exp_rhos[distr_frankcopula_exp_rhos.size()-1];
