@@ -89,7 +89,6 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   intoption regiterates;
   simpleoption center;
 
-  stroption proposal;
   doubleoption tildea;
   doubleoption tildeb;
   simpleoption cauchy;
@@ -101,6 +100,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption tildev1;
   doubleoption tildev2;
   simpleoption gig;
+  stroption proposal;
 
   vector<ST::string> termnames;
 
