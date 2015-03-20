@@ -122,8 +122,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   tildeb = doubleoption("tildeb",0.001,0,500);
   cauchy = simpleoption("cauchy",false);
   wei = simpleoption("wei",false);
-  r2 = doubleoption("r2",0.00456356,0,1);
   scaletau2 = doubleoption("scaletau2",0.00877812,0.0000000001,1000000000);
+  r2 = doubleoption("r2",0.00456356,0,1);
 
   v1 = doubleoption("v1",5,0.0000000001,500);
   v2 = doubleoption("v2",25,0.0000000001,500);
@@ -310,8 +310,9 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildeb);
     optlist.push_back(&cauchy);
     optlist.push_back(&wei);
+	optlist.push_back(&scaletau2);
 	optlist.push_back(&r2);
-    optlist.push_back(&scaletau2);
+    
 
     optlist.push_back(&v1);
     optlist.push_back(&v2);

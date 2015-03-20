@@ -82,7 +82,6 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption abeta;
   doubleoption bbeta;
   doubleoption r;
-  doubleoption r2;
   doubleoption v;
   doubleoption aQ;
   doubleoption bQ;
@@ -94,6 +93,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption cauchy;
   simpleoption wei;
   doubleoption scaletau2;
+  doubleoption r2;
 
   doubleoption v1;
   doubleoption v2;
