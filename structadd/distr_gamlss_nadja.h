@@ -3099,7 +3099,7 @@ class __EXPORT_TYPE DISTR_gaussiancopula_dagum_p : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------- CLASS: DISTR_gaussiancopula_dagum_b --------------------------
+//----------------- CLASS: DISTR_gaussiancopula_dagum_b ------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_gaussiancopula_dagum_b : public DISTR_gamlss
@@ -3238,7 +3238,7 @@ class __EXPORT_TYPE DISTR_gaussiancopula_dagum_a : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_gaussiancopula_dagum_rho ------------------
+//--------------------- CLASS: DISTR_gaussiancopula_dagum_rho ------------------
 //------------------------------------------------------------------------------
 
 
@@ -4720,7 +4720,7 @@ class __EXPORT_TYPE DISTR_bivnormal_sigma : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
-//----------------------- CLASS: DISTR_bivnormal_mu -------------------------------
+//----------------------- CLASS: DISTR_bivnormal_mu ----------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
@@ -6932,6 +6932,272 @@ class __EXPORT_TYPE DISTR_sncp_mu : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//-------------- CLASS: DISTR_gaussiancopula_binary_normal_latent --------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussiancopula_binary_normal_latent : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+
+  public:
+
+  datamatrix responseorig;
+  datamatrix response2;
+  double * response2p;
+
+ // void check_errors(void);
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_latent(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_latent(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_latent(const DISTR_gaussiancopula_binary_normal_latent & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_binary_normal_latent & operator=(const DISTR_gaussiancopula_binary_normal_latent & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_binary_normal_latent() {}
+
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update(void);
+
+  void update_end(void);
+
+
+  };
+
+
+//------------------------------------------------------------------------------
+//--------- CLASS: DISTR_gaussiancopula_binary_normal_sigma --------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussiancopula_binary_normal_sigma : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix * workingresponse2p;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_sigma(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_sigma(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_sigma(const DISTR_gaussiancopula_binary_normal_sigma & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_binary_normal_sigma & operator=(const DISTR_gaussiancopula_binary_normal_sigma & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_binary_normal_sigma() {}
+
+  double get_intercept_start(void);
+
+ // void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//--------------- CLASS: DISTR_gaussiancopula_binary_normal_mu -----------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gaussiancopula_binary_normal_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix * workingresponse2p;
+  double * response2p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_mu(const DISTR_gaussiancopula_binary_normal_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_binary_normal_mu & operator=(const DISTR_gaussiancopula_binary_normal_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_binary_normal_mu() {}
+
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  void update(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//-------------- CLASS: DISTR_gaussiancopula_binary_normal_rho -----------------
+//------------------------------------------------------------------------------
+
+
+class __EXPORT_TYPE DISTR_gaussiancopula_binary_normal_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+
+  datamatrix * workingresponse2p;
+
+  double * response2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gaussiancopula_binary_normal_rho(const DISTR_gaussiancopula_binary_normal_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gaussiancopula_binary_normal_rho & operator=(const DISTR_gaussiancopula_binary_normal_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gaussiancopula_binary_normal_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
 
 
 } // end: namespace MCMC
