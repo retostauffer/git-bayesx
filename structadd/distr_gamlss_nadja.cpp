@@ -7356,7 +7356,7 @@ void DISTR_claytoncopula2_normal_sigma2::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -7557,7 +7557,7 @@ void DISTR_claytoncopula2_normal_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -7848,7 +7848,7 @@ void DISTR_claytoncopula2_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -8102,7 +8102,7 @@ void DISTR_claytoncopula_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -8302,7 +8302,7 @@ void DISTR_gumbelcopula2_normal_sigma2::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -8527,7 +8527,7 @@ void DISTR_gumbelcopula2_normal_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -8804,7 +8804,7 @@ void DISTR_gumbelcopula2_normal_sigma2_2::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -8976,7 +8976,7 @@ void DISTR_gumbelcopula2_normal_mu_2::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -9243,7 +9243,7 @@ void DISTR_gumbelcopula2_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -9507,7 +9507,7 @@ void DISTR_gaussiancopula_dagum_p::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -9724,7 +9724,7 @@ void DISTR_gaussiancopula_dagum_b::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -9940,7 +9940,7 @@ void DISTR_gaussiancopula_dagum_a::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -10252,7 +10252,7 @@ void DISTR_gaussiancopula_dagum_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -10522,7 +10522,7 @@ void DISTR_gumbelcopula_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -10834,7 +10834,7 @@ void DISTR_gaussiancopula_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -11091,7 +11091,7 @@ void DISTR_gaussiancopula_rhofz::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -11321,7 +11321,7 @@ void DISTR_tcopula_df::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -11522,7 +11522,7 @@ void DISTR_tcopula_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -11725,7 +11725,7 @@ void DISTR_frankcopula2_normal_sigma2::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -11921,7 +11921,7 @@ void DISTR_frankcopula2_normal_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -12212,7 +12212,7 @@ void DISTR_frankcopula2_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -12467,7 +12467,7 @@ void DISTR_frankcopula2_exp_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -12736,7 +12736,7 @@ void DISTR_frankcopula_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -12984,7 +12984,7 @@ void DISTR_frankcopula_exp_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -13204,7 +13204,7 @@ void DISTR_copula::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -13640,7 +13640,7 @@ void DISTR_bivt_df::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -13728,6 +13728,10 @@ void DISTR_bivt_df::compute_iwls_wweightschange_weightsone(
     *workingweight =  - pow(nd2,2)*( randnumbers::trigamma_exact(np2d2) - randnumbers::trigamma_exact(nd2) ) -2*degf/(degf+2)-degf*(degf+2)/(2*(degf+4))+degf/2; //- degf/(degf+2);
 
     *workingresponse = *linpred + nu/(*workingweight);
+
+  //  cout << "df equation y1: " << *response << endl;
+  //  cout << "df equation y2: " << *response2p << endl;
+
 
     if (compute_like)
       {
@@ -13841,7 +13845,7 @@ void DISTR_bivt_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -14061,7 +14065,7 @@ void DISTR_bivt_sigma::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -14359,7 +14363,7 @@ void DISTR_bivt_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -14577,7 +14581,7 @@ void DISTR_bivnormal_rhofz::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -14867,7 +14871,7 @@ void DISTR_bivnormal_mufz::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -15093,7 +15097,7 @@ void DISTR_bivnormal_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -15312,7 +15316,7 @@ void DISTR_bivnormal_sigma::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -15601,7 +15605,7 @@ void DISTR_bivnormal_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -15835,7 +15839,7 @@ void DISTR_bivprobit_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     response1p++;
@@ -16136,7 +16140,7 @@ void DISTR_bivprobit_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     response2p++;
 
 
@@ -16392,7 +16396,7 @@ void DISTR_bivlogit_or::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -16726,7 +16730,7 @@ void DISTR_bivlogit_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -23201,7 +23205,7 @@ void DISTR_gaussiancopula_binary_normal_latent::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     response2p++;
 
   }
@@ -23304,25 +23308,29 @@ void DISTR_gaussiancopula_binary_normal_latent::compute_iwls_wweightschange_weig
     set_worklin();
     }
 
-    double mu = (*linpred);
-    double rho2 = pow((*worktransformlin[2]),2);
-   double oneminusrho2 = 1- rho2;
+  double mu = (*linpred);
+  double rho2 = pow((*worktransformlin[2]),2);
+  double oneminusrho2 = 1- rho2;
 
 
-    double nu = (1/(oneminusrho2))*( (((*response))-mu) -
+  double nu = (1/(oneminusrho2))*( (((*response))-mu) -
                                  ((*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
 
-    *workingweight = 1/(oneminusrho2);
+  *workingweight = 1/(oneminusrho2);
 
-    *workingresponse = *linpred + nu/(*workingweight);
+ // cout << "latent equation y1: " << *response << endl;
+ // cout << "latent equation y2: " << *response2p << endl;
+  //cout << "latent equation y2orig: " << responseorig << endl;
 
-    if (compute_like)
-      {
+  *workingresponse = *linpred + nu/(*workingweight);
 
-        like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
+  if (compute_like)
+    {
+
+    like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
                                  2*(*worktransformlin[2])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
 
-      }
+    }
 
   modify_worklin();
 
@@ -23432,7 +23440,7 @@ void DISTR_gaussiancopula_binary_normal_sigma::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -23612,7 +23620,7 @@ void DISTR_gaussiancopula_binary_normal_mu::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -23643,7 +23651,7 @@ double DISTR_gaussiancopula_binary_normal_mu::loglikelihood_weightsone(double * 
   double l;
 
 
-     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[0]),2) -
+  l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[0]),2) -
                                  2*(*worktransformlin[2])*(((*response)-mu)/((*worktransformlin[0])))*(((*response2p)-(*worktransformlin[1]))/(1)) );
 
   modify_worklin();
@@ -23685,6 +23693,9 @@ void DISTR_gaussiancopula_binary_normal_mu::compute_iwls_wweightschange_weightso
 
   *workingresponse = *linpred + nu/(*workingweight);
 
+//  cout << "mu equation y1: " << *response << endl;
+//  cout << "mu equation y2: " << *response2p << endl;
+
   if (compute_like)
     {
     like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[0]),2) -
@@ -23721,6 +23732,8 @@ void DISTR_gaussiancopula_binary_normal_mu::update(void)
   double * worktransformlinr;
   double * worktransformlins;
   double * workweight;
+
+//  cout << "mu equation y2: " << *response2p << endl;
 
   worktransformlinr = distrp[2]->helpmat1.getV();
   worktransformlins = distrp[0]->helpmat1.getV();
@@ -23858,7 +23871,9 @@ void DISTR_gaussiancopula_binary_normal_rho::compute_deviance_mult(vector<double
                                                                                 2*rho*(((*response[2])-mu)/(sigma))*(((*response[0])-mu_latent))
                                                                                 + pow((((*response[0]))-mu_latent),2) );
 
-
+   // cout << "deviance y1: " << *response[2] << endl;
+   // cout << "deviance y2: " << *response[0] << endl;
+   // cout << "deviance y2: " << workingresponse2p << endl;
     *deviance = -2*l;
     }
 
@@ -23890,7 +23905,7 @@ void DISTR_gaussiancopula_binary_normal_rho::modify_worklin(void)
 
   DISTR_gamlss::modify_worklin();
 
-  if (counter<nrobs-1)
+  if (counter<nrobs)
     {
     response2p++;
     }
@@ -23979,24 +23994,25 @@ void DISTR_gaussiancopula_binary_normal_rho::compute_iwls_wweightschange_weights
   double oneminusrho2 = 1- rho2;
 
 
-    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2)
+  double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2)
                                                       +  pow((((*response2p))-(*worktransformlin[0])),2) )
                 +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[2]))/(*worktransformlin[1]))*(((*response2p)-(*worktransformlin[0]))) );
 
+  // cout << "rho equation y1: " << *response << endl;
+  // cout << "rho equation y2: " << *response2p << endl;
 
+  *workingweight = 1-pow(rho2,2);
 
-    *workingweight = 1-pow(rho2,2);
+  *workingresponse = *linpred + nu/(*workingweight);
 
-    *workingresponse = *linpred + nu/(*workingweight);
+  if (compute_like)
+    {
 
-    if (compute_like)
-      {
-
-        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2) -
+    like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2) -
                                  2*rho*(((*response)-(*worktransformlin[2]))/(*worktransformlin[1]))*(((*response2p)-(*worktransformlin[0])))
                                 +  pow((((*response2p))-(*worktransformlin[0])),2) );
 
-      }
+    }
 
 
   modify_worklin();
