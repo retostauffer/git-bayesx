@@ -6952,7 +6952,7 @@ class __EXPORT_TYPE DISTR_gaussiancopula_binary_normal_latent : public DISTR_gam
   datamatrix response2;
   double * response2p;
 
- // void check_errors(void);
+  void check_errors(void);
    // DEFAULT CONSTRUCTOR
 
   DISTR_gaussiancopula_binary_normal_latent(void) : DISTR_gamlss()

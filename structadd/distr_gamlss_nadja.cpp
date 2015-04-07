@@ -7032,7 +7032,7 @@ void DISTR_cloglog::check_errors(void)
       if (*workweight > 0)
         {
 
-        if ((*workresp!= 0) | (*workresp!= 1) )
+        if (((*workresp)!= 0.0) && ((*workresp)!= 1.0) )
           {
           errors=true;
           errormessages.push_back("ERROR: response has to be equal to zero or one\n");
@@ -16009,10 +16009,9 @@ void DISTR_bivprobit_mu::check_errors(void)
     double * workweight = weight.getV();
     while ( (i<nrobs) && (errors==false) )
       {
-
       if (*workweight > 0)
         {
-            if((*workresp)!=0 | (*workresp)!=1) {
+            if(((*workresp)!=0) && ((*workresp)!=1.0)) {
                 errors=true;
                 errormessages.push_back("ERROR: response has to be zero or one\n");
             }
@@ -16589,7 +16588,7 @@ void DISTR_bivlogit_mu::check_errors(void)
       if (*workweight > 0)
         {
 
-            if ((*workresp!= 0) | (*workresp!= 1) )
+            if (((*workresp)!= 0.0) && ((*workresp)!= 1.0) )
             {
                 errors=true;
                 errormessages.push_back("ERROR: response has to be equal to zero or one\n");
@@ -23102,7 +23101,7 @@ void DISTR_sncp_mu::update_end(void)
 //------------------------------------------------------------------------------
 //--------- CLASS: DISTR_gaussiancopula_binary_normal_latent -------------------
 //------------------------------------------------------------------------------
-/*void DISTR_gaussiancopula_binary_normal_latent::check_errors(void)
+void DISTR_gaussiancopula_binary_normal_latent::check_errors(void)
   {
 
   if (errors==false)
@@ -23115,8 +23114,8 @@ void DISTR_sncp_mu::update_end(void)
 
       if (*workweight > 0)
         {
-            cout << "y2: " << *workresp << endl;
-            if((*workresp)!=0 | (*workresp)!=1) {
+           // cout << "y2: " << *workresp << endl;
+            if(((*workresp)!=0.0) && ((*workresp)!=1.0)) {
                 errors=true;
                 errormessages.push_back("ERROR: response of latent margin has to be zero or one\n");
             }
@@ -23140,7 +23139,7 @@ void DISTR_sncp_mu::update_end(void)
     }
 
   }
-*/
+
 
 DISTR_gaussiancopula_binary_normal_latent::DISTR_gaussiancopula_binary_normal_latent(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -23154,7 +23153,7 @@ DISTR_gaussiancopula_binary_normal_latent::DISTR_gaussiancopula_binary_normal_la
   responseorig = response;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
-//  check_errors();
+  check_errors();
   }
 
 
