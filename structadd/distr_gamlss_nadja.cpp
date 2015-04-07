@@ -15944,7 +15944,8 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
                 +(hilfs+rho*(*linpred))*( (((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
 
 
-
+ // cout << "rho equation y1: " << *response << endl;
+ // cout << "rho equation y2: " << *response2p << endl;
     *workingweight = 1-pow(rho2,2);
 
     *workingresponse = *linpred + nu/(*workingweight);
@@ -16260,7 +16261,8 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
     double mu = (*linpred);
     double rho2 = pow((*worktransformlin[0]),2);
    double oneminusrho2 = 1- rho2;
-
+ // cout << "mu equation y1: " << *response << endl;
+ // cout << "mu equation y2: " << *response2p << endl;
 
     double nu = (1/(oneminusrho2))*( (((*response))-mu) -
                                  ((*worktransformlin[0]))*(((*response2p)-(*worktransformlin[1]))) );
@@ -16320,6 +16322,11 @@ void DISTR_bivprobit_mu::update_end(void)
 
   }
 
+bool DISTR_bivprobit_mu::posteriormode(void)
+  {
+  update();
+  DISTR_gamlss::posteriormode();
+  }
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_bivlogit_or -------------------------
@@ -23317,9 +23324,9 @@ void DISTR_gaussiancopula_binary_normal_latent::compute_iwls_wweightschange_weig
 
   *workingweight = 1/(oneminusrho2);
 
- // cout << "latent equation y1: " << *response << endl;
- // cout << "latent equation y2: " << *response2p << endl;
-  //cout << "latent equation y2orig: " << responseorig << endl;
+//  cout << "latent equation y1: " << *response << endl;
+//  cout << "latent equation y2: " << *response2p << endl;
+//  cout << "latent equation y2orig: " << *workresporig << endl;
 
   *workingresponse = *linpred + nu/(*workingweight);
 
@@ -23371,6 +23378,11 @@ void DISTR_gaussiancopula_binary_normal_latent::update_end(void)
     *pmu = (*worklin);
     }
 
+  }
+bool DISTR_gaussiancopula_binary_normal_latent::posteriormode(void)
+  {
+  update();
+  DISTR_gamlss::posteriormode();
   }
 
 //------------------------------------------------------------------------------
