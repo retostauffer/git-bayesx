@@ -4947,7 +4947,6 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
 
   void update_end(void);
 
-  bool posteriormode(void);
   };
 
 
@@ -6999,7 +6998,6 @@ class __EXPORT_TYPE DISTR_gaussiancopula_binary_normal_latent : public DISTR_gam
 
   void update_end(void);
 
-  bool posteriormode(void);
   };
 
 

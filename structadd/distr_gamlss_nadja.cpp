@@ -16322,11 +16322,6 @@ void DISTR_bivprobit_mu::update_end(void)
 
   }
 
-bool DISTR_bivprobit_mu::posteriormode(void)
-  {
-  update();
-  DISTR_gamlss::posteriormode();
-  }
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_bivlogit_or -------------------------
@@ -23378,11 +23373,6 @@ void DISTR_gaussiancopula_binary_normal_latent::update_end(void)
     *pmu = (*worklin);
     }
 
-  }
-bool DISTR_gaussiancopula_binary_normal_latent::posteriormode(void)
-  {
-  update();
-  DISTR_gamlss::posteriormode();
   }
 
 //------------------------------------------------------------------------------
