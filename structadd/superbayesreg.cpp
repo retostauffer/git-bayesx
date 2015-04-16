@@ -7421,11 +7421,33 @@ bool superbayesreg::create_userdefined(unsigned i)
   ST::string pathpenmat = pathdesign + "_penmat.raw";
   ST::string pathdesignmat = pathdesign + "_designmat.raw";
 
-  ifstream in1(pathpenmat.strtochar());
-  ifstream in2(pathpenmat.strtochar());
-  datamatrix penmat, designmat;
+  cout << pathdesignmat << "\n";
+  cout << pathpenmat << "\n";
+
+  datamatrix penmat;
+  datamatrix designmat;
+
+//  ifstream in1(pathpenmat.strtochar());
+  ifstream in1("c:\\temp\\userdefined_penmat.raw");
   penmat.prettyScan(in1);
+  in1.close();
+
+  ifstream in2(pathdesignmat.strtochar());
   designmat.prettyScan(in2);
+  in2.close();
+
+  ofstream out1("c:\\temp\\designmatrix_test.raw");
+  designmat.prettyPrint(out1);
+  out1.close();
+
+  ofstream out2("c:\\temp\\penmatrix_test.raw");
+  penmat.prettyPrint(out2);
+  out2.close();
+
+  cout << penmat.cols() << "\n";
+  cout << penmat.rows() << "\n";
+
+  cout << "test" << "\n";
 
   design_userdefineds.push_back(DESIGN_userdefined(d,iv,
                             designmat, penmat,
@@ -8266,6 +8288,8 @@ bool superbayesreg::create_nonp(void)
         create_offset(i);
       if (terms[i].options[0] == "pspline")
         create_pspline(i);
+      if (terms[i].options[0] == "userdefined")
+        create_userdefined(i);
       if (terms[i].options[0] == "hrandom")
         error = create_hrandom(i);
       if (terms[i].options[0] == "random")

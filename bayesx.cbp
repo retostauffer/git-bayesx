@@ -278,6 +278,8 @@
 		<Unit filename="structadd/design_mrf.h" />
 		<Unit filename="structadd/design_pspline.cpp" />
 		<Unit filename="structadd/design_pspline.h" />
+		<Unit filename="structadd/design_userdefined.cpp" />
+		<Unit filename="structadd/design_userdefined.h" />
 		<Unit filename="structadd/distr.cpp" />
 		<Unit filename="structadd/distr.h" />
 		<Unit filename="structadd/distr_categorical.cpp" />

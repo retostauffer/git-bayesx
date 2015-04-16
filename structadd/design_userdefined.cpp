@@ -34,7 +34,18 @@ namespace MCMC
 void DESIGN_userdefined::compute_f(datamatrix & beta,datamatrix & betalin,
                        datamatrix & f, datamatrix & ftot)
   {
+  unsigned i,j;
 
+  double * workf = f.getV();
+
+  for(i=0; i<Zout2.size(); i++, workf++)
+    {
+    *workf = 0.0;
+    for(j=0; j<Zout2[i].size(); j++)
+      {
+      *workf += Zout2[i][j]*beta(index_Zout2[i][j],0);
+      }
+    }
   }
 
 void DESIGN_userdefined::read_options(vector<ST::string> & op,
@@ -225,11 +236,13 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
   for(i=0; i<posbeg.size() ; i++)
     {
     Zout2.push_back(vector<double>());
+    index_Zout2.push_back(vector<int>());
     for(j=0; j<Z.cols(); j++)
       {
       if(Z(index_data(posbeg[i],0),j)!=0)
         {
         Zout2[i].push_back(Z(index_data(posbeg[i],0),j));
+        index_Zout2[i].push_back(j);
         }
       }
     }
@@ -244,17 +257,13 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
   vector<int> h2;
   index_ZoutT = vector<vector<int> >(nrpar,h2);
 
-
   unsigned i,j;
 
-  for(i=0;i<Z.cols();i++)
-    for(j=0;j<Z.rows();j++)
+  for(i=0;i<Zout2.size();i++)
+    for(j=0;j<Zout2[i].size();j++)
       {
-      if(Z(j,i)!=0)
-        {
-        ZoutT[i].push_back(Z(j,i));
-        index_ZoutT[i].push_back(j);
-        }
+      ZoutT[index_Zout2[i][j]].push_back(Zout2[i][j]);
+      index_ZoutT[index_Zout2[i][j]].push_back(i);
       }
   }
 
@@ -267,6 +276,8 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
                        vector<ST::string> & vn)
                       : DESIGN(o,dp,fcl)
   {
+
+cout << "test";
 
   read_options(op,vn);
 
