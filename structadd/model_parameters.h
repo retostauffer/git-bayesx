@@ -104,6 +104,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   intoption rankK;
   stroption designfile;
+  
+  simpleoption cprior;
 
   vector<ST::string> termnames;
 

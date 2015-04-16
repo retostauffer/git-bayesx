@@ -609,12 +609,21 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
 
   int f;
   double a,b;
+  bool cpr;
 
   f = op[5].strtodouble(a);
   f = op[6].strtodouble(b);
   atau2.push_back(a);
   btau2.push_back(b);
 
+  if (op[61] == "true")
+    {
+    cpr = true;
+    }
+  else
+    cpr = false;
+
+  cprior.push_back(cpr);
   nrpen++;
 
   delta = FC(optionsp,"",nrpen,2,"");
@@ -658,7 +667,7 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
 FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_vector_ssvs & t)
     : FC(FC(t))
   {
-
+  cprior = t.cprior;
   nrpen = t.nrpen;
 
   distrp = t.distrp;
@@ -681,7 +690,7 @@ const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const
   if (this == &t)
     return *this;
   FC::operator=(FC(t));
-
+  cprior = t.cprior;
   nrpen = t.nrpen;
 
   distrp = t.distrp;
@@ -741,7 +750,6 @@ void FC_variance_pen_vector_ssvs::update(void)
     anew_tau2 = atau2[j] + 0.5;
     beta2 = pow(Cp->beta(j,0),2);
 
-
     if (delta.beta(j,0) > 0)
       {
       bnew_tau2 = btau2[j]+0.5*beta2;
@@ -762,10 +770,15 @@ void FC_variance_pen_vector_ssvs::update(void)
       }
 
     Cp->tau2(j,0) = beta(j,0);
+    if(cprior[j])
+      {
+  //    cout << "j: " << j << endl;
+      Cp->tau2(j,0) = beta(j,0)*distrp->get_scale();
+      }
 
-//    cout << "anew: " << anew_tau2 << endl;
-//    cout << "bnew: " << bnew_tau2 << endl;
-//    cout << "tau2: " << beta(j,0) << endl;
+ //   cout << "atau2: " << atau2[j] << endl;
+ //   cout << "btau2: " << btau2[j] << endl;
+    //cout << "sigma2: " << distrp->get_scale() << endl;
 
     // update delta_j
 

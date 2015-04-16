@@ -145,6 +145,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   rankK = intoption("rankK", -1, -1, 50000);
   designfile = stroption("designfile");
+  
+  //conjugate prior for effect fusion in Gaussian model (Paper Daniela Pauger and Helga Wagner, Linz)
+  cprior = simpleoption("cprior",false);
   }
 
 void term_nonp::setdefault(void)
@@ -213,6 +216,8 @@ void term_nonp::setdefault(void)
 
   rankK.setdefault();
   designfile.setdefault();
+  
+  cprior.setdefault();
   }
 
 
@@ -329,6 +334,8 @@ bool term_nonp::check(term & t)
 
 	optlist.push_back(&rankK);
 	optlist.push_back(&designfile);
+	
+	optlist.push_back(&cprior);
 
     unsigned i;
     bool rec = true;
@@ -509,6 +516,12 @@ bool term_nonp::check(term & t)
 
     t.options[59] = ST::inttostring(rankK.getvalue());
     t.options[60] = designfile.getvalue();
+	
+	//conjugate prior for effect fusion ((paper Daniela Pauger and Helga Wagner, Linz)
+    if (cprior.getvalue() == false)
+      t.options[61] = "false";
+    else
+      t.options[61]= "true";
 
     setdefault();
     return true;

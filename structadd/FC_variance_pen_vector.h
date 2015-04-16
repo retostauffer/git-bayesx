@@ -183,6 +183,7 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
 
   protected:
 
+  vector<bool> cprior;
   FC_linear_pen * Cp;
   DISTR * distrp;
 
