@@ -507,7 +507,7 @@ bool term_nonp::check(term & t)
     //type of proposal for weibull prior
     t.options[58] = proposal.getvalue();
 
-    t.options[59] = rankK.getvalue();
+    t.options[59] = ST::inttostring(rankK.getvalue());
     t.options[60] = designfile.getvalue();
 
     setdefault();
