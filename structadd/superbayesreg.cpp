@@ -214,7 +214,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("lasso");
   tnames.push_back("ssvs");
   tnames.push_back("offset");
-
+  tnames.push_back("userdefined");
 
   tnonp = term_nonp(tnames);
   lineareffects = basic_termtype();
@@ -972,6 +972,9 @@ void superbayesreg::clear(void)
   design_psplines.erase(design_psplines.begin(),design_psplines.end());
   design_psplines.reserve(100);
 
+  design_userdefineds.erase(design_userdefineds.begin(),design_userdefineds.end());
+  design_userdefineds.reserve(43);
+
   design_mrfs.erase(design_mrfs.begin(),design_mrfs.end());
   design_mrfs.reserve(30);
 
@@ -1252,6 +1255,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
+  design_userdefineds = b.design_userdefineds;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
@@ -1458,6 +1462,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
+  design_userdefineds = b.design_userdefineds;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
@@ -7400,6 +7405,45 @@ void superbayesreg::create_pspline(unsigned i)
 
   }
 
+bool superbayesreg::create_userdefined(unsigned i)
+  {
+
+  unsigned modnr = equations.size()-1;
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_userdefined.raw","nonlinear_userdefined_effect_of"," Nonlinear effect (user defined) of ");
+
+  // adjust to cope with multiple covariates
+  datamatrix d,iv;
+  extract_data(i,d,iv,1);
+
+  ST::string pathdesign = terms[i].options[60];
+  ST::string pathpenmat = pathdesign + "_penmat.raw";
+  ST::string pathdesignmat = pathdesign + "_designmat.raw";
+
+  ifstream in1(pathpenmat.strtochar());
+  ifstream in2(pathpenmat.strtochar());
+  datamatrix penmat, designmat;
+  penmat.prettyScan(in1);
+  designmat.prettyScan(in2);
+
+  design_userdefineds.push_back(DESIGN_userdefined(d,iv,
+                            designmat, penmat,
+                            &generaloptions,equations[modnr].distrp,
+                            &FC_linears[FC_linears.size()-1],
+                            terms[i].options,terms[i].varnames));
+
+  FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,title,
+                     pathnonp,&design_userdefineds[design_userdefineds.size()-1],
+                     terms[i].options,terms[i].varnames));
+
+  equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_userdefined_var.raw","variance_of_nonlinear_userdefined_effect_of","Variance of (user-defined) nonlinear effect of ");
+
+  return false;
+  }
 
 bool superbayesreg::findREdistr(ST::string & na,equation & maine,unsigned & fnr)
   {

@@ -2788,7 +2788,7 @@ T envmatrix<T>::traceOfProduct(envmatrix<T> & B)
   }
 
 template<class T>
-vector<unsigned> envmatrix<T>::computeMaxXenv(const envmatrix<T> & B)
+vector<unsigned> envmatrix<T>::computeMaxXenv(envmatrix<T> & B)
   {
   assert(dim==B.getDim());
   vector<unsigned> maxxenv(xenv.size(),0);

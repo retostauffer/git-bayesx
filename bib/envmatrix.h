@@ -340,7 +340,7 @@ class envmatrix
   // TASK: Computes an envelope structure that combines the envelopes of the
   //       calling matrix and B
 
-  vector<unsigned> computeMaxXenv(const envmatrix<T> & B);
+  vector<unsigned> computeMaxXenv(envmatrix<T> & B);
 
 
 //------------------------------------------------------------------------------
@@ -406,7 +406,7 @@ class envmatrix
   // FUNCTION: addto
   // TASK: computes f1*X + f2*K and assigns it to the calling matrix.
   //       The calling matrix is assumed to have the maximum envelope of X and K
-  //       which may be computed with the function getMaxXenv()
+  //       which may be computed with the function computeMaxXenv()
 
   void addto(envmatrix &X, envmatrix &K, const T &f1,
                  const T &f2);

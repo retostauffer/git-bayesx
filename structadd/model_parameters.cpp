@@ -142,6 +142,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
   proposals.push_back("IG");
 
   proposal = stroption("proposal",proposals,"iwls_logtau2");
+
+  rankK = intoption("rankK", -1, -1, 50000);
+  designfile = stroption("designfile");
   }
 
 void term_nonp::setdefault(void)
@@ -207,6 +210,9 @@ void term_nonp::setdefault(void)
   tildev2.setdefault();
   gig.setdefault();
   proposal.setdefault();
+
+  rankK.setdefault();
+  designfile.setdefault();
   }
 
 
@@ -233,7 +239,7 @@ bool term_nonp::check(term & t)
   {
 
   if ( (t.varnames.size()<=2)  && (t.options.size() >= 1)
-        && (t.options.size() <= 100) )
+        && (t.options.size() <= 200) )
     {
 
     bool f = false;
@@ -312,7 +318,7 @@ bool term_nonp::check(term & t)
     optlist.push_back(&wei);
 	optlist.push_back(&scaletau2);
 	optlist.push_back(&r2);
-    
+
 
     optlist.push_back(&v1);
     optlist.push_back(&v2);
@@ -320,6 +326,9 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildev2);
     optlist.push_back(&gig);
 	optlist.push_back(&proposal);
+
+	optlist.push_back(&rankK);
+	optlist.push_back(&designfile);
 
     unsigned i;
     bool rec = true;
@@ -344,7 +353,7 @@ bool term_nonp::check(term & t)
       }
 
     t.options.erase(t.options.begin(),t.options.end());
-    t.options = vector<ST::string>(100);
+    t.options = vector<ST::string>(200);
     t.options[0] = termnames[namespos];
     t.options[1] = ST::inttostring(degree.getvalue());
     t.options[2] = ST::inttostring(numberknots.getvalue());
@@ -497,6 +506,9 @@ bool term_nonp::check(term & t)
 
     //type of proposal for weibull prior
     t.options[58] = proposal.getvalue();
+
+    t.options[59] = rankK.getvalue();
+    t.options[60] = designfile.getvalue();
 
     setdefault();
     return true;

@@ -298,7 +298,7 @@ class __EXPORT_TYPE DESIGN
   // TASK: compute Zout*beta, i.e. the estimated/current function evaluated at
   //       the different observations in data
 
-  void compute_f(datamatrix & beta,datamatrix & betalin,
+  virtual void compute_f(datamatrix & beta,datamatrix & betalin,
                        datamatrix & f, datamatrix & ftot);
 
   // FUNCTION: compute_effect

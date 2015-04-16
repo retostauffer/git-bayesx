@@ -102,6 +102,9 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   simpleoption gig;
   stroption proposal;
 
+  intoption rankK;
+  stroption designfile;
+
   vector<ST::string> termnames;
 
   void setdefault(void);

@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"design_hrandom.h"
 #include"design_mrf.h"
 #include"design_kriging.h"
+#include"design_userdefined.h"
 
 #include"FC.h"
 #include"FC_predict.h"
@@ -218,6 +219,7 @@ using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
 using MCMC::DESIGN_kriging;
+using MCMC::DESIGN_userdefined;
 using MCMC::equation;
 
 using MCMC::FC;
@@ -656,6 +658,14 @@ class __EXPORT_TYPE superbayesreg : public statobject
   bool find_map(unsigned i,MAP::map & m);
 
 //------------------------ end for nonparametric terms -------------------------
+
+//----------------------- for userdefined terms ----------------------------
+
+  vector<DESIGN_userdefined> design_userdefineds;
+
+  bool create_userdefined(unsigned i);
+
+//------------------------ end for userdefined terms -------------------------
 
 //----------------------- hierarchical random effects --------------------------
 
