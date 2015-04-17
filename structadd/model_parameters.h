@@ -103,8 +103,9 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption proposal;
 
   intoption rankK;
-  stroption designfile;
-  
+  stroption designmatdata;
+  stroption penmatdata;
+
   simpleoption cprior;
 
   vector<ST::string> termnames;

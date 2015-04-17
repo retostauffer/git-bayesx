@@ -18,10 +18,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 
-
-
-
-
 #if defined(BORLAND_OUTPUT_WINDOW)
 #include <vcl.h>
 #pragma hdrstop
@@ -38,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 //#include<typeinfo.h>
 
 #include<stddef.h>
+using std::ifstream;
 
 
 //------------------------------------------------------------------------------
@@ -7417,26 +7414,83 @@ bool superbayesreg::create_userdefined(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
-  ST::string pathdesign = terms[i].options[60];
-  ST::string pathpenmat = pathdesign + "_penmat.raw";
-  ST::string pathdesignmat = pathdesign + "_designmat.raw";
+  datamatrix designmat, penmat;
+  if (terms[i].options[60] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[60],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[60] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[60] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,penmat,expr);
+    }
 
-  cout << pathdesignmat << "\n";
-  cout << pathpenmat << "\n";
+  if (terms[i].options[62] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[62],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[62] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[62] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,designmat,expr);
+    }
 
-  datamatrix penmat;
-  datamatrix designmat;
 
-//  ifstream in1(pathpenmat.strtochar());
-  ifstream in1("c:\\temp\\userdefined_penmat.raw");
-  penmat.prettyScan(in1);
-  in1.close();
+//  ST::string pathdesign = terms[i].options[60];
+//  ST::string pathpenmat = pathdesign + "_penmat.raw";
+//  ST::string pathdesignmat = pathdesign + "_designmat.raw";
 
-  ifstream in2(pathdesignmat.strtochar());
-  designmat.prettyScan(in2);
-  in2.close();
+//  cout << pathdesignmat << "\n";
+//  cout << pathpenmat << "\n";
 
-  ofstream out1("c:\\temp\\designmatrix_test.raw");
+//  statmatrix<int> test;
+
+/*  ifstream in("C:/temp/testmat.txt");
+
+  if(in.fail())
+    cout << "fail" << "\n";
+  else
+    cout << "success" << "\n";
+
+  ST::string header;
+  ST::getline(in,50000,header);
+  header = header.eatallcarriagereturns();
+
+
+  test.prettyScan(in);
+  in.close();
+
+  cout << header << "\n";*/
+
+ /* ofstream out1("c:\\temp\\designmatrix_test.raw");
   designmat.prettyPrint(out1);
   out1.close();
 
@@ -7447,7 +7501,10 @@ bool superbayesreg::create_userdefined(unsigned i)
   cout << penmat.cols() << "\n";
   cout << penmat.rows() << "\n";
 
-  cout << "test" << "\n";
+  cout << designmat.cols() << "\n";
+  cout << designmat.rows() << "\n";
+
+  cout << "test" << "\n";*/
 
   design_userdefineds.push_back(DESIGN_userdefined(d,iv,
                             designmat, penmat,

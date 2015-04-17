@@ -246,6 +246,32 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
         }
       }
     }
+
+  ofstream out("c:\\temp\\Zout.res");
+  for (i=0;i<Zout2.size();i++)
+    {
+    for(j=0;j<Zout2[i].size();j++)
+      out <<  Zout2[i][j] << "  ";
+    out << endl;
+    }
+
+  ofstream out2("c:\\temp\\Zout_index.res");
+  for (i=0;i<index_Zout2.size();i++)
+    {
+    for(j=0;j<index_Zout2[i].size();j++)
+      out2 <<  index_Zout2[i][j] << "  ";
+    out2 << endl;
+    }
+
+  ofstream out4("c:\\temp\\Zout.res");
+  datamatrix Zhelp(Zout2.size(),nrpar,0);
+  for (i=0;i<Zout2.size();i++)
+    {
+    for(j=0;j<nrpar;j++)
+      Zhelp(index_Zout2[i][j],i) = Zout2[i][j];
+    }
+
+  Zhelp.prettyPrint(out4);
   }
 
 void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
@@ -265,6 +291,33 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
       ZoutT[index_Zout2[i][j]].push_back(Zout2[i][j]);
       index_ZoutT[index_Zout2[i][j]].push_back(i);
       }
+
+  ofstream out("c:\\temp\\ZoutT.res");
+  for (i=0;i<ZoutT.size();i++)
+    {
+    for(j=0;j<ZoutT[i].size();j++)
+      out <<  ZoutT[i][j] << "  ";
+    out << endl;
+    }
+
+  ofstream out2("c:\\temp\\ZoutT_index.res");
+  for (i=0;i<index_ZoutT.size();i++)
+    {
+    for(j=0;j<index_ZoutT[i].size();j++)
+      out2 <<  index_ZoutT[i][j] << "  ";
+    out2 << endl;
+    }
+
+  ofstream out4("c:\\temp\\ZoutT.res");
+  datamatrix Zhelp(Zout2.size(),ZoutT.size(),0);
+  for (i=0;i<ZoutT.size();i++)
+    {
+    for(j=0;j<ZoutT[i].size();j++)
+      Zhelp(index_ZoutT[i][j],i) = ZoutT[i][j];
+    }
+
+  Zhelp.prettyPrint(out4);
+
   }
 
   // CONSTRUCTOR
@@ -277,7 +330,6 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
                       : DESIGN(o,dp,fcl)
   {
 
-cout << "test";
 
   read_options(op,vn);
 
@@ -286,10 +338,8 @@ cout << "test";
 
   nrpar = designmat.cols();
 
-  // to be implemented
   compute_Zout(designmat);
   compute_Zout_transposed(designmat);
-
   K = envmatdouble(penmat, 0.0);
   if(rankK==-1)
     {
@@ -297,7 +347,10 @@ cout << "test";
     }
 
   Wsum = datamatrix(posbeg.size(),1,1);
+
+  cout << "test\n";
   compute_XtransposedWX();
+  cout << "test2\n";
   XWres = datamatrix(nrpar,1);
 
   compute_precision(1.0);

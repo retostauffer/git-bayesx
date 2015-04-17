@@ -582,7 +582,6 @@ void DESIGN::compute_XtransposedWX(void)
 
   if (XWX.getBandwidth() == 0)
     {
-
     unsigned i;
 
     double * Wsump = Wsum.getV();
@@ -596,7 +595,6 @@ void DESIGN::compute_XtransposedWX(void)
     }
   else
     {
-
     int i;
 
     if (ZoutTZout_d.size() <= 1)
