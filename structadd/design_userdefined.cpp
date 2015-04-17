@@ -263,7 +263,7 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
     out2 << endl;
     }
 
-  ofstream out4("c:\\temp\\Zout.res");
+  ofstream out4("c:\\temp\\Zout_orig.res");
   datamatrix Zhelp(Zout2.size(),nrpar,0);
   for (i=0;i<Zout2.size();i++)
     {
@@ -308,7 +308,7 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
     out2 << endl;
     }
 
-  ofstream out4("c:\\temp\\ZoutT.res");
+  ofstream out4("c:\\temp\\ZoutT_orig.res");
   datamatrix Zhelp(Zout2.size(),ZoutT.size(),0);
   for (i=0;i<ZoutT.size();i++)
     {
