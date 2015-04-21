@@ -1391,6 +1391,7 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
     if ((likep->wtype==wweightsnochange_one) && (cwsum==false) && (changingdesign==false))
       {
 
+
       for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++)
         res(*indp,0) += *workingresponsep - *worklinp + f(*indp,0);
 

@@ -115,7 +115,7 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,vector<ST::string> & op,
                  vector<ST::string> & vn)
-     : FC(o,t,Dp->Zout.rows(),1,fp)
+     : FC(o,t,Dp->posbeg.size(),1,fp)
   {
 
   read_options(op,vn);
@@ -958,10 +958,11 @@ bool FC_nonp::posteriormode(void)
     double h = likep->compute_iwls(true,false);
 
     betaold.assign(beta);
-
     designp->compute_partres(partres,beta,true);
 
+
     designp->compute_XtransposedWX();
+
     designp->compute_XtransposedWres(partres, lambda);
 
     designp->compute_precision(lambda);
