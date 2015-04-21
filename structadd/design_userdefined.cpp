@@ -87,6 +87,8 @@ void DESIGN_userdefined::read_options(vector<ST::string> & op,
   else
     center = false;
 
+
+
   f = op[15].strtodouble(round);
 
   if (op[16]=="meancoeff")
@@ -229,6 +231,7 @@ void DESIGN_userdefined::compute_precision(double l)
   precision.addto(XWX,K,1.0,l);
   }
 
+
 void DESIGN_userdefined::compute_Zout(datamatrix & Z)
   {
   unsigned i,j;
@@ -247,6 +250,7 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
       }
     }
 
+/*
   ofstream out("c:\\temp\\Zout.res");
   for (i=0;i<Zout2.size();i++)
     {
@@ -263,16 +267,20 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
     out2 << endl;
     }
 
-  ofstream out4("c:\\temp\\Zout_orig.res");
+
+  ofstream out4("c:\\temp\\Zoutmat.res");
   datamatrix Zhelp(Zout2.size(),nrpar,0);
   for (i=0;i<Zout2.size();i++)
     {
     for(j=0;j<nrpar;j++)
-      Zhelp(index_Zout2[i][j],i) = Zout2[i][j];
+      Zhelp(i,j) = Zout2[i][j];
     }
 
   Zhelp.prettyPrint(out4);
+*/
+
   }
+
 
 void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
   {
@@ -292,6 +300,8 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
       index_ZoutT[index_Zout2[i][j]].push_back(i);
       }
 
+
+/*
   ofstream out("c:\\temp\\ZoutT.res");
   for (i=0;i<ZoutT.size();i++)
     {
@@ -308,7 +318,7 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
     out2 << endl;
     }
 
-  ofstream out4("c:\\temp\\ZoutT_orig.res");
+  ofstream out4("c:\\temp\\ZoutT.res");
   datamatrix Zhelp(Zout2.size(),ZoutT.size(),0);
   for (i=0;i<ZoutT.size();i++)
     {
@@ -317,7 +327,7 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
     }
 
   Zhelp.prettyPrint(out4);
-
+*/
   }
 
   // CONSTRUCTOR
@@ -348,9 +358,9 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
 
   Wsum = datamatrix(posbeg.size(),1,1);
 
-  cout << "test\n";
+  datamatrix help = designmat.transposed()*designmat;
+  XWX = envmatdouble(help, 0.0);
   compute_XtransposedWX();
-  cout << "test2\n";
   XWres = datamatrix(nrpar,1);
 
   compute_precision(1.0);
