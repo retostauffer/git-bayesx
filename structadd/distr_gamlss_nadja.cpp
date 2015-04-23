@@ -16658,6 +16658,7 @@ void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
      double mu_2 = (*linpred[1]);
      double mu_1 = (*linpred[2]);
      double hilfs1 = 1-pow(rho,2);
+   //  double test = gsl_ran_bivariate_gaussian_pdf( 0,  0,  1,  1,  0.3);
      double l;
 
        l = -log(2*PI)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[2]))-mu_1),2) -

@@ -981,6 +981,248 @@ double GIG2(double lambda, double a, double b)
 
   }
 
+// Compute CDF of bivariate normal distribution with zero mean vector and unit marginal variances
+// correlation r
+//-------------------begin pbivn ---------------------------------------------------------
+
+double pbivn(const double & xl, const double &  xu, const double &  yl, const double &  yu, const double &  r)
+  {
+// A function for computing bivariate normal probabilities.
+// pbivn calculates the probability that
+// xl < x < xu and yl < y < yu,
+// with correlation coefficient r.
+//
+// Author of the original Matlab implemenation:
+// Alan Genz, Department of Mathematics
+// Washington State University, Pullman, Wa 99164-3113
+  double p = pbivnu(xl,yl,r) - pbivnu(xu,yl,r) - pbivnu(xl,yu,r) + pbivnu(xu,yu,r);
+  double minp = min( p, 1.0 );
+  p = max( 0.0, minp );
+  return p;
+  }
+
+// helper function for pbivn
+double pbivnu(const double &  dh, const double &  dk, const double &  r)
+  {
+// pbivnu calculates the probability that x > dh and y > dk.
+// parameters
+// dh 1st lower integration limit
+// dk 2nd lower integration limit
+// r   correlation coefficient
+/*%  Example: p = pbivnu( -3, -1, .35 )
+%  Note: to compute the probability that x < dh and y < dk,
+%        use pbivnu( -dh, -dk, r ).
+%
+
+%   Author of the original Matlab implementation:
+%       Alan Genz
+%       Department of Mathematics
+%       Washington State University
+%       Pullman, Wa 99164-3113
+%       Email : alangenz@wsu.edu
+%
+%    This function is based on the method described by
+%        Drezner, Z and G.O. Wesolowsky, (1989),
+%        On the computation of the bivariate normal inegral,
+%        Journal of Statist. Comput. Simul. 35, pp. 101-107,
+%    with major modifications for double precision, for |r| close to 1,
+%    and for Matlab by Alan Genz. Minor bug modifications 7/98, 2/10.
+%
+%
+% Copyright (C) 2013, Alan Genz,  All rights reserved.
+*/
+  double p;
+  double temp = DBL_MAX;
+  if((dh ==  temp) || (dk ==  temp))
+    {
+    p = 0;
+    }
+  else if(dh == -temp)
+    {
+    if(dk == -temp)
+      {
+      p = 1;
+      }
+    else
+      {
+      p = randnumbers::Phi2(-dk);
+      }
+    }
+  else if(dk == -temp)
+    {
+    p = randnumbers::Phi2(-dh);
+    }
+  else if(r == 0)
+    {
+    p = randnumbers::Phi2(-dh)*randnumbers::Phi2(-dk);
+    }
+  else
+    {
+    double tp = 2.0*PI;
+    double h = dh;
+    double k = dk;
+    double hk = h*k;
+    double bvn = 0;
+    double sizew = 0;
+    vector<double> w;
+    vector<double> x;
+    if(abs(r) < 0.3)//      % Gauss Legendre points and weights, n =  6
+      {
+      w.push_back(0.1713244923791705);
+      w.push_back(0.3607615730481384);
+      w.push_back(0.4679139345726904);
+      x.push_back(0.9324695142031522);
+      x.push_back(0.6612093864662647);
+      x.push_back(0.2386191860831970);
+      for(int j=0; j<w.size(); j++)
+        {
+        w.push_back(w[j]);
+        x.push_back(1+x[j]);
+        x[j] = 1-x[j];
+        }
+      sizew = w.size();
+      }
+    else if(abs(r) < 0.75) // % Gauss Legendre points and weights, n = 12
+      {
+      w.push_back(0.04717533638651177);
+      w.push_back(0.1069393259953183);
+      w.push_back(0.1600783285433464);
+      w.push_back(0.2031674267230659);
+      w.push_back(0.2334925365383547);
+      w.push_back(0.2491470458134029);
+      x.push_back(0.9815606342467191);
+      x.push_back(0.9041172563704750);
+      x.push_back(0.7699026741943050);
+      x.push_back(0.5873179542866171);
+      x.push_back(0.3678314989981802);
+      x.push_back(0.1252334085114692);
+      for(int j=0; j<w.size(); j++)
+        {
+        w.push_back(w[j]);
+        x.push_back(1+x[j]);
+        x[j] = 1-x[j];
+        }
+      sizew = w.size();
+      }
+    else//                % Gauss Legendre points and weights, n = 20
+      {
+      w.push_back(0.01761400713915212);
+      w.push_back(0.04060142980038694);
+      w.push_back(0.06267204833410906);
+      w.push_back(0.08327674157670475);
+      w.push_back(0.1019301198172404);
+      w.push_back(0.1181945319615184);
+      w.push_back(0.1316886384491766);
+      w.push_back(0.1420961093183821);
+      w.push_back(0.1491729864726037);
+      w.push_back(0.1527533871307259);
+      x.push_back(0.9931285991850949);
+      x.push_back(0.9639719272779138);
+      x.push_back(0.9122344282513259);
+      x.push_back(0.8391169718222188);
+      x.push_back(0.7463319064601508);
+      x.push_back(0.6360536807265150);
+      x.push_back(0.5108670019508271);
+      x.push_back(0.3737060887154196);
+      x.push_back(0.2277858511416451);
+      x.push_back(0.07652652113349733);
+      for(int j=0; j<w.size(); j++)
+        {
+        w.push_back(w[j]);
+        x.push_back(1+x[j]);
+        x[j] = 1-x[j];
+        }
+      sizew = w.size();
+      }
+
+    if(abs(r) < 0.925)
+      {
+      double hs = ( h*h + k*k )/2;
+      double asr = asin(r)/2;
+      double sn = 0;
+      for(int j=0; j<sizew; j++)
+        {
+        sn = 0;
+        sn = sin(asr*x[j]);
+        bvn += exp((sn*hk-hs)/(1-sn*sn))*w[j];
+
+        }
+      bvn *= asr/tp;
+      bvn += randnumbers::Phi2(-h)*randnumbers::Phi2(-k);
+      }
+    else
+      {
+      if(r < 0)
+        {
+        k = -k;
+        hk = -hk;
+        }
+      if(abs(r) < 1)
+        {
+        double as = 1-r*r;
+        double a = sqrt(as);
+        double bs = (h-k)*(h-k);
+        double asr = -( bs/as + hk )/2;
+        double c = (4-hk)/8 ;
+        double d = (12-hk)/80;
+        if(asr > -100)
+          {
+          bvn = a*exp(asr)*(1-c*(bs-as)*(1-d*bs)/3+c*d*as*as);
+          }
+        if(hk  > -100)
+          {
+          double b = sqrt(bs);
+          double sp = sqrt(tp)*randnumbers::Phi2(-b/a);
+          bvn -=  exp(-hk/2)*sp*b*( 1 - c*bs*(1-d*bs)/3 );
+          }
+        a = a/2;
+        double xs = 0;
+        for(int j=0; j<w.size(); j++)
+        {
+        xs = 0;
+        xs = a*a*x[j]*x[j];
+        asr = -( bs/xs + hk )/2;
+        if(asr > -100)
+          {
+          double sp = ( 1 + c*xs*(1+5*d*xs) );
+          double rs = sqrt(1-xs);
+          double ep = exp( -(hk/2)*xs/((1+rs)*(1+rs)) )/rs;
+          bvn = ( a*( (exp(asr)*(sp-ep))*w[j] ) - bvn )/tp;
+          }
+        }
+        }
+      if(r > 0)
+        {
+        bvn +=  randnumbers::Phi2( -max( h, k ) );
+        }
+      else if(h >= k)
+        {
+        bvn = -bvn;
+        }
+      else
+        {
+        double L;
+        if(h < 0)
+          {
+          L = randnumbers::Phi2(k)-randnumbers::Phi2(h);
+          }
+        else
+          {
+          L = randnumbers::Phi2(-h)-randnumbers::Phi2(-k);
+          }
+        bvn =  L - bvn;
+        }
+      }
+    double minp = min( 1.0, bvn );
+    p = max( 0.0, minp );
+    }
+  }
+
+
+//-------------------end pbivn ---------------------------------------------------------
+
+
+
 double fpsi(double x, double alpha, double lambda)
   {
   double ret = -alpha*(cosh(x)-1)-lambda*(exp(x)-x-1);

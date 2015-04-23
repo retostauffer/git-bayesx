@@ -1847,7 +1847,6 @@ bool superbayesreg::create_distribution(void)
 
     mainequation=true;
 
-
 #if defined(__BUILDING_LINUX)
     ST::string path = defaultpath + "/temp/" + name  + "_scale.raw";
 #else

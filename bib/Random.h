@@ -198,6 +198,13 @@ double __EXPORT_TYPE GIG(double chi);
 
 double __EXPORT_TYPE GIG2(double lambda, double a, double b);
 
+// Compute CDF of bivariate normal distribution with zero mean vector and unit marginal variances
+// correlation r
+double __EXPORT_TYPE pbivn(const double & xl, const double &  xu, const double &  yl, const double &  yu, const double &  r);
+
+// helper function for pbivn
+double __EXPORT_TYPE pbivnu(const double &  dh, const double &  dk, const double &  r);
+
 double __EXPORT_TYPE fpsi(double x, double alpha, double lambda);
 
 double __EXPORT_TYPE dfpsi(double x, double alpha, double lambda);
