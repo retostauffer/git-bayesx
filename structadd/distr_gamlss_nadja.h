@@ -4949,6 +4949,151 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivprobit2_rho ---------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivprobit2_rho : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+  datamatrix responseorig;
+  //datamatrix response2;
+  double * response2p;
+
+  double * response1p;
+
+  datamatrix * workingresponse2p;
+
+  datamatrix * workingresponse1p;
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivprobit2_rho(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivprobit2_rho(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivprobit2_rho(const DISTR_bivprobit2_rho & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivprobit2_rho & operator=(const DISTR_bivprobit2_rho & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivprobit2_rho() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_bivprobit2_mu ----------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_bivprobit2_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+  unsigned pos;
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+
+  public:
+
+  datamatrix responseorig;
+  //datamatrix response2;
+  double * response2p;
+
+  datamatrix * workingresponse2p;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_bivprobit2_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_bivprobit2_mu(GENERAL_OPTIONS * o, const datamatrix & r, unsigned & p,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_bivprobit2_mu(const DISTR_bivprobit2_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_bivprobit2_mu & operator=(const DISTR_bivprobit2_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_bivprobit2_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update(void);
+
+  void update_end(void);
+
+  };
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_bivlogit_or -----------------------------

@@ -280,6 +280,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("bivnormal");
   families.push_back("bivnormal_fz");
   families.push_back("bivprobit");
+  families.push_back("bivprobit2");
   families.push_back("bivlogit");
   families.push_back("weibull");
   families.push_back("dagum");
@@ -780,6 +781,12 @@ void superbayesreg::clear(void)
   distr_bivprobit_rhos.erase(distr_bivprobit_rhos.begin(),distr_bivprobit_rhos.end());
   distr_bivprobit_rhos.reserve(20);
 
+  distr_bivprobit2_mus.erase(distr_bivprobit2_mus.begin(),distr_bivprobit2_mus.end());
+  distr_bivprobit2_mus.reserve(20);
+
+  distr_bivprobit2_rhos.erase(distr_bivprobit2_rhos.begin(),distr_bivprobit2_rhos.end());
+  distr_bivprobit2_rhos.reserve(20);
+
   distr_bivlogit_mus.erase(distr_bivlogit_mus.begin(),distr_bivlogit_mus.end());
   distr_bivlogit_mus.reserve(20);
 
@@ -1183,6 +1190,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_bivnormal_rhofzs = b.distr_bivnormal_rhofzs;
   distr_bivprobit_mus = b.distr_bivprobit_mus;
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
+  distr_bivprobit2_mus = b.distr_bivprobit2_mus;
+  distr_bivprobit2_rhos = b.distr_bivprobit2_rhos;
   distr_bivlogit_mus = b.distr_bivlogit_mus;
   distr_bivlogit_ors = b.distr_bivlogit_ors;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
@@ -1389,6 +1398,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_bivt_rhos = b.distr_bivt_rhos;
   distr_bivprobit_mus = b.distr_bivprobit_mus;
   distr_bivprobit_rhos = b.distr_bivprobit_rhos;
+  distr_bivprobit2_mus = b.distr_bivprobit2_mus;
+  distr_bivprobit2_rhos = b.distr_bivprobit2_rhos;
   distr_bivlogit_mus = b.distr_bivlogit_mus;
   distr_bivlogit_ors = b.distr_bivlogit_ors;
   distr_zeroadjusteds = b.distr_zeroadjusteds;
@@ -3329,6 +3340,84 @@ bool superbayesreg::create_distribution(void)
      }
  //------------------------------ END: bivprobit_mu ----------------------------------
 
+
+//---------------------------------- bivprobit2_rho -----------------------------------
+   else if (family.getvalue() == "bivprobit2" && equationtype.getvalue()=="rho")
+     {
+
+     computemodeforstartingvalues = true;
+
+     distr_bivprobit2_rhos.push_back(DISTR_bivprobit2_rho(&generaloptions,D.getCol(0),w));
+
+     equations[modnr].distrp = &distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1];
+     equations[modnr].pathd = "";
+
+     }
+ //------------------------------- END: bivprobit2_rho ---------------------------------
+
+  // ----------------------------------- bivprobit2_mu ----------------------------------
+   else if ((family.getvalue() == "bivprobit2") && (equationtype.getvalue()=="mu"))
+     {
+
+     computemodeforstartingvalues = true;
+
+     unsigned pos;
+     if (distr_bivprobit2_mus.size()==0)
+       pos = 0;
+     else
+       {
+       pos = 1;
+       mainequation=true;
+       }
+
+     distr_bivprobit2_mus.push_back(DISTR_bivprobit2_mu(&generaloptions,D.getCol(0),pos,w));
+
+     equations[modnr].distrp = &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1];
+     equations[modnr].pathd = "";
+
+     if (distr_bivprobit2_rhos.size() != 1)
+       {
+       outerror("ERROR: Equation for rho is missing");
+       return true;
+       }
+
+
+     if (pos==1)
+       {
+
+
+       predict_mult_distrs.push_back(&distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1]);
+       predict_mult_distrs.push_back(&distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2]);
+       predict_mult_distrs.push_back(&distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1]);
+
+       distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2].workingresponse2p = &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1].response;
+       distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1].workingresponse2p = &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2].response;
+       distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1].workingresponse1p = &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1].response;
+       distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1].workingresponse2p = &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2].response;
+
+
+	   distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1].distrp.push_back(
+       &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2]);
+
+       distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1].distrp.push_back(
+       &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1]);
+
+       distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2].distrp.push_back(
+       &distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1]);
+
+       distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2].distrp.push_back(
+       &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1]);
+
+       distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1].distrp.push_back(
+       &distr_bivprobit2_rhos[distr_bivprobit2_rhos.size()-1]);
+
+       distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1].distrp.push_back(
+       &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2]);
+
+        }
+
+     }
+ //------------------------------ END: bivprobit2_mu ----------------------------------
 
 
     //---------------------------------- bivlogit_or -----------------------------------

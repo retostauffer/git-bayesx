@@ -15772,7 +15772,7 @@ DISTR_bivprobit_rho::DISTR_bivprobit_rho(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Bivariate Probit Distribution - rho";
+  family = "Bivariate Probit Distribution with Latent Variable Observation Model - rho";
 
   outpredictor = true;
   outexpectation = false;
@@ -16045,7 +16045,7 @@ DISTR_bivprobit_mu::DISTR_bivprobit_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   pos =p;
-  family = "Bivariate Probit Distribution - mu";
+  family = "Bivariate Probit Distribution with Latent Variable Observation Model - mu";
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
@@ -16300,6 +16300,548 @@ void DISTR_bivprobit_mu::outoptions(void)
 
 
 void DISTR_bivprobit_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_bivprobit2_rho -------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_bivprobit2_rho::DISTR_bivprobit2_rho(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  family = "Bivariate Probit Distribution with Binary Observation Model - rho";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "rho";
+    linpredminlimit=-100;
+  linpredmaxlimit=100;
+ // responseorig = response;
+
+  }
+
+
+DISTR_bivprobit2_rho::DISTR_bivprobit2_rho(const DISTR_bivprobit2_rho & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+ // responseorig = nd.responseorig;
+//  response2 = nd.response2;
+  response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
+  response1p = nd.response1p;
+  workingresponse1p = nd.workingresponse1p;
+  }
+
+
+const DISTR_bivprobit2_rho & DISTR_bivprobit2_rho::operator=(
+                            const DISTR_bivprobit2_rho & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+ // responseorig = nd.responseorig;
+ // response2 = nd.response2;
+  response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
+    response1p = nd.response1p;
+  workingresponse1p = nd.workingresponse1p;
+  return *this;
+  }
+
+
+double DISTR_bivprobit2_rho::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_bivprobit2_rho::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+   double arg = (*linpred[0]);
+  *param = arg/pow(1+pow(arg,2),0.5);
+  }
+
+void DISTR_bivprobit2_rho::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+   response2p = workingresponse2p->getV();
+   response1p = workingresponse1p->getV();
+  }
+
+
+
+void DISTR_bivprobit2_rho::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    {
+    response2p++;
+    response1p++;
+    }
+
+  }
+
+
+
+double DISTR_bivprobit2_rho::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu_2 equation
+  // *worktransformlin[0] = mu_2;
+  // *worklin[1] = linear predictor of mu_1 equation
+  // *worktransformlin[1] = mu_1;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+  double rho;
+
+  if (*linpred <= -100)
+    rho  = -0.99995;
+  else if (*linpred >= 100)
+    rho  = 0.99995;
+  else
+    rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
+
+  double rho2 = pow(rho,2);
+  double oneminusrho2 = 1- rho2;
+  double l;
+
+
+     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
+                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
+                                +  pow((((*response2p))-(*worktransformlin[0])),2) );
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu_2 equation
+  // *worktransformlin[0] = mu_2;
+  // *worklin[1] = linear predictor of mu_1 equation
+  // *worktransformlin[1] = mu_1;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double rho;
+  double hilfs;
+
+  if (*linpred <= -100) {
+    rho  = -0.99995;
+    hilfs = 100.05;
+  }
+  else if (*linpred >= 100) {
+    rho  = 0.99995;
+    hilfs = 100.05;
+  }
+  else {
+    rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
+    hilfs = pow((1+pow((*linpred),2)),0.5);
+  }
+
+//          std::ofstream out;
+//  // helpmat1.prettyPrint(out);
+//    out.open ("C:\\tmp\\bivprobit22.raw", std::ofstream::out | std::ofstream::app);
+//    out << *workingresponse ;
+//    out << " " ;
+//    out << *response1p ;
+//    out << " " ;
+//    out << *response  ;
+//    out << " " ;
+//    out << *response2p << endl;
+//    out.close();
+
+  double rho2 = pow(rho,2);
+  double oneminusrho2 = 1- rho2;
+
+
+    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response1p))-(*worktransformlin[1])),2)
+                                                      +  pow((((*response2p))-(*worktransformlin[0])),2) )
+                +(hilfs+rho*(*linpred))*( (((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
+
+
+ // cout << "rho equation y1: " << *response << endl;
+ // cout << "rho equation y2: " << *response2p << endl;
+    *workingweight = 1-pow(rho2,2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
+                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
+                                +  pow((((*response2p))-(*worktransformlin[0])),2) );
+
+      }
+
+
+  modify_worklin();
+
+
+
+  }
+
+
+void DISTR_bivprobit2_rho::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (rho): fisher z-transformation\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_bivprobit2_rho::update_end(void)
+  {
+
+  // helpmat1 stores rho2
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin)/pow((1+pow((*worklin),2)),0.5);
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_bivprobit2_mu ------------------------
+//------------------------------------------------------------------------------
+void DISTR_bivprobit2_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+      if (*workweight > 0)
+        {
+            if(((*workresp)!=0) && ((*workresp)!=1.0)) {
+                errors=true;
+                errormessages.push_back("ERROR: response has to be zero or one\n");
+            }
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_bivprobit2_mu::DISTR_bivprobit2_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           unsigned & p,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,2,w)
+  {
+  pos =p;
+  family = "Bivariate Probit Distribution with Binary Observation Model - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+  responseorig = response;
+  check_errors();
+  }
+
+
+DISTR_bivprobit2_mu::DISTR_bivprobit2_mu(const DISTR_bivprobit2_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  pos = nd.pos;
+  responseorig = nd.responseorig;
+  response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
+  }
+
+
+const DISTR_bivprobit2_mu & DISTR_bivprobit2_mu::operator=(
+                            const DISTR_bivprobit2_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  pos = nd.pos;
+  responseorig = nd.responseorig;
+  response2p = nd.response2p;
+  workingresponse2p = nd.workingresponse2p;
+  return *this;
+  }
+
+
+void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[2] = *response[4] = first component of two dimensional reponse
+   // *linpred[0] = eta_rho
+   // *linpred[1] = eta_mu_2
+   // *linpred[2] = eta_mu_1
+
+   if (*weight[2] == 0)
+     *deviance=0;
+   else
+     {
+     double rho = (*linpred[0])/pow(1+pow((*linpred[0]),2),0.5);
+     double mu_2 = (*linpred[1]);
+     double mu_1 = (*linpred[2]);
+     double hilfs1 = 1-pow(rho,2);
+     double l;
+
+       l = -log(2*PI)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[2]))-mu_1),2) -
+                                                                                2*rho*(((*response[2])-mu_1))*(((*response[1])-mu_2))
+                                                                                + pow((((*response[1]))-mu_2),2) );
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_bivprobit2_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_bivprobit2_mu::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = (*linpred[1 + pos]);
+  }
+
+void DISTR_bivprobit2_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+    response2p = workingresponse2p->getV();
+
+  }
+
+
+
+void DISTR_bivprobit2_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    response2p++;
+
+
+
+  }
+
+
+
+void DISTR_bivprobit2_mu::update(void)
+  {
+
+
+  double * workresp = response.getV();
+  double * workresporig =responseorig.getV();
+  double * weightwork = weight.getV();
+
+  double * worklin_current;
+  if (linpred_current==1)
+    worklin_current = linearpred1.getV();
+  else
+    worklin_current = linearpred2.getV();
+
+  set_worklin();
+
+  unsigned i;
+  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,
+           response2p++,workresporig++,worktransformlin[0]++,worklin[1]++)
+    {
+
+    if (*weightwork != 0)
+      {
+      if (*workresporig > 0)
+        *workresp = trunc_normal2(0,20,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
+      else
+        *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
+      }
+
+    }
+
+
+
+
+  }
+
+
+
+double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = (*linpred);
+  double rho2 = pow((*worktransformlin[0]),2);
+  double oneminusrho2 = 1- rho2;
+  double l;
+
+
+     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
+                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of rho equation
+  // *worktransformlin[0] = rho;
+  // *worklin[1] = linear predictor of mu_2 equation
+  // *worktransformlin[1] = mu_2;
+
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = (*linpred);
+    double rho2 = pow((*worktransformlin[0]),2);
+   double oneminusrho2 = 1- rho2;
+ // cout << "mu equation y1: " << *response << endl;
+ // cout << "mu equation y2: " << *response2p << endl;
+
+    double nu = (1/(oneminusrho2))*( (((*response))-mu) -
+                                 ((*worktransformlin[0]))*(((*response2p)-(*worktransformlin[1]))) );
+
+    *workingweight = 1/(oneminusrho2);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
+                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_bivprobit2_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = ((*linpred[predstart_mumult+1+pos]));
+  }
+
+
+void DISTR_bivprobit2_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_bivprobit2_mu::update_end(void)
   {
 
 

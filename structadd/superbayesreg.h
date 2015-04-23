@@ -155,6 +155,8 @@ using MCMC::DISTR_bivnormal_mufz;
 using MCMC::DISTR_bivnormal_rhofz;
 using MCMC::DISTR_bivprobit_mu;
 using MCMC::DISTR_bivprobit_rho;
+using MCMC::DISTR_bivprobit2_mu;
+using MCMC::DISTR_bivprobit2_rho;
 using MCMC::DISTR_bivlogit_mu;
 using MCMC::DISTR_bivlogit_or;
 using MCMC::DISTR_dirichlet;
@@ -494,6 +496,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_bivnormal_rhofz> distr_bivnormal_rhofzs;
   vector<DISTR_bivprobit_mu> distr_bivprobit_mus;
   vector<DISTR_bivprobit_rho> distr_bivprobit_rhos;
+  vector<DISTR_bivprobit2_mu> distr_bivprobit2_mus;
+  vector<DISTR_bivprobit2_rho> distr_bivprobit2_rhos;
   vector<DISTR_bivlogit_mu> distr_bivlogit_mus;
   vector<DISTR_bivlogit_or> distr_bivlogit_ors;
   vector<DISTR_dirichlet> distr_dirichlets;
