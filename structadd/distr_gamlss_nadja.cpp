@@ -16445,7 +16445,7 @@ double DISTR_bivprobit2_rho::loglikelihood_weightsone(double * response,
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response1p)>0)
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p10;
       }
@@ -16456,7 +16456,7 @@ double DISTR_bivprobit2_rho::loglikelihood_weightsone(double * response,
     }
   else
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p00;
       }
@@ -16517,7 +16517,7 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response1p)>0)
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p10;
       nucont = -dens*dr/p10;
@@ -16530,7 +16530,7 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
     }
   else
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p00;
       nucont = dens*dr/p00;
@@ -16542,7 +16542,7 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
       }
     }
 
-  double nu = dens;
+  double nu = nucont;
 
   *workingweight = dens*dens*dr*dr*(1/p11 + 1/p10 + 1/p01 + 1/p00);
 
@@ -16703,7 +16703,7 @@ void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
     double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
     if((*response[2])>0)
       {
-      if((*response[1])<0)
+      if((*response[1])<=0)
         {
         p = p10;
         }
@@ -16714,7 +16714,7 @@ void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
       }
     else
       {
-      if((*response[1])<0)
+      if((*response[1])<=0)
         {
         p = p00;
         }
@@ -16836,7 +16836,7 @@ double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response)>0)
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p10;
       }
@@ -16847,7 +16847,7 @@ double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
     }
   else
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p00;
       }
@@ -16902,7 +16902,7 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response)>0)
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p10;
       nucont = dens*(1-prop)/p10;
@@ -16915,7 +16915,7 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
     }
   else
     {
-    if((*response2p)<0)
+    if((*response2p)<=0)
       {
       p = p00;
       nucont = -dens*(1-prop)/p00;
