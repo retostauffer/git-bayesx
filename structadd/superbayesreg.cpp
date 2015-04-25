@@ -1845,6 +1845,19 @@ bool superbayesreg::create_distribution(void)
     {
     computemodeforstartingvalues = true;
 
+ //   double test = randnumbers::dbivn(1, -0.1, 0.3);
+ //   cout << "test=" << test << endl;
+
+//    double test = randnumbers::pbivn(-DBL_MAX, 1, -DBL_MAX, 2, 0.94);
+//    cout << "test=" << test << endl;
+//     test = randnumbers::pbivn(-DBL_MAX, DBL_MAX, -DBL_MAX, 2, -0.94);
+//    cout << "test=" << test << endl;
+//     test = randnumbers::pbivn(-DBL_MAX, -2, 10, DBL_MAX, -0.034);
+//    cout << "test=" << test << endl;
+//     test = randnumbers::pbivn(-10, -2, -20, 20, 0.5);
+//    cout << "test=" << test << endl;
+
+
     mainequation=true;
 
 #if defined(__BUILDING_LINUX)

@@ -205,6 +205,11 @@ double __EXPORT_TYPE pbivn(const double & xl, const double &  xu, const double &
 // helper function for pbivn
 double __EXPORT_TYPE pbivnu(const double &  dh, const double &  dk, const double &  r);
 
+// Compute density of bivariate normal distribution with zero mean vector and unit marginal variances
+// correlation r
+double __EXPORT_TYPE dbivn(const double & x1, const double & x2, const double &  r);
+
+
 double __EXPORT_TYPE fpsi(double x, double alpha, double lambda);
 
 double __EXPORT_TYPE dfpsi(double x, double alpha, double lambda);

@@ -995,9 +995,16 @@ double pbivn(const double & xl, const double &  xu, const double &  yl, const do
 // Author of the original Matlab implemenation:
 // Alan Genz, Department of Mathematics
 // Washington State University, Pullman, Wa 99164-3113
-  double p = pbivnu(xl,yl,r) - pbivnu(xu,yl,r) - pbivnu(xl,yu,r) + pbivnu(xu,yu,r);
+  double p = pbivnu(xl,yl,r);
+  //cout << "p=" << p << endl;
+  p -= pbivnu(xu,yl,r);
+  //cout << "p=" << p << endl;
+  p -= pbivnu(xl,yu,r);
+  //cout << "p=" << p << endl;
+  p += pbivnu(xu,yu,r);
+  //cout << "p=" << p << endl;
   double minp = min( p, 1.0 );
-  p = max( 0.0, minp );
+  //p = max( 0.0, minp );
   return p;
   }
 
@@ -1052,7 +1059,7 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
     {
     p = randnumbers::Phi2(-dh);
     }
-  else if(r == 0)
+  else if(r == 0.0)
     {
     p = randnumbers::Phi2(-dh)*randnumbers::Phi2(-dk);
     }
@@ -1066,7 +1073,7 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
     double sizew = 0;
     vector<double> w;
     vector<double> x;
-    if(abs(r) < 0.3)//      % Gauss Legendre points and weights, n =  6
+    if(fabs(r) < 0.3)//      % Gauss Legendre points and weights, n =  6
       {
       w.push_back(0.1713244923791705);
       w.push_back(0.3607615730481384);
@@ -1074,7 +1081,8 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
       x.push_back(0.9324695142031522);
       x.push_back(0.6612093864662647);
       x.push_back(0.2386191860831970);
-      for(int j=0; j<w.size(); j++)
+      sizew = w.size();
+      for(int j=0; j<sizew; j++)
         {
         w.push_back(w[j]);
         x.push_back(1+x[j]);
@@ -1082,7 +1090,7 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
         }
       sizew = w.size();
       }
-    else if(abs(r) < 0.75) // % Gauss Legendre points and weights, n = 12
+    else if(fabs(r) < 0.75) // % Gauss Legendre points and weights, n = 12
       {
       w.push_back(0.04717533638651177);
       w.push_back(0.1069393259953183);
@@ -1096,7 +1104,8 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
       x.push_back(0.5873179542866171);
       x.push_back(0.3678314989981802);
       x.push_back(0.1252334085114692);
-      for(int j=0; j<w.size(); j++)
+      sizew = w.size();
+      for(int j=0; j<sizew; j++)
         {
         w.push_back(w[j]);
         x.push_back(1+x[j]);
@@ -1126,7 +1135,8 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
       x.push_back(0.3737060887154196);
       x.push_back(0.2277858511416451);
       x.push_back(0.07652652113349733);
-      for(int j=0; j<w.size(); j++)
+      sizew = w.size();
+      for(int j=0; j<sizew; j++)
         {
         w.push_back(w[j]);
         x.push_back(1+x[j]);
@@ -1134,21 +1144,38 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
         }
       sizew = w.size();
       }
-
-    if(abs(r) < 0.925)
+//    cout << "sizew=" << sizew << endl;
+//    for(int j=0; j<sizew; j++)
+//        {
+//        cout << "w_" << j << "=" << w[j] << endl;
+//        cout << "x_" << j << "=" << x[j] << endl;
+//        }
+    if(fabs(r) < 0.925)
       {
       double hs = ( h*h + k*k )/2;
       double asr = asin(r)/2;
-      double sn = 0;
+      double sn = 0.0;
       for(int j=0; j<sizew; j++)
         {
-        sn = 0;
+        sn = 0.0;
         sn = sin(asr*x[j]);
         bvn += exp((sn*hk-hs)/(1-sn*sn))*w[j];
 
         }
+//      cout << "hs=" << hs << endl;
+//      cout << "asr=" << asr << endl;
+//      cout << "sn=" << sn << endl;
+//      cout << "hk=" << hk << endl;
+//      cout << "h=" << h << endl;
+//      cout << "k=" << k << endl;
       bvn *= asr/tp;
-      bvn += randnumbers::Phi2(-h)*randnumbers::Phi2(-k);
+//      cout << "bvn=" << bvn << endl;
+      double p1 = randnumbers::Phi2(-h);
+      p1 *= randnumbers::Phi2(-k);
+      bvn += p1;
+//      cout << "bvn=" << bvn << endl;
+//      cout << "p1=" << p1 << endl;
+//      cout << "p2=" << p1 << endl;
       }
     else
       {
@@ -1157,7 +1184,7 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
         k = -k;
         hk = -hk;
         }
-      if(abs(r) < 1)
+      if(fabs(r) < 1)
         {
         double as = 1-r*r;
         double a = sqrt(as);
@@ -1213,14 +1240,30 @@ double pbivnu(const double &  dh, const double &  dk, const double &  r)
         bvn =  L - bvn;
         }
       }
-    double minp = min( 1.0, bvn );
-    p = max( 0.0, minp );
+    if(bvn>1.0)
+      bvn = 1.0;
+    if(bvn<0.0)
+      bvn = 0.0;
+
+    p = bvn;
     }
+  return p;
   }
-
-
 //-------------------end pbivn ---------------------------------------------------------
 
+//-------------------begin bbivn ---------------------------------------------------------
+// Compute density of bivariate normal distribution with zero mean vector and unit marginal variances
+// correlation r
+//-------------------begin dbivn ---------------------------------------------------------
+
+double dbivn(const double & x1, const double &  x2, const double &  r)
+  {
+// A function for computing bivariate normal densities with correlation coefficient r.
+  double omr2 = 1.0-r*r;
+  double d = (0.1591549155/sqrt(omr2))*exp(-0.5*(x1*x1-2*r*x1*x2+x2*x2)/omr2);
+  return d;
+  }
+//-------------------end pbivn ---------------------------------------------------------
 
 
 double fpsi(double x, double alpha, double lambda)

@@ -11,8 +11,8 @@ logopen using c:\bayesx\trunk\testh\results\test.log
 
 b.outfile = c:\bayesx\trunk\testh\results\hgaussian_linear
 %b.hregress y = const + x3(ssvs,a=5,b=25), iterations=12000 step=10 burnin=2000 family=gaussian  using d
-b.hregress y = const + x1(ssvs) + x2(ssvs) + x3(ssvs,a=5,b=25,cprior) , iterations=12000 step=10 burnin=2000 family=gaussian  using d
-
+%b.hregress y = const + x1(ssvs) + x2(ssvs) + x3(ssvs,a=5,b=25,cprior) , iterations=12000 step=10 burnin=2000 family=gaussian  using d
+b.hregress y = const+x1+x2+x3, iterations=12000 step=10 burnin=2000 family=gaussian  using d
 
 %  
 

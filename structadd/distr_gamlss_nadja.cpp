@@ -15925,7 +15925,7 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
 
 //          std::ofstream out;
 //  // helpmat1.prettyPrint(out);
-//    out.open ("C:\\tmp\\bivprobit2.raw", std::ofstream::out | std::ofstream::app);
+//    out.open ("C:\\tmp\\bivprobit.raw", std::ofstream::out | std::ofstream::app);
 //    out << *workingresponse ;
 //    out << " " ;
 //    out << *response1p ;
@@ -16423,24 +16423,49 @@ double DISTR_bivprobit2_rho::loglikelihood_weightsone(double * response,
     {
     set_worklin();
     }
-  double rho;
 
+  vector<double> lower(2);
+  vector<double> upper(2);
+  lower[1] = -DBL_MAX;
+  lower[2] = -DBL_MAX;
+  upper[1] = (*worklin[1]);
+  upper[2] = (*worklin[0]);
+  double r;
   if (*linpred <= -100)
-    rho  = -0.99995;
+    r  = -0.99995;
   else if (*linpred >= 100)
-    rho  = 0.99995;
+    r  = 0.99995;
   else
-    rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
+    r = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
-  double rho2 = pow(rho,2);
-  double oneminusrho2 = 1- rho2;
-  double l;
-
-
-     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
-                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
-                                +  pow((((*response2p))-(*worktransformlin[0])),2) );
-
+  double p = 0;
+  double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  if((*response1p)>0)
+    {
+    if((*response2p)<0)
+      {
+      p = p10;
+      }
+    else
+      {
+      p = p11;
+      }
+    }
+  else
+    {
+    if((*response2p)<0)
+      {
+      p = p00;
+      }
+    else
+      {
+      p = p01;
+      }
+    }
+  double l = log(p);
 
   modify_worklin();
 
@@ -16467,62 +16492,68 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-  double rho;
-  double hilfs;
+  vector<double> lower(2);
+  vector<double> upper(2);
+  lower[1] = -DBL_MAX;
+  lower[2] = -DBL_MAX;
+  upper[1] = (*worklin[1]);
+  upper[2] = (*worklin[0]);
+  double r;
+  if (*linpred <= -100)
+    r  = -0.99995;
+  else if (*linpred >= 100)
+    r  = 0.99995;
+  else
+    r = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
-  if (*linpred <= -100) {
-    rho  = -0.99995;
-    hilfs = 100.05;
-  }
-  else if (*linpred >= 100) {
-    rho  = 0.99995;
-    hilfs = 100.05;
-  }
-  else {
-    rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
-    hilfs = pow((1+pow((*linpred),2)),0.5);
-  }
-
-//          std::ofstream out;
-//  // helpmat1.prettyPrint(out);
-//    out.open ("C:\\tmp\\bivprobit22.raw", std::ofstream::out | std::ofstream::app);
-//    out << *workingresponse ;
-//    out << " " ;
-//    out << *response1p ;
-//    out << " " ;
-//    out << *response  ;
-//    out << " " ;
-//    out << *response2p << endl;
-//    out.close();
-
-  double rho2 = pow(rho,2);
-  double oneminusrho2 = 1- rho2;
-
-
-    double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response1p))-(*worktransformlin[1])),2)
-                                                      +  pow((((*response2p))-(*worktransformlin[0])),2) )
-                +(hilfs+rho*(*linpred))*( (((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
-
-
- // cout << "rho equation y1: " << *response << endl;
- // cout << "rho equation y2: " << *response2p << endl;
-    *workingweight = 1-pow(rho2,2);
-
-    *workingresponse = *linpred + nu/(*workingweight);
-
-    if (compute_like)
+  double dr = 1/pow((1+(*linpred)*(*linpred)), 1.5);
+  double ddr = -3*r/pow((1+(*linpred)*(*linpred)), 2);
+  double nucont;
+  double dens = randnumbers::dbivn((*worklin[1]),(*worklin[0]),r);
+  double p = 0;
+  double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  if((*response1p)>0)
+    {
+    if((*response2p)<0)
       {
-
-        like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response1p))-(*worktransformlin[1])),2) -
-                                 2*rho*(((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0])))
-                                +  pow((((*response2p))-(*worktransformlin[0])),2) );
-
+      p = p10;
+      nucont = -dens*dr/p10;
       }
+    else
+      {
+      p = p11;
+      nucont = dens*dr/p11;
+      }
+    }
+  else
+    {
+    if((*response2p)<0)
+      {
+      p = p00;
+      nucont = dens*dr/p00;
+      }
+    else
+      {
+      p = p01;
+      nucont = -dens*dr/p01;
+      }
+    }
 
+  double nu = dens;
+
+  *workingweight = dens*dens*dr*dr*(1/p11 + 1/p10 + 1/p01 + 1/p00);
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like +=  log(p);
+    }
 
   modify_worklin();
-
-
 
   }
 
@@ -16657,17 +16688,48 @@ void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
      double rho = (*linpred[0])/pow(1+pow((*linpred[0]),2),0.5);
      double mu_2 = (*linpred[1]);
      double mu_1 = (*linpred[2]);
-     double hilfs1 = 1-pow(rho,2);
-   //  double test = gsl_ran_bivariate_gaussian_pdf( 0,  0,  1,  1,  0.3);
+
+     vector<double> lower(2);
+    vector<double> upper(2);
+    lower[1] = -DBL_MAX;
+    lower[2] = -DBL_MAX;
+    upper[1] = mu_1;
+    upper[2] = mu_2;
+    double r = (*worktransformlin[0]);
+    double p = 0;
+    double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+    double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+    double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+    double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+    if((*response[2])>0)
+      {
+      if((*response[1])<0)
+        {
+        p = p10;
+        }
+      else
+        {
+        p = p11;
+        }
+      }
+    else
+      {
+      if((*response[1])<0)
+        {
+        p = p00;
+        }
+      else
+        {
+        p = p01;
+        }
+      }
+
      double l;
 
-       l = -log(2*PI)-0.5*log(hilfs1)-(1/(2*hilfs1))*( pow((((*response[2]))-mu_1),2) -
-                                                                                2*rho*(((*response[2])-mu_1))*(((*response[1])-mu_2))
-                                                                                + pow((((*response[1]))-mu_2),2) );
+     l = log(p);
 
-
-    *deviance = -2*l;
-    }
+     *deviance = -2*l;
+     }
 
   }
 
@@ -16760,14 +16822,41 @@ double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-  double mu = (*linpred);
-  double rho2 = pow((*worktransformlin[0]),2);
-  double oneminusrho2 = 1- rho2;
-  double l;
-
-
-     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
+  vector<double> lower(2);
+  vector<double> upper(2);
+  lower[1] = -DBL_MAX;
+  lower[2] = -DBL_MAX;
+  upper[1] = (*linpred);
+  upper[2] = (*worklin[1]);
+  double r = (*worktransformlin[0]);
+  double p = 0;
+  double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  if((*response)>0)
+    {
+    if((*response2p)<0)
+      {
+      p = p10;
+      }
+    else
+      {
+      p = p11;
+      }
+    }
+  else
+    {
+    if((*response2p)<0)
+      {
+      p = p00;
+      }
+    else
+      {
+      p = p01;
+      }
+    }
+  double l = log(p);
 
   modify_worklin();
 
@@ -16790,37 +16879,66 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
   // *worklin[1] = linear predictor of mu_2 equation
   // *worktransformlin[1] = mu_2;
 
-
-  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
-  // helpmat1.prettyPrint(out);
-  // for (i=0;i<helpmat1.rows();i++)
-  //   out << helpmat1(i,0) << endl;
-
   if (counter==0)
     {
     set_worklin();
     }
 
-    double mu = (*linpred);
-    double rho2 = pow((*worktransformlin[0]),2);
-   double oneminusrho2 = 1- rho2;
- // cout << "mu equation y1: " << *response << endl;
- // cout << "mu equation y2: " << *response2p << endl;
-
-    double nu = (1/(oneminusrho2))*( (((*response))-mu) -
-                                 ((*worktransformlin[0]))*(((*response2p)-(*worktransformlin[1]))) );
-
-    *workingweight = 1/(oneminusrho2);
-
-    *workingresponse = *linpred + nu/(*workingweight);
-
-    if (compute_like)
+  vector<double> lower(2);
+  vector<double> upper(2);
+  lower[1] = -DBL_MAX;
+  lower[2] = -DBL_MAX;
+  upper[1] = (*linpred);
+  upper[2] = (*worklin[1]);
+  double r = (*worktransformlin[0]);
+  double p = 0;
+  double arg = ((*linpred)-r*(*worklin[1]))/pow((1-r*r),0.5);
+  double nucont = 0;
+  double prop = randnumbers::Phi2(arg);
+  double dens = randnumbers::phi(lower[1]);
+  double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
+  if((*response)>0)
+    {
+    if((*response2p)<0)
       {
-
-        like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
-                                 2*(*worktransformlin[0])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))) );
-
+      p = p10;
+      nucont = dens*(1-prop)/p10;
       }
+    else
+      {
+      p = p11;
+      nucont = dens*prop/p11;
+      }
+    }
+  else
+    {
+    if((*response2p)<0)
+      {
+      p = p00;
+      nucont = -dens*(1-prop)/p00;
+      }
+    else
+      {
+      p = p01;
+      nucont = -dens*prop/p01;
+      }
+    }
+
+
+  double nu = nucont;
+
+  *workingweight = -dens*dens * ( prop*prop*(-1/p11 - 1/p01) +
+                                 (1-prop)*(1-prop)*(-1/p10 - 1/p00) );
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like += log(p);
+    }
 
   modify_worklin();
 
