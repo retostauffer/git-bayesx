@@ -124,6 +124,7 @@ set(STRUCTADD_SRC
 	structadd/design_kriging.cpp
 	structadd/design_mrf.cpp
 	structadd/design_pspline.cpp
+	structadd/design_userdefined.cpp
 	structadd/distr.cpp
 	structadd/distr_categorical.cpp
 	structadd/distr_categorical_mult.cpp
