@@ -16439,9 +16439,11 @@ double DISTR_bivprobit2_rho::loglikelihood_weightsone(double * response,
     r = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
   double p = 0;
+  double p1 = randnumbers::Phi2(upper[1]);
+  double p2 = randnumbers::Phi2(upper[2]);
   double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
-  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
-  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p10 = p1-p11;//randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = p2-p11;//randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response1p)>0)
     {
@@ -16511,9 +16513,11 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
   double nucont;
   double dens = randnumbers::dbivn((*worklin[1]),(*worklin[0]),r);
   double p = 0;
+  double p1 = randnumbers::Phi2(upper[1]);
+  double p2 = randnumbers::Phi2(upper[2]);
   double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
-  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
-  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p10 = p1-p11;//randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = p2-p11;//randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response1p)>0)
     {
@@ -16697,9 +16701,11 @@ void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
     upper[2] = mu_2;
     double r = (*worktransformlin[0]);
     double p = 0;
+    double p1 = randnumbers::Phi2(upper[1]);
+    double p2 = randnumbers::Phi2(upper[2]);
     double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
-    double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
-    double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+    double p10 = p1-p11;//randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+    double p01 = p2-p11;//randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
     double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
     if((*response[2])>0)
       {
@@ -16830,9 +16836,11 @@ double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
   upper[2] = (*worklin[1]);
   double r = (*worktransformlin[0]);
   double p = 0;
+  double p1 = randnumbers::Phi2(upper[1]);
+  double p2 = randnumbers::Phi2(upper[2]);
   double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
-  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
-  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p10 = p1-p11;//randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = p2-p11;//randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response)>0)
     {
@@ -16896,9 +16904,11 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
   double nucont = 0;
   double prop = randnumbers::Phi2(arg);
   double dens = randnumbers::phi(upper[1]);
+  double p1 = randnumbers::Phi2(upper[1]);
+  double p2 = randnumbers::Phi2(upper[2]);
   double p11 = randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
-  double p10 = randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
-  double p01 = randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
+  double p10 = p1-p11;//randnumbers::pbivn(lower[1], upper[1], lower[2], -upper[2], -r);
+  double p01 = p2-p11;//randnumbers::pbivn(lower[1], -upper[1], lower[2], upper[2], -r);
   double p00 = 1-p11-p10-p01;//randnumbers::pbivn(lower[1], upper[1], lower[2], upper[2], r);
   if((*response)>0)
     {

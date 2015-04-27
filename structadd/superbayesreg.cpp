@@ -1845,19 +1845,17 @@ bool superbayesreg::create_distribution(void)
     {
     computemodeforstartingvalues = true;
 
- //   double test = randnumbers::dbivn(1, -0.1, 0.3);
- //   cout << "test=" << test << endl;
 
-//    double test = randnumbers::pbivn(-DBL_MAX, 1, -DBL_MAX, 2, 0.94);
-//    cout << "test=" << test << endl;
-//     test = randnumbers::pbivn(-DBL_MAX, DBL_MAX, -DBL_MAX, 2, -0.94);
-//    cout << "test=" << test << endl;
-//     test = randnumbers::pbivn(-DBL_MAX, -2, 10, DBL_MAX, -0.034);
-//    cout << "test=" << test << endl;
-//     test = randnumbers::pbivn(-10, -2, -20, 20, 0.5);
-//    cout << "test=" << test << endl;
-
-
+/*    double test = randnumbers::pbivn(-DBL_MAX,  0.1,-DBL_MAX, 0.5, 0.6);
+    cout << "p11=" << test << endl;
+    double test2 = randnumbers::pbivn(-DBL_MAX, 0.1, -DBL_MAX,-0.5, -0.6);
+    cout << "p10=" << test2 << endl;
+    double test4 = randnumbers::Phi2(0.1);
+    cout << "p1=" << test4 << endl;
+    double test5 = randnumbers::Phi2(0.5);
+    cout << "p2=" << test5 << endl;
+    cout << "p10=" << test4-test << endl;
+*/
     mainequation=true;
 
 #if defined(__BUILDING_LINUX)
@@ -7214,7 +7212,7 @@ bool superbayesreg::create_predict(void)
                              equations[modnr].distrp,"",pathnonp,
                              pathnonp2,D,modelvarnamesv));
 
-          cout << modnr << endl;
+       //   cout << modnr << endl;
           if (predict.getvalue() == "fulls")
             FC_predicts[FC_predicts.size()-1].nosamples=false;
 
