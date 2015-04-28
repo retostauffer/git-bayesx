@@ -16509,7 +16509,7 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
     r = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
   double dr = 1/pow((1+(*linpred)*(*linpred)), 1.5);
-  double ddr = -3*r/pow((1+(*linpred)*(*linpred)), 2);
+  double ddr = -3*(*linpred)/pow((1+(*linpred)*(*linpred)), 2.5);
   double nucont;
   double dens = randnumbers::dbivn((*worklin[1]),(*worklin[0]),r);
   double p = 0;
