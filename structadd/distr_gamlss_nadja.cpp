@@ -16900,7 +16900,7 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
   upper[2] = (*worklin[1]);
   double r = (*worktransformlin[0]);
   double p = 0;
-  double arg = ((*linpred)-r*(*worklin[1]))/pow((1-r*r),0.5);
+  double arg = ((*worklin[1])-r*(*linpred))/pow((1-r*r),0.5);
   double nucont = 0;
   double prop = randnumbers::Phi2(arg);
   double dens = randnumbers::phi(upper[1]);
