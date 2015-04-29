@@ -16509,7 +16509,7 @@ void DISTR_bivprobit2_rho::compute_iwls_wweightschange_weightsone(
     r = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
   double dr = 1/pow((1+(*linpred)*(*linpred)), 1.5);
-  double ddr = -3*(*linpred)/pow((1+(*linpred)*(*linpred)), 2.5);
+//  double ddr = -3*(*linpred)/pow((1+(*linpred)*(*linpred)), 2.5);
   double nucont;
   double dens = randnumbers::dbivn((*worklin[1]),(*worklin[0]),r);
   double p = 0;
@@ -16899,9 +16899,9 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
   upper[1] = (*linpred);
   upper[2] = (*worklin[1]);
   double r = (*worktransformlin[0]);
-  double p = 0;
+  double p;
   double arg = ((*worklin[1])-r*(*linpred))/pow((1-r*r),0.5);
-  double nucont = 0;
+  double nucont;
   double prop = randnumbers::Phi2(arg);
   double dens = randnumbers::phi(upper[1]);
   double p1 = randnumbers::Phi2(upper[1]);
@@ -16940,8 +16940,7 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
 
   double nu = nucont;
 
-  *workingweight = -dens*dens * ( prop*prop*(-1/p11 - 1/p01) +
-                                 (1-prop)*(1-prop)*(-1/p10 - 1/p00) );
+  *workingweight = -dens*dens * ( prop*prop*(-1/p11 - 1/p01) + 1-prop)*(1-prop)*(-1/p10 - 1/p00) );
 
   *workingresponse = *linpred + nu/(*workingweight);
 
