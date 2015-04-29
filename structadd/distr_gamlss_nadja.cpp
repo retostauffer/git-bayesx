@@ -16940,7 +16940,7 @@ void DISTR_bivprobit2_mu::compute_iwls_wweightschange_weightsone(
 
   double nu = nucont;
 
-  *workingweight = -dens*dens * ( prop*prop*(-1/p11 - 1/p01) + 1-prop)*(1-prop)*(-1/p10 - 1/p00) );
+  *workingweight = -dens*dens * ( prop*prop*(-1/p11 - 1/p01) + (1-prop)*(1-prop)*(-1/p10 - 1/p00) );
 
   *workingresponse = *linpred + nu/(*workingweight);
 
