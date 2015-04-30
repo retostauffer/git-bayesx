@@ -286,7 +286,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("dagum");
   families.push_back("betainf0");
   families.push_back("betainf1");
-  families.push_back("betainf2");
+  families.push_back("betainf");
   families.push_back("za");
   families.push_back("BCCG");
   families.push_back("gumbelcopula");
