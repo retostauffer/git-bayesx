@@ -348,6 +348,13 @@ void FC_nonp_variance::update(void)
       {
       beta(0,0) = rand_invgamma(a_invgamma+0.5*designp->rankK,
                   b_invgamma+0.5*designp->penalty_compute_quadform(FCnonpp->param));
+
+//      cout << a_invgamma << endl;
+//      cout << b_invgamma << endl;
+//      cout << designp->rankK << endl;
+//     cout << designp->penalty_compute_quadform(FCnonpp->param) << endl;
+
+
       acceptance++;
       }
 

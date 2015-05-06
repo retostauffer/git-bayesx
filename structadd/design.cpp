@@ -508,6 +508,7 @@ void DESIGN::compute_penalty2(const datamatrix & pen)
 
 double  DESIGN::penalty_compute_quadform(datamatrix & beta)
   {
+//  beta.prettyPrint(cout);
   return K.compute_quadform(beta,0);
   }
 
@@ -681,7 +682,7 @@ void DESIGN::compute_XtransposedWX(void)
     }
 
   // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\XWX.res");
+  // ofstream out("c:\\temp\\XWX.res");
   // XWX.print1(out);
   // TEST
 
@@ -890,8 +891,8 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   XWX_p = &XWX;
 
   // TEST
-//  ofstream out("c:\\bayesx\\test\\results\\XWres.res");
-//  XWres.prettyPrint(out);
+  //ofstream out("c:\\temp\\XWres.res");
+  //XWres.prettyPrint(out);
   // TEST
 
 
@@ -1433,8 +1434,8 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
 
   // TEST
 
-  // ofstream out0("c:\\bayesx\\testh\\results\\residuum.res");
-  // res.prettyPrint(out0);
+  // ofstream out0("c:\\temp\\f_user.res");
+  // f.prettyPrint(out0);
 
   // ofstream out("c:\\bayesx\\test\\results\\tildey.res");
   // (likep->workingresponse).prettyPrint(out);

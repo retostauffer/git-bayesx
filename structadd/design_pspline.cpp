@@ -349,9 +349,16 @@ void DESIGN_pspline::make_Bspline(void)
   if (derivative)
     make_Bspline_derivative();
 
+
+
   // TEST
   /*
   bool t = check_Zout_consecutive();
+
+
+  ofstream out("c:\\temp\\Zout_pspline.res");
+  Zout.prettyPrint(out);
+
 
   ofstream out("c:\\bayesx\\test\\results\\Zout.res");
   Zout.prettyPrint(out);
@@ -765,7 +772,13 @@ void DESIGN_pspline::compute_precision(double l)
     precisiondeclared = true;
     }
 
+//cout << l << endl;
+
   precision.addto(XWX,K,1.0,l);
+
+  // ofstream out("c:\\temp\\precision_pspline.res");
+  // precision.print2(out);
+
 
   /*
   // TEST

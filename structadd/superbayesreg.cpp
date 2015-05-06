@@ -7620,8 +7620,24 @@ bool superbayesreg::create_userdefined(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_userdefined_var.raw","variance_of_nonlinear_userdefined_effect_of","Variance of (user-defined) nonlinear effect of ");
 
+
+  // variances
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_userdefined_var.raw","variance_of_nonlinear_userdefined_effect_of","Variance of nonlinear effect of ");
+
+
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                              title,pathnonp,&design_userdefineds[design_userdefineds.size()-1],
+                              &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                              terms[i].varnames));
+
+  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+
+
   return false;
   }
+
 
 bool superbayesreg::findREdistr(ST::string & na,equation & maine,unsigned & fnr)
   {

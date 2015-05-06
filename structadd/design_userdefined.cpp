@@ -220,6 +220,7 @@ void DESIGN_userdefined::init_data(datamatrix & dm, datamatrix & iv)
   compute_meaneffectintvar();
   }
 
+
 void DESIGN_userdefined::compute_precision(double l)
   {
   if (precisiondeclared==false)
@@ -228,7 +229,17 @@ void DESIGN_userdefined::compute_precision(double l)
     precisiondeclared = true;
     }
 
+
   precision.addto(XWX,K,1.0,l);
+
+  //ofstream out("c:\\temp\\K.res");
+  //K.print2(out);
+
+
+  // ofstream out("c:\\temp\\precision.res");
+  // precision.print2(out);
+
+
   }
 
 

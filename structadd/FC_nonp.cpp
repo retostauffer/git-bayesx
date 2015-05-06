@@ -617,6 +617,9 @@ void FC_nonp::update_gaussian(void)
     double sigmaresp = sqrt(likep->get_scale());
     lambda = likep->get_scale()/tau2;
 
+    // cout << lambda << endl;
+//    param.prettyPrint(cout);
+
     // TEST
     //  ofstream out("c:\\bayesx\\testh\\results\\responseRE.res");
     //  likep->response.prettyPrint(out);
