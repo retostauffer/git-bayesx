@@ -200,6 +200,9 @@ DISTR::DISTR(const DISTR & d)
   outexpectation = d.outexpectation;
   predictor_name = d.predictor_name;
   predstart_mumult = d.predstart_mumult;
+
+  copula = d.copula;
+  copulapos = d.copulapos;
   }
 
 
@@ -265,6 +268,9 @@ const DISTR & DISTR::operator=(const DISTR & d)
   outexpectation = d.outexpectation;
   predictor_name = d.predictor_name;
   predstart_mumult = d.predstart_mumult;
+
+  copula = d.copula;
+  copulapos = d.copulapos;
 
   return *this;
   }

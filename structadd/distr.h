@@ -70,6 +70,9 @@ class __EXPORT_TYPE DISTR
 
   protected:
 
+  int copulapos;
+  bool copula;
+
   // FUNCTION: check_workingweights_one
   // TASK: checks if all workingweights are one (returns true if this is the
   //       case)
@@ -260,10 +263,15 @@ class __EXPORT_TYPE DISTR
   //---------------------------- COMPUTING THE CDF -----------------------------
   //----------------------------------------------------------------------------
 
+  virtual double cdf(const double & resp)
+    {
+    return 0;
+    }
+
   // FUNCTION: cdf
   // TASK: computes the cdf for a single observation
 
-  virtual double cdf(double * res,double * param,double * weight,double * scale)
+  virtual double cdf(double * res, double * param, double * weight, double * scale)
     {
     return 0;
     }

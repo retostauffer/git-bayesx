@@ -287,6 +287,8 @@
 		<Unit filename="structadd/distr_categorical_mult.cpp" />
 		<Unit filename="structadd/distr_gamlss.cpp" />
 		<Unit filename="structadd/distr_gamlss.h" />
+		<Unit filename="structadd/distr_gamlss_copula.cpp" />
+		<Unit filename="structadd/distr_gamlss_copula.h" />
 		<Unit filename="structadd/distr_gamlss_nadja.cpp" />
 		<Unit filename="structadd/distr_gamlss_nadja.h" />
 		<Unit filename="structadd/distr_mixture.cpp" />

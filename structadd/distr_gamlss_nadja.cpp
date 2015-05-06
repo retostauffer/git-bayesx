@@ -3404,6 +3404,20 @@ const DISTR_weibull_lambda & DISTR_weibull_lambda::operator=(
   return *this;
   }
 
+double DISTR_weibull_lambda::cdf(const double & resp)
+  {
+  if(counter==0)
+    set_worklin();
+
+// compute cdf (might work more efficiently)
+  double res,lambda,alpha;
+  lambda=exp(*worklin[0]);
+  alpha=exp(*worklin[1]);
+  res = 1 - exp(-pow(resp*lambda,alpha));
+
+  modify_worklin();
+  return res;
+  }
 
 void DISTR_weibull_lambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,

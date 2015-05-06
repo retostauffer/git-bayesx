@@ -130,6 +130,7 @@ set(STRUCTADD_SRC
 	structadd/distr_categorical_mult.cpp
 	structadd/distr_mixture.cpp
 	structadd/distr_gamlss.cpp
+	structadd/distr_gamlss_copula.cpp
 	structadd/distr_gamlss_nadja.cpp
 	structadd/distr_zeroadjusted.cpp
         structadd/mcmcsim.cpp

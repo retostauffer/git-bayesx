@@ -1177,6 +1177,8 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
   void compute_param_mult(vector<double *>  linpred,double * param);
 
+  double cdf(const double & resp);
+
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
