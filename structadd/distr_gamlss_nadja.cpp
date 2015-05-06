@@ -3404,15 +3404,15 @@ const DISTR_weibull_lambda & DISTR_weibull_lambda::operator=(
   return *this;
   }
 
-double DISTR_weibull_lambda::cdf(const double & resp)
+double DISTR_weibull_lambda::cdf(const double & resp, vector<double *> linpred)
   {
   if(counter==0)
     set_worklin();
 
 // compute cdf (might work more efficiently)
   double res,lambda,alpha;
-  lambda=exp(*worklin[0]);
-  alpha=exp(*worklin[1]);
+  lambda = exp(*linpred[1]);
+  alpha = exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
 
   modify_worklin();

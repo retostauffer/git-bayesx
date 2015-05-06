@@ -84,9 +84,9 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_gamlss
 
   vector<double> derivative(double * linpred);
 
-  double logc(double & F, int & copulapos);
+  double logc(double & F, int & copulapos, double * linpred);
 
-  double logc(double & F1, double & F2);
+  double logc(double & F1, double & F2, double & eta);
 
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,

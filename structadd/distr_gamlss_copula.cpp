@@ -240,34 +240,59 @@ vector<double> DISTR_gausscopula::derivative(double * linpred)
   if(counter==0)
     set_worklin();
   vector<double> res;
-  double F1 = distrp[0]->cdf(*responsep);
-  double F2 = distrp[1]->cdf(*response2p);
-// do something with F1, F2
-  res.push_back(F1);
-  res.push_back(F2);
+  // das folgende geht noch nicht.
+  //define linpreds approporiately
+  vector<double *> linpreds1;
+  vector<double *> linpreds2;
+  //correct and get F1, F2
+  double F1 = 0;//distrp[0]->cdf(*responsep);
+  double F2 = 0;//distrp[1]->cdf(*response2p);
+//////////////////////////////////////////////////////////
+
+  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
+  double phiinvu = randnumbers::invPhi2(F1);
+  double phiinvv = randnumbers::invPhi2(F2);
+
+  //first and second derivative of Phi^-1
+  double dphiinvu = sqrt(2*PI)/exp(-0.5*phiinvu*phiinvu);
+  double ddphiinvu = dphiinvu*sqrt(2*PI)*phiinvu;
+
+  // first derivative
+  double dlc = rho*dphiinvu*phiinvv/(1-rho*rho) - rho*rho*dphiinvu*phiinvv/(1-rho*rho);
+  // second derivative
+  double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);;
+  // return first and second derivative.
+  res.push_back(dlc);
+  res.push_back(ddlc);
   modify_worklin();
   return res;
   }
 
-double DISTR_gausscopula::logc(double & F, int & copulapos)
+double DISTR_gausscopula::logc(double & F, int & copulapos, double * linpred)
   {
   double Fa;
+  double eta = (*linpred);
   if(copulapos==0)
     {
-    Fa = distrp[1]->cdf(*response2p);
-    return logc(F, Fa);
+    //implement Fa
+    Fa = 0;//distrp[1]->cdf(*response2p);
+    return logc(F, Fa, eta);
     }
   else
     {
-    Fa = distrp[0]->cdf(*responsep);
-    return logc(Fa, F);
+    // implement Fa
+    Fa = 0;//distrp[0]->cdf(*responsep);
+    return logc(Fa, F, eta);
     }
   }
 
-double DISTR_gausscopula::logc(double & F1, double & F2)
+double DISTR_gausscopula::logc(double & F1, double & F2, double & eta)
   {
-  // do something;
-  return 0.0;
+  double rho = eta/sqrt(1+eta*eta);
+  double phiinvu = randnumbers::invPhi2(F1);
+  double phiinvv = randnumbers::invPhi2(F2);
+  double lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);
+  return lc;
   }
 
 } // end: namespace MCMC
