@@ -3404,18 +3404,22 @@ const DISTR_weibull_lambda & DISTR_weibull_lambda::operator=(
   return *this;
   }
 
-double DISTR_weibull_lambda::cdf(const double & resp, vector<double *> linpred)
+double DISTR_weibull_lambda::cdf(const double & resp)
   {
   if(counter==0)
+    {
     set_worklin();
-
+    helpmat1p=helpmat1.getV();
+    }
+ //  double test = *linpred;
 // compute cdf (might work more efficiently)
   double res,lambda,alpha;
-  lambda = exp(*linpred[1]);
-  alpha = exp(*linpred[0]);
+  lambda = *helpmat1p;
+  alpha = *worktransformlin[0];//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
 
   modify_worklin();
+  helpmat1p++;
   return res;
   }
 

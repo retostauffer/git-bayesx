@@ -172,6 +172,8 @@ class __EXPORT_TYPE DISTR
   datamatrix helpmat2;              // Stores auxiliary quantities
   datamatrix helpmat3;              // Stores auxiliary quantities
 
+  double * helpmat1p;              // Stores auxiliary quantities
+
   double helpquantity1;             // Stores auxiliary quantities
   double helpquantity2;             // Stores auxiliary quantities
   double helpquantity3;             // Stores auxiliary quantities

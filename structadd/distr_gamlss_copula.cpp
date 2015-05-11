@@ -271,24 +271,25 @@ vector<double> DISTR_gausscopula::derivative(double * linpred)
 double DISTR_gausscopula::logc(double & F, int & copulapos, double * linpred)
   {
   double Fa;
-  double eta = (*linpred);
+ // double eta = (*linpred);
   if(copulapos==0)
     {
     //implement Fa
-    Fa = 0;//distrp[1]->cdf(*response2p);
-    return logc(F, Fa, eta);
+    //cdf virtual in distr hat nur ein Argument!
+    Fa = distrp[1]->cdf(*response2p);
+    return logc(F, Fa, linpred);
     }
   else
     {
     // implement Fa
-    Fa = 0;//distrp[0]->cdf(*responsep);
-    return logc(Fa, F, eta);
+    Fa = distrp[0]->cdf(*responsep);
+    return logc(Fa, F, linpred);
     }
   }
 
-double DISTR_gausscopula::logc(double & F1, double & F2, double & eta)
+double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   {
-  double rho = eta/sqrt(1+eta*eta);
+  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
   double phiinvu = randnumbers::invPhi2(F1);
   double phiinvv = randnumbers::invPhi2(F2);
   double lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);

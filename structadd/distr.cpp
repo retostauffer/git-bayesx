@@ -176,6 +176,8 @@ DISTR::DISTR(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
 
+  helpmat1p = d.helpmat1p;
+
   helpquantity1 = d.helpquantity1;
   helpquantity2 = d.helpquantity2;
   helpquantity3 = d.helpquantity3;
@@ -244,6 +246,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   helpmat1 = d.helpmat1;
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
+
+  helpmat1p = d.helpmat1p;
 
   helpquantity1 = d.helpquantity1;
   helpquantity2 = d.helpquantity2;
