@@ -70,8 +70,7 @@ class __EXPORT_TYPE DISTR
 
   protected:
 
-  int copulapos;
-  bool copula;
+  bool copula; //bool only true if copula model specified
 
   // FUNCTION: check_workingweights_one
   // TASK: checks if all workingweights are one (returns true if this is the
@@ -89,6 +88,7 @@ class __EXPORT_TYPE DISTR
 
 
   public:
+  int copulapos;          //gives position of marginals in case of copula model
 
   bool maindistribution;
   bool predict_mult;
