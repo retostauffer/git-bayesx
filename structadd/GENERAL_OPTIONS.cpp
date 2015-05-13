@@ -50,6 +50,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   set_level1(95);
   set_level2(80);
   saveestimation = false;
+  copula = false;
   }
 
 
@@ -58,7 +59,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(
 administrator_basic * abp,
 #endif
 const unsigned & it,const unsigned & bu,
-                         const unsigned & st, const bool & sa, ostream * lo,
+                         const unsigned & st, const bool & sa, const bool & cop, ostream * lo,
                          const double & l1,const double & l2)
   {
   iterations = it;
@@ -75,6 +76,7 @@ const unsigned & it,const unsigned & bu,
   samplesize = 0;
   logout = lo;
   saveestimation = sa;
+  copula = cop;
 
   (*logout) << flush;
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -108,6 +110,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   upper1 = o.upper1;
   upper2 = o.upper2;
   saveestimation = o.saveestimation;
+  copula = o.copula;
   }
 
 
@@ -133,6 +136,7 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   upper1 = o.upper1;
   upper2 = o.upper2;
   saveestimation = o.saveestimation;
+  copula = o.copula;
   return *this;
   }
 
@@ -180,6 +184,11 @@ void GENERAL_OPTIONS::outoptions(void)
     out("  Saveestimation:        enabled\n");
   else
     out("  Saveestimation:        disabled\n");
+  out("\n");
+  if (copula)
+    out(" Copula Model specified\n");
+  else {}
+
   out("\n");
   }
 

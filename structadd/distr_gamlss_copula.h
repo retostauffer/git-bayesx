@@ -46,10 +46,12 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_gamlss
   void modify_worklin(void);
 
   public:
-
+  datamatrix response1;
   datamatrix response2;
-  double * responsep;
+  double * response1p;
   double * response2p;
+
+  double * linpredp;
 
   void check_errors(void);
 
@@ -82,9 +84,11 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_gamlss
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  vector<double> derivative(double * linpred);
+  vector<double> derivative(double & F, int & copulapos);
 
-  double logc(double & F, int & copulapos, double * linpred);
+  vector<double> derivative(double & F1, double & F2, double * linpred);
+
+  double logc(double & F, int & copulapos);
 
   double logc(double & F1, double & F2, double * linpred);
 

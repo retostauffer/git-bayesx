@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"distr_gamlss.h"
 #include"distr_zeroadjusted.h"
 #include"distr_gamlss_nadja.h"
+#include"distr_gamlss_copula.h"
 
 #include"design.h"
 #include"design_pspline.h"
@@ -209,6 +210,7 @@ using MCMC::DISTR_frankcopula2_normal_mu;
 using MCMC::DISTR_frankcopula2_normal_sigma2;
 using MCMC::DISTR_tcopula_df;
 using MCMC::DISTR_tcopula_rho;
+using MCMC::DISTR_gausscopula;
 
 using MCMC::DISTR_sndp_alpha; // sn111
 using MCMC::DISTR_sndp_omega;
@@ -366,10 +368,6 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   simpleoption cv;
 
-  simpleoption imeasures;
-
-  simpleoption singleomega;
-
   vector<ST::string> MSEop;
   stroption mse;
   doubleoption mseparam;
@@ -405,6 +403,13 @@ class __EXPORT_TYPE superbayesreg : public statobject
   //dirichlet regression
 
   intoption nrcat;
+
+  simpleoption imeasures;
+
+  simpleoption singleomega;
+
+  // has the user specified a copula model?
+  simpleoption copula;
 
   // end: OPTIONS for method regress
 
@@ -555,6 +560,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_sncp_gamma> distr_sncp_gammas;
   vector<DISTR_sncp_sigma> distr_sncp_sigmas;
   vector<DISTR_sncp_mu> distr_sncp_mus;
+  vector<DISTR_gausscopula> distr_gausscopulas;
 
   bool create_distribution(void);
 
@@ -739,6 +745,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
 
   bool mainequation;
+
+  int countmarginal;
 
   //------------------------- PUBLIC FUNCTIONS ---------------------------------
 

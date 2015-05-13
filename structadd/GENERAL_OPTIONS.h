@@ -88,6 +88,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
 
   bool saveestimation;
 
+  bool copula;                    // does the user want to specify a copula model? default is false
 
 
   // DEFAULT CONSTRUCTOR
@@ -116,6 +117,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   // samplesize = 0
   // logout = lo
   // saveestimation = sa
+  // copula = cop
 
   #if defined(JAVA_OUTPUT_WINDOW)
   GENERAL_OPTIONS(administrator_basic * abp,
@@ -124,7 +126,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
               const double & l2=80);
   #else
   GENERAL_OPTIONS(const unsigned & it,const unsigned & bu,const unsigned & st,
-                  const bool & sa,ostream * lo=&cout,const double & l1=95,
+                  const bool & sa,const bool & cop,ostream * lo=&cout,const double & l1=95,
                   const double & l2=80);
   #endif
 

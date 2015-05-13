@@ -141,6 +141,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
 DISTR::DISTR(const DISTR & d)
   {
+  distrcopulap = d.distrcopulap;
 
   FCpredict_betamean = d.FCpredict_betamean;
 
@@ -212,6 +213,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   {
   if (this == &d)
     return *this;
+
+  distrcopulap = d.distrcopulap;
 
   FCpredict_betamean = d.FCpredict_betamean;
 

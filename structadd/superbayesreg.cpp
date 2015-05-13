@@ -318,7 +318,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_mu_y_id");
   families.push_back("copula");
   families.push_back("tcopula");
-  families.push_back("tcopula");
+  families.push_back("gausscopula");
   families.push_back("gaussiancopula");
   families.push_back("frankcopula");
   families.push_back("frankcopula_rho");
@@ -439,6 +439,8 @@ void superbayesreg::create_hregress(void)
 
   singleomega = simpleoption("singleomega",false);
 
+  copula = simpleoption("copula",false);
+
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -482,6 +484,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&nrcat);
   regressoptions.push_back(&imeasures);
   regressoptions.push_back(&singleomega);
+  regressoptions.push_back(&copula);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -970,6 +973,9 @@ void superbayesreg::clear(void)
   distr_gaussiancopula_rhofzs.erase(distr_gaussiancopula_rhofzs.begin(),distr_gaussiancopula_rhofzs.end());
   distr_gaussiancopula_rhofzs.reserve(20);
 
+  distr_gausscopulas.erase(distr_gausscopulas.begin(),distr_gausscopulas.end());
+  distr_gausscopulas.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(50);
 
@@ -1112,6 +1118,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
 
   equations=b.equations;
   mainequation=b.mainequation;
+  countmarginal=b.countmarginal;
   nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
@@ -1253,6 +1260,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_sfa_sigma_us = b.distr_sfa_sigma_us;
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
+  distr_gausscopulas = b.distr_gausscopulas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1320,6 +1328,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 
   equations=b.equations;
   mainequation=b.mainequation;
+  countmarginal=b.countmarginal;
   nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
@@ -1461,7 +1470,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_sfa_sigma_us = b.distr_sfa_sigma_us;
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
-
+  distr_gausscopulas = b.distr_gausscopulas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1541,7 +1550,7 @@ bool superbayesreg::create_generaloptions(void)
     adminb_p,
     #endif
     iterations.getvalue(),burnin.getvalue(),
-                                step.getvalue(),saveestimation.getvalue(),logout,
+                                step.getvalue(),saveestimation.getvalue(),copula.getvalue(),logout,
                                  level1.getvalue(),level2.getvalue());
 
     describetext.push_back("ESTIMATION OPTIONS:\n");
@@ -1596,6 +1605,7 @@ void hregressrun(superbayesreg & b)
     b.generaloptions_yes = false;
     b.errors=false;
     b.nrlevel1 = 0;
+    b.countmarginal = 0;
     b.mainequation=false;
     }
 
@@ -3719,8 +3729,18 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- weibull_lambda ------------------------------------
   else if (family.getvalue() == "weibull" && equationtype.getvalue()=="lambda")
     {
+    cout << "copula? 1=yes, 0=no: " << generaloptions.copula << endl;
+    if(generaloptions.copula)
+      {
+      mainequation=false;
+      cout << "user wants to estimated a copula model" << endl;
+      }
+    else
+      {
+      mainequation=true;
+      cout << "univariate regression model" << endl;
+      }
 
-     mainequation=true;
 
     computemodeforstartingvalues = true;
 
@@ -3731,9 +3751,9 @@ bool superbayesreg::create_distribution(void)
 
     predict_mult_distrs.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-1]);
 
-    if (distr_weibull_alphas.size() != 1)
+    if (distr_weibull_alphas.size() != (1+countmarginal))
       {
-      outerror("ERROR: Equation for sigma is missing");
+      outerror("ERROR: Equation for alpha is missing");
       return true;
       }
     else
@@ -3743,6 +3763,22 @@ bool superbayesreg::create_distribution(void)
 
       distr_weibull_lambdas[distr_weibull_lambdas.size()-1].distrp.push_back
       (&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
+
+      countmarginal += 1;
+      cout << "number of correct marginals that were found: " << countmarginal << endl;
+      }
+
+    if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(0);}
+      else if(countmarginal == 2)
+        {distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(1);}
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
       }
 
     }
@@ -5078,6 +5114,62 @@ bool superbayesreg::create_distribution(void)
 
     }
 //-------------------------- END: gaussiancopula_rhofz ---------------------
+
+//----------------------------- gausscopula --------------------------------
+  else if ((family.getvalue() == "gausscopula") && (equationtype.getvalue()=="rho"))
+    {
+
+    mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_gausscopulas.push_back(DISTR_gausscopula(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gausscopulas[distr_gausscopulas.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((countmarginal != 2))
+      {
+      outerror("ERROR: Two equations for marginal distributions required or family not implemented yet");
+      return true;
+      }
+
+     predict_mult_distrs.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+     if(distr_weibull_lambdas.size()>0)
+       {
+       int coi;
+       for(coi=distr_weibull_lambdas.size();coi>0;coi--)
+         {
+         predict_mult_distrs.push_back(&distr_weibull_alphas[distr_weibull_alphas.size()-coi]);
+         predict_mult_distrs.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-coi]);
+
+         distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-coi]);
+
+         distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+         if(distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].get_copulapos()==0)
+           {
+           distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].response;
+           }
+         else if(distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].get_copulapos()==1)
+           {
+           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].response;
+           }
+         else
+           {
+           outerror("ERROR: Two equations for marginal distributions required");
+           return true;
+           }
+         }
+       }
+      else
+        {
+        outerror("ERROR: family not implemented or something else wrong");
+        return true;
+        }
+    }
+//-------------------------- END: gausscopula---------------------------
 
 
 // ----------------------------------- tcopula_df ----------------------

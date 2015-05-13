@@ -69,7 +69,7 @@ class __EXPORT_TYPE DISTR
   {
 
   protected:
-
+  int copulapos; //gives position of marginals in case of copula model
   bool copula; //bool only true if copula model specified
 
   // FUNCTION: check_workingweights_one
@@ -88,7 +88,8 @@ class __EXPORT_TYPE DISTR
 
 
   public:
-  int copulapos;          //gives position of marginals in case of copula model
+
+  vector<DISTR*> distrcopulap; // pointer of copulas
 
   bool maindistribution;
   bool predict_mult;
@@ -262,10 +263,37 @@ class __EXPORT_TYPE DISTR
 
 
   //----------------------------------------------------------------------------
+  //---------------------------- SET COPULAPS----- -----------------------------
+  //----------------------------------------------------------------------------
+
+  // FUNCTION: set_copulapos get_copulapos
+  // TASK: sets and gets copula position if copula models specificed
+
+  void set_copulapos(int cp)
+    {
+    copulapos = cp;
+    }
+  int get_copulapos(void)
+    {
+    return copulapos;
+    }
+
+  virtual vector<double> derivative(double & F, int & copulapos)
+    {
+    vector<double> res;
+    return res;
+    }
+
+  virtual double logc(double & F, int & copulapos)
+    {
+    return 0;
+    }
+
+  //----------------------------------------------------------------------------
   //---------------------------- COMPUTING THE CDF -----------------------------
   //----------------------------------------------------------------------------
 
-  virtual double cdf(const double & resp)
+  virtual double cdf(const double & resp, const bool & ifcop)
     {
     return 0;
     }

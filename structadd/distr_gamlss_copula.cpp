@@ -58,6 +58,9 @@ DISTR_gausscopula::DISTR_gausscopula(const DISTR_gausscopula & nd)
   {
   response2 = nd.response2;
   response2p = nd.response2p;
+  response1 = nd.response1;
+  response1p = nd.response1p;
+  linpredp = nd.linpredp;
   }
 
 
@@ -69,6 +72,9 @@ const DISTR_gausscopula & DISTR_gausscopula::operator=(
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
   response2 = nd.response2;
   response2p = nd.response2p;
+  response1 = nd.response1;
+  response1p = nd.response1p;
+  linpredp = nd.linpredp;
   return *this;
   }
 
@@ -87,7 +93,7 @@ void DISTR_gausscopula::compute_param_mult(vector<double *>  linpred,double * pa
 void DISTR_gausscopula::set_worklin(void)
   {
   DISTR_gamlss::set_worklin();
-  responsep = response.getV();
+  response1p = response1.getV();
   response2p = response2.getV();
   }
 
@@ -96,7 +102,7 @@ void DISTR_gausscopula::modify_worklin(void)
   DISTR_gamlss::modify_worklin();
   if (counter<nrobs)
     {
-    responsep++;
+    response1p++;
     response2p++;
     }
   }
@@ -118,8 +124,8 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
         rho  = 0.99995;
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2(distrp[0]->cdf(*response[0]));
-     double phinvv = randnumbers::invPhi2(distrp[1]->cdf(*response[1]));
+     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[1],true));
+     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
      double l;
 
       l = - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
@@ -144,8 +150,8 @@ double DISTR_gausscopula::loglikelihood_weightsone(double * response,
         rho  = 0.99995;
 
     double orho = 1 - pow(rho, 2);
-    double phinvu = randnumbers::invPhi2(distrp[0]->cdf(*response));
-    double phinvv = randnumbers::invPhi2(distrp[1]->cdf(*response2p));
+    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
+    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
 
     double l;
 
@@ -178,8 +184,8 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
         rho  = 0.99995;
 
     double orho = 1 - pow(rho, 2);
-    double phinvu = randnumbers::invPhi2(distrp[0]->cdf(*response));
-    double phinvv = randnumbers::invPhi2(distrp[1]->cdf(*response2p));
+    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
+    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
 
     double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phinvu * phinvv) - (*linpred) * (pow(phinvu, 2) + pow(phinvv, 2));
 
@@ -235,18 +241,27 @@ void DISTR_gausscopula::update_end(void)
 
   }
 
-vector<double> DISTR_gausscopula::derivative(double * linpred)
+vector<double> DISTR_gausscopula::derivative(double & F, int & copulapos)
   {
-  if(counter==0)
-    set_worklin();
+
+  double Fa;
+  if(copulapos==0)
+    {
+    Fa = distrp[1]->cdf(*response1p,true);
+    }
+  else
+    {
+    Fa = distrp[0]->cdf(*response2p,true);
+    }
+
+    return derivative(F, Fa, linpredp);
+  }
+
+
+vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * linpred)
+  {
+
   vector<double> res;
-  // das folgende geht noch nicht.
-  //define linpreds approporiately
-  vector<double *> linpreds1;
-  vector<double *> linpreds2;
-  //correct and get F1, F2
-  double F1 = 0;//distrp[0]->cdf(*responsep);
-  double F2 = 0;//distrp[1]->cdf(*response2p);
 //////////////////////////////////////////////////////////
 
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
@@ -264,27 +279,48 @@ vector<double> DISTR_gausscopula::derivative(double * linpred)
   // return first and second derivative.
   res.push_back(dlc);
   res.push_back(ddlc);
-  modify_worklin();
   return res;
   }
 
-double DISTR_gausscopula::logc(double & F, int & copulapos, double * linpred)
+double DISTR_gausscopula::logc(double & F, int & copulapos)
   {
+  if (counter==0)
+    {
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+
+    response1p = response1.getV();
+    response2p = response2.getV();
+    }
   double Fa;
+  double res;
  // double eta = (*linpred);
   if(copulapos==0)
     {
     //implement Fa
     //cdf virtual in distr hat nur ein Argument!
-    Fa = distrp[1]->cdf(*response2p);
-    return logc(F, Fa, linpred);
+    Fa = distrp[1]->cdf(*response1p,true);
+
+    res = logc(Fa, F, linpredp);
     }
   else
     {
     // implement Fa
-    Fa = distrp[0]->cdf(*responsep);
-    return logc(Fa, F, linpred);
+    Fa = distrp[0]->cdf(*response2p,true);
+
+    res = logc(F, Fa, linpredp);
     }
+  linpredp++;
+  response1p++;
+  response2p++;
+  if (counter<nrobs-1)
+    counter++;
+  else
+    counter=0;
+
+  return res;
   }
 
 double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
