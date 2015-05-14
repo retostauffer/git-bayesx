@@ -3242,16 +3242,16 @@ double DISTR_weibull_alpha::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-  double sig = exp((*linpred));
+  double alpha = exp((*linpred));
 
   double l;
 
-  l = (sig)*log(*response) - pow((*response)/(*worktransformlin[0]),sig) -sig*log((*worktransformlin[0])) + log(sig);
+  l = (alpha)*log(*response) - pow((*response)*(*worktransformlin[0]),alpha) +alpha*log((*worktransformlin[0])) + log(alpha);
 
   if(optionsp->copula)
     {
-    //implement loglik for copula models, i.e. add part logc
-    l += 0;
+    double F = distrp[0]->cdf(*response,false);
+    l += distrp[0]->distrcopulap[0]->logc(F,copulapos);
     }
 
   modify_worklin();
@@ -3277,22 +3277,38 @@ void DISTR_weibull_alpha::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double sig = exp((*linpred));
-    double hilfs1 = pow((*response)/(*worktransformlin[0]),sig);
+    double alpha = exp((*linpred));
+    double hilfs1 = pow((*response)*(*worktransformlin[0]),alpha);
 
-    double nu = 1 + sig*log((*response)/(*worktransformlin[0]))*(1-hilfs1);
-//1 + a*log(y/b) - a*log(y/b)*(y/b)^a
-//(1 + a^2*log(y/b)^2*(y/b)^a)
+    double nu = 1 + alpha*log((*response)*(*worktransformlin[0]))*(1-hilfs1);
 
-  //  *workingweight = 1 + pow(sig,2)*pow((log((*response)/(*worktransformlin[0]))),2)*hilfs1;
+  //  *workingweight = 1 + pow(alpha,2)*pow((log((*response)/(*worktransformlin[0]))),2)*hilfs1;
     *workingweight =  1.823681;
+
+    if(optionsp->copula)
+    {
+    double F = distrp[0]->cdf(*response,false);
+    double lc = distrp[0]->distrcopulap[0]->logc(F,copulapos);
+    vector<double> derivs = distrp[0]->distrcopulap[0]->derivative(F,copulapos);
+    if (compute_like)
+      {
+      like += lc;
+      }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    double dF = hilfs1*exp(-hilfs1)*(*worktransformlin[0]);
+    double ddF = dF-hilfs1*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*(*worktransformlin[0]);
+    nu += derivs[0]*dF;
+
+    *workingweight = -alpha*log((*response)*(*worktransformlin[0])) * (1+hilfs1+hilfs1*alpha*log((*response)*(*worktransformlin[0])))
+                        -derivs[1]*dF*dF-derivs[0]*ddF;
+
+    }
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
-//log(a) + (a)*log(y/b) - (y/b)^a
-        like +=  (sig)*log(*response) - hilfs1 -sig*log((*worktransformlin[0])) + log(sig);
+        like +=  (alpha)*log(*response) - hilfs1 +alpha*log((*worktransformlin[0])) + log(alpha);
 
       }
 
@@ -3449,12 +3465,12 @@ void DISTR_weibull_lambda::compute_deviance_mult(vector<double *> response,
      *deviance=0;
    else
      {
-     double sig = exp(*linpred[0]);
-     double mu = exp(*linpred[1]);
+     double alpha = exp(*linpred[0]);
+     double lambda = exp(*linpred[1]);
 
      double l;
 
-      l =   (sig-1)*log(*response[1]) - pow((*response[1])/mu,sig) -sig*log(mu) + log(sig) ;
+      l =   (alpha-1)*log(*response[1]) - pow((*response[1])*lambda,alpha) +alpha*log(lambda) + log(alpha) ;
 
 
     *deviance = -2*l;
@@ -3504,10 +3520,10 @@ double DISTR_weibull_lambda::loglikelihood_weightsone(double * response,
     set_worklin();
     }
 
-  double mu = exp(*linpred);
+  double lambda = exp(*linpred);
 
   double l;
-  l = - pow((*response)/mu,(*worktransformlin[0])) - (*worktransformlin[0])*log(mu) ;
+  l = - pow((*response)*lambda,(*worktransformlin[0])) + (*worktransformlin[0])*log(lambda) ;
 
   if(optionsp->copula)
     {
@@ -3547,12 +3563,12 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
     {
     set_worklin();
     }
-  double mu = exp(*linpred);
+  double lambda = exp(*linpred);
 
-  double hilfs1 = pow((*response)/mu,(*worktransformlin[0]));
+  double hilfs1 = pow((*response)*lambda,(*worktransformlin[0]));
  //   double hilfs2 = (*worktransformlin[0])+1;
 
-  double nu = (*worktransformlin[0])*( hilfs1-1);
+  double nu = (*worktransformlin[0])*(1-hilfs1);
 
   //  *workingweight = (*worktransformlin[0])*randnumbers::gamma_exact(hilfs2)*((*worktransformlin[0])-1)+(*worktransformlin[0]);
 
@@ -3567,11 +3583,11 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
       like += lc;
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = 1;
-    double ddF = 1;
-    nu += 0;//derivs[0]*dF;
+    double dF = hilfs1*exp(-hilfs1)*(*worktransformlin[0]);
+    double ddF = dF-hilfs1*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*(*worktransformlin[0]);
+    nu += derivs[0]*dF;
 
-    *workingweight += 0;//derivs[1]*ddF;
+    *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-derivs[1]*dF*dF-derivs[0]*ddF;
 
     }
 
@@ -3579,7 +3595,7 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
 
     if (compute_like)
       {
-      like += - hilfs1 - (*worktransformlin[0])*log(mu);
+      like += - hilfs1 + (*worktransformlin[0])*log(lambda);
       }
 
     modify_worklin();
@@ -3591,7 +3607,7 @@ void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,vector<doubl
   {
 
    double hilfs = 1+1/exp((*linpred[predstart_mumult]));
-  *mu = (exp((*linpred[predstart_mumult+1])))*randnumbers::gamma_exact(hilfs);
+  *mu = (1/exp((*linpred[predstart_mumult+1])))*randnumbers::gamma_exact(hilfs);
 
   }
 
