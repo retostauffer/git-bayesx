@@ -124,11 +124,12 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
         rho  = 0.99995;
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[1],true));
-     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
+     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
+     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
      double l;
 
-      l = - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho
+           +distrp[0]->logpdf(*response2p)+distrp[1]->logpdf(*response1p);
 
 
     *deviance = -2*l;

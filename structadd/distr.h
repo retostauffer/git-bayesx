@@ -297,6 +297,11 @@ class __EXPORT_TYPE DISTR
     {
     return 0;
     }
+    // FUNCTION: logpdf
+  virtual double logpdf(const double & resp)
+    {
+    return 0;
+    }
 
   // FUNCTION: cdf
   // TASK: computes the cdf for a single observation
@@ -305,6 +310,7 @@ class __EXPORT_TYPE DISTR
     {
     return 0;
     }
+
 
   virtual double cdf_mult(vector<double *> response,
                           vector<double *> param,
