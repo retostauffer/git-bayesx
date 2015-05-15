@@ -140,11 +140,11 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
 double DISTR_gausscopula::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
-  if(counter<=3)
+ /* if(counter<=3)
     {
     cout << "DISTR_gausscopula::loglikelihood_weightsone\n";
     cout << "counter " << counter << "\n";
-    }
+    }*/
    if (counter==0)
     {
     set_worklin();
@@ -178,11 +178,11 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
-   if(counter<=3)
+ /*  if(counter<=3)
     {
     cout << "DISTR_gausscopula::compute_iwls_wweightschange_weightsone\n";
     cout << "counter " << counter << "\n";
-    }
+    }*/
  if (counter==0)
     {
     set_worklin();
@@ -268,11 +268,11 @@ void DISTR_gausscopula::update_end(void)
 
 vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * linpred)
   {
-   if(counter<=3)
+ /*  if(counter<=3)
     {
     cout << "DISTR_gausscopula::derivative\n";
     cout << "counter " << counter << "\n";
-    }
+    }*/
 
   vector<double> res;
 //////////////////////////////////////////////////////////
@@ -297,11 +297,11 @@ vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * 
 
 vector<double> DISTR_gausscopula::logc(double & F, int & copulapos, const bool & deriv)
   {
-  if(counter<=3)
+ /* if(counter<=3)
     {
     cout << "DISTR_gausscopula::logc(double & F, int & copulapos, const bool & deriv)\n";
     cout << "counter " << counter << "\n";
-    }
+    }*/
   if (counter==0)
     {
     if (linpred_current==1)
@@ -319,14 +319,14 @@ vector<double> DISTR_gausscopula::logc(double & F, int & copulapos, const bool &
     {
     //implement Fa
     //cdf virtual in distr hat nur ein Argument!
-    Fa = distrp[1]->cdf(*response1p,false);
+    Fa = distrp[1]->cdf(*response1p,true);
 
     res.push_back(logc(Fa, F, linpredp));
     }
   else
     {
     // implement Fa
-    Fa = distrp[0]->cdf(*response2p,false);
+    Fa = distrp[0]->cdf(*response2p,true);
 
     res.push_back(logc(F, Fa, linpredp));
     }
@@ -350,11 +350,11 @@ vector<double> DISTR_gausscopula::logc(double & F, int & copulapos, const bool &
 
 double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   {
-  if(counter<=3)
+ /* if(counter<=3)
     {
     cout << "DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)\n";
     cout << "counter " << counter << "\n";
-    }
+    }*/
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
   double phiinvu = randnumbers::invPhi2(F1);
   double phiinvv = randnumbers::invPhi2(F2);
