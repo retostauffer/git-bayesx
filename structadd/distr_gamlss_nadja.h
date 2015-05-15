@@ -1109,6 +1109,10 @@ class __EXPORT_TYPE DISTR_weibull_alpha : public DISTR_gamlss
 
   ~DISTR_weibull_alpha() {}
 
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
   double get_intercept_start(void);
 
   void compute_param_mult(vector<double *>  linpred,double * param);
@@ -1178,6 +1182,8 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
   void compute_param_mult(vector<double *>  linpred,double * param);
 
   double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
 
   double logpdf(const double & resp);
 

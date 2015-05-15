@@ -124,12 +124,12 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
         rho  = 0.99995;
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
-     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
+     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true));
+     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
      double l;
 
       l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho
-           +distrp[0]->logpdf(*response2p)+distrp[1]->logpdf(*response1p);
+           +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
 
 
     *deviance = -2*l;
@@ -140,7 +140,12 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
 double DISTR_gausscopula::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
-  if (counter==0)
+  if(counter<=3)
+    {
+    cout << "DISTR_gausscopula::loglikelihood_weightsone\n";
+    cout << "counter " << counter << "\n";
+    }
+   if (counter==0)
     {
     set_worklin();
     }
@@ -173,34 +178,36 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
-  if (counter==0)
+   if(counter<=3)
+    {
+    cout << "DISTR_gausscopula::compute_iwls_wweightschange_weightsone\n";
+    cout << "counter " << counter << "\n";
+    }
+ if (counter==0)
     {
     set_worklin();
     }
-    double hilfs = pow(1 + pow((*linpred), 2), 0.5);
-    double rho = (*linpred) / hilfs;
-    if (*linpred <= -100)
-        rho  = -0.99995;
-    else if (*linpred >= 100)
-        rho  = 0.99995;
+  double hilfs = pow(1 + pow((*linpred), 2), 0.5);
+  double rho = (*linpred) / hilfs;
+  if (*linpred <= -100)
+      rho  = -0.99995;
+  else if (*linpred >= 100)
+      rho  = 0.99995;
 
-    double orho = 1 - pow(rho, 2);
-    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
-    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
+  double orho = 1 - pow(rho, 2);
+  double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
+  double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
 
-    double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phinvu * phinvv) - (*linpred) * (pow(phinvu, 2) + pow(phinvv, 2));
+  double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phinvu * phinvv) - (*linpred) * (pow(phinvu, 2) + pow(phinvv, 2));
 
-    *workingweight = 1 - pow(rho, 4);
+  *workingweight = 1 - pow(rho, 4);
 
-    if((*workingweight) <= 0)
-        *workingweight = 0.0001;
+  *workingresponse = *linpred + nu/(*workingweight);
 
-    *workingresponse = *linpred + nu/(*workingweight);
-
-    if (compute_like)
-      {
-      like += - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
-      }
+  if (compute_like)
+    {
+    like += - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+    }
 
   modify_worklin();
 
@@ -242,25 +249,30 @@ void DISTR_gausscopula::update_end(void)
 
   }
 
-vector<double> DISTR_gausscopula::derivative(double & F, int & copulapos)
+/*vector<double> DISTR_gausscopula::derivative(double & F, int & copulapos)
   {
 
   double Fa;
   if(copulapos==0)
     {
-    Fa = distrp[1]->cdf(*response1p,true);
+    Fa = distrp[1]->cdf(*response1p,false);
     }
   else
     {
-    Fa = distrp[0]->cdf(*response2p,true);
+    Fa = distrp[0]->cdf(*response2p,false);
     }
-
+    //only works when copula is symmetric in its arguments!!
     return derivative(F, Fa, linpredp);
   }
-
+*/
 
 vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * linpred)
   {
+   if(counter<=3)
+    {
+    cout << "DISTR_gausscopula::derivative\n";
+    cout << "counter " << counter << "\n";
+    }
 
   vector<double> res;
 //////////////////////////////////////////////////////////
@@ -283,8 +295,13 @@ vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * 
   return res;
   }
 
-double DISTR_gausscopula::logc(double & F, int & copulapos)
+vector<double> DISTR_gausscopula::logc(double & F, int & copulapos, const bool & deriv)
   {
+  if(counter<=3)
+    {
+    cout << "DISTR_gausscopula::logc(double & F, int & copulapos, const bool & deriv)\n";
+    cout << "counter " << counter << "\n";
+    }
   if (counter==0)
     {
     if (linpred_current==1)
@@ -296,22 +313,29 @@ double DISTR_gausscopula::logc(double & F, int & copulapos)
     response2p = response2.getV();
     }
   double Fa;
-  double res;
+  vector<double> res;
  // double eta = (*linpred);
   if(copulapos==0)
     {
     //implement Fa
     //cdf virtual in distr hat nur ein Argument!
-    Fa = distrp[1]->cdf(*response1p,true);
+    Fa = distrp[1]->cdf(*response1p,false);
 
-    res = logc(Fa, F, linpredp);
+    res.push_back(logc(Fa, F, linpredp));
     }
   else
     {
     // implement Fa
-    Fa = distrp[0]->cdf(*response2p,true);
+    Fa = distrp[0]->cdf(*response2p,false);
 
-    res = logc(F, Fa, linpredp);
+    res.push_back(logc(F, Fa, linpredp));
+    }
+
+  if(deriv)
+    {
+    vector<double> derivs = derivative(F, Fa, linpredp);
+    res.push_back(derivs[0]);
+    res.push_back(derivs[1]);
     }
   linpredp++;
   response1p++;
@@ -326,6 +350,11 @@ double DISTR_gausscopula::logc(double & F, int & copulapos)
 
 double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   {
+  if(counter<=3)
+    {
+    cout << "DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)\n";
+    cout << "counter " << counter << "\n";
+    }
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
   double phiinvu = randnumbers::invPhi2(F1);
   double phiinvv = randnumbers::invPhi2(F2);

@@ -278,22 +278,28 @@ class __EXPORT_TYPE DISTR
     return copulapos;
     }
 
-  virtual vector<double> derivative(double & F, int & copulapos)
+ /* virtual vector<double> derivative(double & F, int & copulapos)
+    {
+    vector<double> res;
+    return res;
+    }
+*/
+  virtual vector<double> logc(double & F, int & copulapos, const bool & deriv)
     {
     vector<double> res;
     return res;
     }
 
-  virtual double logc(double & F, int & copulapos)
-    {
-    return 0;
-    }
-
   //----------------------------------------------------------------------------
   //---------------------------- COMPUTING THE CDF -----------------------------
   //----------------------------------------------------------------------------
-
+  // FUNCTION: cdf for copula parameter
   virtual double cdf(const double & resp, const bool & ifcop)
+    {
+    return 0;
+    }
+  // FUNCTION: cdf for marginal
+  virtual double cdf(const double & resp, const double & linpred)
     {
     return 0;
     }

@@ -84,11 +84,11 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_gamlss
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
-  vector<double> derivative(double & F, int & copulapos);
+  //vector<double> derivative(double & F, int & copulapos);
 
   vector<double> derivative(double & F1, double & F2, double * linpred);
 
-  double logc(double & F, int & copulapos);
+  vector<double> logc(double & F, int & copulapos, const bool & deriv);
 
   double logc(double & F1, double & F2, double * linpred);
 

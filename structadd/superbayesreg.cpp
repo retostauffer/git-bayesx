@@ -5139,22 +5139,23 @@ bool superbayesreg::create_distribution(void)
      if(distr_weibull_lambdas.size()>0)
        {
        int coi;
-       for(coi=distr_weibull_lambdas.size();coi>0;coi--)
+       for(coi=0;coi<distr_weibull_lambdas.size();coi++)
          {
-         predict_mult_distrs.push_back(&distr_weibull_alphas[distr_weibull_alphas.size()-coi]);
-         predict_mult_distrs.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-coi]);
+         predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
+         predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
 
-         distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-coi]);
+         distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
 
-         distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
 
-         if(distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].get_copulapos()==0)
+         if(distr_weibull_lambdas[coi].get_copulapos()==0)
            {
-           distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].response;
+           distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_weibull_lambdas[coi].response;
            }
-         else if(distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].get_copulapos()==1)
+         else if(distr_weibull_lambdas[coi].get_copulapos()==1)
            {
-           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_weibull_lambdas[distr_weibull_lambdas.size()-coi].response;
+           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_weibull_lambdas[coi].response;
            }
          else
            {
