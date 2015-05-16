@@ -283,10 +283,10 @@ vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * 
 
   //first and second derivative of Phi^-1
   double dphiinvu = sqrt(2*PI)/exp(-0.5*phiinvu*phiinvu);
-  double ddphiinvu = dphiinvu*sqrt(2*PI)*phiinvu;
+  double ddphiinvu = 2*PI*phiinvu/pow(exp(-0.5*phiinvu*phiinvu),2);
 
   // first derivative
-  double dlc = rho*dphiinvu*phiinvv/(1-rho*rho) - rho*rho*dphiinvu*phiinvv/(1-rho*rho);
+  double dlc = rho*dphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho);
   // second derivative
   double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);;
   // return first and second derivative.

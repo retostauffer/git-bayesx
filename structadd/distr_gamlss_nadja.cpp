@@ -3240,7 +3240,7 @@ double DISTR_weibull_alpha::cdf(const double & resp, const bool & ifcop)
  //  double test = *linpred;
 // compute cdf (might work more efficiently)
   double res,lambda,alpha;
-  alpha = *helpmat1p;
+  alpha = exp(*helpmat1p);
   lambda = *worktransformlin[0];//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
 
@@ -3350,13 +3350,15 @@ void DISTR_weibull_alpha::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = alpha*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*log((*worktransformlin[0])*(*response));
-    double ddF = -dF*dF+dF
+    double dF = alpha*hilfs1*exp(-hilfs1)*log((*worktransformlin[0])*(*response));
+    double ddF = -dF*dF/exp(-hilfs1)+dF
                 +hilfs1*log((*worktransformlin[0])*(*response))*log((*worktransformlin[0])*(*response))*exp(-hilfs1)*alpha*alpha;
     nu += logcandderivs[1]*dF;
 
-    *workingweight = -alpha*log((*response)*(*worktransformlin[0])) * (1-hilfs1-hilfs1*alpha*log((*response)*(*worktransformlin[0])))
-                        -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+  /*  *workingweight = -alpha*log((*response)*(*worktransformlin[0])) * (1-hilfs1-hilfs1*alpha*log((*response)*(*worktransformlin[0])))
+                        -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;*/
+    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+
     if (*workingweight <=0)
       *workingweight = 0.0001;
     }
@@ -3699,7 +3701,8 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
     double ddF = dF*(*worktransformlin[0])-hilfs1*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*(*worktransformlin[0]);
     nu += logcandderivs[1]*dF;
 
-    *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
