@@ -177,7 +177,7 @@ DISTR::DISTR(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
 
-  helpmat1p = d.helpmat1p;
+  linpredp = d.linpredp;
 
   helpquantity1 = d.helpquantity1;
   helpquantity2 = d.helpquantity2;
@@ -250,7 +250,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
 
-  helpmat1p = d.helpmat1p;
+  linpredp = d.linpredp;
 
   helpquantity1 = d.helpquantity1;
   helpquantity2 = d.helpquantity2;

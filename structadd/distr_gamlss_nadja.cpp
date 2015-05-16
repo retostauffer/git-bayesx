@@ -3233,14 +3233,14 @@ double DISTR_weibull_alpha::cdf(const double & resp, const bool & ifcop)
       set_worklin();
       }
       if (linpred_current==1)
-        helpmat1p = linearpred1.getV();
+        linpredp = linearpred1.getV();
       else
-        helpmat1p = linearpred2.getV();
+        linpredp = linearpred2.getV();
     }
  //  double test = *linpred;
 // compute cdf (might work more efficiently)
   double res,lambda,alpha;
-  alpha = exp(*helpmat1p);
+  alpha = exp(*linpredp);
   lambda = *worktransformlin[0];//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
 
@@ -3248,7 +3248,7 @@ double DISTR_weibull_alpha::cdf(const double & resp, const bool & ifcop)
     {
     modify_worklin();
     }
-  helpmat1p++;
+  linpredp++;
   return res;
   }
 
@@ -3498,15 +3498,15 @@ double DISTR_weibull_lambda::cdf(const double & resp, const bool & ifcop)
       set_worklin();
       }
     if (linpred_current==1)
-      helpmat1p = linearpred1.getV();
+      linpredp = linearpred1.getV();
     else
-      helpmat1p = linearpred2.getV();
+      linpredp = linearpred2.getV();
     }
 
  //  double test = *linpred;
 // compute cdf (might work more efficiently)
   double res,lambda,alpha;
-  lambda = exp(*helpmat1p);
+  lambda = exp(*linpredp);
   alpha = *worktransformlin[0];//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
 
@@ -3514,7 +3514,7 @@ double DISTR_weibull_lambda::cdf(const double & resp, const bool & ifcop)
     {
     modify_worklin();
     }
-  helpmat1p++;
+  linpredp++;
   return res;
   }
 
@@ -3539,20 +3539,20 @@ double DISTR_weibull_lambda::logpdf(const double & resp)
     {
     set_worklin();
     if (linpred_current==1)
-      helpmat1p = linearpred1.getV();
+      linpredp = linearpred1.getV();
     else
-      helpmat1p = linearpred2.getV();
+      linpredp = linearpred2.getV();
     }
 
  //  double test = *linpred;
 // compute cdf (might work more efficiently)
   double res,lambda,alpha;
-  lambda = exp(*helpmat1p);
+  lambda = exp(*linpredp);
   alpha = *worktransformlin[0];//exp(*linpred[0]);
   res = (alpha-1)*log(resp) - pow(resp*lambda,alpha) +alpha*log(lambda) + log(alpha);
 
   modify_worklin();
-  helpmat1p++;
+  linpredp++;
   return res;
   }
 
