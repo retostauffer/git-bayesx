@@ -316,7 +316,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_mu_u");
   families.push_back("sfa2_mu_u_id");
   families.push_back("sfa2_mu_y_id");
-  families.push_back("copula");
+  families.push_back("copulas");
   families.push_back("tcopula");
   families.push_back("gausscopula");
   families.push_back("gaussiancopula");
@@ -5650,7 +5650,7 @@ bool superbayesreg::create_distribution(void)
 
 
 // ----------------------------------- copula ----------------------
-   else if ((family.getvalue() == "copula") &&
+   else if ((family.getvalue() == "copulas") &&
             ((equationtype.getvalue()=="u1") || (equationtype.getvalue()=="u2"))
            )
      {
