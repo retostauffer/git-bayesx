@@ -3013,10 +3013,7 @@ void DISTRIBUTION::outresults(void)
       out << "mu" << "   ";
       }
 
-    if(family!="cox")
-      out << "saturated_deviance" << "   ";
-    else
-      out << "unstandardized_deviance" << "   ";
+    out << "deviance" << "   ";
 
     out << "leverage" << "   ";
 
@@ -3027,7 +3024,6 @@ void DISTRIBUTION::outresults(void)
     double * workdevmean = deviancemean.getV();
 
     double deviance2=0;
-    double deviance2_sat=0;
 
     double * datap = Dp->getV();
     unsigned sD = Dp->cols();
@@ -3075,7 +3071,6 @@ void DISTRIBUTION::outresults(void)
 //      &reshelp,&devhelp,scalehelp,i);
 
       deviance2 += reshelp;
-      deviance2_sat += devhelp;
 
       if (weight(i,0) != 0 && family!="cox")
         {
@@ -3125,14 +3120,10 @@ void DISTRIBUTION::outresults(void)
     optionsp->out("\n");
 
     results_latex.push_back("\n {\\bf \\large Estimation results for the deviance: }\\\\ \n");
-    results_latex.push_back("{\\bf Unstandardized deviance } \n");
+    results_latex.push_back("{\\bf Deviance } \n");
     results_latex.push_back("\\vspace{-0.4cm}");
     results_latex.push_back("\\begin{tabbing}");
     results_latex.push_back("\\hspace{3cm} \\= \\\\");
-
-
-    optionsp->out("  Unstandardized Deviance (-2*Loglikelihood(y|mu))\n");
-    optionsp->out("\n");
 
     devhelpm = deviance.mean(0);
 
@@ -3202,82 +3193,6 @@ void DISTRIBUTION::outresults(void)
 
     results_latex.push_back("\\end{tabbing}\n");
 
-    if(family!="cox")
-    {
-    results_latex.push_back("{\\bf Saturated deviance } \n");
-    results_latex.push_back("\\vspace{-0.4cm}");
-    results_latex.push_back("\\begin{tabbing}");
-    results_latex.push_back("\\hspace{3cm} \\= \\\\");
-
-    optionsp->out("  Saturated Deviance (-2*Loglikelihood(y|mu) + 2*Loglikelihood(y|mu=y))\n");
-    optionsp->out("\n");
-
-    devhelpm = deviance.mean(1);
-
-    optionsp->out(meanstr + ST::string(' ',20-l_meanstr) +
-    ST::doubletostring(devhelpm,d) + "\n");
-
-    results_latex.push_back(meanstr + " \\> "
-                           + ST::doubletostring(devhelpm,d)
-                           + " \\\\");
-
-    devhelp = sqrt(deviance.var(1));
-    optionsp->out(stdstr + ST::string(' ',20-l_stdstr) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    results_latex.push_back(stdstr + " \\> "
-                           + ST::doubletostring(devhelp,d)
-                           + " \\\\");
-
-
-    devhelp = deviance.quantile(lower1,1);
-    optionsp->out(l1str +  ST::string(' ',20-l_l1str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    results_latex.push_back(l1str.insert_string_char(hchar,helpstring) + " \\> "
-                           + ST::doubletostring(devhelp,d)
-                           + " \\\\");
-
-
-    devhelp = deviance.quantile(lower2,1);
-    optionsp->out(l2str +  ST::string(' ',20-l_l2str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    results_latex.push_back(l2str.insert_string_char(hchar,helpstring) + " \\> "
-                           + ST::doubletostring(devhelp,d)
-                           + " \\\\");
-
-    devhelp = deviance.quantile(50,1);
-    optionsp->out(medianstr +  ST::string(' ',20-l_medianstr) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    results_latex.push_back(medianstr.insert_string_char(hchar,helpstring) + " \\> "
-                           + ST::doubletostring(devhelp,d)
-                           + " \\\\");
-
-
-    devhelp = deviance.quantile(upper1,1);
-    optionsp->out(u1str +  ST::string(' ',20-l_u1str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    results_latex.push_back(u1str.insert_string_char(hchar,helpstring) + " \\> "
-                           + ST::doubletostring(devhelp,d)
-                           + " \\\\");
-
-
-    devhelp = deviance.quantile(upper2,1);
-    optionsp->out(u2str +  ST::string(' ',20-l_u2str) +
-    ST::doubletostring(devhelp,d) +  "\n");
-
-    results_latex.push_back(u2str.insert_string_char(hchar,helpstring) + " \\> "
-                           + ST::doubletostring(devhelp,d)
-                           + " \\\\");
-
-    results_latex.push_back("\\end{tabbing}\n");
-
-    optionsp->out("\n");
-    }
-
     optionsp->out("  Samples of the deviance are stored in file\n");
     optionsp->out("  " + deviancepath + "\n");
     optionsp->out("\n");
@@ -3287,18 +3202,13 @@ void DISTRIBUTION::outresults(void)
     optionsp->out("\n");
 
     results_latex.push_back("\n {\\bf \\large Estimation results for the DIC: }\\\\ \n");
-    results_latex.push_back("{\\bf DIC based on the unstandardized deviance } \n");
-    results_latex.push_back("\\vspace{-0.4cm}");
     results_latex.push_back("\\begin{tabbing}");
     results_latex.push_back("\\hspace{3cm} \\= \\\\");
 
-
-    optionsp->out("  DIC based on the unstandardized deviance\n");
-    optionsp->out("\n");
     devhelpm = deviance.mean(0);
     optionsp->out("  Deviance(bar_mu):           " +
     ST::doubletostring(deviance2,d) + "\n");
-    results_latex.push_back( "deviance($\\bar{\\mu}$) \\> "
+    results_latex.push_back( "deviance \\> "
                            + ST::doubletostring(deviance2,d)
                            + " \\\\");
 
@@ -3316,62 +3226,18 @@ void DISTRIBUTION::outresults(void)
                             + " \\\\");
 
     results_latex.push_back("\\end{tabbing}\n");
-    if(family!="cox")
-    {
-    optionsp->out("  DIC based on the saturated deviance\n");
-    optionsp->out("\n");
 
-    results_latex.push_back("{\\bf DIC based on the saturated deviance } \n");
-    results_latex.push_back("\\vspace{-0.4cm}");
-    results_latex.push_back("\\begin{tabbing}");
-    results_latex.push_back("\\hspace{3cm} \\= \\\\");
-    }
-
-    double devhelpm_sat = deviance.mean(1);
-    if(family!="cox")
-    {
-    optionsp->out("  Deviance(bar_mu):           " +
-    ST::doubletostring(deviance2_sat,d) + "\n");
-    results_latex.push_back( "deviance($\\bar{\\mu}$) \\> "
-                           + ST::doubletostring(deviance2_sat,d)
-                           + " \\\\");
-
-    optionsp->out("  pD:                         " +
-    ST::doubletostring(devhelpm_sat-deviance2_sat,d) + "\n");
-    results_latex.push_back("pD \\> " +
-                            ST::doubletostring(devhelpm_sat-deviance2_sat,d) + " \\\\");
-
-
-    optionsp->out("  DIC:                        " +
-    ST::doubletostring(2*devhelpm_sat-deviance2_sat,d) + "\n");
-    results_latex.push_back("DIC \\> " +
-                            ST::doubletostring(2*devhelpm_sat-deviance2_sat,d)
-                            + " \\\\");
-
-    optionsp->out("\n");
-
-    results_latex.push_back("\\end{tabbing}\n");
-    }
-    if(family!="cox")
-    out2 << "intnr  unstandardized_deviance  saturated_deviance" << endl;
-    else out2 << "intnr  unstandardized_deviance" << endl;
+    out2 << "intnr  deviance" << endl;
     double * workdev = deviance.getV();
     for (i=0;i<deviance.rows();i++,workdev++)
       {
       out2 << (i+1) << "   ";
       out2 << *workdev << "   ";
       workdev++;
-      if (family!="cox") out2 << *workdev;
       out2 << endl;
       }
-    if(family!="cox")    out2 << "p_D   " << (devhelpm-deviance2) << "   " <<
-                          (devhelpm_sat-deviance2_sat) << endl;
-    else                 out2 << "p_D   " << (devhelpm-deviance2) << "   " <<endl;
-    if(family!="cox")    out2 << "DIC   " << (2*devhelpm-deviance2) << "   " <<
-                          (2*devhelpm_sat-deviance2_sat) << endl;
-    else                 out2 << "DIC   " << (2*devhelpm-deviance2) << "   " << endl;
-
-
+    out2 << "p_D   " << (devhelpm-deviance2) << "   " <<endl;
+    out2 << "DIC   " << (2*devhelpm-deviance2) << "   " << endl;
     } // end: if ( (predict) && (optionsp->get_samplesize() > 0) )
 
   else if ( (predict) && (optionsp->get_samplesize() > 0) && (isbootstrap) )
@@ -3423,7 +3289,7 @@ void DISTRIBUTION::outresults(void)
       out << "average_mu" << "   ";
       }
 
-    out << "saturated_deviance" << "   ";
+    out << "deviance" << "   ";
 
     out << endl;
 
@@ -3433,7 +3299,6 @@ void DISTRIBUTION::outresults(void)
     double * workdevmean = deviancemean.getV();
 
     double deviance2=0;
-    double deviance2_sat=0;
 
     double * datap = Dp->getV();
     unsigned sD = Dp->cols();
@@ -3483,7 +3348,6 @@ void DISTRIBUTION::outresults(void)
 //      &reshelp,&devhelp,scalehelp,i);
 
       deviance2 += reshelp;
-      deviance2_sat += devhelp;
 
       if (weight(i,0) != 0)
         {
@@ -3543,7 +3407,7 @@ void DISTRIBUTION::outresults(void)
       out << "mu" << "   ";
       }
 
-    out << "saturated_deviance" << "   ";
+    out << "deviance" << "   ";
 
     out << endl;
 
@@ -3558,8 +3422,6 @@ void DISTRIBUTION::outresults(void)
     double devhelp;
     double * workmean_firstcol;
     datamatrix mu_meanlinpred(1,size2);
-
-    double deviance_sat=0;
 
     for (i=0;i<nrobs;i++)
       {
@@ -3584,8 +3446,6 @@ void DISTRIBUTION::outresults(void)
       compute_deviance(&response(i,0),&weight(i,0),&mu_meanlinpred(0,0),
       &reshelp,&devhelp,scale,i);
 
-      deviance_sat += devhelp;
-
       if (weight(i,0) != 0)
         {
         out << devhelp  << "   ";
@@ -3598,7 +3458,7 @@ void DISTRIBUTION::outresults(void)
       }
 
     optionsp->out("\n");
-    optionsp->out("  Saturated deviance: " + ST::doubletostring(deviance_sat,6) +
+    optionsp->out("  Deviance: " + ST::doubletostring(deviance,6) +
     "\n");
 
     optionsp->out("\n");

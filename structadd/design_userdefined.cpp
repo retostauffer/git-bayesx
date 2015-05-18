@@ -243,6 +243,93 @@ void DESIGN_userdefined::compute_precision(double l)
 
   }
 
+void DESIGN_userdefined::compute_basisNull(void)
+  {
+  if (center==true)
+  {
+  unsigned i,j;
+
+  if (centermethod==meancoeff || centermethod==meansimple)
+    {
+    basisNull = datamatrix(1,nrpar,1);
+    position_lin = -1;
+    }
+  else if (centermethod==cmeaninvvar)
+    {
+    }
+  else if ((centermethod==cmeanintegral) || (centermethod==integralsimple))  // integral f = 0
+    {
+    }
+  else if (centermethod==meanf)            // sum of f's zero (over all observations)
+    {
+
+    basisNull = datamatrix(1,nrpar,1);
+
+    unsigned k;
+    for (k=0;k<nrpar;k++)
+      basisNull(0,k) = compute_sumBk(k);
+
+    position_lin = -1;
+
+    }
+  else if (centermethod==meanfd)            // sum of f's zero
+    {
+
+    basisNull = datamatrix(1,nrpar,1);
+
+    unsigned k;
+    for (k=0;k<nrpar;k++)
+      basisNull(0,k) = compute_sumBk_different(k);
+
+    // TEST
+    // ofstream out("c:\\bayesx\\testh\\results\\basisnull.res");
+    // basisNull.prettyPrint(out);
+    // ende: TEST
+
+    position_lin = -1;
+
+    }
+  else if (centermethod==nullspace)
+    {
+    }
+
+
+  for(i=0;i<basisNull.rows();i++)
+    {
+    basisNullt.push_back(datamatrix(basisNull.cols(),1));
+    for(j=0;j<basisNull.cols();j++)
+      basisNullt[i](j,0) = basisNull(i,j);
+    }
+
+
+  if (basisNull.rows() > 1)
+    {
+    designlinear = datamatrix(posbeg.size(),basisNull.rows()-1);
+
+    double * workdl = designlinear.getV();
+    double h;
+    for(i=0;i<posbeg.size();i++)
+      for(j=0;j<designlinear.cols();j++,workdl++)
+        {
+        h = data(posbeg[i],0);
+        *workdl =  pow(static_cast<double>(h),static_cast<double>(j+1));
+        }
+    }
+
+  }
+
+  // TEST
+  /*
+    ofstream out("c:\\bayesx\\test\\results\\data.res");
+    data.prettyPrint(out);
+
+    ofstream out2("c:\\bayesx\\test\\results\\designlin.res");
+    designlinear.prettyPrint(out2);
+   */
+  // TEST
+
+  }
+
 
 void DESIGN_userdefined::compute_Zout(datamatrix & Z)
   {
@@ -366,6 +453,26 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
   if(rankK==-1)
     {
     // compute rankK;
+    datamatrix Kstat=penmat;
+    datamatrix vals(Kstat.rows(),1,0);
+    bool eigentest=eigen2(Kstat,vals);
+    if(eigentest==false)
+      {
+      rankK = Kstat.rows();
+      optionsp->out("WARNING: Unable to compute rank of penalty matrix.\n");
+      optionsp->out("         Rank was set to the dimension of the penalty matrix: " + ST::inttostring(rankK) + "\n");
+      optionsp->out("         Please specify argument rankK\n");
+      }
+    else
+      {
+      rankK=0;
+      unsigned j;
+      for(j=0; j<vals.rows(); j++)
+        {
+        if(fabs(vals(j,0))>=0.000001)
+          rankK++;
+        }
+      }
     }
 
   Wsum = datamatrix(posbeg.size(),1,1);
@@ -376,6 +483,7 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
   XWres = datamatrix(nrpar,1);
 
   compute_precision(1.0);
+  compute_basisNull();
   }
 
 

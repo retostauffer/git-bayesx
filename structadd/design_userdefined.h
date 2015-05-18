@@ -58,6 +58,8 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
 
   void init_data(datamatrix & dm, datamatrix & iv);
 
+  void compute_basisNull(void);
+
   double round;
   double binning;
 
