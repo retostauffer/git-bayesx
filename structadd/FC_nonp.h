@@ -66,7 +66,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   DISTR * likep;                             // Pointer to DISTR obejct
 
-  datamatrix betaold;
   datamatrix betadiff;
 
   double s2;
@@ -83,6 +82,11 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
 
   public:
+
+  bool multf;
+  double multf_value;
+
+  datamatrix betaold;
 
   bool IWLS;
 

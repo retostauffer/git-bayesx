@@ -120,6 +120,8 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
 
   read_options(op,vn);
 
+  multf=false;
+
   imeasures=false;
 
   masterp = mp;
@@ -180,6 +182,9 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   : FC(FC(m))
   {
 
+  multf=m.multf;
+  multf_value=multf_value;
+
   imeasures=m.imeasures;
 
   masterp = m.masterp;
@@ -234,6 +239,9 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
+
+  multf=m.multf;
+  multf_value=multf_value;
 
   imeasures=m.imeasures;
 
