@@ -909,18 +909,18 @@ void FC_nonp_variance_varselection::update(void)
       // standardise tau and tilde gamma to achieve identifiability
       // a la Scheipl et al.
       // in betap we have tilde beta!!
-      double * betap = FCnonpp->beta.getV();
+      double * paramp = FCnonpp->param.getV();
       double helpsum=0.0;
-      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
+      for(i=0; i<FCnonpp->param.rows(); i++, paramp++)
         {
-        helpsum += fabs(*betap);
+        helpsum += fabs(*paramp);
         }
-      helpsum /= (double)FCnonpp->beta.rows();
+      helpsum /= (double)FCnonpp->param.rows();
 
-      betap = FCnonpp->beta.getV();
-      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
+      paramp = FCnonpp->param.getV();
+      for(i=0; i<FCnonpp->param.rows(); i++, paramp++)
         {
-        *betap *= tauprop/(helpsum);
+        *paramp *= tauprop/(helpsum);
         }
       tauprop *= helpsum;
 
