@@ -805,9 +805,9 @@ void FC_nonp_variance_varselection::update(void)
   }
    // end: updating w
 
-   // updating tau2
-   if(gig)
-     {
+   // updating tau for gig variant
+  if(gig)
+    {
 
     //double w = designp->penalty_compute_quadform(FCnonpp->param)/(r_delta*FC_psi2.beta(0,0));
      double tau2 = randnumbers::GIG2(0, 1/(r_delta*FC_psi2.beta(0,0)), designp->penalty_compute_quadform(FCnonpp->param));
@@ -819,8 +819,8 @@ void FC_nonp_variance_varselection::update(void)
      acceptance++;
      FC::update();
      }
-    else
-    {
+  else // updating tau for usual variant
+    { // if likelihood is nongaussian
     if(FCnonpp->IWLS)
       {
       if(optionsp->nriter==1)
@@ -829,9 +829,10 @@ void FC_nonp_variance_varselection::update(void)
       double Sigmatauprop, Sigmataucurr;
       double mutauprop, mutaucurr;
 
-      // compute X = design matrix * scaled regression coefficients (Z * tilde gamma)
+      // compute X = tauold*(design matrix * scaled regression coefficients)=tauold*(Z*tilde beta)
       FCnonpp->designp->compute_effect(X,FCnonpp->beta);
 
+      // for FC of tau we need Z*tilde beta -> devide by tauold.
       double * Xp = X.getV();
       for(i=0; i<X.rows(); i++, Xp++)
         {
@@ -901,56 +902,36 @@ void FC_nonp_variance_varselection::update(void)
       double tau2 = tauprop*tauprop;
       if (tau2 < 0.000000001)
         {
-        cout << "tau2 < 0.000000001\n";
+        //cout << "tau2 < 0.000000001\n";
         tau2 = 0.000000001;
         tauprop = sqrt(tau2);
         }
-
-
-
       // standardise tau and tilde gamma to achieve identifiability
-        // a la Scheipl et al.
-
-        // replace beta with param to obtain appropriate reparameterisation
-/*      double * betap = FCnonpp->beta.getV();
+      // a la Scheipl et al.
+      // in betap we have tilde beta!!
+      double * betap = FCnonpp->beta.getV();
       double helpsum=0.0;
       for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
         {
         helpsum += fabs(*betap);
         }
-      helpsum /= (double)FCnonpp->beta.rows() * sqrt(beta(0,0));
+      helpsum /= (double)FCnonpp->beta.rows();
 
       betap = FCnonpp->beta.getV();
       for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
         {
-        *betap *= tauprop/(helpsum*sqrt(beta(0,0)));
+        *betap *= tauprop/(helpsum);
         }
-      tauprop *= helpsum;*/
+      tauprop *= helpsum;
 
       tau2 = tauprop*tauprop;
 
       FCnonpp->tau2 = tau2;
 
-      double * paramoldp = FCnonpp->paramold.getV();
-      for(i=0; i<FCnonpp->paramold.rows(); i++, paramoldp++)
-        *paramoldp *= tauprop/tauold;
-
-      double * paramp = FCnonpp->param.getV();
-      for(i=0; i<FCnonpp->param.rows(); i++, paramp++)
-        *paramp *= tauprop/tauold;
-
-      double * betaoldp = FCnonpp->betaold.getV();
-      for(i=0; i<FCnonpp->betaold.rows(); i++, betaoldp++)
-        *betaoldp *= tauprop/tauold;
-
-      double * betap = FCnonpp->beta.getV();
-      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
-        *betap *= tauprop/tauold;
-
       tauold = tauprop;
       beta(0,0) = tau2;
       beta(0,1) = 1/beta(0,0);
-     }
+      }
     else
       {
       diffp = diff.getV();
@@ -963,9 +944,9 @@ void FC_nonp_variance_varselection::update(void)
 
       FC::update();
 
-      }
-    else
-      {
+    }
+  else
+    {
   //variante stefan, für GAUSS fall
       double Sigmatau;
       double mutau;
@@ -1005,9 +986,7 @@ void FC_nonp_variance_varselection::update(void)
 
       acceptance++;
       FC::update();
-      }
-
-  // end: updating tau2
+      }// end: updating tau for usual case
     }
     //end: if gig
   }
