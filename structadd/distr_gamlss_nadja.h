@@ -5098,7 +5098,7 @@ class __EXPORT_TYPE DISTR_bivprobit2_mu : public DISTR_gamlss
 
   void outoptions(void);
 
-  void update(void);
+  //void update(void);
 
   void update_end(void);
 

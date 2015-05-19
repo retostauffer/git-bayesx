@@ -16952,13 +16952,9 @@ void DISTR_bivprobit2_mu::modify_worklin(void)
   if (counter<nrobs)
     response2p++;
 
-
-
   }
 
-
-
-void DISTR_bivprobit2_mu::update(void)
+/*void DISTR_bivprobit2_mu::update(void)
   {
 
 
@@ -16988,13 +16984,7 @@ void DISTR_bivprobit2_mu::update(void)
       }
 
     }
-
-
-
-
-  }
-
-
+  }*/
 
 double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -17004,8 +16994,6 @@ double DISTR_bivprobit2_mu::loglikelihood_weightsone(double * response,
   // *worktransformlin[0] = rho;
   // *worklin[1] = linear predictor of mu_2 equation
   // *worktransformlin[1] = mu_2;
-
-
   if (counter==0)
     {
     set_worklin();

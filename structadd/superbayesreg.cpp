@@ -3434,7 +3434,7 @@ bool superbayesreg::create_distribution(void)
        distr_bivprobit2_mus[distr_bivprobit2_mus.size()-1].distrp.push_back(
        &distr_bivprobit2_mus[distr_bivprobit2_mus.size()-2]);
 
-        }
+       }
 
      }
  //------------------------------ END: bivprobit2_mu ----------------------------------
