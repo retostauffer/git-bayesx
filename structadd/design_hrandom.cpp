@@ -117,7 +117,7 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   XWres = datamatrix(nrpar,1);
   Wsum = datamatrix(nrpar,1,1);
 
-  compute_precision(1.0);
+  compute_precision(1.0, 1.0);
 
   centermethod=meansimplevar;
 
@@ -157,7 +157,7 @@ DESIGN_hrandom::DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
   XWres = datamatrix(nrpar,1);
   Wsum = datamatrix(nrpar,1,1);
 
-  compute_precision(1.0);
+  compute_precision(1.0,1.0);
 
   centermethod=meansimplevar;
 
@@ -245,7 +245,7 @@ void DESIGN_hrandom::compute_penalty2(const datamatrix & pen)
 
 
 
-void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
+void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l, double v)
   {
 
   double * workXWres = XWres.getV();
@@ -267,7 +267,7 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
   unsigned i;
 
   for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
-    *workXWres =  l*(*linpredREp)+(*partresp);
+    *workXWres =  v*l*(*linpredREp)+(*partresp);
 
   XWres_p = &XWres;
 
@@ -303,7 +303,7 @@ void DESIGN_hrandom::compute_basisNull(void)
 
 
 
-void DESIGN_hrandom::compute_precision(double l)
+void DESIGN_hrandom::compute_precision(double v, double l)
   {
 
   if (precisiondeclared==false)
@@ -312,7 +312,7 @@ void DESIGN_hrandom::compute_precision(double l)
     precisiondeclared = true;
     }
 
-  precision.addtodiag(XWX,K,1.0,l);
+  precision.addtodiag(XWX,K,v,l);
 
   /*
   // TEST

@@ -88,9 +88,9 @@ class __EXPORT_TYPE DESIGN_mrf : public DESIGN
 
   void compute_basisNull(void);
 
-  void compute_XtransposedWres(datamatrix & partres, double l);
+  void compute_XtransposedWres(datamatrix & partres, double l,double v);
 
-  void compute_precision(double l);
+  void compute_precision(double v, double l);
 
   void outoptions(GENERAL_OPTIONS * op);
 

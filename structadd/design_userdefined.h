@@ -51,7 +51,7 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
   //       the different observations in data
 
   void compute_f(datamatrix & beta,datamatrix & betalin,
-                       datamatrix & f, datamatrix & ftot);
+                       datamatrix & f, datamatrix & ftot,double v);
 
   void compute_Zout(datamatrix & Z);
   void compute_Zout_transposed(datamatrix & Z);
@@ -85,7 +85,7 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
 
   const DESIGN_userdefined & operator=(const DESIGN_userdefined & m);
 
-  void compute_precision(double l);
+  void compute_precision(double v, double l);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 

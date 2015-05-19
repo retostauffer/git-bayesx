@@ -120,7 +120,8 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
 
   read_options(op,vn);
 
-  multf=false;
+  multZ=false;
+  multZ_value=1;
 
   imeasures=false;
 
@@ -182,8 +183,8 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   : FC(FC(m))
   {
 
-  multf=m.multf;
-  multf_value=multf_value;
+  multZ=m.multZ_value;
+  multZ_value=multZ_value;
 
   imeasures=m.imeasures;
 
@@ -240,8 +241,8 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 	 return *this;
   FC::operator=(FC(m));
 
-  multf=m.multf;
-  multf_value=multf_value;
+  multZ=m.multZ;
+  multZ_value=multZ_value;
 
   imeasures=m.imeasures;
 
@@ -357,9 +358,10 @@ void FC_nonp::update_IWLS(void)
 
   designp->compute_partres(partres,beta);
   designp->compute_XtransposedWX();
-  designp->compute_XtransposedWres(partres,lambda);
+  designp->compute_XtransposedWres(partres,lambda,multZ_value);
 
-  designp->compute_precision(lambda);
+  double v2 = multZ_value*multZ_value;
+  designp->compute_precision(v2,lambda);
 
 //  bool error = designp->precision.decomp_save();
 
@@ -387,7 +389,7 @@ void FC_nonp::update_IWLS(void)
     double qold = 0.5*designp->precision.getLogDet()-
                 0.5*designp->precision.compute_quadform(paramhelp,0);
 
-    designp->compute_f(param,paramlin,beta,fsample.beta);
+    designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
 
     betadiff.minus(beta,betaold);
 
@@ -415,9 +417,9 @@ void FC_nonp::update_IWLS(void)
 
       designp->compute_partres(partres,beta);
       designp->compute_XtransposedWX();
-      designp->compute_XtransposedWres(partres,lambda);
+      designp->compute_XtransposedWres(partres,lambda,multZ_value);
 
-      designp->compute_precision(lambda);
+      designp->compute_precision(v2,lambda);
 
       designp->precision.solve(*(designp->XWres_p),paramhelp);
 
@@ -535,7 +537,7 @@ void FC_nonp::update_gaussian_transform(void)
 
   designp->compute_partres(partres,beta);
 
-  designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWres(partres, lambda, multZ_value);
 
   designp->u.mult(designp->QtRinv,*(designp->XWres_p));
 
@@ -557,7 +559,7 @@ void FC_nonp::update_gaussian_transform(void)
 
   perform_centering();
 
-  designp->compute_f(param,paramlin,beta,fsample.beta);
+  designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
 
   betadiff.minus(beta,betaold);
 
@@ -641,7 +643,7 @@ void FC_nonp::update_gaussian(void)
        )
        designp->compute_XtransposedWX();
 
-    designp->compute_XtransposedWres(partres, lambda);
+    designp->compute_XtransposedWres(partres, lambda, multZ_value);
 
     if ((likep->wtype==wweightschange_weightsneqone) ||
         (likep->wtype==wweightschange_weightsone) ||
@@ -649,7 +651,8 @@ void FC_nonp::update_gaussian(void)
         (!lambdaconst)
         )
       {
-      designp->compute_precision(lambda);
+      double v2 = multZ_value*multZ_value;
+      designp->compute_precision(v2,lambda);
       }
 
     double * work = paramhelp.getV();
@@ -664,7 +667,7 @@ void FC_nonp::update_gaussian(void)
 
     perform_centering();
 
-    designp->compute_f(param,paramlin,beta,fsample.beta);
+    designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
 
     if (derivative)
       designp->compute_f_derivative(param,paramlin,derivativesample.beta,
@@ -755,7 +758,7 @@ void FC_nonp::update_isotonic(void)
      )
     designp->compute_XtransposedWX();
 
-  designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWres(partres, lambda, multZ_value);
 
   if ((likep->wtype==wweightschange_weightsneqone) ||
       (likep->wtype==wweightschange_weightsone) ||
@@ -763,7 +766,8 @@ void FC_nonp::update_isotonic(void)
       (!lambdaconst)
       )
     {
-    designp->compute_precision(lambda);
+    double v2 = multZ_value*multZ_value;
+    designp->compute_precision(v2,lambda);
     }
 
   int count = 0;
@@ -846,7 +850,7 @@ void FC_nonp::update_isotonic(void)
 
   perform_centering();
 
-  designp->compute_f(param,paramlin,beta,fsample.beta);
+  designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
 
   betadiff.minus(beta,betaold);
 
@@ -909,7 +913,7 @@ bool FC_nonp::posteriormode_transform(void)
     acuteparam = datamatrix(param.rows(),1,0);
     }
 
-  designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWres(partres, lambda, multZ_value);
 
   designp->u.mult(designp->QtRinv,*(designp->XWres_p));
 
@@ -934,7 +938,7 @@ bool FC_nonp::posteriormode_transform(void)
     }
 
 
-  designp->compute_f(param,paramlin,beta,fsample.beta);
+  designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
 
   betadiff.minus(beta,betaold);
 
@@ -974,9 +978,10 @@ bool FC_nonp::posteriormode(void)
 
     designp->compute_XtransposedWX();
 
-    designp->compute_XtransposedWres(partres, lambda);
+    designp->compute_XtransposedWres(partres, lambda, multZ_value);
 
-    designp->compute_precision(lambda);
+    double v2 = multZ_value*multZ_value;
+    designp->compute_precision(v2,lambda);
 
     designp->precision.solve(*(designp->XWres_p),param);
 
@@ -996,7 +1001,7 @@ bool FC_nonp::posteriormode(void)
       get_linparam();
       }
 
-    designp->compute_f(param,paramlin,beta,fsample.beta);
+    designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
 
     betadiff.minus(beta,betaold);
 

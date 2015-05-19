@@ -83,8 +83,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   public:
 
-  bool multf;
-  double multf_value;
+  bool multZ;
+  double multZ_value;
 
   datamatrix betaold;
 

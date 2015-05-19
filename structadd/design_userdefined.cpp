@@ -32,7 +32,7 @@ namespace MCMC
 //------------------------------------------------------------------------------
 
 void DESIGN_userdefined::compute_f(datamatrix & beta,datamatrix & betalin,
-                       datamatrix & f, datamatrix & ftot)
+                       datamatrix & f, datamatrix & ftot,double v)
   {
   unsigned i,j;
 
@@ -46,6 +46,18 @@ void DESIGN_userdefined::compute_f(datamatrix & beta,datamatrix & betalin,
       *workf += Zout2[i][j]*beta(index_Zout2[i][j],0);
       }
     }
+
+
+  if (v != 1)
+    {
+    unsigned i;
+    double * fp = f.getV();
+    for (i=0;i<f.rows();i++,fp++)
+      *fp *= v;
+
+    }
+
+
   }
 
 void DESIGN_userdefined::read_options(vector<ST::string> & op,
@@ -222,7 +234,7 @@ void DESIGN_userdefined::init_data(datamatrix & dm, datamatrix & iv)
   }
 
 
-void DESIGN_userdefined::compute_precision(double l)
+void DESIGN_userdefined::compute_precision(double v, double l)
   {
   if (precisiondeclared==false)
     {
@@ -231,7 +243,7 @@ void DESIGN_userdefined::compute_precision(double l)
     }
 
 
-  precision.addto(XWX,K,1.0,l);
+  precision.addto(XWX,K,v,l);
 
   //ofstream out("c:\\temp\\K.res");
   //K.print2(out);
@@ -482,7 +494,7 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
   compute_XtransposedWX();
   XWres = datamatrix(nrpar,1);
 
-  compute_precision(1.0);
+  compute_precision(1.0,1.0);
   compute_basisNull();
   }
 
