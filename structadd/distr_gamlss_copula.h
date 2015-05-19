@@ -112,6 +112,86 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_gamlss
 
   };
 
+//------------------------------------------------------------------------------
+//-------------------------- CLASS: DISTR_clayton_copula --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_clayton_copula : public DISTR_gamlss
+  {
+
+  protected:
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  public:
+  datamatrix response1;
+  datamatrix response2;
+  double * response1p;
+  double * response2p;
+
+  double * linpredp;
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_clayton_copula(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_clayton_copula(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_clayton_copula(const DISTR_clayton_copula & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_clayton_copula & operator=(const DISTR_clayton_copula & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_clayton_copula() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  //vector<double> derivative(double & F, int & copulapos);
+
+  vector<double> derivative(double & F1, double & F2, double * linpred);
+
+  vector<double> logc(double & F, int & copulapos, const bool & deriv);
+
+  double logc(double & F1, double & F2, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
 } // end: namespace MCMC
 
 

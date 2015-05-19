@@ -318,7 +318,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("sfa2_mu_y_id");
   families.push_back("copulas");
   families.push_back("tcopula");
-  families.push_back("gausscopula");
+  families.push_back("gauss_copula");
+  families.push_back("clayton_copula");
   families.push_back("gaussiancopula");
   families.push_back("frankcopula");
   families.push_back("frankcopula_rho");
@@ -883,6 +884,9 @@ void superbayesreg::clear(void)
   distr_claytoncopula_rhos.erase(distr_claytoncopula_rhos.begin(),distr_claytoncopula_rhos.end());
   distr_claytoncopula_rhos.reserve(20);
 
+  distr_clayton_copulas.erase(distr_clayton_copulas.begin(),distr_clayton_copulas.end());
+  distr_clayton_copulas.reserve(20);
+
   distr_claytoncopula2_rhos.erase(distr_claytoncopula2_rhos.begin(),distr_claytoncopula2_rhos.end());
   distr_claytoncopula2_rhos.reserve(20);
 
@@ -1230,6 +1234,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
   distr_gaussiancopula_dagum_ps = b.distr_gaussiancopula_dagum_ps;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
+  distr_clayton_copulas = b.distr_clayton_copulas;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
   distr_claytoncopula2_normal_sigma2s = b.distr_claytoncopula2_normal_sigma2s;
@@ -1440,6 +1445,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
   distr_gaussiancopula_dagum_ps = b.distr_gaussiancopula_dagum_ps;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
+  distr_clayton_copulas = b.distr_clayton_copulas;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
   distr_claytoncopula2_normal_sigma2s = b.distr_claytoncopula2_normal_sigma2s;
@@ -5116,7 +5122,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: gaussiancopula_rhofz ---------------------
 
 //----------------------------- gausscopula --------------------------------
-  else if ((family.getvalue() == "gausscopula") && (equationtype.getvalue()=="rho"))
+  else if ((family.getvalue() == "gauss_copula") && (equationtype.getvalue()=="rho"))
     {
 
     mainequation=true;
@@ -5171,6 +5177,64 @@ bool superbayesreg::create_distribution(void)
         }
     }
 //-------------------------- END: gausscopula---------------------------
+
+
+//----------------------------- clayton_copula --------------------------------
+  else if ((family.getvalue() == "clayton_copula") && (equationtype.getvalue()=="rho"))
+    {
+
+    mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_clayton_copulas.push_back(DISTR_clayton_copula(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_clayton_copulas[distr_gausscopulas.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((countmarginal != 2))
+      {
+      outerror("ERROR: Two equations for marginal distributions required or family not implemented yet");
+      return true;
+      }
+
+     predict_mult_distrs.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+     if(distr_weibull_lambdas.size()>0)
+       {
+       int coi;
+       for(coi=0;coi<distr_weibull_lambdas.size();coi++)
+         {
+         predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
+         predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
+
+         distr_clayton_copulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+
+         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+         if(distr_weibull_lambdas[coi].get_copulapos()==0)
+           {
+           distr_clayton_copulas[distr_clayton_copulas.size()-1].response2 = distr_weibull_lambdas[coi].response;
+           }
+         else if(distr_weibull_lambdas[coi].get_copulapos()==1)
+           {
+           distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_weibull_lambdas[coi].response;
+           }
+         else
+           {
+           outerror("ERROR: Two equations for marginal distributions required");
+           return true;
+           }
+         }
+       }
+      else
+        {
+        outerror("ERROR: family not implemented or something else wrong");
+        return true;
+        }
+    }
+//-------------------------- END: clayton_copula---------------------------
 
 
 // ----------------------------------- tcopula_df ----------------------
