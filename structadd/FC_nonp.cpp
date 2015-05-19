@@ -184,7 +184,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   {
 
   multZ=m.multZ_value;
-  multZ_value=multZ_value;
+  multZ_value=m.multZ_value;
 
   imeasures=m.imeasures;
 
@@ -242,7 +242,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   FC::operator=(FC(m));
 
   multZ=m.multZ;
-  multZ_value=multZ_value;
+  multZ_value=m.multZ_value;
 
   imeasures=m.imeasures;
 
@@ -341,6 +341,9 @@ void FC_nonp::update_IWLS(void)
   double * workparam;
 
 //  lambda = likep->get_scale()/tau2;
+  // check
+//  tau2=1;
+//  multZ_value=5;
   lambda = 1/tau2;
 
   if (optionsp->nriter == 1)
@@ -356,6 +359,7 @@ void FC_nonp::update_IWLS(void)
   double logold = likep->compute_iwls(true,true);
   logold -= 0.5*paramKparam*lambda;
 
+  designp->compute_f(param,paramlin,beta,fsample.beta,multZ_value);
   designp->compute_partres(partres,beta);
   designp->compute_XtransposedWX();
   designp->compute_XtransposedWres(partres,lambda,multZ_value);
@@ -964,7 +968,7 @@ bool FC_nonp::posteriormode_transform(void)
 
 bool FC_nonp::posteriormode(void)
   {
-
+/*
   if (orthogonal)
     return posteriormode_transform();
   else
@@ -1039,8 +1043,8 @@ bool FC_nonp::posteriormode(void)
                                 meaneffectconstant);
 
     return FC::posteriormode();
-    }
-
+    }*/
+  return true;
   }
 
 void FC_nonp::outoptions(void)

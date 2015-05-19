@@ -832,7 +832,7 @@ void FC_nonp_variance_varselection::update(void)
       // compute X = tauold*(design matrix * scaled regression coefficients)=tauold*(Z*tilde beta)
       FCnonpp->designp->compute_effect(X,FCnonpp->beta);
 
-      // for FC of tau we need Z*tilde beta -> devide by tauold.
+      // for FC of tau we need Z*tilde beta -> divide by tauold.
       double * Xp = X.getV();
       for(i=0; i<X.rows(); i++, Xp++)
         {
@@ -909,7 +909,7 @@ void FC_nonp_variance_varselection::update(void)
       // standardise tau and tilde gamma to achieve identifiability
       // a la Scheipl et al.
       // in betap we have tilde beta!!
-      double * paramp = FCnonpp->param.getV();
+/*      double * paramp = FCnonpp->param.getV();
       double helpsum=0.0;
       for(i=0; i<FCnonpp->param.rows(); i++, paramp++)
         {
@@ -920,13 +920,14 @@ void FC_nonp_variance_varselection::update(void)
       paramp = FCnonpp->param.getV();
       for(i=0; i<FCnonpp->param.rows(); i++, paramp++)
         {
-        *paramp *= tauprop/(helpsum);
+        *paramp *= 1/(helpsum);
         }
       tauprop *= helpsum;
 
-      tau2 = tauprop*tauprop;
+      tau2 = tauprop*tauprop;*/
 
-      FCnonpp->tau2 = tau2;
+      FCnonpp->tau2 = 1;
+      FCnonpp->multZ_value = tauprop;
 
       tauold = tauprop;
       beta(0,0) = tau2;
@@ -942,8 +943,7 @@ void FC_nonp_variance_varselection::update(void)
 
     // end: updating tau2
 
-      FC::update();
-
+    FC::update();
     }
   else
     {

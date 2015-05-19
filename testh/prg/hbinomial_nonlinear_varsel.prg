@@ -19,7 +19,7 @@ logopen using c:\bayesx\trunk\testh\results\binomial_nonlinear_varsel.log
 b.outfile = c:\bayesx\trunk\testh\results\binomial_nonlinear_varsel
 
 %b.hregress ybin = const + x1(pspline,lambda=100,prior=ssvs)+ x2(pspline,lambda=100,prior=ssvs)+ x3(pspline,lambda=100,prior=ssvs), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light using d
-b.hregress ybin = const + x1(pspline,lambda=100,prior=ssvs), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light using d
+b.hregress ybin = const + x1(pspline,lambda=100), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light using d
 
 b.getsample
 

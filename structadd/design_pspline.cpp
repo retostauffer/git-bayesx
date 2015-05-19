@@ -772,8 +772,6 @@ void DESIGN_pspline::compute_precision(double v, double l)
     precisiondeclared = true;
     }
 
-//cout << l << endl;
-
   precision.addto(XWX,K,v,l);
 
   // ofstream out("c:\\temp\\precision_pspline.res");
