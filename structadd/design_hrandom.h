@@ -99,9 +99,9 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void compute_penalty2(const datamatrix & pen);
 
-  void compute_XtransposedWres(datamatrix & partres, double l, double v);
+  void compute_XtransposedWres(datamatrix & partres, double l);
 
-  void compute_precision(double v, double l);
+  void compute_precision(double l);
 
   void compute_meaneffect(DISTR * level1_likep,double & meaneffect,
                           datamatrix & beta,datamatrix & meaneffectbeta,

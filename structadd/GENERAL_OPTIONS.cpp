@@ -165,7 +165,7 @@ void GENERAL_OPTIONS::out(const ST::string & s,bool thick,bool italic,
   if (!(logout->fail()))
     (*logout) << s << flush;
 #else
-  cout << s << flush;
+  cout << s;
   if (!(logout->fail()))
     (*logout) << s << flush;
 #endif

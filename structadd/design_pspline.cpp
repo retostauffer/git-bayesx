@@ -209,7 +209,7 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
   Wsum =datamatrix(posbeg.size(),1,1);
   XWres = datamatrix(nrpar,1);
 
-  compute_precision(1.0,1.0);
+  compute_precision(1.0);
 
   compute_basisNull();
 
@@ -653,7 +653,7 @@ void DESIGN_pspline::compute_basisNull(void)
     }
   else if (centermethod==cmeaninvvar)
     {
-    compute_precision(1.0,10);
+    compute_precision(10);
 
     envmatdouble precisioninv;
     precisioninv = envmatdouble(0.0,nrpar,degree>2?degree:2);
@@ -764,7 +764,7 @@ void DESIGN_pspline::compute_basisNull(void)
 
 
 
-void DESIGN_pspline::compute_precision(double v, double l)
+void DESIGN_pspline::compute_precision(double l)
   {
   if (precisiondeclared==false)
     {
@@ -772,7 +772,9 @@ void DESIGN_pspline::compute_precision(double v, double l)
     precisiondeclared = true;
     }
 
-  precision.addto(XWX,K,v,l);
+//cout << l << endl;
+
+  precision.addto(XWX,K,1.0,l);
 
   // ofstream out("c:\\temp\\precision_pspline.res");
   // precision.print2(out);

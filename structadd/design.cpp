@@ -809,7 +809,7 @@ double DESIGN::compute_ZtZ(unsigned & i, unsigned & j)
   }
 
 
-void DESIGN::compute_XtransposedWres(datamatrix & partres, double l, double v)
+void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
   {
 
   unsigned i,j;
@@ -864,7 +864,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l, double v)
       for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
         {
 //      *workXWres += ZoutT[i][j]* partres(index_ZoutT[i][j],0);
-        *workXWres+= v*(*wZoutT)* partres(*wZoutT_index,0);
+        *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
         }
       }
     }
@@ -881,7 +881,7 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l, double v)
       for (j=0;j<size;j++,++wZoutT,wpartres++)
         {
 //      *workXWres += ZoutT[i][j]* partres(index_ZoutT[i][j],0);
-        *workXWres+= v*(*wZoutT)* (*wpartres);
+        *workXWres+= (*wZoutT)* (*wpartres);
         }
       }
 
@@ -1099,7 +1099,7 @@ void DESIGN::set_intvar(datamatrix & iv,double add)
 
 
 void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
-                       datamatrix & f, datamatrix & ftot,double v)
+                       datamatrix & f, datamatrix & ftot)
   {
 
   if (identity)
@@ -1161,17 +1161,6 @@ void DESIGN::compute_f(datamatrix & beta,datamatrix & betalin,
       }
 
     }
-
-
-  if (v != 1)
-    {
-    unsigned i;
-    double * fp = f.getV();
-    for (i=0;i<f.rows();i++,fp++)
-      *fp *= v;
-
-    }
-
 
   // TEST
 
@@ -1323,7 +1312,7 @@ void DESIGN::compute_f_derivative(datamatrix & beta,datamatrix & betalin,
 
 
 
-void DESIGN::compute_precision(double v, double l)
+void DESIGN::compute_precision(double l)
   {
 
   }

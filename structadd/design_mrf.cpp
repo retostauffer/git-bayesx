@@ -118,7 +118,7 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
     XWres = datamatrix(nrpar,1);
     Wsum = datamatrix(nrpar,1,1);
 
-    compute_precision(1.0, 1.0);
+    compute_precision(1.0);
 
     compute_basisNull();
 
@@ -304,21 +304,13 @@ void DESIGN_mrf::compute_basisNull(void)
   }
 
 
-void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l,double v)
+void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
   {
-  if (v != 1)
-    {
-    unsigned i;
-    double * partresp = partres.getV();
-    for(i=0;i<partres.rows();i++,partresp++)
-      *partresp *= v;
-    }
-
   XWres_p = &partres;
   }
 
 
-void DESIGN_mrf::compute_precision(double v, double l)
+void DESIGN_mrf::compute_precision(double l)
   {
 
   if (precisiondeclared==false)
@@ -327,7 +319,7 @@ void DESIGN_mrf::compute_precision(double v, double l)
     precisiondeclared = true;
     }
 
-  precision.addtodiag(XWX,K,v,l);
+  precision.addtodiag(XWX,K,1.0,l);
 
   /*
   // TEST

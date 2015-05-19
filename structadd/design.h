@@ -299,7 +299,7 @@ class __EXPORT_TYPE DESIGN
   //       the different observations in data
 
   virtual void compute_f(datamatrix & beta,datamatrix & betalin,
-                       datamatrix & f, datamatrix & ftot,double v);
+                       datamatrix & f, datamatrix & ftot);
 
   // FUNCTION: compute_effect
   // TASK: computes the effect vector
@@ -354,7 +354,7 @@ class __EXPORT_TYPE DESIGN
   // FUNCTION: computes XWres
   // TASK: computes XWres, res is the partial residual
 
-  virtual void compute_XtransposedWres(datamatrix & partres, double l,double v);
+  virtual void compute_XtransposedWres(datamatrix & partres, double l);
 
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual
@@ -369,7 +369,7 @@ class __EXPORT_TYPE DESIGN
                                 bool computemeaneffect,double meaneffectconstant);
 
 
-  virtual void compute_precision(double v,double l);
+  virtual void compute_precision(double l);
 
   // FUNCTION: read_options
   // TASK: reads options and initializes varnames stored in datanames
