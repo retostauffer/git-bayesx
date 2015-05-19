@@ -273,7 +273,7 @@ spline_basis::spline_basis(MCMCoptions * o, DISTRIBUTION * dp,
   : FULLCOND_nonp_basis(o,dp,ft,ti,fp,pres,c)
   {
 
-  // ASAN/UBSAN checks
+  //    /UBSAN checks
   refcheck=false;
   // end: ASAN/UBSAN checks
 
@@ -1467,8 +1467,8 @@ void spline_basis::add_linearpred_multBS(const bool & current)
     {
     stop = lastnonzero[k];
 // ASAN / UBSAN checks
-//    while (i <= stop)
-    while (i < stop)
+    while (i <= stop)
+//    while (i < stop)
 // end: ASAN / UBSAN checks
       {
       workbeta = beta.getV() + k;
@@ -1483,10 +1483,13 @@ void spline_basis::add_linearpred_multBS(const bool & current)
         workbeta -= col;
         }
       i++;
-      freqwork++;
-      workindex2++;
-      workspline += *workindex2;
-      lp += *workindex2*lpcols;
+//      if(i<=stop)
+        {
+        freqwork++;
+        workindex2++;
+        workspline += *workindex2;
+        lp += *workindex2*lpcols;
+        }
       }
     k++;
     }
@@ -2544,14 +2547,14 @@ void spline_basis::compute_XWX(const datamatrix & weight)
             *workupper += *(workBS+j) * *workweight * *(workBS+k);
           l++;
 // ASAN/UBSAN checks
-          if ( l >= stop ) break;
-
           freqwork++;
           workBS += BScols*(*freqwork-*(freqwork-1));
-          workindex2++;
-          workweight += *workindex2;
+          if(l<=stop)
+            {
+            workindex2++;
+            workweight += *workindex2;
+            }
           }
-
         }
       }
     }
@@ -2622,11 +2625,13 @@ void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
               *workupper += *(workBS+j) * *workweight * *(workBS+k);
             l++;
 // ASAN/UBSAN checks
-            if ( l >= stop ) break;
             freqwork++;
             workBS += BScols*(*freqwork-*(freqwork-1));
-            workindex2++;
-            workweight += *workindex2*weightcols;
+            if (l <= stop )
+              {
+              workindex2++;
+              workweight += *workindex2*weightcols;
+              }
             }
 
           }
@@ -2719,12 +2724,14 @@ void spline_basis::compute_XWXenv_XWtildey(const datamatrix & weight, const doub
               }
             l++;
 // ASAN/UBSAN checks
-            if ( l >= stop ) break;
             freqwork++;
             workBS += BScols*(*freqwork-*(freqwork-1));
-            workindex2++;
-            workweight += *workindex2*weightcols;
-            workmu += *workindex2;
+            if (l<=stop)
+              {
+              workindex2++;
+              workweight += *workindex2*weightcols;
+              workmu += *workindex2;
+              }
             }
           }
         }
@@ -2815,12 +2822,14 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const double & sc
           *workmuy2 += *workBS * *workweight * *workmu;
           l++;
 // ASAN/UBSAN checks
-          if ( l >= stop ) break;
           freqwork++;
-          workindex2++;
-          workweight += *workindex2;
-          workmu += *workindex2;
           workBS += BScols*(*freqwork - *(freqwork-1));
+          if (l<=stop)
+            {
+            workindex2++;
+            workweight += *workindex2;
+            workmu += *workindex2;
+            }
           }
         }
       }
@@ -2880,12 +2889,14 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const datamatrix 
           *workmuy2 += *workBS * *workweight * *workmu;
           l++;
 // ASAN/UBSAN checks
-          if ( l >= stop ) break;
           freqwork++;
-          workindex2++;
-          workweight += *workindex2*weightcols;
-          workmu += *workindex2;
           workBS += BScols*(*freqwork - *(freqwork-1));
+          if (l <= stop )
+            {
+            workindex2++;
+            workweight += *workindex2*weightcols;
+            workmu += *workindex2;
+            }
           }
         }
       }
