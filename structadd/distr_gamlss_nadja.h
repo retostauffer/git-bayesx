@@ -1185,6 +1185,8 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
   double cdf(const double & resp, const double & linpred);
 
+  double cdf(const double & resp, vector<double *>  linpred);
+
   double logpdf(const double & resp);
 
   double cdf_mult(vector<double *> response,
@@ -5098,7 +5100,7 @@ class __EXPORT_TYPE DISTR_bivprobit2_mu : public DISTR_gamlss
 
   void outoptions(void);
 
-  //void update(void);
+  //"void update(void);
 
   void update_end(void);
 

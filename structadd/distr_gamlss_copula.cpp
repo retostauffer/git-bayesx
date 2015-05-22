@@ -86,8 +86,7 @@ double DISTR_gausscopula::get_intercept_start(void)
 
 void DISTR_gausscopula::compute_param_mult(vector<double *>  linpred,double * param)
   {
-// check
-  *param = (*linpred[2]) / pow(1+ pow((*linpred[2]), 2), 0.5);
+  *param = (*linpred[0]) / pow(1+ pow((*linpred[0]), 2), 0.5);
   }
 
 void DISTR_gausscopula::set_worklin(void)
@@ -113,25 +112,96 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
                              double * deviance,
                              vector<datamatrix*> aux)
   {
-   if (*weight[0] == 0)
+/*  cout << linpred.size() << endl;
+  cout << response.size() << endl;
+  cout << *weight[(linpred.size()-1)] << endl;
+  cout << (*linpred[(linpred.size()-1)]) <<endl;*/
+   if ((*weight[0] == 0) || (*weight[weight.size()-2] == 0))
      *deviance=0;
    else
      {
-     double rho = (*linpred[0]) / pow(1 + pow((*linpred[0]), 2), 0.5);
-     if (*linpred[0] <= -100)
+ /*    cout << (*response[(response.size()-1)]) <<endl;
+     cout << (*response[(response.size()-2)]) <<endl;
+     cout << (*response[(response.size()-3)]) <<endl;
+     cout << (*response[(response.size()-4)]) <<endl;
+     cout << (*response[(response.size()-5)]) <<endl;*/
+     double rho = (*linpred[(linpred.size()-1)]) / pow(1 + pow((*linpred[(linpred.size()-1)]), 2), 0.5);
+  //   cout << rho <<endl;
+     if (*linpred[(linpred.size()-1)] <= -100)
         rho  = -0.99995;
-     else if (*linpred[0] >= 100)
+     else if (*linpred[(linpred.size()-1)] >= 100)
         rho  = 0.99995;
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true));
-     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
+   //  double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true));
+   //  double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
+ //    cout << "phiinvu: " << randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true)) <<endl;
+ //    cout << "phiinvv: " << randnumbers::invPhi2(distrp[0]->cdf(*response[0],true)) <<endl;
+    /* cout << "linpred: " << (*linpred[(linpred.size()-1)]) <<endl;
+     cout << "rho: " << rho <<endl;
+     cout << "orho: " << orho <<endl;
+     cout << "pdf(y1): " << distrp[1]->logpdf(*response[response.size()-2]) <<endl;
+     cout << "pdf(y2): " << distrp[0]->logpdf(*response[0]) <<endl;*/
+     int s1 = dynamic_cast<DISTR_gamlss *>(distrp[1])->distrp.size();
+     int s2 = dynamic_cast<DISTR_gamlss *>(distrp[0])->distrp.size();
+    // cout << "s1: " << s1 <<endl;
+    // cout << "s2: " << s2 <<endl;
+    vector<double*> linpredvec1;
+    vector<double*> responsevec1;
+    vector<double*> weightvec1;
+    vector<double*> linpredvec2;
+    vector<double*> responsevec2;
+    vector<double*> weightvec2;
+
+  //  vector<double> linpredvecval1;
+  //  vector<double> linpredvecval2;
+
+    int j;
+    for (j=0;j<(s2+1);j++)
+      {
+      linpredvec2.push_back(linpred[j]);
+      weightvec2.push_back(weight[j]);
+      responsevec2.push_back(response[j]);
+      }
+    int k;
+    for (k=0;k<(s1+1);k++)
+      {
+      linpredvec1.push_back(linpred[s2+1+k]);
+      weightvec1.push_back(weight[s2+1+k]);
+      responsevec1.push_back(response[s2+1+k]);
+      }
+/*    for (j=0;j<(s2+1);j++)
+      {
+      linpredvecval2.push_back(*linpredvec2[j]);
+      }
+    for (k=0;k<(s1+1);k++)
+      {
+      linpredvecval1.push_back(*linpredvec1[s2+1+k]);
+      }*/
+    double d1;
+    double d2;
+    distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
+    distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
+
+    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
+    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+
+ //   cout << "phiinvu: " << phinvu <<endl;
+ //    cout << "phiinvv: " << phinvv <<endl;
+
+ /*   cout << "resp1 0 : " << *responsevec1[0] <<endl;
+    cout << "resp1 1 : " << *responsevec1[1] <<endl;
+    cout << "resp2 0 : " << *responsevec2[0] <<endl;
+    cout << "resp2 1 : " << *responsevec2[1] <<endl;
+    cout << "d1 : " << d1 <<endl;
+    cout << "d2 : " << d2 <<endl;*/
+
      double l;
 
-      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho
-           +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
+      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho +d1+d2;
+         //  +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
 
-
+    // cout << "l: " << l <<endl;
     *deviance = -2*l;
     }
 
@@ -364,7 +434,7 @@ double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_clayton_copula --------------------
+//------------------------- CLASS: DISTR_clayton_copula ------------------------
 //------------------------------------------------------------------------------
 void DISTR_clayton_copula::check_errors(void)
   {
@@ -381,13 +451,13 @@ DISTR_clayton_copula::DISTR_clayton_copula(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,2,w)
   {
-  family = "Gauss Copula - rho";
+  family = "Claytoncopula - rho";
 
   outpredictor = true;
   outexpectation = true;
   predictor_name = "rho";
-    linpredminlimit=-100;
-  linpredmaxlimit=100;
+  linpredminlimit=-10;
+  linpredmaxlimit=15;
   check_errors();
   }
 
@@ -425,8 +495,7 @@ double DISTR_clayton_copula::get_intercept_start(void)
 
 void DISTR_clayton_copula::compute_param_mult(vector<double *>  linpred,double * param)
   {
-// check
-  *param = (*linpred[2]) / pow(1+ pow((*linpred[2]), 2), 0.5);
+  *param = exp((*linpred[0]));
   }
 
 void DISTR_clayton_copula::set_worklin(void)
@@ -456,20 +525,19 @@ void DISTR_clayton_copula::compute_deviance_mult(vector<double *> response,
      *deviance=0;
    else
      {
-     double rho = (*linpred[0]) / pow(1 + pow((*linpred[0]), 2), 0.5);
-     if (*linpred[0] <= -100)
-        rho  = -0.99995;
-     else if (*linpred[0] >= 100)
-        rho  = 0.99995;
+     double rho = exp((*linpred[(linpred.size()-1)]));
 
-     double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true));
-     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
+     double u = distrp[1]->cdf(*response[response.size()-2],true);
+     double v = distrp[0]->cdf(*response[0],true);
+     double logu = log(u);
+     double logv = log(v);
+     double urho = pow(u, -rho);
+     double vrho = pow(v, -rho);
+     double arg = urho + vrho - 1;
      double l;
 
-      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho
-           +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
-
+     l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg)
+         +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
 
     *deviance = -2*l;
     }
@@ -479,28 +547,21 @@ void DISTR_clayton_copula::compute_deviance_mult(vector<double *> response,
 double DISTR_clayton_copula::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
- /* if(counter<=3)
-    {
-    cout << "DISTR_clayton_copula::loglikelihood_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
-   if (counter==0)
+  if (counter==0)
     {
     set_worklin();
     }
-    double rho = (*linpred) / pow(1 + pow((*linpred), 2), 0.5);
-    if (*linpred <= -100)
-        rho  = -0.99995;
-    else if (*linpred >= 100)
-        rho  = 0.99995;
+  double rho = exp((*linpred));
+  double u = distrp[1]->cdf(*response1p,true);
+  double v = distrp[0]->cdf(*response2p,true);
+  double logu = log(u);
+  double logv = log(v);
+  double urho = pow(u, -rho);
+  double vrho = pow(v, -rho);
+  double arg = urho + vrho - 1;
+  double l;
 
-    double orho = 1 - pow(rho, 2);
-    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
-    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
-
-    double l;
-
-    l = - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+  l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
 
   modify_worklin();
 
@@ -516,36 +577,31 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
                                               double & like,
                                               const bool & compute_like)
   {
-
- /*  if(counter<=3)
-    {
-    cout << "DISTR_clayton_copula::compute_iwls_wweightschange_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
- if (counter==0)
+  if (counter==0)
     {
     set_worklin();
     }
-  double hilfs = pow(1 + pow((*linpred), 2), 0.5);
-  double rho = (*linpred) / hilfs;
-  if (*linpred <= -100)
-      rho  = -0.99995;
-  else if (*linpred >= 100)
-      rho  = 0.99995;
+  double rho = exp((*linpred));
+  double u = distrp[1]->cdf(*response1p,true);
+  double v = distrp[0]->cdf(*response2p,true);
+  double logu = log(u);
+  double logv = log(v);
+  double urho = pow(u, -rho);
+  double vrho = pow(v, -rho);
+  double arg = urho + vrho - 1;
 
-  double orho = 1 - pow(rho, 2);
-  double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
-  double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
+  double nu = rho / (rho + 1) - rho * (logu + logv) + log(arg) / rho + (2 * rho + 1) * (logu * urho + logv * vrho) / arg;
+  *workingweight = -rho / pow(rho + 1, 2) + rho * (logu + logv) + log(arg) / rho + (1 - 2 * rho) * (logu * urho + logv * vrho) / arg
+                        - ((pow(rho, 2) * (2 + 1 / rho)) / (arg)) * (pow((logu * urho + logv * vrho), 2) / arg - pow(logu, 2) * urho - pow(logv, 2) * vrho );
 
-  double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phinvu * phinvv) - (*linpred) * (pow(phinvu, 2) + pow(phinvv, 2));
-
-  *workingweight = 1 - pow(rho, 4);
+  if((*workingweight) <= 0)
+    *workingweight = 0.0001;
 
   *workingresponse = *linpred + nu/(*workingweight);
 
   if (compute_like)
     {
-    like += - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+    like += log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
     }
 
   modify_worklin();
@@ -554,7 +610,8 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
 
 void DISTR_clayton_copula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = 2 * std::asin((*linpred[predstart_mumult]) / (pow(1 + pow((*linpred[predstart_mumult]), 2), 0.5))) / PI ;
+  double arg = exp((*linpred[predstart_mumult]));
+  *mu = arg / (arg + 2);
   }
 
 
@@ -583,36 +640,13 @@ void DISTR_clayton_copula::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    *pmu = (*worklin) / pow(1 + pow((*worklin), 2), 0.5);
+    *pmu = exp(*worklin);
     }
 
   }
-
-/*vector<double> DISTR_clayton_copula::derivative(double & F, int & copulapos)
-  {
-
-  double Fa;
-  if(copulapos==0)
-    {
-    Fa = distrp[1]->cdf(*response1p,false);
-    }
-  else
-    {
-    Fa = distrp[0]->cdf(*response2p,false);
-    }
-    //only works when copula is symmetric in its arguments!!
-    return derivative(F, Fa, linpredp);
-  }
-*/
 
 vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double * linpred)
   {
- /*  if(counter<=3)
-    {
-    cout << "DISTR_clayton_copula::derivative\n";
-    cout << "counter " << counter << "\n";
-    }*/
-
   vector<double> res;
 //////////////////////////////////////////////////////////
 
@@ -636,11 +670,6 @@ vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double
 
 vector<double> DISTR_clayton_copula::logc(double & F, int & copulapos, const bool & deriv)
   {
- /* if(counter<=3)
-    {
-    cout << "DISTR_clayton_copula::logc(double & F, int & copulapos, const bool & deriv)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   if (counter==0)
     {
     if (linpred_current==1)
@@ -689,11 +718,6 @@ vector<double> DISTR_clayton_copula::logc(double & F, int & copulapos, const boo
 
 double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
   {
- /* if(counter<=3)
-    {
-    cout << "DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
   double phiinvu = randnumbers::invPhi2(F1);
   double phiinvv = randnumbers::invPhi2(F2);
