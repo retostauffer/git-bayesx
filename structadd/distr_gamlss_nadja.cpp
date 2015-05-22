@@ -3532,25 +3532,27 @@ double DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)
   return res;
   }
 
-double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
+/*double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
   {
- /* if(counter<=3)
-    {
-    cout << "DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)\n";
-    cout << "counter " << counter << "\n";
-    }*/
+ // if(counter<=3)
+ //   {
+ //   cout << "DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)\n";
+ //   cout << "counter " << counter << "\n";
+ //   }
   double res,lambda,alpha;
   lambda = exp(*linpred[1]);
   alpha = exp(*linpred[0]);;//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
   return res;
   }
+*/
 
 double DISTR_weibull_lambda::logpdf(const double & resp)
   {
   if(counter==0)
     {
     set_worklin();
+
     if (linpred_current==1)
       linpredp = linearpred1.getV();
     else

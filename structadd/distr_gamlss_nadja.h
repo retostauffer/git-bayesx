@@ -1185,7 +1185,7 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
   double cdf(const double & resp, const double & linpred);
 
-  double cdf(const double & resp, vector<double *>  linpred);
+  //double cdf(const double & resp, vector<double *>  linpred);
 
   double logpdf(const double & resp);
 
