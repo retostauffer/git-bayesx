@@ -133,8 +133,8 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
         rho  = 0.99995;
 
      double orho = 1 - pow(rho, 2);
-     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true));
-     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
+   //  double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true));
+   //  double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],true));
  //    cout << "phiinvu: " << randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],true)) <<endl;
  //    cout << "phiinvv: " << randnumbers::invPhi2(distrp[0]->cdf(*response[0],true)) <<endl;
     /* cout << "linpred: " << (*linpred[(linpred.size()-1)]) <<endl;
@@ -183,8 +183,8 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
     distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
     distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
 
-  //  double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
-  //  double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
+    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
 
  //   cout << "phiinvu: " << phinvu <<endl;
  //    cout << "phiinvv: " << phinvv <<endl;
@@ -198,11 +198,11 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho //+d1+d2;
-           +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
+      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho; //+d1+d2;
+          // +distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
 
     // cout << "l: " << l <<endl;
-    *deviance = -2*l;//+d1+d2;
+    *deviance = -2*l+d1+d2;
     }
 
   }

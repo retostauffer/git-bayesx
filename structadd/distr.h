@@ -303,10 +303,10 @@ class __EXPORT_TYPE DISTR
     {
     return 0;
     }
- /* virtual double cdf(const double & resp, vector<double *>  linpred)
+  virtual double cdf(const double & resp, vector<double *>  linpred)
     {
     return 0;
-    }*/
+    }
     // FUN
     // FUNCTION: logpdf
   virtual double logpdf(const double & resp)

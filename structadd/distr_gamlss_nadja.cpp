@@ -3532,7 +3532,7 @@ double DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)
   return res;
   }
 
-/*double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
+double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
   {
  // if(counter<=3)
  //   {
@@ -3545,7 +3545,7 @@ double DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)
   res = 1 - exp(-pow(resp*lambda,alpha));
   return res;
   }
-*/
+
 
 double DISTR_weibull_lambda::logpdf(const double & resp)
   {
