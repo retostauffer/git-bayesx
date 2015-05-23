@@ -873,9 +873,7 @@ void FULLCOND_const::update(void)
 
 bool FULLCOND_const::posteriormode(void)
   {
-
   return FULLCOND::posteriormode();
-
   }
 
 
@@ -1485,7 +1483,6 @@ void FULLCOND_const_nongaussian::posteriormode_intercept(double & m)
 
 bool FULLCOND_const_nongaussian::posteriormode(void)
   {
-
   likep->fisher(XWX,data,column);
 
   // BEGIN: shrinkage

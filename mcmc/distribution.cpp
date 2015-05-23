@@ -1317,7 +1317,7 @@ double DISTRIBUTION::compute_sumweight2(const unsigned & beg,
     {
     for (i=beg;i<=end;i++,workind2++,workind++)
       {
-      linpredp_current += *workind2*linearpred.cols();
+      linpredp_current += *workind2*(int)linearpred.cols();
       if (weight(*workind,0) != 0)
         sum += compute_weight(linpredp_current,&weight(*workind,0),*workind,col);
       }
@@ -1326,7 +1326,7 @@ double DISTRIBUTION::compute_sumweight2(const unsigned & beg,
     {
     for (i=beg;i<=end;i++,workind2++,workind++)
       {
-      linpredp_proposed += *workind2*linearpred.cols();
+      linpredp_proposed += *workind2*(int)linearpred.cols();
       if (weight(*workind,0) != 0)
         sum += compute_weight(linpredp_proposed, &weight(*workind,0),
                *workind,col);
@@ -1640,7 +1640,7 @@ double DISTRIBUTION::fisher2(const unsigned & beg, const unsigned & end,
     {
     w = weight(*workind,0);
     if (w > 0)
-      XWX+= compute_weight(worklin+(*workind)*linearpred.cols(),
+      XWX+= compute_weight(worklin+(*workind)*(int)linearpred.cols(),
             &w,*workind,col) * (*workdata)*(*workdata);
     }
   return XWX;
@@ -1957,7 +1957,6 @@ void DISTRIBUTION::add_linearpred2(const double & m,const unsigned & beg,
                          const statmatrix<int> & index2,
                          const unsigned & col,const bool & current)
   {
-
   unsigned register i;
 
   double * worklin;
@@ -2003,7 +2002,7 @@ void DISTRIBUTION::add_linearpred2(
   int * workindex = index.getV()+beg;
 
   for (i=beg;i<=end;i++,workindex2++,workdata++,workindex++,
-       worklin+=*workindex2*linearpred.cols())
+       worklin+=*workindex2*(int)linearpred.cols())
     *worklin += *workdata*m;
 
   }

@@ -597,7 +597,6 @@ bool MCMCsimulate::posteriormode(const vector<ST::string> & header,
       {
 
       k++;
-
       likep_mult[nrmodels-1-i]->compute_iwls();
 
       converged=false;
@@ -615,8 +614,10 @@ bool MCMCsimulate::posteriormode(const vector<ST::string> & header,
 
         for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
           {
+
           if (fullcondp[j]->posteriormode() == false)
             allconverged = false;
+
           } // end: for(j=begin[nrmodels-1-i];j<=end[nrmodels-1-i];j++)
 
         if (allconverged)

@@ -1240,12 +1240,12 @@ class __EXPORT_TYPE DISTRIBUTION
     {
     if (current)
       {
-      linpredp_current += index*linearpred.cols();
+      linpredp_current += index*(int)linearpred.cols();
       *linpredp_current += m;
       }
     else
       {
-      linpredp_proposed += index*linearpred.cols();
+      linpredp_proposed += index*(int)linearpred.cols();
       *linpredp_proposed += m;
       }
 
