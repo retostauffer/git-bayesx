@@ -2113,6 +2113,8 @@ class __EXPORT_TYPE DISTR_normal_sigma2 : public DISTR_gamlss
 
   double get_intercept_start(void);
 
+  double cdf(const double & resp, const double & linpred);
+
   void compute_param_mult(vector<double *>  linpred,double * param);
 
   double loglikelihood_weightsone(double * response, double * linpred);
@@ -2176,6 +2178,14 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
                              vector<datamatrix*> aux);
 
   double get_intercept_start(void);
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, vector<double *>  linpred);
+
+  double logpdf(const double & resp);
 
   void compute_param_mult(vector<double *>  linpred,double * param);
 

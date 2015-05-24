@@ -1906,10 +1906,21 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: normal sigma2 -------------------------------
 
 //------------------------------- normal mu ------------------------------------
-  else if ((family.getvalue() == "normal") && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()==1))
+  else if ((family.getvalue() == "normal") && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()>=1))
 
     {
-    mainequation=true;
+    cout << "copula? 1=yes, 0=no: " << generaloptions.copula << endl;
+    if(generaloptions.copula)
+      {
+      mainequation=false;
+      cout << "user wants to estimated a copula model" << endl;
+      }
+    else
+      {
+      mainequation=true;
+      cout << "univariate regression model" << endl;
+      }
+
 
     computemodeforstartingvalues = true;
 
@@ -1918,16 +1929,42 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_normal_mus[distr_normal_mus.size()-1];
     equations[modnr].pathd = "";
 
-   // if(family.getvalue() == "normal")
-	//  {
+    if(generaloptions.copula){}
+    else
+      {
       predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
       predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
+      }
+
+    if (distr_normal_sigma2s.size() != (1+countmarginal))
+      {
+      outerror("ERROR: Equation for sigma2 is missing");
+      return true;
+      }
+    else
+      {
       distr_normal_sigma2s[distr_normal_sigma2s.size()-1].distrp.push_back
       (&distr_normal_mus[distr_normal_mus.size()-1]);
 
       distr_normal_mus[distr_normal_mus.size()-1].distrp.push_back
       (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
-      //}
+
+      countmarginal += 1;
+      cout << "number of correct marginals that were found: " << countmarginal << endl;
+      }
+
+    if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(0);}
+      else if(countmarginal == 2)
+        {distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(1);}
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
+      }
     }
 //------------------------------- END: normal mu -------------------------------
 
@@ -5171,6 +5208,34 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+     else if(distr_normal_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_normal_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
+        predict_mult_distrs.push_back(&distr_normal_mus[coi]);
+
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+
+        distr_normal_mus[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+        distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+        if(distr_normal_mus[coi].get_copulapos()==0)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_normal_mus[coi].response;
+          }
+        else if(distr_normal_mus[coi].get_copulapos()==1)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_normal_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
      else
        {
        outerror("ERROR: family not implemented or something else wrong");
@@ -5192,7 +5257,7 @@ bool superbayesreg::create_distribution(void)
 
     distr_clayton_copulas.push_back(DISTR_clayton_copula(&generaloptions,D.getCol(0),w));
 
-    equations[modnr].distrp = &distr_clayton_copulas[distr_gausscopulas.size()-1];
+    equations[modnr].distrp = &distr_clayton_copulas[distr_clayton_copulas.size()-1];
     equations[modnr].pathd = "";
 
     if ((countmarginal != 2))
@@ -5209,7 +5274,7 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
 
-        distr_clayton_copulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
 
         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
@@ -5221,6 +5286,34 @@ bool superbayesreg::create_distribution(void)
         else if(distr_weibull_lambdas[coi].get_copulapos()==1)
           {
           distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_weibull_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    else if(distr_normal_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_normal_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
+        predict_mult_distrs.push_back(&distr_normal_mus[coi]);
+
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+
+        distr_normal_mus[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+        distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+        if(distr_normal_mus[coi].get_copulapos()==0)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response2 = distr_normal_mus[coi].response;
+          }
+        else if(distr_normal_mus[coi].get_copulapos()==1)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_normal_mus[coi].response;
           }
         else
           {

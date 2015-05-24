@@ -86,7 +86,7 @@ double DISTR_gausscopula::get_intercept_start(void)
 
 void DISTR_gausscopula::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = (*linpred[0]) / pow(1+ pow((*linpred[0]), 2), 0.5);
+  *param = (*linpred[(linpred.size()-1)]) / pow(1+ pow((*linpred[(linpred.size()-1)]), 2), 0.5);
   }
 
 void DISTR_gausscopula::set_worklin(void)
@@ -285,7 +285,7 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gausscopula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = 2 * std::asin((*linpred[predstart_mumult]) / (pow(1 + pow((*linpred[predstart_mumult]), 2), 0.5))) / PI ;
+  *mu = 2 * std::asin((*linpred[predstart_mumult+(linpred.size()-1)]) / (pow(1 + pow((*linpred[predstart_mumult+(linpred.size()-1)]), 2), 0.5))) / PI ;
   }
 
 
@@ -358,7 +358,7 @@ vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * 
   // first derivative
   double dlc = rho*dphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho);
   // second derivative
-  double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);;
+  double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);
   // return first and second derivative.
   res.push_back(dlc);
   res.push_back(ddlc);
@@ -495,7 +495,7 @@ double DISTR_clayton_copula::get_intercept_start(void)
 
 void DISTR_clayton_copula::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp((*linpred[0]));
+  *param = exp((*linpred[(linpred.size()-1)]));
   }
 
 void DISTR_clayton_copula::set_worklin(void)
@@ -521,14 +521,42 @@ void DISTR_clayton_copula::compute_deviance_mult(vector<double *> response,
                              double * deviance,
                              vector<datamatrix*> aux)
   {
-   if (*weight[0] == 0)
+   if ((*weight[0] == 0) || (*weight[response.size()-2] == 0))
      *deviance=0;
    else
      {
      double rho = exp((*linpred[(linpred.size()-1)]));
 
-     double u = distrp[1]->cdf(*response[response.size()-2],true);
-     double v = distrp[0]->cdf(*response[0],true);
+     int s1 = dynamic_cast<DISTR_gamlss *>(distrp[1])->distrp.size();
+     int s2 = dynamic_cast<DISTR_gamlss *>(distrp[0])->distrp.size();
+     vector<double*> linpredvec1;
+     vector<double*> responsevec1;
+     vector<double*> weightvec1;
+     vector<double*> linpredvec2;
+     vector<double*> responsevec2;
+     vector<double*> weightvec2;
+     int j;
+     for (j=0;j<(s2+1);j++)
+       {
+       linpredvec2.push_back(linpred[j]);
+       weightvec2.push_back(weight[j]);
+       responsevec2.push_back(response[j]);
+       }
+     int k;
+     for (k=0;k<(s1+1);k++)
+       {
+       linpredvec1.push_back(linpred[s2+1+k]);
+       weightvec1.push_back(weight[s2+1+k]);
+       responsevec1.push_back(response[s2+1+k]);
+       }
+
+     double d1;
+     double d2;
+     distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
+     distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
+
+     double u = distrp[1]->cdf(*response[response.size()-2],linpredvec1);
+     double v = distrp[0]->cdf(*response[0],linpredvec2);
      double logu = log(u);
      double logv = log(v);
      double urho = pow(u, -rho);
@@ -539,7 +567,7 @@ void DISTR_clayton_copula::compute_deviance_mult(vector<double *> response,
      l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
          //+distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
 
-    *deviance = -2*l;
+    *deviance = -2*l+d1+d2;
     }
 
   }
@@ -610,7 +638,7 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
 
 void DISTR_clayton_copula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  double arg = exp((*linpred[predstart_mumult]));
+  double arg = exp((*linpred[predstart_mumult+(linpred.size()-1)]));
   *mu = arg / (arg + 2);
   }
 
@@ -650,18 +678,14 @@ vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double
   vector<double> res;
 //////////////////////////////////////////////////////////
 
-  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
-  double phiinvu = randnumbers::invPhi2(F1);
-  double phiinvv = randnumbers::invPhi2(F2);
-
-  //first and second derivative of Phi^-1
-  double dphiinvu = sqrt(2*PI)/exp(-0.5*phiinvu*phiinvu);
-  double ddphiinvu = 2*PI*phiinvu/pow(exp(-0.5*phiinvu*phiinvu),2);
-
+  double rho = exp(*linpred);
+  double logu = log(F1);
+  double logv = log(F2);
+  double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
   // first derivative
-  double dlc = rho*dphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho);
+  double dlc = -(1+rho)/F1+(2+1/rho)*rho*pow(F1,(-rho-1))/arg;
   // second derivative
-  double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);;
+  double ddlc = (1+rho)/(F1*F1)+(2+1/rho)*pow(rho*pow(F1,(-rho-1))/arg,2)-(2+1/rho)*rho*(rho+1)*pow(F1,(-rho-2))/arg;
   // return first and second derivative.
   res.push_back(dlc);
   res.push_back(ddlc);
@@ -718,10 +742,11 @@ vector<double> DISTR_clayton_copula::logc(double & F, int & copulapos, const boo
 
 double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
   {
-  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
-  double phiinvu = randnumbers::invPhi2(F1);
-  double phiinvv = randnumbers::invPhi2(F2);
-  double lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);
+  double rho = exp((*linpred));
+  double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
+
+
+  double lc = log(rho + 1) - (1 + rho) * (log(F1) + log(F2)) - (2 + 1 / rho) * log(arg);
   return lc;
   }
 

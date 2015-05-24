@@ -6375,6 +6375,15 @@ const DISTR_normal_sigma2 & DISTR_normal_sigma2::operator=(
   return *this;
   }
 
+double DISTR_normal_sigma2::cdf(const double & resp, const double & linpred)
+  {
+  double res,mu,sigma2;
+  sigma2 = exp(*linpredp);
+  mu = *worklin[0];
+  double z = (resp-mu)/sqrt(sigma2);
+  res = randnumbers::Phi2(z);
+  return res;
+  }
 
 double DISTR_normal_sigma2::get_intercept_start(void)
   {
@@ -6406,6 +6415,11 @@ double DISTR_normal_sigma2::loglikelihood_weightsone(double * response,
 
      l = -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
 
+  if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
 
   modify_worklin();
 
@@ -6438,6 +6452,26 @@ void DISTR_normal_sigma2::compute_iwls_wweightschange_weightsone(
 
 
     *workingweight = 0.5;
+
+    if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+    if (compute_like)
+      {
+      like += logcandderivs[0];
+      }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    double z = ((*response)-(*worklin[0]))/sqrt(sigma_2);
+    double dF = -0.5*z*exp(-0.5*z*z)*0.3989423;
+    double ddF = -0.25*z*exp(-0.5*z*z)*(1-z*z)*0.3989423;
+    nu += logcandderivs[1]*dF;
+
+    *workingweight = 0.5*z*z-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   //*workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+    if (*workingweight <=0)
+      *workingweight = 0.001;
+    }
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -6555,6 +6589,80 @@ const DISTR_normal_mu & DISTR_normal_mu::operator=(
   return *this;
   }
 
+double DISTR_normal_mu::cdf(const double & resp, const bool & ifcop)
+  {
+  if(counter==0)
+    {
+    if(ifcop)
+      {
+      set_worklin();
+      }
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+  double res,mu,sigma2;
+  mu = (*linpredp);
+  sigma2 = *worktransformlin[0];
+  double z = (resp-mu)/sqrt(sigma2);
+  res = randnumbers::Phi2(z);
+
+  if(ifcop)
+    {
+    modify_worklin();
+    }
+  linpredp++;
+  return res;
+  }
+
+double DISTR_normal_mu::cdf(const double & resp, const double & linpred)
+  {
+  double res,mu,sigma2;
+  mu = (*linpredp);
+  sigma2 = *worktransformlin[0];
+  double z = (resp-mu)/sqrt(sigma2);
+  res = randnumbers::Phi2(z);
+  return res;
+  }
+
+double DISTR_normal_mu::cdf(const double & resp, vector<double *>  linpred)
+  {
+  double res,mu,sigma2;
+  mu = (*linpred[1]);
+  sigma2 = exp(*linpred[0]);
+  double z = (resp-mu)/sqrt(sigma2);
+  res = randnumbers::Phi2(z);
+  return res;
+  }
+
+
+double DISTR_normal_mu::logpdf(const double & resp)
+  {
+  if(counter==0)
+    {
+    set_worklin();
+
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+ //  double test = *linpred;
+// compute cdf (might work more efficiently)
+  double res,mu,sigma2;
+  mu = (*linpredp);
+  sigma2 = *worktransformlin[0];
+  double z = (resp-mu)/sqrt(sigma2);
+  res = -0.9189385-0.5*log(sigma2)-0.5*z*z;
+
+  modify_worklin();
+  linpredp++;
+  return res;
+  }
+
 
 void DISTR_normal_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
@@ -6610,7 +6718,7 @@ double DISTR_normal_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg = ((*response[1])-(*param[1]))/((*param[0])) ;
+    double arg = ((*response[1])-(*param[1]))/(sqrt(*param[0])) ;
 
     return (randnumbers::Phi2(arg));
     }
@@ -6644,6 +6752,13 @@ double DISTR_normal_mu::loglikelihood_weightsone(double * response,
 
      l = -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
 
+  if(optionsp->copula)
+    {
+    //implement loglik for copula models, i.e. add part logc
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
+
   modify_worklin();
 
   return l;
@@ -6674,6 +6789,27 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
     double nu = ((*response)-mu)/(*worktransformlin[0]);
 
     *workingweight = 1/(*worktransformlin[0]);
+
+
+    if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+    if (compute_like)
+      {
+      like += logcandderivs[0];
+      }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    double z = ((*response)-mu)/sqrt((*worktransformlin[0]));
+    double dF = -0.3989423*exp(-0.5*z*z)/(sqrt(*worktransformlin[0]));
+    double ddF = -0.3989423*z*exp(-0.5*z*z)/((*worktransformlin[0]));
+    nu += logcandderivs[1]*dF;
+
+   // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+    if (*workingweight <=0)
+      *workingweight = 0.001;
+    }
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -11132,8 +11268,8 @@ void DISTR_gaussiancopula_rho::compute_iwls_wweightschange_weightsone(
    //                 - (2 * rho + rho * orho) * (phinvu * phinvv);
     *workingweight = 1 - pow(rho, 4);
 
-    if((*workingweight) <= 0)
-        *workingweight = 0.0001;
+  //  if((*workingweight) <= 0)
+   //     *workingweight = 0.001;
 
     *workingresponse = *linpred + nu/(*workingweight);
 
