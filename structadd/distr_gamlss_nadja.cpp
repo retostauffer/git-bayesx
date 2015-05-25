@@ -6378,7 +6378,7 @@ const DISTR_normal_sigma2 & DISTR_normal_sigma2::operator=(
 double DISTR_normal_sigma2::cdf(const double & resp, const double & linpred)
   {
   double res,mu,sigma2;
-  sigma2 = exp(*linpredp);
+  sigma2 = exp(linpred);
   mu = *worklin[0];
   double z = (resp-mu)/sqrt(sigma2);
   res = randnumbers::Phi2(z);
@@ -6467,10 +6467,10 @@ void DISTR_normal_sigma2::compute_iwls_wweightschange_weightsone(
     double ddF = -0.25*z*exp(-0.5*z*z)*(1-z*z)*0.3989423;
     nu += logcandderivs[1]*dF;
 
-    *workingweight = 0.5*z*z-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
-   //*workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+  //  *workingweight = 0.5*z*z-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
     if (*workingweight <=0)
-      *workingweight = 0.001;
+      *workingweight = 0.0001;
     }
 
     *workingresponse = *linpred + nu/(*workingweight);
@@ -6620,7 +6620,7 @@ double DISTR_normal_mu::cdf(const double & resp, const bool & ifcop)
 double DISTR_normal_mu::cdf(const double & resp, const double & linpred)
   {
   double res,mu,sigma2;
-  mu = (*linpredp);
+  mu = linpred;
   sigma2 = *worktransformlin[0];
   double z = (resp-mu)/sqrt(sigma2);
   res = randnumbers::Phi2(z);
@@ -6841,7 +6841,7 @@ void DISTR_normal_mu::outoptions(void)
   }
 
 
-void DISTR_normal_mu::update(void)
+/*void DISTR_normal_mu::update(void)
   {
 
   register unsigned i;
@@ -6860,7 +6860,7 @@ void DISTR_normal_mu::update(void)
     }
 
   }
-
+*/
 
 void DISTR_normal_mu::update_end(void)
   {

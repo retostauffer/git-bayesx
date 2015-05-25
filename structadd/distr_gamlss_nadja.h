@@ -2214,7 +2214,7 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
 
   void update_end(void);
 
-  void update(void);
+ // void update(void);
 
   };
 

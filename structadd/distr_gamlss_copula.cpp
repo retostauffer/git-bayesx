@@ -611,6 +611,10 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
     }
   double rho = exp((*linpred));
   double u = distrp[1]->cdf(*response1p,true);
+ /* cout << "rho: " << rho << endl;
+  cout << "y1: " << *response1p << endl;
+  cout << "y2: " << *response2p << endl;
+  cout << "u: " << u << endl;*/
   double v = distrp[0]->cdf(*response2p,true);
   double logu = log(u);
   double logv = log(v);
@@ -626,6 +630,10 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
     *workingweight = 0.0001;
 
   *workingresponse = *linpred + nu/(*workingweight);
+
+/*  cout << "nu: " << nu << endl;
+  cout << "workingweight: " << *workingweight << endl;
+  cout << "workingresponse: " << *workingresponse << endl;*/
 
   if (compute_like)
     {
