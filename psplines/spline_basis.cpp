@@ -2625,10 +2625,10 @@ void spline_basis::compute_XWXenv(const datamatrix & weight, const unsigned & c)
               *workupper += *(workBS+j) * *workweight * *(workBS+k);
             l++;
 // ASAN/UBSAN checks
-            freqwork++;
-            workBS += BScols*(*freqwork-*(freqwork-1));
             if (l <= stop )
               {
+              freqwork++;
+              workBS += BScols*(*freqwork-*(freqwork-1));
               workindex2++;
               workweight += *workindex2*weightcols;
               }
