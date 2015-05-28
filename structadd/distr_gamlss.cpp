@@ -1064,7 +1064,6 @@ const DISTR_gamlss & nd)
   counter = nd.counter;
   worklin = nd.worklin;
   worktransformlin = nd.worktransformlin;
-  distrp = nd.distrp;
   return *this;
   }
 
@@ -1075,7 +1074,6 @@ DISTR_gamlss::DISTR_gamlss(const DISTR_gamlss & nd)
   counter = nd.counter;
   worklin = nd.worklin;
   worktransformlin = nd.worktransformlin;
-  distrp = nd.distrp;
   }
 
 

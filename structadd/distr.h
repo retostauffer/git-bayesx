@@ -89,6 +89,8 @@ class __EXPORT_TYPE DISTR
 
   public:
 
+  vector<DISTR*> distrp;  //pointer to other distributions
+
   vector<DISTR*> distrcopulap; // pointer of copulas
 
   bool maindistribution;
@@ -309,10 +311,10 @@ class __EXPORT_TYPE DISTR
     }
     // FUN
     // FUNCTION: logpdf
-  virtual double logpdf(const double & resp)
+ /* virtual double logpdf(const double & resp)
     {
     return 0;
-    }
+    }*/
 
   // FUNCTION: cdf
   // TASK: computes the cdf for a single observation

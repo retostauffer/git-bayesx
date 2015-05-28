@@ -1187,7 +1187,7 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
   double cdf(const double & resp, vector<double *>  linpred);
 
-  double logpdf(const double & resp);
+ // double logpdf(const double & resp);
 
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -2185,7 +2185,7 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
 
   double cdf(const double & resp, vector<double *>  linpred);
 
-  double logpdf(const double & resp);
+ // double logpdf(const double & resp);
 
   void compute_param_mult(vector<double *>  linpred,double * param);
 
@@ -2214,7 +2214,7 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
 
   void update_end(void);
 
- // void update(void);
+  void update(void);
 
   };
 
@@ -2981,7 +2981,7 @@ class __EXPORT_TYPE DISTR_gumbelcopula2_normal_mu_2 : public DISTR_gamlss
 
   void update_end(void);
 
- // void update(void);
+  void update(void);
 
   };
 

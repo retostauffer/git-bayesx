@@ -1909,16 +1909,13 @@ bool superbayesreg::create_distribution(void)
   else if ((family.getvalue() == "normal") && (equationtype.getvalue()=="mu") && (distr_normal_sigma2s.size()>=1))
 
     {
-    cout << "copula? 1=yes, 0=no: " << generaloptions.copula << endl;
     if(generaloptions.copula)
       {
       mainequation=false;
-      cout << "user wants to estimated a copula model" << endl;
       }
     else
       {
       mainequation=true;
-      cout << "univariate regression model" << endl;
       }
 
 

@@ -3547,7 +3547,7 @@ double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
   }
 
 
-double DISTR_weibull_lambda::logpdf(const double & resp)
+/*double DISTR_weibull_lambda::logpdf(const double & resp)
   {
   if(counter==0)
     {
@@ -3569,7 +3569,7 @@ double DISTR_weibull_lambda::logpdf(const double & resp)
   modify_worklin();
   linpredp++;
   return res;
-  }
+  }*/
 
 void DISTR_weibull_lambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
@@ -6567,7 +6567,16 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
   outexpectation = true;
   predictor_name = "mu";
   check_errors();
-  updateIWLS = false;
+  if(o->copula)
+    {
+    updateIWLS = true;
+    //cout << "IWLS: " << updateIWLS << endl;
+    }
+  else
+    {
+    updateIWLS = false;
+    //cout << "Gibbs: " << updateIWLS << endl;
+    }
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -6638,7 +6647,7 @@ double DISTR_normal_mu::cdf(const double & resp, vector<double *>  linpred)
   }
 
 
-double DISTR_normal_mu::logpdf(const double & resp)
+/*double DISTR_normal_mu::logpdf(const double & resp)
   {
   if(counter==0)
     {
@@ -6661,7 +6670,7 @@ double DISTR_normal_mu::logpdf(const double & resp)
   modify_worklin();
   linpredp++;
   return res;
-  }
+  }*/
 
 
 void DISTR_normal_mu::compute_deviance_mult(vector<double *> response,
@@ -6841,7 +6850,7 @@ void DISTR_normal_mu::outoptions(void)
   }
 
 
-/*void DISTR_normal_mu::update(void)
+void DISTR_normal_mu::update(void)
   {
 
   register unsigned i;
@@ -6860,7 +6869,7 @@ void DISTR_normal_mu::outoptions(void)
     }
 
   }
-*/
+
 
 void DISTR_normal_mu::update_end(void)
   {
@@ -7847,8 +7856,6 @@ DISTR_claytoncopula2_normal_mu::DISTR_claytoncopula2_normal_mu(GENERAL_OPTIONS *
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-
-  updateIWLS = false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -8817,8 +8824,6 @@ DISTR_gumbelcopula2_normal_mu::DISTR_gumbelcopula2_normal_mu(GENERAL_OPTIONS * o
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-
-  updateIWLS = false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -9431,7 +9436,7 @@ void DISTR_gumbelcopula2_normal_mu_2::outoptions(void)
   }
 
 
-/*void DISTR_gumbelcopula2_normal_mu_2::update(void)
+void DISTR_gumbelcopula2_normal_mu_2::update(void)
   {
 
   register unsigned i;
@@ -9449,7 +9454,7 @@ void DISTR_gumbelcopula2_normal_mu_2::outoptions(void)
         *workweight = 1/(*worktransformlinp);
     }
 
-  }*/
+  }
 
 
 void DISTR_gumbelcopula2_normal_mu_2::update_end(void)
@@ -10230,8 +10235,6 @@ DISTR_gaussiancopula_dagum_a::DISTR_gaussiancopula_dagum_a(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "a";
-
-  updateIWLS = false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -12211,8 +12214,6 @@ DISTR_frankcopula2_normal_mu::DISTR_frankcopula2_normal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-
-  updateIWLS = false;
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -13481,7 +13482,6 @@ DISTR_copula::DISTR_copula(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "u";
-  updateIWLS = false;
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
   }

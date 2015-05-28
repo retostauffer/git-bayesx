@@ -58,8 +58,6 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   public:
 
-  vector<DISTR*> distrp;
-
    // DEFAULT CONSTRUCTOR
 
   DISTR_gamlss(void) : DISTR()
