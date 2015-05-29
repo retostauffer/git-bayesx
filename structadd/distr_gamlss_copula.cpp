@@ -82,14 +82,20 @@ void DISTR_copula_basis::compute_param_mult(vector<double *>  linpred,double * p
 
 void DISTR_copula_basis::set_worklin(void)
   {
-  DISTR_gamlss::set_worklin();
   response1p = response1.getV();
   response2p = response2.getV();
   }
 
 void DISTR_copula_basis::modify_worklin(void)
   {
-  DISTR_gamlss::modify_worklin();
+  if (counter<nrobs-1)
+    {
+    counter++;
+    }
+  else
+    {
+    counter=0;
+    }
   if (counter<nrobs)
     {
     response1p++;
@@ -194,6 +200,7 @@ double DISTR_copula_basis::logc(double & F1, double & F2, double * linpred)
   {
   return 0.0;
   }
+
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_gausscopula --------------------
@@ -395,7 +402,7 @@ void DISTR_gausscopula::outoptions(void)
 void DISTR_gausscopula::update_end(void)
   {
 
-  // helpmat1 stores rho
+/*  // helpmat1 stores rho
 
   double * worklin;
   if (linpred_current==1)
@@ -410,7 +417,7 @@ void DISTR_gausscopula::update_end(void)
     {
     *pmu = (*worklin) / pow(1 + pow((*worklin), 2), 0.5);
     }
-
+*/
   }
 
 vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * linpred)

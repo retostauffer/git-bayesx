@@ -709,13 +709,18 @@ double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
     counter=0;
     }
   linpredp++;
+ /* cout << "resp: " << resp << endl;
+  cout << "pi: " << pi << endl;
+  cout << "linpred: " << *linpredp << endl;
+  cout << "res: " << res << endl;
+  cout << "counter: " << counter << endl;*/
   return res;
   }
 
 double DISTR_binomialprobit::cdf(const double & resp, const double & linpred)
   {
   double res,pi;
-  pi = randnumbers::Phi2(*linpredp);
+  pi = randnumbers::Phi2(linpred);
   if(resp<0)
     res=0;
   else if(resp>=1)
@@ -781,12 +786,12 @@ double DISTR_binomialprobit::compute_iwls(double * response, double * linpred,
     double nu = -h/(1-mu);
     if(*response > 0)
       {
-      dF = 1-h;
+      dF = -h;
       nu = h/mu;
       }
     double ddF = 0;
     if(*response > 0)
-        ddF = h*((*response)-(*linpred));
+        ddF = -h*((*response)-(*linpred));
 
     nu += logcandderivs[1]*dF;
     nu *= *weight;
@@ -851,12 +856,12 @@ void DISTR_binomialprobit::compute_iwls_wweightschange_weightsone(
     double nu = -h/(1-mu);
     if(*response > 0)
       {
-      dF = 1-h;
+      dF = -h;
       nu = h/mu;
       }
     double ddF = 0;
     if(*response > 0)
-        ddF = h*((*response)-(*linpred));
+        ddF = -h*((*response)-(*linpred));
 
     nu += logcandderivs[1]*dF;
    *workingweight += (-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF);
