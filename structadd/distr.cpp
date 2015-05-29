@@ -77,6 +77,7 @@ unsigned DISTR::compute_nrzeroweights(void)
 DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
   {
+  counter = 0;
 
   maindistribution=true;
   predict_mult=false;
@@ -141,6 +142,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
 DISTR::DISTR(const DISTR & d)
   {
+  counter = d.counter;
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
 
@@ -215,6 +217,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   if (this == &d)
     return *this;
 
+  counter = d.counter;
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
 

@@ -69,6 +69,9 @@ class __EXPORT_TYPE DISTR
   {
 
   protected:
+
+  unsigned counter;
+
   int copulapos; //gives position of marginals in case of copula model
   bool copula; //bool only true if copula model specified
 
@@ -306,6 +309,10 @@ class __EXPORT_TYPE DISTR
     return 0;
     }
   virtual double cdf(const double & resp, vector<double *>  linpred)
+    {
+    return 0;
+    }
+  virtual double cdf(const double & resp, double * mu)
     {
     return 0;
     }

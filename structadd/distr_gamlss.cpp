@@ -1043,7 +1043,6 @@ DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
   else
     wtype = wweightschange_weightsneqone;
 
-  counter = 0;
 
   helpmat1 = datamatrix(nrobs,1,1);
 
@@ -1061,7 +1060,6 @@ const DISTR_gamlss & nd)
   if (this==&nd)
     return *this;
   DISTR::operator=(DISTR(nd));
-  counter = nd.counter;
   worklin = nd.worklin;
   worktransformlin = nd.worktransformlin;
   return *this;
@@ -1071,7 +1069,6 @@ const DISTR_gamlss & nd)
 DISTR_gamlss::DISTR_gamlss(const DISTR_gamlss & nd)
    : DISTR(DISTR(nd))
   {
-  counter = nd.counter;
   worklin = nd.worklin;
   worktransformlin = nd.worktransformlin;
   }

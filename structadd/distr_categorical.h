@@ -287,6 +287,12 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
   double get_intercept_start(void);
 
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, double * mu);
+
   double loglikelihood(double * response, double * linpred,
                        double * weight);
 

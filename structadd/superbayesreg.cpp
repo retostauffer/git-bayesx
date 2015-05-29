@@ -3767,16 +3767,13 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- weibull_lambda ------------------------------------
   else if (family.getvalue() == "weibull" && equationtype.getvalue()=="lambda")
     {
-    cout << "copula? 1=yes, 0=no: " << generaloptions.copula << endl;
     if(generaloptions.copula)
       {
       mainequation=false;
-      cout << "user wants to estimated a copula model" << endl;
       }
     else
       {
       mainequation=true;
-      cout << "univariate regression model" << endl;
       }
 
 
@@ -3808,7 +3805,6 @@ bool superbayesreg::create_distribution(void)
       (&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
 
       countmarginal += 1;
-      cout << "number of correct marginals that were found: " << countmarginal << endl;
       }
 
     if(generaloptions.copula)
@@ -5205,7 +5201,7 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-     else if(distr_normal_mus.size()>0)
+    else if(distr_normal_mus.size()>0)
       {
       int coi;
       for(coi=0;coi<distr_normal_mus.size();coi++)
@@ -5233,11 +5229,37 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-     else
-       {
-       outerror("ERROR: family not implemented or something else wrong");
-       return true;
-       }
+    else if(distr_binomialprobits.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_normal_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_binomialprobits[coi]);
+
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_binomialprobits[coi]);
+
+        distr_binomialprobits[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+        if(distr_binomialprobits[coi].get_copulapos()==0)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_binomialprobits[coi].response;
+          }
+        else if(distr_binomialprobits[coi].get_copulapos()==1)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_binomialprobits[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    else
+      {
+      outerror("ERROR: family not implemented or something else wrong");
+      return true;
+      }
     //cout << "size predict mults: " << predict_mult_distrs.size() << endl;
     predict_mult_distrs.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
     }
@@ -7293,7 +7315,15 @@ bool superbayesreg::create_distribution(void)
   else if (family.getvalue() == "binomial_probit")
     {
 
-    mainequation=true;
+    if(generaloptions.copula)
+      {
+      mainequation=false;
+      countmarginal += 1;
+      }
+    else
+      {
+      mainequation=true;
+      }
 
     computemodeforstartingvalues = true;
 
@@ -7310,6 +7340,19 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_binomialprobits[distr_binomialprobits.size()-1];
     equations[modnr].pathd = outfile.getvalue() + "_latentvariables.res";
+
+    if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {distr_binomialprobits[distr_binomialprobits.size()-1].set_copulapos(0);}
+      else if(countmarginal == 2)
+        {distr_binomialprobits[distr_binomialprobits.size()-1].set_copulapos(1);}
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
+      }
     }
 //-------------------------- END: Binomial response probit ---------------------
 //---------------------------- Binomial response SVM ---------------------------

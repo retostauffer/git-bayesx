@@ -48,7 +48,6 @@ class __EXPORT_TYPE DISTR_gamlss : public DISTR
 
   protected:
 
-  unsigned counter;
 
   vector<double *> worklin;
   vector<double *> worktransformlin;
