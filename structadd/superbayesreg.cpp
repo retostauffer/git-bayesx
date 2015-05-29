@@ -5236,6 +5236,10 @@ bool superbayesreg::create_distribution(void)
         {
         predict_mult_distrs.push_back(&distr_binomialprobits[coi]);
 
+  /*      cout << "countmarginal: " << countmarginal << endl;
+        cout << "copulapos: " << distr_binomialprobits[coi].get_copulapos() << endl;
+        cout << "predict size: " << predict_mult_distrs.size() << endl;*/
+
         distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_binomialprobits[coi]);
 
         distr_binomialprobits[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
