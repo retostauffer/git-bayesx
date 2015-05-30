@@ -692,9 +692,7 @@ double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
 
   double res,pi;
   pi = randnumbers::Phi2(*linpredp);
-  if(resp<0)
-    res=0;
-  else if(resp>=1)
+  if(resp>0)
     res=1;
   else
     res=1-pi;
@@ -721,10 +719,8 @@ double DISTR_binomialprobit::cdf(const double & resp, const double & linpred)
   {
   double res,pi;
   pi = randnumbers::Phi2(linpred);
-  if(resp<0)
-    res=0;
-  else if(resp>=1)
-    res=1;
+  if(resp>0)
+    res = 1;
   else
     res=1-pi;
   return res;
@@ -733,9 +729,7 @@ double DISTR_binomialprobit::cdf(const double & resp, const double & linpred)
 double DISTR_binomialprobit::cdf(const double & resp,   double * mu)
   {
   double res;
-  if(resp<0)
-    res=0;
-  else if(resp>=1)
+  if(resp>0)
     res=1;
   else
     res=1- *mu;
@@ -779,19 +773,19 @@ double DISTR_binomialprobit::compute_iwls(double * response, double * linpred,
   vector<double> logcandderivs;
   if(optionsp->copula)
     {
-    double F = cdf(*response,*linpred);
+    double F = cdf(*workingresponse,*linpred);
     logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
     // compute and implement dF/deta, d^2 F/deta ^2
     double dF = 0;
     double nu = -h/(1-mu);
-    if(*response > 0)
+    double ddF = 0;
+    if((*response>0) && ((*response)<1))
       {
       dF = -h;
       nu = h/mu;
+      ddF = -h*(*linpred);
       }
-    double ddF = 0;
-    if(*response > 0)
-        ddF = -h*((*response)-(*linpred));
+
 
     nu += logcandderivs[1]*dF;
     nu *= *weight;
@@ -845,7 +839,7 @@ void DISTR_binomialprobit::compute_iwls_wweightschange_weightsone(
   vector<double> logcandderivs;
   if(optionsp->copula)
     {
-    double F = cdf(*response,*linpred);
+    double F = cdf(*workingresponse,*linpred);
     logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
     if (compute_like)
       {
@@ -854,14 +848,13 @@ void DISTR_binomialprobit::compute_iwls_wweightschange_weightsone(
     // compute and implement dF/deta, d^2 F/deta ^2
     double dF = 0;
     double nu = -h/(1-mu);
-    if(*response > 0)
+    double ddF = 0;
+    if((*response>0) && ((*response)<1))
       {
       dF = -h;
       nu = h/mu;
+      ddF = -h*(*linpred);
       }
-    double ddF = 0;
-    if(*response > 0)
-        ddF = -h*((*response)-(*linpred));
 
     nu += logcandderivs[1]*dF;
    *workingweight += (-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF);

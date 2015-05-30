@@ -369,6 +369,8 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
   double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
   double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
 
+  //cout << *response1p << endl;
+
   double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phinvu * phinvv) - (*linpred) * (pow(phinvu, 2) + pow(phinvv, 2));
 
   *workingweight = 1 - pow(rho, 4);
