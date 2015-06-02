@@ -8198,6 +8198,7 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   MCMC::DESIGN * dp_hrandom = &design_hrandoms[design_hrandoms.size()-1];
   dp_hrandom->changingdesign=true;
   dp_hrandom->meaneffectintvar=0;
+  dp_hrandom->center=true;
 
   FC_mults.push_back(FC_mult(false,multexp));
 
