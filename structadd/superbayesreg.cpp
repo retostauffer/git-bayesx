@@ -561,7 +561,7 @@ void superbayesreg::clear(void)
   {
 
   equations.erase(equations.begin(),equations.end());
-  equations.reserve(50);
+  equations.reserve(200);
 
   distr_gaussians.erase(distr_gaussians.begin(),distr_gaussians.end());
   distr_gaussians.reserve(20);
@@ -583,7 +583,7 @@ void superbayesreg::clear(void)
   distr_loggaussians.reserve(20);
 
   distr_gaussian_res.erase(distr_gaussian_res.begin(),distr_gaussian_res.end());
-  distr_gaussian_res.reserve(20);
+  distr_gaussian_res.reserve(100);
 
   distr_gaussian_exps.erase(distr_gaussian_exps.begin(),distr_gaussian_exps.end());
   distr_gaussian_exps.reserve(20);
@@ -981,84 +981,84 @@ void superbayesreg::clear(void)
   distr_gausscopulas.reserve(20);
 
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
-  FC_linears.reserve(50);
+  FC_linears.reserve(200);
 
   design_psplines.erase(design_psplines.begin(),design_psplines.end());
-  design_psplines.reserve(100);
+  design_psplines.reserve(200);
 
   design_userdefineds.erase(design_userdefineds.begin(),design_userdefineds.end());
-  design_userdefineds.reserve(43);
+  design_userdefineds.reserve(200);
 
   design_mrfs.erase(design_mrfs.begin(),design_mrfs.end());
-  design_mrfs.reserve(30);
+  design_mrfs.reserve(200);
 
   design_krigings.erase(design_krigings.begin(),design_krigings.end());
-  design_krigings.reserve(30);
+  design_krigings.reserve(200);
 
   design_hrandoms.erase(design_hrandoms.begin(),design_hrandoms.end());
-  design_hrandoms.reserve(50);
+  design_hrandoms.reserve(200);
 
   FC_nonps.erase(FC_nonps.begin(),FC_nonps.end());
-  FC_nonps.reserve(200);
+  FC_nonps.reserve(400);
 
   FC_hrandoms.erase(FC_hrandoms.begin(),FC_hrandoms.end());
-  FC_hrandoms.reserve(50);
+  FC_hrandoms.reserve(200);
 
   FC_mults.erase(FC_mults.begin(),FC_mults.end());
-  FC_mults.reserve(30);
+  FC_mults.reserve(200);
 
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
-  FC_nonp_variances.reserve(200);
+  FC_nonp_variances.reserve(400);
 
   FC_nonp_variance_varselections.erase(FC_nonp_variance_varselections.begin(),
                                        FC_nonp_variance_varselections.end());
-  FC_nonp_variance_varselections.reserve(200);
+  FC_nonp_variance_varselections.reserve(400);
 
   FC_varselection_omegas.erase(FC_varselection_omegas.begin(),
                                        FC_varselection_omegas.end());
-  FC_varselection_omegas.reserve(20);
+  FC_varselection_omegas.reserve(200);
 
   FC_linear_pens.erase(FC_linear_pens.begin(),FC_linear_pens.end());
-  FC_linear_pens.reserve(50);
+  FC_linear_pens.reserve(200);
 
   FC_variance_pen_vectors.erase(FC_variance_pen_vectors.begin(),
                                 FC_variance_pen_vectors.end());
-  FC_variance_pen_vectors.reserve(50);
+  FC_variance_pen_vectors.reserve(200);
 
 
   FC_hrandom_variances.erase(FC_hrandom_variances.begin(),
   FC_hrandom_variances.end());
-  FC_hrandom_variances.reserve(50);
+  FC_hrandom_variances.reserve(200);
 
   FC_hrandom_variance_vecs.erase(FC_hrandom_variance_vecs.begin(),
   FC_hrandom_variance_vecs.end());
-  FC_hrandom_variance_vecs.reserve(50);
+  FC_hrandom_variance_vecs.reserve(200);
 
   FC_hrandom_variance_vec_nmigs.erase(FC_hrandom_variance_vec_nmigs.begin(),
   FC_hrandom_variance_vec_nmigs.end());
-  FC_hrandom_variance_vec_nmigs.reserve(50);
+  FC_hrandom_variance_vec_nmigs.reserve(200);
 
   FC_hrandom_variance_ssvss.erase(FC_hrandom_variance_ssvss.begin(),
   FC_hrandom_variance_ssvss.end());
-  FC_hrandom_variance_ssvss.reserve(50);
+  FC_hrandom_variance_ssvss.reserve(200);
 
   FC_predicts.erase(FC_predicts.begin(),FC_predicts.end());
-  FC_predicts.reserve(30);
+  FC_predicts.reserve(200);
 
   FC_predicts_mult.erase(FC_predicts_mult.begin(),FC_predicts_mult.end());
-  FC_predicts_mult.reserve(30);
+  FC_predicts_mult.reserve(200);
 
   predict_mult_distrs.erase(predict_mult_distrs.begin(),predict_mult_distrs.end());
-  predict_mult_distrs.reserve(30);
+  predict_mult_distrs.reserve(200);
 
   FC_predict_predictors.erase(FC_predict_predictors.begin(),
                               FC_predict_predictors.end());
-  FC_predict_predictors.reserve(30);
+  FC_predict_predictors.reserve(200);
 
 
   FC_predictive_checks.erase(FC_predictive_checks.begin(),
   FC_predictive_checks.end());
-  FC_predictive_checks.reserve(30);
+  FC_predictive_checks.reserve(200);
 
   }
 
