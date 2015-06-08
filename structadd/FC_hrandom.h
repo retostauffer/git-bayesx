@@ -47,6 +47,9 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
 
   protected:
 
+  datamatrix pmodemat;
+  datamatrix varmat;
+
   datamatrix beta_prior;                            // sampled re's from prior
 
   datamatrix likelihoodc,likelihoodn;

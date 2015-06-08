@@ -86,6 +86,8 @@ FC_hrandom::FC_hrandom(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR
   simplerandom=false;
   FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
   derivative=false;
+  varmat=datamatrix(beta.rows(),1,0);
+  pmodemat = datamatrix(beta.rows(),1,0);
   }
 
 
@@ -101,6 +103,8 @@ FC_hrandom::FC_hrandom(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR
 
   FCrcoeff = FC(o,"",beta.rows(),beta.cols(),fp2);
   derivative=false;
+  varmat=datamatrix(beta.rows(),1,0);
+  pmodemat = datamatrix(beta.rows(),1,0);
   }
 
 
@@ -118,6 +122,8 @@ FC_hrandom::FC_hrandom(const FC_hrandom & m)
   likelihoodc = m.likelihoodc;
   likelihoodn = m.likelihoodn;
   beta_prior = m.beta_prior;
+  varmat = m.varmat;
+  pmodemat = m.pmodemat;
   }
 
 
@@ -137,6 +143,8 @@ const FC_hrandom & FC_hrandom::operator=(const FC_hrandom & m)
   likelihoodc = m.likelihoodc;
   likelihoodn = m.likelihoodn;
   beta_prior = m.beta_prior;
+  varmat = m.varmat;
+  pmodemat = m.pmodemat;
   return *this;
   }
 
@@ -208,24 +216,80 @@ void FC_hrandom::update_IWLS(void)
 
   designp->compute_partres(partres,beta);
 
+
   double * workpartres = partres.getV();
   double * worklikelihoodc = likelihoodc.getV();
   double * workWsum = designp->Wsum.getV();
 
-  for (i=0;i<beta.rows();i++,betap++,linpredREp++,
-       workpartres++,worklikelihoodc++,workWsum++)
-
+  if (designp->center==false)
     {
+    for (i=0;i<beta.rows();i++,betap++,linpredREp++,
+         workpartres++,worklikelihoodc++,workWsum++)
 
-    *worklikelihoodc  -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+      {
 
-    xwres =  lambda*(*linpredREp)+ (*workpartres);
+      *worklikelihoodc  -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
 
-    var = 1/(*workWsum+lambda);
-    postmode =  var * xwres;
-    *betap = postmode + sqrt(var)*rand_normal();
-    diff = *betap - postmode;
-    *worklikelihoodc += -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+      xwres =  lambda*(*linpredREp)+ (*workpartres);
+
+      var = 1/(*workWsum+lambda);
+      postmode =  var * xwres;
+      *betap = postmode + sqrt(var)*rand_normal();
+      diff = *betap - postmode;
+      *worklikelihoodc += -1.0/(2*var)* pow(diff,2)-0.5*log(var);
+      }
+    }
+  else
+    {
+    datamatrix pmodemat(beta.rows(),1,0);
+    datamatrix varmat(beta.rows(),1,0);
+    double * pmodematp = pmodemat.getV();
+    double * varp = varmat.getV();
+
+    for (i=0;i<beta.rows();i++,betap++,linpredREp++,
+         workpartres++,worklikelihoodc++,workWsum++,pmodematp++,varp++)
+
+      {
+
+      *worklikelihoodc  -= 0.5*pow((*betap)-(*linpredREp),2)/tau2;
+
+      xwres =  lambda*(*linpredREp)+ (*workpartres);
+      *varp = 1/(*workWsum+lambda);
+      *pmodematp =  *varp * xwres;
+
+      *betap = *pmodematp + sqrt(*varp)*rand_normal();
+
+      }
+
+    double sum=0;
+    betap = beta.getV();
+    unsigned nrpar = beta.rows();
+//    cout << nrpar << endl;
+
+    for (i=0;i<nrpar;i++,betap++)
+      {
+      sum+= *betap;
+      }
+
+    betap = beta.getV();
+
+    sum /= double(nrpar);
+
+    for (i=0;i<nrpar;i++,betap++)
+      *betap-= sum;
+
+    pmodematp = pmodemat.getV();
+    varp = varmat.getV();
+    worklikelihoodc = likelihoodc.getV();
+    betap = beta.getV();
+
+
+    for (i=0;i<beta.rows();i++,betap++,worklikelihoodc++,pmodematp++,varp++)
+      {
+      diff = *betap - *pmodematp;
+      *worklikelihoodc += -1.0/(2*(*varp))* pow(diff,2)-0.5*log((*varp));
+      }
+
     }
 
 
