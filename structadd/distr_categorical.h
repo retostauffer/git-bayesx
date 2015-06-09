@@ -250,6 +250,8 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
   bool utilities;
   FC FC_latentutilities;
 
+  double * workrespp;
+
   public:
 
   void check_errors(void);

@@ -5242,11 +5242,11 @@ bool superbayesreg::create_distribution(void)
 
         if(distr_binomialprobits[coi].get_copulapos()==0)
           {
-          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_binomialprobits[coi].workingresponse;
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_binomialprobits[coi].response;
           }
         else if(distr_binomialprobits[coi].get_copulapos()==1)
           {
-          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_binomialprobits[coi].workingresponse;
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_binomialprobits[coi].response;
           }
         else
           {

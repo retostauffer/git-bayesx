@@ -542,7 +542,10 @@ DISTR_binomialprobit::DISTR_binomialprobit(GENERAL_OPTIONS * o,
     wtype = wweightschange_weightsneqone;
 
   family = "Binomial";
-  updateIWLS = false;
+  if(o->copula)
+    updateIWLS = true;
+  else
+    updateIWLS = false;
 
   utilities = ut;
   if (utilities)
@@ -601,6 +604,7 @@ const DISTR_binomialprobit & DISTR_binomialprobit::operator=(
     return *this;
   DISTR::operator=(DISTR(nd));
   utilities = nd.utilities;
+  workrespp = nd.workrespp;
   FC_latentutilities = nd.FC_latentutilities;
   return *this;
   }
@@ -611,6 +615,7 @@ DISTR_binomialprobit::DISTR_binomialprobit(const DISTR_binomialprobit & nd)
   {
   utilities = nd.utilities;
   FC_latentutilities = nd.FC_latentutilities;
+  workrespp = nd.workrespp;
   }
 
 
@@ -688,14 +693,15 @@ double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
       linpredp = linearpred1.getV();
     else
       linpredp = linearpred2.getV();
+    workrespp = response.getV();
     }
 
-  double res,pi;
-  pi = randnumbers::Phi2(*linpredp);
+  double res,xi;
+  xi = *workrespp - *linpredp;
   if(resp>0)
-    res=1;
+    res=(randnumbers::Phi2(xi)-0.5)/0.5;
   else
-    res=1-pi;
+    res=randnumbers::Phi2(xi)/0.5;
 
 
   if (counter<nrobs-1)
@@ -707,6 +713,7 @@ double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
     counter=0;
     }
   linpredp++;
+  workrespp++;
  /* cout << "resp: " << resp << endl;
   cout << "pi: " << pi << endl;
   cout << "linpred: " << *linpredp << endl;
@@ -717,12 +724,13 @@ double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_binomialprobit::cdf(const double & resp, const double & linpred)
   {
-  double res,pi;
-  pi = randnumbers::Phi2(linpred);
+  double res,xi;
+  xi = resp - *linpredp;
   if(resp>0)
-    res = 1;
+    res=(randnumbers::Phi2(xi)-0.5)/0.5;
   else
-    res=1-pi;
+    res=randnumbers::Phi2(xi)/0.5;
+
   return res;
   }
 
@@ -827,7 +835,6 @@ void DISTR_binomialprobit::compute_iwls_wweightschange_weightsone(
                                          double * workingresponse,double & like,
                                          const bool & compute_like)
   {
-
   double  mu = randnumbers::Phi2(*linpred);
   double h = 0.39894228*exp(-0.5 * *linpred * *linpred);
   double g = 1/pow(h,2);
@@ -929,7 +936,11 @@ void DISTR_binomialprobit::update(void)
 
 
   workresp = response.getV();
-  workwresp = workingresponse.getV();
+  if(optionsp->copula)
+    workwresp = response.getV();
+  else
+    workwresp = workingresponse.getV();
+
   weightwork = weight.getV();
 
   if (linpred_current==1)
@@ -954,7 +965,11 @@ void DISTR_binomialprobit::update(void)
 
   if (utilities)
     {
-    workwresp = workingresponse.getV();
+    if(optionsp->copula)
+      workwresp = response.getV();
+    else
+      workwresp = workingresponse.getV();
+
     double * wb = FC_latentutilities.beta.getV();
 
     for (i=0;i<nrobs;i++,workwresp++,wb++)
