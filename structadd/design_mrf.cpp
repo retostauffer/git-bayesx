@@ -304,7 +304,7 @@ void DESIGN_mrf::compute_basisNull(void)
   }
 
 
-void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l)
+void DESIGN_mrf::compute_XtransposedWres(datamatrix & partres, double l, double t2)
   {
   XWres_p = &partres;
   }

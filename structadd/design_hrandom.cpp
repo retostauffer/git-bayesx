@@ -245,7 +245,7 @@ void DESIGN_hrandom::compute_penalty2(const datamatrix & pen)
 
 
 
-void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l)
+void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l, double t2)
   {
 
   double * workXWres = XWres.getV();

@@ -809,7 +809,7 @@ double DESIGN::compute_ZtZ(unsigned & i, unsigned & j)
   }
 
 
-void DESIGN::compute_XtransposedWres(datamatrix & partres, double l)
+void DESIGN::compute_XtransposedWres(datamatrix & partres, double l, double t2)
   {
 
   unsigned i,j;

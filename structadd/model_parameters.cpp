@@ -144,11 +144,13 @@ term_nonp::term_nonp(vector<ST::string> & na)
   proposal = stroption("proposal",proposals,"iwls_logtau2");
 
   rankK = intoption("rankK", -1, -1, 50000);
-  designmatdata = stroption("designmatdata");
   penmatdata = stroption("penmatdata");
 
   //conjugate prior for effect fusion in Gaussian model (Paper Daniela Pauger and Helga Wagner, Linz)
   cprior = simpleoption("cprior",false);
+
+  designmatdata = stroption("designmatdata");
+  priormeandata = stroption("priormeandata","");
   }
 
 void term_nonp::setdefault(void)
@@ -216,10 +218,12 @@ void term_nonp::setdefault(void)
   proposal.setdefault();
 
   rankK.setdefault();
-  designmatdata.setdefault();
   penmatdata.setdefault();
 
   cprior.setdefault();
+
+  designmatdata.setdefault();
+  priormeandata.setdefault();
   }
 
 
@@ -335,10 +339,12 @@ bool term_nonp::check(term & t)
 	optlist.push_back(&proposal);
 
 	optlist.push_back(&rankK);
-	optlist.push_back(&designmatdata);
 	optlist.push_back(&penmatdata);
 
 	optlist.push_back(&cprior);
+
+	optlist.push_back(&designmatdata);
+	optlist.push_back(&priormeandata);
 
     unsigned i;
     bool rec = true;
@@ -527,6 +533,7 @@ bool term_nonp::check(term & t)
       t.options[61]= "true";
 
     t.options[62] = designmatdata.getvalue();
+    t.options[63] = priormeandata.getvalue();
 
     setdefault();
     return true;

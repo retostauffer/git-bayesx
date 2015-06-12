@@ -99,7 +99,7 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   void compute_penalty2(const datamatrix & pen);
 
-  void compute_XtransposedWres(datamatrix & partres, double l);
+  void compute_XtransposedWres(datamatrix & partres, double l, double t2);
 
   void compute_precision(double l);
 

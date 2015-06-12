@@ -357,7 +357,7 @@ void FC_nonp::update_IWLS(void)
 
   designp->compute_partres(partres,beta);
   designp->compute_XtransposedWX();
-  designp->compute_XtransposedWres(partres,lambda);
+  designp->compute_XtransposedWres(partres,lambda,tau2);
 
   designp->compute_precision(lambda);
 
@@ -415,7 +415,7 @@ void FC_nonp::update_IWLS(void)
 
       designp->compute_partres(partres,beta);
       designp->compute_XtransposedWX();
-      designp->compute_XtransposedWres(partres,lambda);
+      designp->compute_XtransposedWres(partres,lambda,tau2);
 
       designp->compute_precision(lambda);
 
@@ -535,7 +535,7 @@ void FC_nonp::update_gaussian_transform(void)
 
   designp->compute_partres(partres,beta);
 
-  designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWres(partres, lambda,tau2);
 
   designp->u.mult(designp->QtRinv,*(designp->XWres_p));
 
@@ -624,7 +624,6 @@ void FC_nonp::update_gaussian(void)
 
     double sigmaresp = sqrt(likep->get_scale());
     lambda = likep->get_scale()/tau2;
-
     // cout << lambda << endl;
 //    param.prettyPrint(cout);
 
@@ -641,7 +640,7 @@ void FC_nonp::update_gaussian(void)
        )
        designp->compute_XtransposedWX();
 
-    designp->compute_XtransposedWres(partres, lambda);
+    designp->compute_XtransposedWres(partres, lambda, tau2);
 
     if ((likep->wtype==wweightschange_weightsneqone) ||
         (likep->wtype==wweightschange_weightsone) ||
@@ -755,7 +754,7 @@ void FC_nonp::update_isotonic(void)
      )
     designp->compute_XtransposedWX();
 
-  designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWres(partres, lambda, tau2);
 
   if ((likep->wtype==wweightschange_weightsneqone) ||
       (likep->wtype==wweightschange_weightsone) ||
@@ -909,7 +908,7 @@ bool FC_nonp::posteriormode_transform(void)
     acuteparam = datamatrix(param.rows(),1,0);
     }
 
-  designp->compute_XtransposedWres(partres, lambda);
+  designp->compute_XtransposedWres(partres, lambda, tau2);
 
   designp->u.mult(designp->QtRinv,*(designp->XWres_p));
 
@@ -974,7 +973,7 @@ bool FC_nonp::posteriormode(void)
 
     designp->compute_XtransposedWX();
 
-    designp->compute_XtransposedWres(partres, lambda);
+    designp->compute_XtransposedWres(partres, lambda, tau2);
 
     designp->compute_precision(lambda);
 

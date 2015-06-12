@@ -353,8 +353,9 @@ class __EXPORT_TYPE DESIGN
 
   // FUNCTION: computes XWres
   // TASK: computes XWres, res is the partial residual
+  // l is the smoothing parameter (lambda), t2 is the smoothing variance (tau2)
 
-  virtual void compute_XtransposedWres(datamatrix & partres, double l);
+  virtual void compute_XtransposedWres(datamatrix & partres, double l, double t2);
 
   // FUNCTION: compute_XtransposedWX_XtransposedWres
   // TASK: computes XWX and XWres, res is the partial residual

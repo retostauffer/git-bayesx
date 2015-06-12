@@ -7805,7 +7805,7 @@ bool superbayesreg::create_userdefined(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
-  datamatrix designmat, penmat;
+  datamatrix designmat, penmat, priormean;
   if (terms[i].options[60] != "")
     {
     dataobject * datap;                           // pointer to datasetobject
@@ -7854,7 +7854,33 @@ bool superbayesreg::create_userdefined(unsigned i)
     datap->makematrix(varnames,designmat,expr);
     }
 
-
+  if (terms[i].options[63] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[63],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[63] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[63] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,priormean,expr);
+    }
+  else
+    {
+    priormean = datamatrix(penmat.cols(),1,0);
+    }
 //  ST::string pathdesign = terms[i].options[60];
 //  ST::string pathpenmat = pathdesign + "_penmat.raw";
 //  ST::string pathdesignmat = pathdesign + "_designmat.raw";
@@ -7898,7 +7924,7 @@ bool superbayesreg::create_userdefined(unsigned i)
   cout << "test" << "\n";*/
 
   design_userdefineds.push_back(DESIGN_userdefined(d,iv,
-                            designmat, penmat,
+                            designmat, penmat, priormean,
                             &generaloptions,equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));

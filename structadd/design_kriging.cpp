@@ -838,7 +838,7 @@ double DESIGN_kriging::penalty_compute_quadform(datamatrix & beta)
   }
 
 
-void DESIGN_kriging::compute_XtransposedWres(datamatrix & partres, double l)
+void DESIGN_kriging::compute_XtransposedWres(datamatrix & partres, double l, double t2)
   {
   XWres.mult(tildeZ_t,partres);
   XWres_p = &XWres;

@@ -44,6 +44,8 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
   vector< vector<double> > Zout2;            // Nonzero Elements of Z
   vector< vector<int> > index_Zout2;         // Columns of nonzero elements of Z
 
+  datamatrix mK;                             // matrix to adjust for nonzero prior mean
+
   public:
 
   // FUNCTION: compute_f
@@ -72,7 +74,7 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
   // CONSTRUCTOR
 
   DESIGN_userdefined(datamatrix & dm, datamatrix & iv, datamatrix & designmat,
-             datamatrix & penmat,
+             datamatrix & penmat, datamatrix & priormean,
              GENERAL_OPTIONS * o, DISTR * dp, FC_linear * fcl,
              vector<ST::string> & op,
              vector<ST::string> & vn);
@@ -97,6 +99,13 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
 
   ~DESIGN_userdefined() {}
 
+  // FUNCTION: computes XWres
+  // TASK: computes XWres, res is the partial residual
+  //       l is the inverse smoothing variance (1/tau2)
+
+  void compute_XtransposedWres(datamatrix & partres, double l, double t2);
+
+  void compute_Zout_transposed(void);
   };
 
 

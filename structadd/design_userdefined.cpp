@@ -432,7 +432,7 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
   // CONSTRUCTOR
 
 DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
-                       datamatrix & designmat, datamatrix & penmat,
+                       datamatrix & designmat, datamatrix & penmat, datamatrix & priormean,
                        GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                        vector<ST::string> & op,
                        vector<ST::string> & vn)
@@ -446,6 +446,8 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
   init_data(dm,iv);
 
   nrpar = designmat.cols();
+
+  mK = penmat*priormean;
 
   compute_Zout(designmat);
   compute_Zout_transposed(designmat);
@@ -496,6 +498,7 @@ DESIGN_userdefined::DESIGN_userdefined(const DESIGN_userdefined & m)
   binning = m.binning;
   Zout2 = m.Zout2;
   index_Zout2 = m.index_Zout2;
+  mK = m.mK;
   }
 
 
@@ -510,6 +513,7 @@ const DESIGN_userdefined & DESIGN_userdefined::operator=(const DESIGN_userdefine
   binning = m.binning;
   Zout2 = m.Zout2;
   index_Zout2 = m.index_Zout2;
+  mK = m.mK;
   return *this;
   }
 
@@ -532,6 +536,92 @@ void DESIGN_userdefined::outoptions(GENERAL_OPTIONS * op)
 
   op->out("\n");
 
+  }
+
+void DESIGN_userdefined::compute_XtransposedWres(datamatrix & partres, double l, double t2)
+  {
+
+  unsigned i,j;
+
+  if (ZoutT.size() != nrpar)
+    compute_Zout_transposed();
+
+  if (consecutive_ZoutT == -1)
+    {
+    bool c = check_ZoutT_consecutive();
+    consecutive_ZoutT = c;
+    }
+
+  double * workXWres = XWres.getV();
+  double * workmK = mK.getV();
+  unsigned size;
+    vector<double>::iterator wZoutT;
+
+  if (consecutive_ZoutT == 0)
+    {
+
+    vector<int>::iterator wZoutT_index;
+
+    for(i=0;i<nrpar;i++,workXWres++,workmK++)
+      {
+      *workXWres=0;
+      wZoutT = ZoutT[i].begin();
+      wZoutT_index = index_ZoutT[i].begin();
+      size = ZoutT[i].size();
+      for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
+        {
+        *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
+        }
+      *workXWres += *workmK/t2;
+      }
+    }
+  else
+    {
+    double * wpartres;
+
+    for(i=0;i<nrpar;i++,workXWres++,workmK++)
+      {
+      *workXWres=0;
+      wZoutT = ZoutT[i].begin();
+      size = ZoutT[i].size();
+      wpartres = partres.getV()+index_ZoutT[i][0];
+      for (j=0;j<size;j++,++wZoutT,wpartres++)
+        {
+        *workXWres+= (*wZoutT)* (*wpartres);
+        }
+      *workXWres += *workmK/t2;
+      }
+
+    }
+
+  XWres_p = &XWres;
+  XWX_p = &XWX;
+
+  // TEST
+  //ofstream out("c:\\temp\\XWres.res");
+  //XWres.prettyPrint(out);
+  // TEST
+  }
+
+
+void DESIGN_userdefined::compute_Zout_transposed(void)
+  {
+
+  vector<double> h;
+  ZoutT = vector<vector<double> >(nrpar,h);
+
+  vector<int> h2;
+  index_ZoutT = vector<vector<int> >(nrpar,h2);
+
+
+  unsigned i,j;
+
+  for (i=0;i<Zout.rows();i++)
+    for(j=0;j<Zout.cols();j++)
+      {
+      ZoutT[index_Zout(i,j)].push_back(Zout(i,j));
+      index_ZoutT[index_Zout(i,j)].push_back(i);
+      }
   }
 
 } // end: namespace MCMC
