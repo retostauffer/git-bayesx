@@ -531,7 +531,7 @@ void DESIGN_userdefined::outoptions(GENERAL_OPTIONS * op)
     centerm = "centered sampling";
 
   op->out("  Prior: user defined\n");
-  op->out("  Rank of penalty matrix:" + ST::inttostring(rankK) + "\n");
+  op->out("  Rank of penalty matrix: " + ST::inttostring(rankK) + "\n");
   op->out("  " + centerm + "\n" );
 
   op->out("\n");
