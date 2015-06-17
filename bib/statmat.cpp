@@ -1121,7 +1121,6 @@ T statmatrix<T>::quantile(const T & percent,const unsigned & col) const
 template<class T>
 T statmatrix<T>::quantile(const T & percent,const unsigned & col, statmatrix<int> & index) const
   {
-
   T k = this->rows()*(percent/100.0);           // (alpha * Anzahl der Beobachtungen)
   unsigned kganz = unsigned(k);
 

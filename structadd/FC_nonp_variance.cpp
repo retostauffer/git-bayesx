@@ -52,7 +52,8 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
   if (op[38] == "true")
     {
     lambdaconst = true;
-    nosamples =true;
+    nosamples = true;
+    nosamplessave = true;
     }
 
 

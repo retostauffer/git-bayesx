@@ -1006,14 +1006,10 @@ void FC::outresults(ofstream & out_stata, ofstream & out_R,
 
     if (nosamplessave==false)
       {
-
       for(i=0;i<nrpar;i++,wqu1l++,wqu2l++,wqu50++,wqu1u++,wqu2u++)
         {
-
         index.indexinit();
-
         sampled_beta.indexsort(index,0,sampled_beta.rows()-1,i,0);
-
         *wqu1l = sampled_beta.quantile(optionsp->lower1,i,index);
         *wqu2l = sampled_beta.quantile(optionsp->lower2,i,index);
         *wqu50 = sampled_beta.quantile(50,i,index);
@@ -1024,7 +1020,6 @@ void FC::outresults(ofstream & out_stata, ofstream & out_R,
 
     if (pathresults.isvalidfile() != 1)
       {
-
       ofstream outres(pathresults.strtochar());
 
       unsigned i;
