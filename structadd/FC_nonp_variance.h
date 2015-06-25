@@ -35,6 +35,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 namespace MCMC
 {
 
+
+/*
+vector<ST::string> hyperpriors;
+  hyperpriors.push_back("invgamma"); // standard inverse gamma
+  hyperpriors.push_back("scaledep"); // scale-dependent as proposed by Klein&Kneib, corresponds to weibull distribution
+  hyperpriors.push_back("hcauchy"); // generalised beta prime based on half-cauchy for tau
+  hyperpriors.push_back("hnormal");  // gamma prior based on half normal for tau
+  hyperpriors.push_back("aunif");      // based on approximation for uniform prior for tau
+  hyperprior = stroption("hyperprior",hyperpriors,"invgamma");
+*/
+enum hyperpr {invgamma,scaledep,hcauchy,hnormal,
+              aunif};
+
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: FC_nonp_variance --------------------------
 //------------------------------------------------------------------------------
@@ -67,6 +80,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   double scaletau2;
 
   int proposal;
+
+  hyperpr hyperprior;
 
   public:
 

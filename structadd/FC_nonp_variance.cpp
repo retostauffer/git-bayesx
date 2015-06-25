@@ -91,6 +91,17 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
     proposal = 0;
     }
 
+  if (op[64]=="invgamma")
+    hyperprior = invgamma;
+  else if (op[64] == "scaledep")
+    hyperprior = scaledep;
+  else if (op[64] == "hcauchy")
+    hyperprior = hcauchy;
+  else if (op[64] == "hnormal")
+    hyperprior = hnormal;
+  else if (op[64] == "aunif")
+    hyperprior = aunif;
+
   }
 
 
@@ -149,6 +160,7 @@ FC_nonp_variance::FC_nonp_variance(const FC_nonp_variance & m)
   wei = m.wei;
   scaletau2 = m.scaletau2;
   proposal = m.proposal;
+  hyperprior = m.hyperprior;
   }
 
 
@@ -174,6 +186,7 @@ const FC_nonp_variance & FC_nonp_variance::operator=(const FC_nonp_variance & m)
   wei = m.wei;
   scaletau2 = m.scaletau2;
   proposal = m.proposal;
+  hyperprior = m.hyperprior;
   return *this;
   }
 
@@ -254,7 +267,7 @@ void FC_nonp_variance::update(void)
         }
 
       }
-    else if (wei == true)
+    else if ( (wei == true) || (hyperprior == scaledep))
       {
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
       double u = log(uniform());
@@ -344,6 +357,18 @@ void FC_nonp_variance::update(void)
           acceptance++;
           }
         }
+      }
+    else if ((hyperprior == hnormal))
+      {
+      // implement iwls step for half normal
+      }
+    else if ((hyperprior == hcauchy))
+      {
+      // implement iwls step for half cauchy
+      }
+    else if ((hyperprior == aunif))
+      {
+      // implement iwls step for uniform approximation
       }
     else
       {

@@ -151,6 +151,14 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   designmatdata = stroption("designmatdata");
   priormeandata = stroption("priormeandata","");
+
+  vector<ST::string> hyperpriors;
+  hyperpriors.push_back("invgamma"); // standard inverse gamma
+  hyperpriors.push_back("scaledep"); // scale-dependent as proposed by Klein&Kneib, corresponds to weibull distribution
+  hyperpriors.push_back("hcauchy"); // generalised beta prime based on half-cauchy for tau
+  hyperpriors.push_back("hnormal");  // gamma prior based on half normal for tau
+  hyperpriors.push_back("aunif");      // based on approximation for uniform prior for tau
+  hyperprior = stroption("hyperprior",hyperpriors,"invgamma");
   }
 
 void term_nonp::setdefault(void)
@@ -224,6 +232,8 @@ void term_nonp::setdefault(void)
 
   designmatdata.setdefault();
   priormeandata.setdefault();
+
+  hyperprior.setdefault();
   }
 
 
@@ -327,8 +337,8 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildeb);
     optlist.push_back(&cauchy);
     optlist.push_back(&wei);
-	optlist.push_back(&scaletau2);
-	optlist.push_back(&r2);
+	  optlist.push_back(&scaletau2);
+	  optlist.push_back(&r2);
 
 
     optlist.push_back(&v1);
@@ -336,15 +346,17 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildev1);
     optlist.push_back(&tildev2);
     optlist.push_back(&gig);
-	optlist.push_back(&proposal);
+	  optlist.push_back(&proposal);
 
-	optlist.push_back(&rankK);
-	optlist.push_back(&penmatdata);
+	  optlist.push_back(&rankK);
+	  optlist.push_back(&penmatdata);
 
-	optlist.push_back(&cprior);
+	  optlist.push_back(&cprior);
 
-	optlist.push_back(&designmatdata);
-	optlist.push_back(&priormeandata);
+	  optlist.push_back(&designmatdata);
+	  optlist.push_back(&priormeandata);
+
+	  optlist.push_back(&hyperprior);
 
     unsigned i;
     bool rec = true;
@@ -534,6 +546,8 @@ bool term_nonp::check(term & t)
 
     t.options[62] = designmatdata.getvalue();
     t.options[63] = priormeandata.getvalue();
+
+    t.options[64] = hyperprior.getvalue();
 
     setdefault();
     return true;

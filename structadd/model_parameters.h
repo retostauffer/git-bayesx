@@ -110,6 +110,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption designmatdata;
   stroption priormeandata;
 
+  stroption hyperprior;
+
   vector<ST::string> termnames;
 
   void setdefault(void);
