@@ -245,6 +245,10 @@ void FC_nonp_variance::update(void)
 
   b_invgamma = masterp->level1_likep[equationnr]->trmult*b_invgamma_orig;
 
+ /* cout << "hyperprior" << hyperprior << endl;
+  cout << "wei" << wei << endl;
+  cout << "cauchy" << cauchy << endl;*/
+
   if (lambdaconst == false)
     {
 
@@ -358,15 +362,35 @@ void FC_nonp_variance::update(void)
           }
         }
       }
-    else if ((hyperprior == hnormal))
+    else if ((hyperprior == hnormal)) // half normal for tau
       {
-      // implement iwls step for half normal
+   //   cout << "hyperprior" << hyperprior << endl;
+      double quadf = designp->penalty_compute_quadform(FCnonpp->param);
+      double u = log(uniform());
+
+      double vartau = 1/(0.5*quadf/beta(0,0) + 0.5*beta(0,0)/(scaletau2*scaletau2));
+      double mutau = log(beta(0,0)) + vartau * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/beta(0,0) - 0.5*beta(0,0)/(scaletau2*scaletau2));
+
+      double gamma = mutau + rand_normal() * sqrt(vartau);
+      double fcold = log(beta(0,0)) - 0.5*(designp->rankK+1)*log(beta(0,0)) - 0.5*beta(0,0)/(scaletau2*scaletau2) - 1/(2*beta(0,0))*quadf;
+      double fcnew = gamma- 0.5*(designp->rankK+1)*gamma - 0.5*exp(gamma)/(scaletau2*scaletau2) - 1/(2*exp(gamma))*quadf;
+
+      double vartauold = 1/(0.5*quadf/exp(gamma) + 0.5*exp(gamma)/(scaletau2*scaletau2));
+      double mutauold = gamma + vartauold * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/exp(gamma) - 0.5*exp(gamma)/(scaletau2*scaletau2));
+      double proposalold = -0.5*log(vartauold)-0.5*pow((log(beta(0,0))-mutauold), 2)/vartauold;
+      double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
+
+      if (u <= (fcnew - fcold - proposalnew + proposalold))
+        {
+        beta(0,0) = exp(gamma);
+        acceptance++;
+        }
       }
-    else if ((hyperprior == hcauchy))
+    else if ((hyperprior == hcauchy)) // half cauchy for tau
       {
       // implement iwls step for half cauchy
       }
-    else if ((hyperprior == aunif))
+    else if ((hyperprior == aunif))  // approximation of uniform prior for tau
       {
       // implement iwls step for uniform approximation
       }
@@ -527,7 +551,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
 void FC_nonp_variance::outoptions(void)
   {
-  if (cauchy)
+  if (cauchy|| (hyperprior==hcauchy))
     {
     optionsp->out("  Cauchy prior\n");
 
@@ -538,9 +562,9 @@ void FC_nonp_variance::outoptions(void)
                 ST::doubletostring(tildeb) + "\n" );
 
     }
-  else if (wei)
+  else if (wei  || (hyperprior==scaledep))
     {
-    optionsp->out("  Weibull prior\n");
+    optionsp->out("  Scale-dependent (weibull) prior\n");
 
     optionsp->out("  Scale parameter: " +
                 ST::doubletostring(scaletau2) + "\n" );
@@ -566,6 +590,24 @@ void FC_nonp_variance::outoptions(void)
       {
       optionsp->out("  IWLS proposal density for log(tau^2) \n" );
       }
+    }
+  else if (hyperprior==hnormal)
+    {
+    optionsp->out("  Gamma prior (Half normal prior for tau)\n");
+
+    optionsp->out("  Scale parameter: " +
+                ST::doubletostring(scaletau2) + "\n" );
+
+    optionsp->out("  IWLS proposal density for log(tau^2) \n" );
+    }
+  else if (hyperprior==aunif)
+    {
+    optionsp->out("   Approximation of uniform prior for tau\n");
+
+    optionsp->out("  Scale parameter: " +
+                ST::doubletostring(scaletau2) + "\n" );
+
+    optionsp->out("  IWLS proposal density for log(tau^2) \n" );
     }
   else
     {
