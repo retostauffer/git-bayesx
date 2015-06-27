@@ -102,6 +102,18 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
   else if (op[64] == "aunif")
     hyperprior = aunif;
 
+  if(scaletau2 == 0)
+    {
+    if (hyperprior = scaledep)
+    scaletau2 = 0.00877812;
+    else if (hyperprior == hcauchy)
+    scaletau2 = 0.01034553;
+    else if (hyperprior == hnormal)
+    scaletau2 = 3.2988005;
+    else if (hyperprior == aunif)
+    scaletau2 = 0.2723532;
+    }
+
   }
 
 
@@ -388,11 +400,55 @@ void FC_nonp_variance::update(void)
       }
     else if ((hyperprior == hcauchy)) // half cauchy for tau
       {
-      // implement iwls step for half cauchy
+      double quadf = designp->penalty_compute_quadform(FCnonpp->param);
+      double quadstau2=(scaletau2*scaletau2);
+      double u = log(uniform());
+
+      double vartau = 1/(0.5*quadf/beta(0,0) + (beta(0,0)/quadstau2)/pow((1+beta(0,0)/quadstau2),2));
+      double mutau = log(beta(0,0)) + vartau * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/beta(0,0) - (beta(0,0)/quadstau2)/(1+beta(0,0)/quadstau2));
+
+      double gamma = mutau + rand_normal() * sqrt(vartau);
+      double fcold = log(beta(0,0)) - 0.5*(designp->rankK+1)*log(beta(0,0)) - log(1+beta(0,0)/quadstau2) - 1/(2*beta(0,0))*quadf;
+      double fcnew = gamma- 0.5*(designp->rankK+1)*gamma - log(1+exp(gamma)/quadstau2) - 1/(2*exp(gamma))*quadf;
+
+      double vartauold = 1/(0.5*quadf/exp(gamma) + (exp(gamma)/quadstau2)/pow((1+exp(gamma)/quadstau2),2));
+      double mutauold = gamma + vartauold * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/exp(gamma) - (exp(gamma)/quadstau2)/(1+exp(gamma)/quadstau2));
+      double proposalold = -0.5*log(vartauold)-0.5*pow((log(beta(0,0))-mutauold), 2)/vartauold;
+      double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
+
+      if (u <= (fcnew - fcold - proposalnew + proposalold))
+        {
+        beta(0,0) = exp(gamma);
+        acceptance++;
+        }
       }
     else if ((hyperprior == aunif))  // approximation of uniform prior for tau
       {
-      // implement iwls step for uniform approximation
+      double tildec = 13.86294;
+      double argold = sqrt(beta(0,0))*tildec/scaletau2;
+      double expargold = exp(argold-tildec);
+      double quadf = designp->penalty_compute_quadform(FCnonpp->param);
+      double u = log(uniform());
+
+      double vartau = 1/(0.5*quadf/beta(0,0) + ((argold*0.25*expargold)/(1+expargold))*(1+argold/(1+expargold)));
+      double mutau = log(beta(0,0)) + vartau * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/beta(0,0) - 0.5*argold*expargold/(1+expargold));
+
+      double gamma = mutau + rand_normal() * sqrt(vartau);
+      double argnew = sqrt(exp(gamma))*tildec/scaletau2;
+      double expargnew = exp(argnew-tildec);
+      double fcold = log(beta(0,0)) - 0.5*(designp->rankK+1)*log(beta(0,0)) - log(1+expargold) - 1/(2*beta(0,0))*quadf;
+      double fcnew = gamma- 0.5*(designp->rankK+1)*gamma - log(1+expargnew) - 1/(2*exp(gamma))*quadf;
+
+      double vartauold = 1/(0.5*quadf/exp(gamma) + ((argnew*0.25*expargnew)/(1+expargnew))*(1+argnew/(1+expargnew)));
+      double mutauold = gamma + vartauold * (1 - 0.5*(designp->rankK+1) + 0.5*quadf/exp(gamma) - 0.5*argnew*expargnew/(1+expargnew));
+      double proposalold = -0.5*log(vartauold)-0.5*pow((log(beta(0,0))-mutauold), 2)/vartauold;
+      double proposalnew = -0.5*log(vartau)-0.5*pow((gamma-mutau), 2)/vartau;
+
+      if (u <= (fcnew - fcold - proposalnew + proposalold))
+        {
+        beta(0,0) = exp(gamma);
+        acceptance++;
+        }
       }
     else
       {
@@ -551,7 +607,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
 
 void FC_nonp_variance::outoptions(void)
   {
-  if (cauchy|| (hyperprior==hcauchy))
+  if (cauchy)
     {
     optionsp->out("  Cauchy prior\n");
 
@@ -594,6 +650,15 @@ void FC_nonp_variance::outoptions(void)
   else if (hyperprior==hnormal)
     {
     optionsp->out("  Gamma prior (Half normal prior for tau)\n");
+
+    optionsp->out("  Scale parameter: " +
+                ST::doubletostring(scaletau2) + "\n" );
+
+    optionsp->out("  IWLS proposal density for log(tau^2) \n" );
+    }
+  else if (hyperprior==hcauchy)
+    {
+    optionsp->out("  Generalised beta prime prior (Half cauchy prior for tau)\n");
 
     optionsp->out("  Scale parameter: " +
                 ST::doubletostring(scaletau2) + "\n" );
