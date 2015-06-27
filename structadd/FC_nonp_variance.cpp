@@ -104,7 +104,7 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
 
   if(scaletau2 == 0)
     {
-    if (hyperprior = scaledep)
+    if (hyperprior == scaledep)
     scaletau2 = 0.00877812;
     else if (hyperprior == hcauchy)
     scaletau2 = 0.01034553;
@@ -667,7 +667,7 @@ void FC_nonp_variance::outoptions(void)
     }
   else if (hyperprior==aunif)
     {
-    optionsp->out("   Approximation of uniform prior for tau\n");
+    optionsp->out("  Approximation of uniform prior for tau\n");
 
     optionsp->out("  Scale parameter: " +
                 ST::doubletostring(scaletau2) + "\n" );
