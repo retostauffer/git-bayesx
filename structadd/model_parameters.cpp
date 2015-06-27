@@ -122,7 +122,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   tildeb = doubleoption("tildeb",0.001,0,500);
   cauchy = simpleoption("cauchy",false);
   wei = simpleoption("wei",false);
-  scaletau2 = doubleoption("scaletau2",0,0,1000000000);
+  scaletau2 = doubleoption("scaletau2",0.00877812,0.0000000001,1000000000);
   r2 = doubleoption("r2",0.00456356,0,1);
 
   v1 = doubleoption("v1",5,0.0000000001,500);
