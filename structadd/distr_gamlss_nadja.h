@@ -2437,6 +2437,90 @@ class __EXPORT_TYPE DISTR_cloglog : public DISTR_gamlss
 
 
 //------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_binomialprobit_copula -------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_binomialprobit_copula : public DISTR_gamlss
+  {
+
+  protected:
+
+  datamatrix responseorig;
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_binomialprobit_copula(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_binomialprobit_copula(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_binomialprobit_copula(const DISTR_binomialprobit_copula & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_binomialprobit_copula & operator=(const DISTR_binomialprobit_copula & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_binomialprobit_copula() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double compute_quantile_residual_mult(vector<double *> response,
+                                         vector<double *> param,
+                                         vector<double *> weight,
+                                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  void update(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
 //----------------- CLASS: DISTR_claytoncopula2_normal_sigma2 ------------------
 //------------------------------------------------------------------------------
 

@@ -45,6 +45,7 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
   vector< vector<int> > index_Zout2;         // Columns of nonzero elements of Z
 
   datamatrix mK;                             // matrix to adjust for nonzero prior mean
+  datamatrix Kdatamat;
 
   public:
 
@@ -106,6 +107,69 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
   void compute_XtransposedWres(datamatrix & partres, double l, double t2);
 
   void compute_Zout_transposed(void);
+  };
+
+
+//------------------------------------------------------------------------------
+//-------------------- CLASS: DESIGN_userdefined_tensor ------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
+  {
+
+  protected:
+
+  vector<envmatdouble> Ks; // vector of penalty matrices (K = omega*K_1 + (1-omega)K_2)
+  vector<double> dets;     // vector of determinants of penalty matrices
+  vector<double> omegas;   // vector of fixed weights (grid between 0 and 1)
+
+  unsigned nromega;
+
+  public:
+
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+
+  // DEFAULT CONSTRUCTOR
+
+  DESIGN_userdefined_tensor(void);
+
+  // CONSTRUCTOR
+
+  DESIGN_userdefined_tensor(datamatrix & dm, datamatrix & iv,
+             datamatrix & designmat1, datamatrix & designmat2,
+             datamatrix & penmat1, datamatrix & penmat2,
+             datamatrix & priormean,
+             GENERAL_OPTIONS * o, DISTR * dp, FC_linear * fcl,
+             vector<ST::string> & op,
+             vector<ST::string> & vn);
+
+  // COPY CONSTRUCTOR
+
+  DESIGN_userdefined_tensor(const DESIGN_userdefined_tensor & m);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DESIGN_userdefined_tensor & operator=(const DESIGN_userdefined_tensor & m);
+
+  void init_data(datamatrix & dm, datamatrix & iv);
+
+  void compute_precision(double l);
+
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+
+  void outoptions(GENERAL_OPTIONS * op);
+
+  void outbasis_R(ofstream & out);
+
+// DESTRUCTOR
+
+  ~DESIGN_userdefined_tensor() {}
+
+  // FUNCTION: computes XWres
+  // TASK: computes XWres, res is the partial residual
+  //       l is the inverse smoothing variance (1/tau2)
+
+  void compute_XtransposedWres(datamatrix & partres, double l, double t2);
   };
 
 

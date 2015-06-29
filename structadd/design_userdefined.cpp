@@ -291,6 +291,23 @@ void DESIGN_userdefined::compute_basisNull(void)
     }
   else if (centermethod==nullspace)
     {
+    if(nrpar-rankK > 0)
+      {
+      basisNull = datamatrix(nrpar-rankK,nrpar,1);
+      datamatrix Kstat=Kdatamat;
+      datamatrix vals(Kstat.rows(),1,0);
+      bool eigentest=eigen2(Kstat,vals);
+      eigensort(vals,Kstat);
+      unsigned j,k;
+      for(j=0; j<vals.rows(); j++)
+        {
+        for(k=0; k<nrpar-rankK; k++)
+          {
+          basisNull(k,j) = Kstat(j,rankK+k);
+          }
+        }
+      position_lin = -1;
+      }
     }
 
 
@@ -448,6 +465,7 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
   nrpar = designmat.cols();
 
   mK = penmat*priormean;
+  Kdatamat = penmat;
 
   compute_Zout(designmat);
   compute_Zout_transposed(designmat);
@@ -464,6 +482,11 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
       optionsp->out("WARNING: Unable to compute rank of penalty matrix.\n");
       optionsp->out("         Rank was set to the dimension of the penalty matrix: " + ST::inttostring(rankK) + "\n");
       optionsp->out("         Please specify argument rankK\n");
+      if(centermethod==nullspace)
+        {
+        optionsp->out("         Option centermethod was changed to meanfd\n");
+        centermethod = meanfd;
+        }
       }
     else
       {
@@ -499,6 +522,7 @@ DESIGN_userdefined::DESIGN_userdefined(const DESIGN_userdefined & m)
   Zout2 = m.Zout2;
   index_Zout2 = m.index_Zout2;
   mK = m.mK;
+  Kdatamat = m.Kdatamat;
   }
 
 
@@ -514,6 +538,7 @@ const DESIGN_userdefined & DESIGN_userdefined::operator=(const DESIGN_userdefine
   Zout2 = m.Zout2;
   index_Zout2 = m.index_Zout2;
   mK = m.mK;
+  Kdatamat = m.Kdatamat;
   return *this;
   }
 
@@ -624,6 +649,394 @@ void DESIGN_userdefined::compute_Zout_transposed(void)
       }
   }
 
+//------------------------------------------------------------------------------
+//---- CLASS: DESIGN_userdefined_tensor implementation of member functions -----
+//------------------------------------------------------------------------------
+
+void DESIGN_userdefined_tensor::read_options(vector<ST::string> & op,
+                                 vector<ST::string> & vn)
+  {
+
+  /*
+  1       degree
+  2       numberknots
+  3       difforder
+  4       lambda
+  5       a
+  6       b
+  7       center
+  8       map
+  9       lambda_re
+  10      a_re
+  11      b_re
+  12      internal_mult
+  13      samplemult
+  14      constraints
+  15      round
+  16      centermethod
+  17      internal_mult
+  18      pvalue
+  19      meaneffect
+  20      binning
+  21      update
+  22      nu
+  23      maxdist
+  24      ccovariate
+  */
+
+  int f;
+
+  if (op[7] == "false")   //nocenter==false, i.e. center
+    center = true;
+  else
+    center = false;
+
+  f = op[15].strtodouble(round);
+
+  if (op[16]=="meancoeff")
+    centermethod = meancoeff;
+  else if (op[16] == "meansimple")
+    centermethod = meansimple;
+  else if (op[16] == "integralsimple")
+    centermethod = integralsimple;
+  else if (op[16] == "nullspace")
+    centermethod = nullspace;
+  else if (op[16] == "meaninvvar")
+    centermethod = cmeaninvvar;
+  else if (op[16] == "meanintegral")
+    centermethod = cmeanintegral;
+  else if (op[16] == "meanf")
+    centermethod = meanf;
+  else if (op[16] == "meanfd")
+    centermethod = meanfd;
+  else if (op[16] == "meansum2")
+    centermethod = meansum2;
+
+  f = op[20].strtodouble(binning);
+
+  f = op[59].strtodouble(rankK);
+
+  datanames = vn;
+  }
+
+
+DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(void) : DESIGN_userdefined()
+  {
+
+  }
+
+
+void DESIGN_userdefined_tensor::init_data(datamatrix & dm, datamatrix & iv)
+  {
+
+  unsigned j;
+
+  // 1. Indexsort of data
+  if (index_data.rows() <= 1)
+    {
+    index_data = statmatrix<int>(dm.rows(),1);
+    index_data.indexinit();
+    dm.indexsort(index_data,0,dm.rows()-1,0,0);
+    }
+
+  double dm_mean = dm.mean(0);
+
+  //2. data = sorted observations, init intvar and intvar2
+  data = datamatrix(dm.rows(),1);
+  double * workdata = data.getV();
+  int * workindex = index_data.getV();
+  for (j=0;j<dm.rows();j++,workdata++,workindex++)
+    {
+    *workdata = dm(*workindex,0);
+    }
+
+  if (iv.rows() == dm.rows())
+    {
+    intvar = iv;
+    intvar2 = datamatrix(iv.rows(),1);
+    double * workintvar2 = intvar2.getV();
+    double * workintvar = intvar.getV();
+
+    for (j=0;j<iv.rows();j++,workintvar++,workintvar2++)
+      {
+      *workintvar2 = pow(*workintvar,2);
+      }
+    }
+
+  // 3. Creates posbeg, posend
+
+  posbeg.erase(posbeg.begin(),posbeg.end());
+  posend.erase(posend.begin(),posend.end());
+  posbeg.push_back(0);
+  workdata = data.getV()+1;
+  double help = data(0,0);
+  for(j=1;j<data.rows();j++,workdata++)
+    {
+    if (  *workdata != help)
+      {
+      posend.push_back(j-1);
+      if (j < data.rows())
+        posbeg.push_back(j);
+      }
+
+    help = *workdata;
+
+    }
+
+  if (posend.size() < posbeg.size())
+    posend.push_back(data.rows()-1);
+
+  // 4. initializes ind
+  int k;
+  workindex = index_data.getV();
+  ind = statmatrix<unsigned>(dm.rows(),1);
+  for (j=0;j<posend.size();j++)
+    {
+    for (k=posbeg[j];k<=posend[j];k++,workindex++)
+      ind(*workindex,0) = j;
+
+    }
+
+  // TEST
+  // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
+  // ind.prettyPrint(out);
+  // TEST
+
+
+  // 5. Compute meaneffectnr, mclosest, effectvalues
+  effectvalues.erase(effectvalues.begin(),effectvalues.end());
+  double d;
+  meaneffectnr = 0;
+  double mclosest = data(posbeg[0],0);
+  for(j=0;j<posbeg.size();j++)
+    {
+    d = data(posbeg[j],0);
+    if ( fabs(d-dm_mean) < fabs(mclosest-dm_mean) )
+      {
+      meaneffectnr = j;
+      mclosest = d;
+      }
+
+    effectvalues.push_back(ST::doubletostring(d,0));
+    }
+
+  compute_meaneffectintvar();
+  }
+
+
+void DESIGN_userdefined_tensor::compute_precision(double l)
+  {
+  if (precisiondeclared==false)
+    {
+    precision = envmatdouble(K.computeMaxXenv(XWX),1.0,nrpar);
+    precisiondeclared = true;
+    }
+
+
+  precision.addto(XWX,K,1.0,l);
+
+  //ofstream out("c:\\temp\\K.res");
+  //K.print2(out);
+
+
+  // ofstream out("c:\\temp\\precision.res");
+  // precision.print2(out);
+
+
+  }
+
+DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix & iv,
+                       datamatrix & designmat1, datamatrix & designmat2,
+                       datamatrix & penmat1, datamatrix & penmat2, datamatrix & priormean,
+                       GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
+                       vector<ST::string> & op,
+                       vector<ST::string> & vn)
+//                      : DESIGN(o,dp,fcl)
+  {
+  read_options(op,vn);
+
+  // Adjust to multiple columns in dm
+  init_data(dm,iv);
+
+  nrpar = designmat1.cols()*designmat2.cols();
+
+  datamatrix designmat(designmat1.rows(), nrpar, 0.0);
+  unsigned i,j,k;
+  for(i=0; i<designmat1.rows(); i++)
+    for(j=0; j<designmat1.cols(); j++)
+       for(k=0; k<designmat2.cols(); k++)
+         designmat(i,j + k*designmat2.cols()) = designmat1(i,j)*designmat2(i,k);
+
+  nromega=11;
+  for(i=0; i<nromega; i++)
+    omegas.push_back(0.05 + ((double)i)/((double)(nromega-1) * 0.9));
+
+  datamatrix I1 = datamatrix::diag(penmat1.rows(), 1);
+  datamatrix I2 = datamatrix::diag(penmat2.rows(), 1);
+  datamatrix K1help = penmat1.kronecker(I2);
+  datamatrix K2help = I1.kronecker(penmat2);
+
+  for(i=0; i<nromega; i++)
+//    Ks.push_back();
+
+  compute_Zout(designmat);
+  compute_Zout_transposed(designmat);
+
+  K = Ks[0];
+
+  if(rankK==-1)
+    {
+    // compute rankK;
+    datamatrix Kstat=K1help+K2help;
+    datamatrix vals(Kstat.rows(),1,0);
+    bool eigentest=eigen2(Kstat,vals);
+    if(eigentest==false)
+      {
+      rankK = Kstat.rows();
+      optionsp->out("WARNING: Unable to compute rank of penalty matrix.\n");
+      optionsp->out("         Rank was set to the dimension of the penalty matrix: " + ST::inttostring(rankK) + "\n");
+      optionsp->out("         Please specify argument rankK\n");
+      if(centermethod==nullspace)
+        {
+        optionsp->out("         Option centermethod was changed to meanfd\n");
+        centermethod = meanfd;
+        }
+      }
+    else
+      {
+      rankK=0;
+      unsigned j;
+      for(j=0; j<vals.rows(); j++)
+        {
+        if(fabs(vals(j,0))>=0.000001)
+          rankK++;
+        }
+      }
+    }
+
+  Wsum = datamatrix(posbeg.size(),1,1);
+
+  datamatrix help = designmat.transposed()*designmat;
+  XWX = envmatdouble(help, 0.0);
+  compute_XtransposedWX();
+  XWres = datamatrix(nrpar,1);
+
+  compute_precision(1.0);
+  compute_basisNull();
+  }
+
+
+  // COPY CONSTRUCTOR
+
+DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(const DESIGN_userdefined_tensor & m)
+    : DESIGN_userdefined(DESIGN_userdefined(m))
+  {
+  Ks = m.Ks;
+  dets = m.dets;
+  omegas = m.omegas;
+  nromega = m.nromega;
+  }
+
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+const DESIGN_userdefined_tensor & DESIGN_userdefined_tensor::operator=(const DESIGN_userdefined_tensor & m)
+  {
+  if (this == &m)
+    return *this;
+  DESIGN_userdefined::operator=(DESIGN_userdefined(m));
+  Ks = m.Ks;
+  dets = m.dets;
+  omegas = m.omegas;
+  nromega = m.nromega;
+  return *this;
+  }
+
+void DESIGN_userdefined_tensor::outbasis_R(ofstream & out)
+  {
+  }
+
+void DESIGN_userdefined_tensor::outoptions(GENERAL_OPTIONS * op)
+  {
+  ST::string centerm;
+
+  if (center==false)
+    centerm = "uncentered sampling";
+  else
+    centerm = "centered sampling";
+
+  op->out("  Prior: user defined\n");
+  op->out("  Rank of penalty matrix: " + ST::inttostring(rankK) + "\n");
+  op->out("  " + centerm + "\n" );
+
+  op->out("\n");
+
+  }
+
+void DESIGN_userdefined_tensor::compute_XtransposedWres(datamatrix & partres, double l, double t2)
+  {
+
+  unsigned i,j;
+
+  if (ZoutT.size() != nrpar)
+    compute_Zout_transposed();
+
+  if (consecutive_ZoutT == -1)
+    {
+    bool c = check_ZoutT_consecutive();
+    consecutive_ZoutT = c;
+    }
+
+  double * workXWres = XWres.getV();
+  double * workmK = mK.getV();
+  unsigned size;
+    vector<double>::iterator wZoutT;
+
+  if (consecutive_ZoutT == 0)
+    {
+
+    vector<int>::iterator wZoutT_index;
+
+    for(i=0;i<nrpar;i++,workXWres++,workmK++)
+      {
+      *workXWres=0;
+      wZoutT = ZoutT[i].begin();
+      wZoutT_index = index_ZoutT[i].begin();
+      size = ZoutT[i].size();
+      for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
+        {
+        *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
+        }
+      *workXWres += *workmK/t2;
+      }
+    }
+  else
+    {
+    double * wpartres;
+
+    for(i=0;i<nrpar;i++,workXWres++,workmK++)
+      {
+      *workXWres=0;
+      wZoutT = ZoutT[i].begin();
+      size = ZoutT[i].size();
+      wpartres = partres.getV()+index_ZoutT[i][0];
+      for (j=0;j<size;j++,++wZoutT,wpartres++)
+        {
+        *workXWres+= (*wZoutT)* (*wpartres);
+        }
+      *workXWres += *workmK/t2;
+      }
+
+    }
+
+  XWres_p = &XWres;
+  XWX_p = &XWX;
+
+  // TEST
+  //ofstream out("c:\\temp\\XWres.res");
+  //XWres.prettyPrint(out);
+  // TEST
+  }
 } // end: namespace MCMC
 
 

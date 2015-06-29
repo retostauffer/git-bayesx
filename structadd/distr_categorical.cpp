@@ -697,12 +697,16 @@ double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
     }
 
   double res,xi;
-  xi = *workrespp - *linpredp;
+/*  xi = *workrespp - *linpredp;
   if(resp>0)
     res=(randnumbers::Phi2(xi)-0.5)/0.5;
   else
-    res=randnumbers::Phi2(xi)/0.5;
+    res=randnumbers::Phi2(xi)/0.5;*/
 
+  if(resp>0)
+    res=1;
+  else
+    res=randnumbers::Phi2(*linpredp);
 
   if (counter<nrobs-1)
     {

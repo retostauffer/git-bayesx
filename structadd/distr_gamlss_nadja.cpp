@@ -7640,6 +7640,274 @@ void DISTR_cloglog::update_end(void)
   }
 
 
+//------------------------------------------------------------------------------
+//----------------- CLASS: DISTR_binomialprobit_copula -------------------------
+//------------------------------------------------------------------------------
+
+void DISTR_binomialprobit_copula::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = responseorig.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+        if (((*workresp)!= 0.0) && ((*workresp)!= 1.0) )
+          {
+          errors=true;
+          errormessages.push_back("ERROR: response has to be equal to zero or one\n");
+          }
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,0,w)
+  {
+  family = "Binomial Distribution - probit";
+    outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+  responseorig = r;
+//  linpredminlimit=-7.5;
+//  linpredmaxlimit=2.2;
+  check_errors();
+  }
+
+
+DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(const DISTR_binomialprobit_copula & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+  responseorig = nd.responseorig;
+  }
+
+
+const DISTR_binomialprobit_copula & DISTR_binomialprobit_copula::operator=(
+                            const DISTR_binomialprobit_copula & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  responseorig = nd.responseorig;
+  return *this;
+  }
+
+
+void DISTR_binomialprobit_copula::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+   if (*weight[0] == 0)
+     *deviance=0;
+   else
+     {
+     double pi = randnumbers::Phi2(*linpred[0]);
+
+     double l;
+
+     if ((*response[0])<=0) {
+        l = log(1-pi);
+     } else {
+        l = log(pi);
+     }
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+double DISTR_binomialprobit_copula::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_binomialprobit_copula::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = randnumbers::Phi2(*linpred[0]);
+  }
+
+double DISTR_binomialprobit_copula::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+        double Fy = 0;
+        if (*response[0]>0) {
+            Fy = 1;
+            if((*response[0]<1)&(*response[0]>0)) {
+                Fy = 1-(*param[0]);
+            }
+        }
+    return Fy;
+    }
+
+double DISTR_binomialprobit_copula::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_binomialprobit_copula::compute_quantile_residual_mult(vector<double *> response,
+                                         vector<double *> param,
+                                         vector<double *> weight,
+                                          vector<datamatrix *> aux)
+    {
+    double u_est;
+    if(*response[0]==0) {
+        u_est = randnumbers::uniform_ab(0,(*param[0]));
+    }
+    else {
+        u_est = randnumbers::uniform();
+    }
+    double res_est = randnumbers::invPhi2(u_est);
+    return res_est;
+    }
+
+
+double DISTR_binomialprobit_copula::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double l =-0.5*(*response-*linpred)*(*response-*linpred);
+
+  modify_worklin();
+
+  return l;
+  }
+
+void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double F = cdf(*response,*linpred);
+  vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+
+  // compute and implement dF/deta, d^2 F/deta ^2
+  double z = (*response-*linpred);
+  double dF = -0.3989423*exp(-0.5*z*z);
+  double ddF = z*dF;
+
+  double nu = *linpred - *response + logcandderivs[1]*dF;
+  *workingweight = 1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+
+  if (*workingweight <=0)
+    *workingweight = 0.0001;
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like += -0.5*(*response-*linpred)*(*response-*linpred) + logcandderivs[0];
+    }
+  modify_worklin();
+  }
+
+
+void DISTR_binomialprobit_copula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = randnumbers::Phi2(*linpred[predstart_mumult]);
+  }
+
+
+void DISTR_binomialprobit_copula::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (mu): probit\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_binomialprobit_copula::update_end(void)
+  {
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = randnumbers::Phi2(*worklin);
+    }
+  }
+
+void DISTR_binomialprobit_copula::update(void)
+  {
+  double * workresp = response.getV();
+  double * workresporig =responseorig.getV();
+  double * weightwork = weight.getV();
+
+  double * worklin_current;
+  if (linpred_current==1)
+    worklin_current = linearpred1.getV();
+  else
+    worklin_current = linearpred2.getV();
+
+  set_worklin();
+
+  unsigned i;
+/*  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,
+           response2p++,workresporig++,worktransformlin[0]++,worklin[1]++)
+    {
+    if (*weightwork != 0)
+      {
+      if (*workresporig > 0)
+        *workresp = trunc_normal2(0,20,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
+      else
+        *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
+      }
+    }*/
+  }
+
 //--------------------------------------------------------------------------------
 //----------------- CLASS: DISTR_claytoncopula2_normal_sigma2 --------------------
 //--------------------------------------------------------------------------------
