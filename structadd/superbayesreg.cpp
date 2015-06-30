@@ -9010,7 +9010,7 @@ bool superbayesreg::create_nonp(void)
       if (terms[i].options[0] == "userdefined")
         create_userdefined(i);
       if (terms[i].options[0] == "tensor")
-        create_userdefined(i);
+        create_userdefined_tensor(i);
       if (terms[i].options[0] == "hrandom")
         error = create_hrandom(i);
       if (terms[i].options[0] == "random")
