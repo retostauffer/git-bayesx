@@ -448,6 +448,11 @@ void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
 
   // CONSTRUCTOR
 
+DESIGN_userdefined::DESIGN_userdefined(GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl)
+                      : DESIGN(o,dp,fcl)
+  {
+  }
+
 DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
                        datamatrix & designmat, datamatrix & penmat, datamatrix & priormean,
                        GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
@@ -833,7 +838,7 @@ void DESIGN_userdefined_tensor::compute_precision(double l)
     }
 
 
-  precision.addto(XWX,K,1.0,l);
+  precision.addto(XWX,Ks[omegaindex],1.0,l);
 
   //ofstream out("c:\\temp\\K.res");
   //K.print2(out);
@@ -851,7 +856,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
                        GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                        vector<ST::string> & op,
                        vector<ST::string> & vn)
-//                      : DESIGN(o,dp,fcl)
+                      : DESIGN_userdefined(o,dp,fcl)
   {
   read_options(op,vn);
 
@@ -870,19 +875,22 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
   nromega=11;
   for(i=0; i<nromega; i++)
     omegas.push_back(0.05 + ((double)i)/((double)(nromega-1) * 0.9));
+  FC_omegas = FC(o,"",1,1,"");
+  FC_omegas.setbeta(1,1,omegas[(int)((nromega-1)/2)]);
+  omegaindex = (unsigned)((nromega-1)/2);
 
   datamatrix I1 = datamatrix::diag(penmat1.rows(), 1);
   datamatrix I2 = datamatrix::diag(penmat2.rows(), 1);
-  datamatrix K1help = penmat1.kronecker(I2);
-  datamatrix K2help = I1.kronecker(penmat2);
+  datamatrix K1help = I2.kronecker(penmat1);
+  datamatrix K2help = penmat2.kronecker(I1);
 
   for(i=0; i<nromega; i++)
-//    Ks.push_back();
+    Ks.push_back(envmatdouble(omegas[i]*K1help + (1-omegas[i])*K2help, 0.00000001));
 
   compute_Zout(designmat);
   compute_Zout_transposed(designmat);
 
-  K = Ks[0];
+  K = envmatdouble(K1help+K2help, 0.00000001);
 
   if(rankK==-1)
     {
@@ -896,11 +904,6 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
       optionsp->out("WARNING: Unable to compute rank of penalty matrix.\n");
       optionsp->out("         Rank was set to the dimension of the penalty matrix: " + ST::inttostring(rankK) + "\n");
       optionsp->out("         Please specify argument rankK\n");
-      if(centermethod==nullspace)
-        {
-        optionsp->out("         Option centermethod was changed to meanfd\n");
-        centermethod = meanfd;
-        }
       }
     else
       {
@@ -935,6 +938,8 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(const DESIGN_userdefined_te
   dets = m.dets;
   omegas = m.omegas;
   nromega = m.nromega;
+  FC_omegas = m.FC_omegas;
+  omegaindex = m.omegaindex;
   }
 
 
@@ -949,6 +954,8 @@ const DESIGN_userdefined_tensor & DESIGN_userdefined_tensor::operator=(const DES
   dets = m.dets;
   omegas = m.omegas;
   nromega = m.nromega;
+  FC_omegas = m.FC_omegas;
+  omegaindex = m.omegaindex;
   return *this;
   }
 
@@ -965,7 +972,7 @@ void DESIGN_userdefined_tensor::outoptions(GENERAL_OPTIONS * op)
   else
     centerm = "centered sampling";
 
-  op->out("  Prior: user defined\n");
+  op->out("  Prior: user defined (tensor product)\n");
   op->out("  Rank of penalty matrix: " + ST::inttostring(rankK) + "\n");
   op->out("  " + centerm + "\n" );
 
@@ -973,70 +980,6 @@ void DESIGN_userdefined_tensor::outoptions(GENERAL_OPTIONS * op)
 
   }
 
-void DESIGN_userdefined_tensor::compute_XtransposedWres(datamatrix & partres, double l, double t2)
-  {
-
-  unsigned i,j;
-
-  if (ZoutT.size() != nrpar)
-    compute_Zout_transposed();
-
-  if (consecutive_ZoutT == -1)
-    {
-    bool c = check_ZoutT_consecutive();
-    consecutive_ZoutT = c;
-    }
-
-  double * workXWres = XWres.getV();
-  double * workmK = mK.getV();
-  unsigned size;
-    vector<double>::iterator wZoutT;
-
-  if (consecutive_ZoutT == 0)
-    {
-
-    vector<int>::iterator wZoutT_index;
-
-    for(i=0;i<nrpar;i++,workXWres++,workmK++)
-      {
-      *workXWres=0;
-      wZoutT = ZoutT[i].begin();
-      wZoutT_index = index_ZoutT[i].begin();
-      size = ZoutT[i].size();
-      for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
-        {
-        *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
-        }
-      *workXWres += *workmK/t2;
-      }
-    }
-  else
-    {
-    double * wpartres;
-
-    for(i=0;i<nrpar;i++,workXWres++,workmK++)
-      {
-      *workXWres=0;
-      wZoutT = ZoutT[i].begin();
-      size = ZoutT[i].size();
-      wpartres = partres.getV()+index_ZoutT[i][0];
-      for (j=0;j<size;j++,++wZoutT,wpartres++)
-        {
-        *workXWres+= (*wZoutT)* (*wpartres);
-        }
-      *workXWres += *workmK/t2;
-      }
-
-    }
-
-  XWres_p = &XWres;
-  XWX_p = &XWX;
-
-  // TEST
-  //ofstream out("c:\\temp\\XWres.res");
-  //XWres.prettyPrint(out);
-  // TEST
-  }
 } // end: namespace MCMC
 
 

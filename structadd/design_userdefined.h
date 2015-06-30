@@ -80,6 +80,8 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
              vector<ST::string> & op,
              vector<ST::string> & vn);
 
+  DESIGN_userdefined(GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl);
+
   // COPY CONSTRUCTOR
 
   DESIGN_userdefined(const DESIGN_userdefined & m);
@@ -124,6 +126,8 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
   vector<double> omegas;   // vector of fixed weights (grid between 0 and 1)
 
   unsigned nromega;
+  FC FC_omegas;
+  unsigned omegaindex;
 
   public:
 
@@ -165,11 +169,6 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
 
   ~DESIGN_userdefined_tensor() {}
 
-  // FUNCTION: computes XWres
-  // TASK: computes XWres, res is the partial residual
-  //       l is the inverse smoothing variance (1/tau2)
-
-  void compute_XtransposedWres(datamatrix & partres, double l, double t2);
   };
 
 
