@@ -664,12 +664,12 @@ double DISTR_binomialprobit::loglikelihood_weightsone(
     l = log(mu);
   else
     l = log(1-mu);
-  if(optionsp->copula)
-    {
-    //implement loglik for copula models, i.e. add part logc
-    double F = cdf(*response,*linpred);
-    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
-    }
+//  if(optionsp->copula)
+//    {
+//    //implement loglik for copula models, i.e. add part logc
+//    double F = cdf(*response,*linpred);
+//    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+//    }
   return l;
   }
 
@@ -685,69 +685,69 @@ void DISTR_binomialprobit::compute_mu_mult(vector<double *> linpred,vector<doubl
   *mu = randnumbers::Phi2(*linpred[predstart_mumult]);
   }
 
-double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
-  {
-  if(counter==0)
-    {
-    if (linpred_current==1)
-      linpredp = linearpred1.getV();
-    else
-      linpredp = linearpred2.getV();
-    workrespp = response.getV();
-    }
+//double DISTR_binomialprobit::cdf(const double & resp, const bool & ifcop)
+//  {
+//  if(counter==0)
+//    {
+//    if (linpred_current==1)
+//      linpredp = linearpred1.getV();
+//    else
+//      linpredp = linearpred2.getV();
+//    workrespp = response.getV();
+//    }
+//
+//  double res,xi;
+///*  xi = *workrespp - *linpredp;
+//  if(resp>0)
+//    res=(randnumbers::Phi2(xi)-0.5)/0.5;
+//  else
+//    res=randnumbers::Phi2(xi)/0.5;*/
+//
+//  if(resp>0)
+//    res=1;
+//  else
+//    res=randnumbers::Phi2(*linpredp);
+//
+//  if (counter<nrobs-1)
+//    {
+//    counter++;
+//    }
+//  else
+//    {
+//    counter=0;
+//    }
+//  linpredp++;
+//  workrespp++;
+// /* cout << "resp: " << resp << endl;
+//  cout << "pi: " << pi << endl;
+//  cout << "linpred: " << *linpredp << endl;
+//  cout << "res: " << res << endl;
+//  cout << "counter: " << counter << endl;*/
+//  return res;
+//  }
 
-  double res,xi;
-/*  xi = *workrespp - *linpredp;
-  if(resp>0)
-    res=(randnumbers::Phi2(xi)-0.5)/0.5;
-  else
-    res=randnumbers::Phi2(xi)/0.5;*/
-
-  if(resp>0)
-    res=1;
-  else
-    res=randnumbers::Phi2(*linpredp);
-
-  if (counter<nrobs-1)
-    {
-    counter++;
-    }
-  else
-    {
-    counter=0;
-    }
-  linpredp++;
-  workrespp++;
- /* cout << "resp: " << resp << endl;
-  cout << "pi: " << pi << endl;
-  cout << "linpred: " << *linpredp << endl;
-  cout << "res: " << res << endl;
-  cout << "counter: " << counter << endl;*/
-  return res;
-  }
-
-double DISTR_binomialprobit::cdf(const double & resp, const double & linpred)
-  {
-  double res,xi;
-  xi = resp - *linpredp;
-  if(resp>0)
-    res=(randnumbers::Phi2(xi)-0.5)/0.5;
-  else
-    res=randnumbers::Phi2(xi)/0.5;
-
-  return res;
-  }
-
-double DISTR_binomialprobit::cdf(const double & resp,   double * mu)
-  {
-  double res;
-  if(resp>0)
-    res=1;
-  else
-    res=1- *mu;
-  return res;
-  }
-
+//double DISTR_binomialprobit::cdf(const double & resp, const double & linpred)
+//  {
+//  double res,xi;
+//  xi = resp - *linpredp;
+//  if(resp>0)
+//    res=(randnumbers::Phi2(xi)-0.5)/0.5;
+//  else
+//    res=randnumbers::Phi2(xi)/0.5;
+//
+//  return res;
+//  }
+//
+//double DISTR_binomialprobit::cdf(const double & resp,   double * mu)
+//  {
+//  double res;
+//  if(resp>0)
+//    res=1;
+//  else
+//    res=1- *mu;
+//  return res;
+//  }
+//
 
 void DISTR_binomialprobit::compute_deviance(const double * response,
                    const double * weight,const double * mu,double * deviance,
@@ -782,46 +782,46 @@ double DISTR_binomialprobit::compute_iwls(double * response, double * linpred,
 
   *workingresponse = *linpred + (*response - mu)/h;
 
-  vector<double> logcandderivs;
-  if(optionsp->copula)
-    {
-    double F = cdf(*workingresponse,*linpred);
-    logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
-    // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = 0;
-    double nu = -h/(1-mu);
-    double ddF = 0;
-    if((*response>0) && ((*response)<1))
-      {
-      dF = -h;
-      nu = h/mu;
-      ddF = -h*(*linpred);
-      }
-
-
-    nu += logcandderivs[1]*dF;
-    nu *= *weight;
-   *workingweight += *weight*(-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF);
-
-   *workingresponse = *linpred + nu/(*workingweight);
-    }
+//  vector<double> logcandderivs;
+//  if(optionsp->copula)
+//    {
+//    double F = cdf(*workingresponse,*linpred);
+//    logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+//    // compute and implement dF/deta, d^2 F/deta ^2
+//    double dF = 0;
+//    double nu = -h/(1-mu);
+//    double ddF = 0;
+//    if((*response>0) && ((*response)<1))
+//      {
+//      dF = -h;
+//      nu = h/mu;
+//      ddF = -h*(*linpred);
+//      }
+//
+//
+//    nu += logcandderivs[1]*dF;
+//    nu *= *weight;
+//   *workingweight += *weight*(-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF);
+//
+//   *workingresponse = *linpred + nu/(*workingweight);
+//    }
 
   if (like)
     {
-    if(optionsp->copula)
-      {
-      if (*response > 0)
-        return log(mu)+logcandderivs[0];
-      else
-        return log(1-mu)+logcandderivs[0];
-      }
-    else
-      {
+//    if(optionsp->copula)
+//      {
+//      if (*response > 0)
+//        return log(mu)+logcandderivs[0];
+//      else
+//        return log(1-mu)+logcandderivs[0];
+//      }
+//    else
+//      {
       if (*response > 0)
         return log(mu);
       else
         return log(1-mu);
-      }
+     // }
     }
   else
     {
@@ -847,31 +847,31 @@ void DISTR_binomialprobit::compute_iwls_wweightschange_weightsone(
 
   *workingresponse = *linpred + (*response - mu)/h;
 
-  vector<double> logcandderivs;
-  if(optionsp->copula)
-    {
-    double F = cdf(*workingresponse,*linpred);
-    logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
-    if (compute_like)
-      {
-      like += logcandderivs[0];
-      }
-    // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = 0;
-    double nu = -h/(1-mu);
-    double ddF = 0;
-    if((*response>0) && ((*response)<1))
-      {
-      dF = -h;
-      nu = h/mu;
-      ddF = -h*(*linpred);
-      }
-
-    nu += logcandderivs[1]*dF;
-   *workingweight += (-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF);
-
-   *workingresponse = *linpred + nu/(*workingweight);
-    }
+//  vector<double> logcandderivs;
+//  if(optionsp->copula)
+//    {
+//    double F = cdf(*workingresponse,*linpred);
+//    logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+//    if (compute_like)
+//      {
+//      like += logcandderivs[0];
+//      }
+//    // compute and implement dF/deta, d^2 F/deta ^2
+//    double dF = 0;
+//    double nu = -h/(1-mu);
+//    double ddF = 0;
+//    if((*response>0) && ((*response)<1))
+//      {
+//      dF = -h;
+//      nu = h/mu;
+//      ddF = -h*(*linpred);
+//      }
+//
+//    nu += logcandderivs[1]*dF;
+//   *workingweight += (-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF);
+//
+//   *workingresponse = *linpred + nu/(*workingweight);
+//    }
 
   if (compute_like)
     {

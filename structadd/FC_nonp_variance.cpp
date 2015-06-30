@@ -104,7 +104,7 @@ void FC_nonp_variance::read_options(vector<ST::string> & op,
 
   if(scaletau2 == 0)
     {
-    if (hyperprior == scaledep)
+    if ((hyperprior == scaledep)  || (wei==true))
     scaletau2 = 0.00877812;
     else if (hyperprior == hcauchy)
     scaletau2 = 0.01034553;
