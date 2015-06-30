@@ -1564,7 +1564,7 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
 
     dut->omegaindex = omegaindex;
 
-    beta(0,0) = omegas(omegaindex,0);
+    beta(0,0) = omegaindex;
     acceptance++;
     FC::update();
     }
@@ -1592,7 +1592,8 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
     optionsp->out("Frequencies of anisotropy values:\n");
     optionsp->out("\n");
     for(i=0; i<nromegas; i++)
-      optionsp->out("  " + ST::doubletostring(omegas(i,0),4) + ": " + ST::doubletostring(omegafreq/((double)sampled_beta.rows()),3) + "\n");
+      optionsp->out("  " + ST::doubletostring(omegas(i,0),4) + ": " +
+      ST::doubletostring(omegafreq(i,0)/((double)sampled_beta.rows()),3) + "\n");
     optionsp->out("\n");
     }
 
