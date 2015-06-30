@@ -212,6 +212,8 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("ssvs");
   tnames.push_back("offset");
   tnames.push_back("userdefined");
+  tnames.push_back("tensor");
+
 
   tnonp = term_nonp(tnames);
   lineareffects = basic_termtype();
@@ -989,6 +991,9 @@ void superbayesreg::clear(void)
   design_userdefineds.erase(design_userdefineds.begin(),design_userdefineds.end());
   design_userdefineds.reserve(200);
 
+  design_userdefined_tensors.erase(design_userdefined_tensors.begin(),design_userdefined_tensors.end());
+  design_userdefined_tensors.reserve(200);
+
   design_mrfs.erase(design_mrfs.begin(),design_mrfs.end());
   design_mrfs.reserve(200);
 
@@ -1275,6 +1280,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
   design_userdefineds = b.design_userdefineds;
+  design_userdefined_tensors = b.design_userdefined_tensors;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
@@ -1486,6 +1492,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   FC_linears = b.FC_linears;
   design_psplines = b.design_psplines;
   design_userdefineds = b.design_userdefineds;
+  design_userdefined_tensors = b.design_userdefined_tensors;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
@@ -7793,6 +7800,7 @@ void superbayesreg::create_pspline(unsigned i)
 
   }
 
+
 bool superbayesreg::create_userdefined(unsigned i)
   {
 
@@ -8449,6 +8457,226 @@ bool superbayesreg::create_kriging(unsigned i)
   }
 
 
+bool superbayesreg::create_userdefined_tensor(unsigned i)
+  {
+
+  unsigned modnr = equations.size()-1;
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_tensor.raw","nonlinear_tensor_effect_of"," Nonlinear tensor effect of ");
+
+
+  datamatrix d,iv;
+  extract_data(i,d,iv,2);
+
+
+  datamatrix designmat, designmat2, penmat, penmat2, priormean;
+
+  if (terms[i].options[60] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[60],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[60] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[60] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,penmat,expr);
+    }
+
+
+  if (terms[i].options[65] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[65],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[65] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[65] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,penmat2,expr);
+    }
+
+
+  if (terms[i].options[62] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[62],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[62] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[62] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,designmat,expr);
+    }
+
+
+  if (terms[i].options[66] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[66],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[66] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[66] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,designmat2,expr);
+    }
+
+
+
+  if (terms[i].options[63] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[63],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[63] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[63] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,priormean,expr);
+    }
+  else
+    {
+    priormean = datamatrix(penmat.cols(),1,0);
+    }
+//  ST::string pathdesign = terms[i].options[60];
+//  ST::string pathpenmat = pathdesign + "_penmat.raw";
+//  ST::string pathdesignmat = pathdesign + "_designmat.raw";
+
+//  cout << pathdesignmat << "\n";
+//  cout << pathpenmat << "\n";
+
+//  statmatrix<int> test;
+
+/*  ifstream in("C:/temp/testmat.txt");
+
+  if(in.fail())
+    cout << "fail" << "\n";
+  else
+    cout << "success" << "\n";
+
+  ST::string header;
+  ST::getline(in,50000,header);
+  header = header.eatallcarriagereturns();
+
+
+  test.prettyScan(in);
+  in.close();
+
+  cout << header << "\n";*/
+
+ /* ofstream out1("c:\\temp\\designmatrix_test.raw");
+  designmat.prettyPrint(out1);
+  out1.close();
+
+  ofstream out2("c:\\temp\\penmatrix_test.raw");
+  penmat.prettyPrint(out2);
+  out2.close();
+
+  cout << penmat.cols() << "\n";
+  cout << penmat.rows() << "\n";
+
+  cout << designmat.cols() << "\n";
+  cout << designmat.rows() << "\n";
+
+  cout << "test" << "\n";*/
+
+  design_userdefined_tensors.push_back(DESIGN_userdefined_tensor(d,iv,
+                            designmat, designmat2, penmat, penmat2, priormean,
+                            &generaloptions,equations[modnr].distrp,
+                            &FC_linears[FC_linears.size()-1],
+                            terms[i].options,terms[i].varnames));
+
+  FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,title,
+                     pathnonp,&design_userdefined_tensors[design_userdefined_tensors.size()-1],
+                     terms[i].options,terms[i].varnames));
+
+  equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_tensor_var.raw","variance_of_nonlinear_tensor_effect_of","Variance of nonlinear tensor effect of ");
+
+
+  // variances
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_tensor_var.raw","variance_of_nonlinear_tensor_effect_of","Variance of nonlinear tensor effect of ");
+
+
+  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                              title,pathnonp,&design_userdefined_tensors[design_userdefined_tensors.size()-1],
+                              &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                              terms[i].varnames));
+
+  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+
+
+  return false;
+  }
+
+
+
 bool superbayesreg::create_geokriging(unsigned i)
   {
 
@@ -8780,6 +9008,8 @@ bool superbayesreg::create_nonp(void)
       if (terms[i].options[0] == "pspline")
         create_pspline(i);
       if (terms[i].options[0] == "userdefined")
+        create_userdefined(i);
+      if (terms[i].options[0] == "tensor")
         create_userdefined(i);
       if (terms[i].options[0] == "hrandom")
         error = create_hrandom(i);

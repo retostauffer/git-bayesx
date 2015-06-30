@@ -225,6 +225,7 @@ using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
 using MCMC::DESIGN_kriging;
 using MCMC::DESIGN_userdefined;
+using MCMC::DESIGN_userdefined_tensor;
 using MCMC::equation;
 
 using MCMC::FC;
@@ -676,6 +677,11 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DESIGN_userdefined> design_userdefineds;
 
   bool create_userdefined(unsigned i);
+
+  vector<DESIGN_userdefined_tensor> design_userdefined_tensors;
+
+  bool create_userdefined_tensor(unsigned i);
+
 
 //------------------------ end for userdefined terms -------------------------
 

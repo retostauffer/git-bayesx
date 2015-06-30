@@ -104,10 +104,14 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   intoption rankK;
   stroption penmatdata;
+  stroption penmatdata2;
+
 
   simpleoption cprior;
 
   stroption designmatdata;
+  stroption designmatdata2;
+
   stroption priormeandata;
 
   stroption hyperprior;

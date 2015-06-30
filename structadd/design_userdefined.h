@@ -129,6 +129,10 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
   FC FC_omegas;
   unsigned omegaindex;
 
+  vector<double> xvalues;             // unterschiedliche Werte der Kovariablen
+  vector<double> yvalues;
+
+
   public:
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------

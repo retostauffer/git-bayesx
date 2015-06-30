@@ -145,11 +145,14 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   rankK = intoption("rankK", -1, -1, 50000);
   penmatdata = stroption("penmatdata");
+  penmatdata2 = stroption("penmatdata2");
 
   //conjugate prior for effect fusion in Gaussian model (Paper Daniela Pauger and Helga Wagner, Linz)
   cprior = simpleoption("cprior",false);
 
   designmatdata = stroption("designmatdata");
+  designmatdata2 = stroption("designmatdata2");
+
   priormeandata = stroption("priormeandata","");
 
   vector<ST::string> hyperpriors;
@@ -227,10 +230,12 @@ void term_nonp::setdefault(void)
 
   rankK.setdefault();
   penmatdata.setdefault();
+  penmatdata2.setdefault();
 
   cprior.setdefault();
 
   designmatdata.setdefault();
+  designmatdata2.setdefault();
   priormeandata.setdefault();
 
   hyperprior.setdefault();
@@ -346,17 +351,20 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildev1);
     optlist.push_back(&tildev2);
     optlist.push_back(&gig);
-	  optlist.push_back(&proposal);
+	optlist.push_back(&proposal);
 
-	  optlist.push_back(&rankK);
-	  optlist.push_back(&penmatdata);
+	optlist.push_back(&rankK);
+	optlist.push_back(&penmatdata);
 
-	  optlist.push_back(&cprior);
+	optlist.push_back(&cprior);
 
-	  optlist.push_back(&designmatdata);
-	  optlist.push_back(&priormeandata);
+	optlist.push_back(&designmatdata);
+	optlist.push_back(&priormeandata);
 
-	  optlist.push_back(&hyperprior);
+	optlist.push_back(&hyperprior);
+
+	optlist.push_back(&penmatdata2);
+	optlist.push_back(&designmatdata2);
 
     unsigned i;
     bool rec = true;
@@ -548,6 +556,10 @@ bool term_nonp::check(term & t)
     t.options[63] = priormeandata.getvalue();
 
     t.options[64] = hyperprior.getvalue();
+
+    t.options[65] = penmatdata2.getvalue();
+
+    t.options[66] = designmatdata2.getvalue();
 
     setdefault();
     return true;
