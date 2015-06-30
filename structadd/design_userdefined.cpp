@@ -892,6 +892,8 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
 
   nrpar = designmat1.cols()*designmat2.cols();
 
+  mK = datamatrix(nrpar,1,0.0);
+
   datamatrix designmat(designmat1.rows(), nrpar, 0.0);
   unsigned i,j,k;
   for(i=0; i<designmat1.rows(); i++)
@@ -901,7 +903,10 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
 
   nromega=11;
   for(i=0; i<nromega; i++)
-    omegas.push_back(0.05 + ((double)i)/((double)(nromega-1) * 0.9));
+    {
+    omegas.push_back(0.05 + ((double)i)/((double)(nromega-1)) * 0.9);
+    }
+
   FC_omegas = FC(o,"",1,1,"");
   FC_omegas.setbeta(1,1,omegas[(int)((nromega-1)/2)]);
   omegaindex = (unsigned)((nromega-1)/2);
@@ -911,13 +916,35 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
   datamatrix K1help = I2.kronecker(penmat1);
   datamatrix K2help = penmat2.kronecker(I1);
 
+  datamatrix Khelp;
+  logdets = datamatrix(nromega,1,0.0);
+
   for(i=0; i<nromega; i++)
-    Ks.push_back(envmatdouble(omegas[i]*K1help + (1-omegas[i])*K2help, 0.00000001));
+    {
+    Khelp = omegas[i]*K1help + (1-omegas[i])*K2help;
+    Ks.push_back(envmatdouble(Khelp, 0.00000001));
+    datamatrix vals(Khelp.rows(),1,0);
+    bool eigentest=eigen2(Khelp,vals);
+    if(eigentest==false)
+      {
+      optionsp->out("WARNING: Could not compute determinant\n");
+      }
+    else
+      {
+      unsigned j;
+      for(j=0; j<vals.rows(); j++)
+        {
+        if(fabs(vals(j,0))>=0.000001)
+          logdets(i,0) += log(vals(j,0));
+        }
+      }
+    }
 
   compute_Zout(designmat);
   compute_Zout_transposed(designmat);
 
-  K = envmatdouble(K1help+K2help, 0.00000001);
+  K = envmatdouble(omegas[omegaindex]*K1help+(1-omegas[omegaindex])*K2help, 0.00000001);
+//  K = envmatdouble(K1help+K2help, 0.00000001);
 
   if(rankK==-1)
     {
@@ -969,6 +996,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(const DESIGN_userdefined_te
   omegaindex = m.omegaindex;
   xvalues = m.xvalues;
   yvalues = m.yvalues;
+  logdets = m.logdets;
   }
 
 
@@ -987,6 +1015,7 @@ const DESIGN_userdefined_tensor & DESIGN_userdefined_tensor::operator=(const DES
   omegaindex = m.omegaindex;
   xvalues = m.xvalues;
   yvalues = m.yvalues;
+  logdets = m.logdets;
   return *this;
   }
 
@@ -1009,6 +1038,12 @@ void DESIGN_userdefined_tensor::outoptions(GENERAL_OPTIONS * op)
 
   op->out("\n");
 
+  }
+
+double DESIGN_userdefined_tensor::penalty_compute_quadform(datamatrix & beta)
+  {
+//  beta.prettyPrint(cout);
+  return Ks[omegaindex].compute_quadform(beta,0);
   }
 
 } // end: namespace MCMC

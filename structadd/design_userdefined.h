@@ -127,13 +127,14 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
 
   unsigned nromega;
   FC FC_omegas;
-  unsigned omegaindex;
 
   vector<double> xvalues;             // unterschiedliche Werte der Kovariablen
   vector<double> yvalues;
 
-
   public:
+
+  unsigned omegaindex;
+  datamatrix logdets;
 
 //----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
 
@@ -172,6 +173,8 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
 // DESTRUCTOR
 
   ~DESIGN_userdefined_tensor() {}
+
+  double penalty_compute_quadform(datamatrix & beta);
 
   };
 

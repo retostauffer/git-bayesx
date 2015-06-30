@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"clstring.h"
 #include"FC_nonp.h"
 #include"design.h"
+#include"design_userdefined.h"
 #include<cmath>
 
 namespace MCMC
@@ -342,7 +343,80 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 
   };
 
+//------------------------------------------------------------------------------
+//------------------------ CLASS: FC_tensor_omega ------------------------------
+//------------------------------------------------------------------------------
 
+
+class __EXPORT_TYPE FC_tensor_omega : public FC
+  {
+
+  protected:
+
+  datamatrix omegas;
+  unsigned nromegas;
+  unsigned omegaindex;
+
+  DESIGN_userdefined_tensor * dut;
+  FC_nonp * fcn;
+
+  datamatrix logdets;
+
+  public:
+
+  // DEFAULT CONSTRUCTOR
+
+  FC_tensor_omega(void);
+
+  // CONSTRUCTOR
+  // o    : pointer to GENERAL_OPTIONS object
+  // t    : title of the full conditional (for example "fixed effects")
+  // nro  : number of different values for omega
+  // fp   : file path for storing sampled parameters
+
+  FC_tensor_omega(DESIGN_userdefined_tensor * d, FC_nonp * f,
+           GENERAL_OPTIONS * o,const ST::string & t,
+           const unsigned & nro, const ST::string & fp);
+
+  // COPY CONSTRUCTOR
+
+  FC_tensor_omega(const FC_tensor_omega & m);
+
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_tensor_omega & operator=(const FC_tensor_omega & m);
+
+  // DESTRUCTOR
+
+  ~FC_tensor_omega()
+    {
+    }
+
+  // FUNCTION: get_samples
+  // TASK: stores the sampled parameters in ASCII format
+
+  void get_samples(const ST::string & filename,ofstream & outg) const;
+
+  // FUNCTION: update
+  // TASK: - stores sampled parameters in file 'samplepath'
+  //         storing order: first row, second row, ...
+
+  void update(void);
+
+  // FUNCTION: outoptions
+  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
+
+  void outoptions(void);
+
+  // FUNCTION: outresults
+  // TASK: writes estimation results to logout or into a file
+
+  void outresults(ofstream & out_stata, ofstream & out_R,
+               const ST::string & pathresults);
+
+  void read_options(vector<ST::string> & op,vector<ST::string> & vn);
+  };
 
 } // end: namespace MCMC
 

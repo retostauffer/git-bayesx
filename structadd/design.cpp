@@ -506,7 +506,7 @@ void DESIGN::compute_penalty2(const datamatrix & pen)
   }
 
 
-double  DESIGN::penalty_compute_quadform(datamatrix & beta)
+double DESIGN::penalty_compute_quadform(datamatrix & beta)
   {
 //  beta.prettyPrint(cout);
   return K.compute_quadform(beta,0);

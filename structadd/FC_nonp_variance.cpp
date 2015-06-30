@@ -1442,7 +1442,164 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
    }
 
+//------------------------------------------------------------------------------
+//------------------------ CLASS: FC_tensor_omega ------------------------------
+//------------------------------------------------------------------------------
 
+  // DEFAULT CONSTRUCTOR
+
+  FC_tensor_omega::FC_tensor_omega(void){}
+
+  // CONSTRUCTOR
+  // o    : pointer to GENERAL_OPTIONS object
+  // t    : title of the full conditional (for example "fixed effects")
+  // nro  : number of different values for omega
+  // fp   : file path for storing sampled parameters
+
+  FC_tensor_omega::FC_tensor_omega(DESIGN_userdefined_tensor * d,
+           FC_nonp * f,
+           GENERAL_OPTIONS * o,const ST::string & t,
+           const unsigned & nro, const ST::string & fp)
+           : FC(o,t,1,1,fp)
+    {
+    nromegas=nro;
+    unsigned i;
+    omegas = datamatrix(nromegas,1,0.0);
+    for(i=0; i<nromegas; i++)
+      omegas(i,0) = 0.05 + ((double)i)/((double)(nromegas-1)) * 0.9;
+    omegaindex = (unsigned)((nromegas-1)/2);
+    dut = d;
+    fcn = f;
+    logdets = dut->logdets;
+    }
+  // COPY CONSTRUCTOR
+
+  FC_tensor_omega::FC_tensor_omega(const FC_tensor_omega & m)
+         : FC(FC(m))
+    {
+    omegas = m.omegas;
+    nromegas = m.nromegas;
+    omegaindex = m.omegaindex;
+    dut = m.dut;
+    logdets = m.logdets;
+    fcn = m.fcn;
+    }
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_tensor_omega & FC_tensor_omega::operator=(const FC_tensor_omega & m)
+    {
+    if (this==&m)
+    	 return *this;
+    FC::operator=(FC(m));
+    omegas = m.omegas;
+    nromegas = m.nromegas;
+    omegaindex = m.omegaindex;
+    dut = m.dut;
+    logdets = m.logdets;
+    fcn = m.fcn;
+    return *this;
+    }
+
+  // FUNCTION: get_samples
+  // TASK: stores the sampled parameters in ASCII format
+
+  void FC_tensor_omega::get_samples(const ST::string & filename,ofstream & outg) const
+    {
+
+    }
+
+  // FUNCTION: update
+  // TASK: - stores sampled parameters in file 'samplepath'
+  //         storing order: first row, second row, ...
+
+  void FC_tensor_omega::update(void)
+    {
+    datamatrix logprobs(nromegas,1,0.0);
+    datamatrix probs(nromegas,1,0.0);
+    double probsum=0;
+    double maxlogprob;
+    unsigned i;
+    for(i=0; i<nromegas; i++)
+      {
+      dut->omegaindex=i;
+      logprobs(i,0) = 0.5*logdets(i,0)-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param));
+
+/*cout << "i: " << i << "\n";
+cout << "tau2: " << fcn->tau2 << "\n";
+cout << "bKb: " << dut->penalty_compute_quadform(fcn->param) << "\n";
+cout << "0.5*logdets(i,0): " << 0.5*logdets(i,0) << "\n";
+cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)) << "\n\n";*/
+
+      if(i==0)
+        maxlogprob = logprobs(i,0);
+      else
+        {
+        if(logprobs(i,0) > maxlogprob)
+          maxlogprob = logprobs(i,0);
+        }
+      }
+    for(i=0; i<nromegas; i++)
+      {
+      probs(i,0) = exp(logprobs(i,0)-maxlogprob);
+      probsum += probs(i,0);
+      }
+    for(i=0; i<nromegas; i++)
+      {
+      probs(i,0) /= probsum;
+      }
+    datamatrix cumprobs(nromegas,1,0.0);
+    cumprobs(0,0) = probs(0,0);
+    for(i=1; i<nromegas; i++)
+      cumprobs(i,0) = cumprobs(i-1,0) + probs(i,0);
+
+/*    ofstream out1("c:/temp/userdefined_tensor/probs.raw");
+    probs.prettyPrint(out1);
+    out1.close();*/
+
+    double u = uniform();
+    omegaindex=0;
+    while(cumprobs(omegaindex,0)<=u)
+      omegaindex++;
+
+    dut->omegaindex = omegaindex;
+
+    beta(0,0) = omegas(omegaindex,0);
+    acceptance++;
+    FC::update();
+    }
+
+  // FUNCTION: outoptions
+  // TASK: writes estimation options (hyperparameters, etc.) to outputstream
+
+  void FC_tensor_omega::outoptions(void)
+   {
+
+   }
+  // FUNCTION: outresults
+  // TASK: writes estimation results to logout or into a file
+
+  void FC_tensor_omega::outresults(ofstream & out_stata, ofstream & out_R,
+               const ST::string & pathresults)
+    {
+    FC::outresults(out_stata, out_R, "");
+    datamatrix omegafreq(nromegas,1,0.0);
+    unsigned i;
+    for(i=0; i<sampled_beta.rows(); i++)
+       omegafreq((int)sampled_beta(i,0),0) += 1.0;
+
+    optionsp->out("\n");
+    optionsp->out("Frequencies of anisotropy values:\n");
+    optionsp->out("\n");
+    for(i=0; i<nromegas; i++)
+      optionsp->out("  " + ST::doubletostring(omegas(i,0),4) + ": " + ST::doubletostring(omegafreq/((double)sampled_beta.rows()),3) + "\n");
+    optionsp->out("\n");
+    }
+
+  void FC_tensor_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)
+    {
+
+    }
 
 } // end: namespace MCMC
 

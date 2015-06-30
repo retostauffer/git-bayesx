@@ -994,6 +994,9 @@ void superbayesreg::clear(void)
   design_userdefined_tensors.erase(design_userdefined_tensors.begin(),design_userdefined_tensors.end());
   design_userdefined_tensors.reserve(200);
 
+  FC_tensor_omegas.erase(FC_tensor_omegas.begin(),FC_tensor_omegas.end());
+  FC_tensor_omegas.reserve(200);
+
   design_mrfs.erase(design_mrfs.begin(),design_mrfs.end());
   design_mrfs.reserve(200);
 
@@ -1281,6 +1284,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   design_psplines = b.design_psplines;
   design_userdefineds = b.design_userdefineds;
   design_userdefined_tensors = b.design_userdefined_tensors;
+  FC_tensor_omegas = b.FC_tensor_omegas;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
@@ -1493,6 +1497,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   design_psplines = b.design_psplines;
   design_userdefineds = b.design_userdefineds;
   design_userdefined_tensors = b.design_userdefined_tensors;
+  FC_tensor_omegas = b.FC_tensor_omegas;
   FC_nonps = b.FC_nonps;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
@@ -8465,10 +8470,8 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
              "_tensor.raw","nonlinear_tensor_effect_of"," Nonlinear tensor effect of ");
 
-
   datamatrix d,iv;
   extract_data(i,d,iv,2);
-
 
   datamatrix designmat, designmat2, penmat, penmat2, priormean;
 
@@ -8671,6 +8674,16 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
 
   equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
 
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+  "_tensor_anisotropy.raw","anisotropy_of_nonlinear_tensor_effect_of","Anisotropy of nonlinear tensor effect of ");
+
+  unsigned nromegas = 11;
+  FC_tensor_omegas.push_back(FC_tensor_omega(&design_userdefined_tensors[design_userdefined_tensors.size()-1],
+                                             &FC_nonps[FC_nonps.size()-1],
+                                             &generaloptions,
+                                             title,nromegas,""));
+
+  equations[modnr].add_FC(&FC_tensor_omegas[FC_tensor_omegas.size()-1],pathres);
 
   return false;
   }
