@@ -93,6 +93,10 @@ class __EXPORT_TYPE DISTR_copula_basis : public DISTR_gamlss
 
   virtual double logc(double & F1, double & F2, double * linpred);
 
+  virtual double condcdf(double & x, double & F2, double * linpred);
+
+  double condcdf(double & x, int & copulapos);
+
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
                                               double * workingweight,
@@ -105,6 +109,7 @@ class __EXPORT_TYPE DISTR_copula_basis : public DISTR_gamlss
                              vector<double *> linpred,
                              double * deviance,
                              vector<datamatrix*> aux);
+
   void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
 
   void outoptions(void);
@@ -160,6 +165,8 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_copula_basis
   vector<double> derivative(double & F1, double & F2, double * linpred);
 
   double logc(double & F1, double & F2, double * linpred);
+
+  double condcdf(double & x, double & F2, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
@@ -227,6 +234,8 @@ class __EXPORT_TYPE DISTR_clayton_copula : public DISTR_copula_basis
   vector<double> derivative(double & F1, double & F2, double * linpred);
 
   double logc(double & F1, double & F2, double * linpred);
+
+  double condcdf(double & x, double & F2, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,

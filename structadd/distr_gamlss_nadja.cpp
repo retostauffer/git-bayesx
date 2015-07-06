@@ -3541,7 +3541,7 @@ double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
  //   }
   double res,lambda,alpha;
   lambda = exp(*linpred[1]);
-  alpha = exp(*linpred[0]);;//exp(*linpred[0]);
+  alpha = exp(*linpred[0]);//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
   return res;
   }
@@ -7482,16 +7482,14 @@ double DISTR_cloglog::cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
                           vector<datamatrix *> aux)
-    {
-        double Fy = 0;
-        if (*response[0]>0) {
-            Fy = 1;
-            if((*response[0]<1)&(*response[0]>0)) {
-                Fy = 1-(*param[0]);
-            }
-        }
-    return Fy;
-    }
+  {
+  double Fy = 0;
+  if (*response[0]>0)
+    Fy = 1;
+  else
+    Fy = 1-(*param[0]);
+  return Fy;
+  }
 
 double DISTR_cloglog::pdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -7507,11 +7505,11 @@ double DISTR_cloglog::compute_quantile_residual_mult(vector<double *> response,
                                           vector<datamatrix *> aux)
     {
     double u_est;
-    if(*response[0]==0) {
-        u_est = randnumbers::uniform_ab(0,(*param[0]));
+    if(*response[0]<=0) {
+        u_est = randnumbers::uniform_ab(0,1-(*param[0]));
     }
     else {
-        u_est = randnumbers::uniform();
+        u_est = randnumbers::uniform_ab(1-(*param[0]), 1);
     }
     double res_est = randnumbers::invPhi2(u_est);
     return res_est;
@@ -7706,6 +7704,7 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(const DISTR_binomialpro
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
   responseorig = nd.responseorig;
+  responsecopmat = nd.responsecopmat;
   }
 
 
@@ -7716,6 +7715,7 @@ const DISTR_binomialprobit_copula & DISTR_binomialprobit_copula::operator=(
     return *this;
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
   responseorig = nd.responseorig;
+  responsecopmat = nd.responsecopmat;
   return *this;
   }
 
@@ -7760,16 +7760,15 @@ double DISTR_binomialprobit_copula::cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
                           vector<datamatrix *> aux)
-    {
-        double Fy = 0;
-        if (*response[0]>0) {
-            Fy = 1;
-            if((*response[0]<1)&(*response[0]>0)) {
-                Fy = 1-(*param[0]);
-            }
-        }
-    return Fy;
-    }
+  {
+  double Fy = 0;
+  if (*response[0]>0)
+    Fy = 1;
+  else
+    Fy = 1-(*param[0]);
+
+  return Fy;
+  }
 
 double DISTR_binomialprobit_copula::pdf_mult(vector<double *> response,
                           vector<double *> param,
@@ -7785,16 +7784,67 @@ double DISTR_binomialprobit_copula::compute_quantile_residual_mult(vector<double
                                           vector<datamatrix *> aux)
     {
     double u_est;
-    if(*response[0]==0) {
-        u_est = randnumbers::uniform_ab(0,(*param[0]));
+    if(*response[0]<=0) {
+        u_est = randnumbers::uniform_ab(0,1-(*param[0]));
     }
     else {
-        u_est = randnumbers::uniform();
+        u_est = randnumbers::uniform_ab(1-(*param[0]), 1);
     }
     double res_est = randnumbers::invPhi2(u_est);
     return res_est;
     }
 
+
+double DISTR_binomialprobit_copula::cdf(const double & resp, const bool & ifcop)
+  {
+  if(counter==0)
+    {
+   if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+  double res,xi;
+
+  if(resp>0)
+    res = (randnumbers::Phi2(resp - *linpredp) - randnumbers::Phi2(-*linpredp))/(1-randnumbers::Phi2(-*linpredp));
+  else
+    res = randnumbers::Phi2(resp - *linpredp)/ randnumbers::Phi2(-*linpredp);
+
+  if (counter<nrobs-1)
+    {
+    counter++;
+    }
+  else
+    {
+    counter=0;
+    }
+  linpredp++;
+  return res;
+  }
+
+double DISTR_binomialprobit_copula::cdf(const double & resp, const double & linpred)
+  {
+  double res,xi;
+  if(resp>0)
+    res = (randnumbers::Phi2(resp - linpred) - randnumbers::Phi2(-linpred))/(1-randnumbers::Phi2(-linpred));
+  else
+    res = randnumbers::Phi2(resp - linpred)/ randnumbers::Phi2(-linpred);
+
+  return res;
+  }
+
+double DISTR_binomialprobit_copula::cdf(const double & resp, vector<double *> linpred)
+  {
+  double res,xi;
+  if(resp>0)
+    res = (randnumbers::Phi2(resp - *linpred[0]) - randnumbers::Phi2(-*linpred[0]))/(1-randnumbers::Phi2(-*linpred[0]));
+  else
+    res = randnumbers::Phi2(resp - *linpred[0])/ randnumbers::Phi2(-*linpred[0]);
+
+  return res;
+  }
 
 double DISTR_binomialprobit_copula::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -7882,8 +7932,8 @@ void DISTR_binomialprobit_copula::update_end(void)
 
 void DISTR_binomialprobit_copula::update(void)
   {
+  double * workresporig = responseorig.getV();
   double * workresp = response.getV();
-  double * workresporig =responseorig.getV();
   double * weightwork = weight.getV();
 
   double * worklin_current;
@@ -7894,18 +7944,32 @@ void DISTR_binomialprobit_copula::update(void)
 
   set_worklin();
 
+  double * responsecop = responsecopmat->getV();
+//  if(copulapos==0)
+//    responsecop = (dynamic_cast<DISTR_copula_basis *>(distrcopulap[0])->response2).getV();
+//  else
+//    responsecop = (dynamic_cast<DISTR_copula_basis *>(distrcopulap[0])->response1).getV();
+
   unsigned i;
-/*  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,
-           response2p++,workresporig++,worktransformlin[0]++,worklin[1]++)
+  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,responsecop++,workresporig++)
     {
     if (*weightwork != 0)
       {
-      if (*workresporig > 0)
-        *workresp = trunc_normal2(0,20,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
+      double x = randnumbers::uniform();
+      double F1 = distrcopulap[0]->condcdf(x, copulapos);
+      if(*workresporig>0)
+        *workresp = *worklin_current + randnumbers::invPhi2((1-randnumbers::Phi2(-*worklin_current))*F1 + randnumbers::Phi2(-*worklin_current));
       else
-        *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[0])*((*response2p)-(*worklin[1])),pow(1-pow(*worktransformlin[0],2),0.5));
+        *workresp = *worklin_current + randnumbers::invPhi2(randnumbers::Phi2(-*worklin_current)*F1);
+      *responsecop = *workresp;
+
+/*cout << "i: " << i << "\n";
+cout << "x: " << x << "\n";
+cout << "F1: " << F1 << "\n";
+cout << "*workresp: " << *workresp << "\n";
+cout << "resporig: " << responseorig(i,0) << "\n";*/
       }
-    }*/
+    }
   }
 
 //--------------------------------------------------------------------------------

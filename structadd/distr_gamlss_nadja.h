@@ -2449,6 +2449,8 @@ class __EXPORT_TYPE DISTR_binomialprobit_copula : public DISTR_gamlss
 
   public:
 
+  datamatrix * responsecopmat;
+
   void check_errors(void);
 
    // DEFAULT CONSTRUCTOR
@@ -2489,6 +2491,11 @@ class __EXPORT_TYPE DISTR_binomialprobit_copula : public DISTR_gamlss
                           vector<double *> weight,
                           vector<datamatrix *> aux);
 
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, vector<double *>  linpred);
 
   double pdf_mult(vector<double *> response,
                           vector<double *> param,

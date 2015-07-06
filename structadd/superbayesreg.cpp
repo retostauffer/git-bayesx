@@ -60,7 +60,7 @@ bool superbayesreg::find_binomial(DISTR* & b)
     found = true;
     b = &distr_logit_fruehwirths[0];
     }
-else if (distr_cloglogs.size()==1)
+  else if (distr_cloglogs.size()==1)
     {
     found = true;
     b = &distr_cloglogs[0];
@@ -982,6 +982,10 @@ void superbayesreg::clear(void)
   distr_gausscopulas.erase(distr_gausscopulas.begin(),distr_gausscopulas.end());
   distr_gausscopulas.reserve(20);
 
+  distr_binomialprobit_copulas.erase(distr_binomialprobit_copulas.begin(),
+                              distr_binomialprobit_copulas.end());
+  distr_binomialprobit_copulas.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(200);
 
@@ -1274,6 +1278,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
   distr_gausscopulas = b.distr_gausscopulas;
+  distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1487,6 +1492,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
   distr_gausscopulas = b.distr_gausscopulas;
+  distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -5241,24 +5247,26 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else if(distr_binomialprobits.size()>0)
+    else if(distr_binomialprobit_copulas.size()>0)
       {
       int coi;
-      for(coi=0;coi<distr_binomialprobits.size();coi++)
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
         {
-        predict_mult_distrs.push_back(&distr_binomialprobits[coi]);
+        predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
 
-        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_binomialprobits[coi]);
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
 
-        distr_binomialprobits[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+        distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
 
-        if(distr_binomialprobits[coi].get_copulapos()==0)
+        if(distr_binomialprobit_copulas[coi].get_copulapos()==0)
           {
-          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_binomialprobits[coi].response;
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_gausscopulas[distr_gausscopulas.size()-1].response2;
           }
-        else if(distr_binomialprobits[coi].get_copulapos()==1)
+        else if(distr_binomialprobit_copulas[coi].get_copulapos()==1)
           {
-          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_binomialprobits[coi].response;
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_gausscopulas[distr_gausscopulas.size()-1].response1;
           }
         else
           {
@@ -7339,32 +7347,40 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-    #if defined(__BUILDING_LINUX)
-    ST::string path = defaultpath + "/temp/" + name  + "_latentutilities.raw";
-    #else
-    ST::string path = defaultpath + "\\temp\\" + name  + "_latentutilities.raw";
-    #endif
-
     equations[modnr].equationtype="pi";
-
-    distr_binomialprobits.push_back(DISTR_binomialprobit(
-    &generaloptions,D.getCol(0),utilities.getvalue(),path,w));
-
-    equations[modnr].distrp = &distr_binomialprobits[distr_binomialprobits.size()-1];
-    equations[modnr].pathd = outfile.getvalue() + "_latentvariables.res";
 
     if(generaloptions.copula)
       {
+      distr_binomialprobit_copulas.push_back(DISTR_binomialprobit_copula(
+      &generaloptions,D.getCol(0),w));
+
+      equations[modnr].distrp = &distr_binomialprobit_copulas[distr_binomialprobit_copulas.size()-1];
+
       if (countmarginal == 1)
-        {distr_binomialprobits[distr_binomialprobits.size()-1].set_copulapos(0);}
+        {distr_binomialprobit_copulas[distr_binomialprobit_copulas.size()-1].set_copulapos(0);}
       else if(countmarginal == 2)
-        {distr_binomialprobits[distr_binomialprobits.size()-1].set_copulapos(1);}
+        {distr_binomialprobit_copulas[distr_binomialprobit_copulas.size()-1].set_copulapos(1);}
       else
         {
         outerror("ERROR: currently only bivariate copula models implemented");
         return true;
         }
       }
+    else
+      {
+      #if defined(__BUILDING_LINUX)
+      ST::string path = defaultpath + "/temp/" + name  + "_latentutilities.raw";
+      #else
+      ST::string path = defaultpath + "\\temp\\" + name  + "_latentutilities.raw";
+      #endif
+
+      distr_binomialprobits.push_back(DISTR_binomialprobit(
+      &generaloptions,D.getCol(0),utilities.getvalue(),path,w));
+
+      equations[modnr].distrp = &distr_binomialprobits[distr_binomialprobits.size()-1];
+      equations[modnr].pathd = outfile.getvalue() + "_latentvariables.res";
+      }
+
     }
 //-------------------------- END: Binomial response probit ---------------------
 //---------------------------- Binomial response SVM ---------------------------

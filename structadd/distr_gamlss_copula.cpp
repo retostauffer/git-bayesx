@@ -201,6 +201,41 @@ double DISTR_copula_basis::logc(double & F1, double & F2, double * linpred)
   return 0.0;
   }
 
+double DISTR_copula_basis::condcdf(double & x, int & copulapos)
+  {
+  if (counter==0)
+    {
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+
+    response1p = response1.getV();
+    response2p = response2.getV();
+    }
+  double Fa;
+  if(copulapos==0)
+    Fa = distrp[1]->cdf(*response1p,true);
+  else
+    Fa = distrp[0]->cdf(*response2p,true);
+  double res = condcdf(x, Fa, linpredp);
+
+  linpredp++;
+  response1p++;
+  response2p++;
+  if (counter<nrobs-1)
+    counter++;
+  else
+    counter=0;
+
+  return res;
+  }
+
+double DISTR_copula_basis::condcdf(double & x, double & F2, double * linpred)
+  {
+  return 0.0;
+  }
+
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_gausscopula --------------------
@@ -455,6 +490,13 @@ double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   return lc;
   }
 
+double DISTR_gausscopula::condcdf(double & x, double & F2, double * linpred)
+  {
+  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
+  double res = randnumbers::Phi2(randnumbers::invPhi2(x)*sqrt(1-rho*rho) + rho*randnumbers::invPhi2(F2));
+  return res;
+  }
+
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_clayton_copula ------------------------
@@ -705,5 +747,11 @@ double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
   return lc;
   }
 
+double DISTR_clayton_copula::condcdf(double & x, double & F2, double * linpred)
+  {
+  double rho = exp(*linpred);
+  double res = pow(pow(-pow(F2, -rho-1)/x, rho/(1+rho))-pow(F2, -rho), -1/rho);
+  return res;
+  }
 
 } // end: namespace MCMC

@@ -212,6 +212,7 @@ using MCMC::DISTR_tcopula_df;
 using MCMC::DISTR_tcopula_rho;
 using MCMC::DISTR_gausscopula;
 using MCMC::DISTR_clayton_copula;
+using MCMC::DISTR_binomialprobit_copula;
 
 using MCMC::DISTR_sndp_alpha; // sn111
 using MCMC::DISTR_sndp_omega;
@@ -565,6 +566,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_sncp_mu> distr_sncp_mus;
   vector<DISTR_gausscopula> distr_gausscopulas;
   vector<DISTR_clayton_copula> distr_clayton_copulas;
+  vector<DISTR_binomialprobit_copula> distr_binomialprobit_copulas;
 
   bool create_distribution(void);
 
