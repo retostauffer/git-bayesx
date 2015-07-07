@@ -850,14 +850,111 @@ void FC_nonp_variance_varselection::add_linpred(datamatrix & l)
 
 void FC_nonp_variance_varselection::update(void)
   {
+  FCnonpp->tau2 = 0.04;
+  if(optionsp->nriter==1)
+    tauold = sqrt(beta(0,0));
 
-  FCnonpp->tau2 = 1;
+  double Sigmatauprop, Sigmataucurr;
+  double mutauprop=0.0;
+  double mutaucurr=0.0;
 
+  // compute X = design matrix * scaled regression coefficients (Z * tilde gamma)
+  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+
+  double * Xp = X.getV();
+  unsigned i;
+  for(i=0; i<X.rows(); i++, Xp++)
+    {
+    *Xp /= tauold;
+    }
+
+  double * worklin;
+  if (likep->linpred_current==1)
+    worklin = likep->linearpred1.getV();
+  else
+    worklin = likep->linearpred2.getV();
+
+  double logold = likep->compute_iwls(true, true);
+
+  double priorvar = 1;
+
+  Xp = X.getV();
+  double * responsep = likep->workingresponse.getV();
+  double * weightp = likep->workingweight.getV();
+  double xtx=0.0;
+  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,weightp++)
+    {
+    xtx += (*weightp) * pow(*Xp,2);
+    mutaucurr += (*weightp) * (*Xp) * ((*responsep) - (*worklin) + tauold*(*Xp));
+    }
+  Sigmataucurr = 1/(xtx + 1/priorvar);
+  mutaucurr *= Sigmataucurr;
+
+  double tauprop = mutaucurr + sqrt(Sigmataucurr) * rand_normal();
+
+  double * diffp = diff.getV();
+  Xp = X.getV();
+  for(i=0; i<X.rows(); i++, Xp++, diffp++)
+    {
+    *diffp = (tauprop - tauold) * (*Xp);
+    }
+  add_linpred(diff);
+
+  double logprop = likep->compute_iwls(true, true);
+
+  Xp = X.getV();
+  responsep = likep->workingresponse.getV();
+  weightp = likep->workingweight.getV();
+  if (likep->linpred_current==1)
+    worklin = likep->linearpred1.getV();
+  else
+    worklin = likep->linearpred2.getV();
+
+  xtx=0;
+  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,weightp++)
+    {
+    xtx += (*weightp) * pow(*Xp,2);
+    mutauprop += (*weightp) * (*Xp) * ((*responsep) - (*worklin) + tauprop*(*Xp));
+    }
+  Sigmatauprop = 1/(xtx + 1/priorvar);
+  mutauprop *= Sigmatauprop;
+
+  logprop += -0.5*tauprop*tauprop / priorvar;
+  logold += -0.5*tauold*tauold / priorvar;
+
+  double u = log(uniform());
+
+  double qnew = -0.5*log(Sigmataucurr) -0.5*(tauprop-mutaucurr)*(tauprop-mutaucurr)/Sigmataucurr;
+  double qold = -0.5*log(Sigmatauprop) -0.5*(tauold-mutauprop)*(tauold-mutauprop)/Sigmatauprop;
+
+  if(u <= logprop - logold - qnew + qold)
+    {
+    acceptance++;
+    double tau2 = tauprop*tauprop;
+    if (tau2 < 0.000000001)
+      {
+      cout << "tau2 < 0.000000001\n";
+      tau2 = 0.000000001;
+      tauprop = sqrt(tau2);
+      }
+    tau2 = tauprop*tauprop;
+    FCnonpp->tau2 = tau2;
+
+    tauold = tauprop;
+    beta(0,0) = tau2;
+    beta(0,1) = 1/beta(0,0);
+    }
+  else
+    {
+    diffp = diff.getV();
+    for(i=0; i<diff.rows(); i++, diffp++)
+      *diffp = -(*diffp);
+    add_linpred(diff);
+    }
   }
 
 
-/*
-void FC_nonp_variance_varselection::update(void)
+/*void FC_nonp_variance_varselection::update(void)
   {
 
   unsigned i;
@@ -902,10 +999,10 @@ void FC_nonp_variance_varselection::update(void)
 
     FC_psi2.update();
     // end: updating psi2
-   //end: if wei
+    //end: if wei
     }
   else
-   {
+    {
     if (FC_delta.beta(0,0) < 1)
       r_delta = r;
     else
@@ -915,7 +1012,7 @@ void FC_nonp_variance_varselection::update(void)
 
     FC_psi2.update();
     // end: updating psi2
-   }
+    }
 
    // updating delta
   double u = uniform();
