@@ -847,6 +847,16 @@ void FC_nonp_variance_varselection::add_linpred(datamatrix & l)
     likep->linearpred2.plus(l);
   }
 
+
+void FC_nonp_variance_varselection::update(void)
+  {
+
+  FCnonpp->tau2 = 1;
+
+  }
+
+
+/*
 void FC_nonp_variance_varselection::update(void)
   {
 
@@ -1045,20 +1055,7 @@ void FC_nonp_variance_varselection::update(void)
         // a la Scheipl et al.
 
         // replace beta with param to obtain appropriate reparameterisation
-/*      double * betap = FCnonpp->beta.getV();
-      double helpsum=0.0;
-      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
-        {
-        helpsum += fabs(*betap);
-        }
-      helpsum /= (double)FCnonpp->beta.rows() * sqrt(beta(0,0));
 
-      betap = FCnonpp->beta.getV();
-      for(i=0; i<FCnonpp->beta.rows(); i++, betap++)
-        {
-        *betap *= tauprop/(helpsum*sqrt(beta(0,0)));
-        }
-      tauprop *= helpsum;*/
 
       tau2 = tauprop*tauprop;
 
@@ -1144,14 +1141,17 @@ void FC_nonp_variance_varselection::update(void)
     }
     //end: if gig
   }
+*/
 
 
 bool FC_nonp_variance_varselection::posteriormode(void)
   {
+/*
   bool t = FC_nonp_variance::posteriormode();
 
   FC_psi2.beta(0,0) = beta(0,0);
-
+*/
+  FCnonpp->tau2 = 1;
   return true;
   }
 
@@ -1160,7 +1160,7 @@ bool FC_nonp_variance_varselection::posteriormode(void)
 void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & out_R,
                                   const ST::string & pathresults)
   {
-
+/*
   if (pathresults.isvalidfile() != 1)
     {
 
@@ -1244,7 +1244,8 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     }
 
     }
-  }
+*/
+}
 
 
 void FC_nonp_variance_varselection::get_samples(
