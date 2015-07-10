@@ -5361,6 +5361,34 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+    else if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
+
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+
+        distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+        if(distr_binomialprobit_copulas[coi].get_copulapos()==0)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response2 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_clayton_copulas[distr_clayton_copulas.size()-1].response2;
+          }
+        else if(distr_binomialprobit_copulas[coi].get_copulapos()==1)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_clayton_copulas[distr_clayton_copulas.size()-1].response1;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
     else
       {
       outerror("ERROR: family not implemented or something else wrong");

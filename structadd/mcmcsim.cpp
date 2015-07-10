@@ -286,7 +286,9 @@ const int & seed, const bool & computemode)
       equations[nrmodels-1-i].distrp->update();
 
       for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
-        equations[nrmodels-1-i].FCpointer[j]->update();
+         {
+         equations[nrmodels-1-i].FCpointer[j]->update();
+         }
 
       equations[nrmodels-1-i].distrp->update_end();
 
