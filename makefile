@@ -2923,6 +2923,30 @@ structadd/design_pspline.cpp.s:
 	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/design_pspline.cpp.s
 .PHONY : structadd/design_pspline.cpp.s
 
+structadd/design_userdefined.obj: structadd/design_userdefined.cpp.obj
+.PHONY : structadd/design_userdefined.obj
+
+# target to build an object file
+structadd/design_userdefined.cpp.obj:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/design_userdefined.cpp.obj
+.PHONY : structadd/design_userdefined.cpp.obj
+
+structadd/design_userdefined.i: structadd/design_userdefined.cpp.i
+.PHONY : structadd/design_userdefined.i
+
+# target to preprocess a source file
+structadd/design_userdefined.cpp.i:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/design_userdefined.cpp.i
+.PHONY : structadd/design_userdefined.cpp.i
+
+structadd/design_userdefined.s: structadd/design_userdefined.cpp.s
+.PHONY : structadd/design_userdefined.s
+
+# target to generate assembly for a file
+structadd/design_userdefined.cpp.s:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/design_userdefined.cpp.s
+.PHONY : structadd/design_userdefined.cpp.s
+
 structadd/distr.obj: structadd/distr.cpp.obj
 .PHONY : structadd/distr.obj
 
@@ -3018,6 +3042,30 @@ structadd/distr_gamlss.s: structadd/distr_gamlss.cpp.s
 structadd/distr_gamlss.cpp.s:
 	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/distr_gamlss.cpp.s
 .PHONY : structadd/distr_gamlss.cpp.s
+
+structadd/distr_gamlss_copula.obj: structadd/distr_gamlss_copula.cpp.obj
+.PHONY : structadd/distr_gamlss_copula.obj
+
+# target to build an object file
+structadd/distr_gamlss_copula.cpp.obj:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/distr_gamlss_copula.cpp.obj
+.PHONY : structadd/distr_gamlss_copula.cpp.obj
+
+structadd/distr_gamlss_copula.i: structadd/distr_gamlss_copula.cpp.i
+.PHONY : structadd/distr_gamlss_copula.i
+
+# target to preprocess a source file
+structadd/distr_gamlss_copula.cpp.i:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/distr_gamlss_copula.cpp.i
+.PHONY : structadd/distr_gamlss_copula.cpp.i
+
+structadd/distr_gamlss_copula.s: structadd/distr_gamlss_copula.cpp.s
+.PHONY : structadd/distr_gamlss_copula.s
+
+# target to generate assembly for a file
+structadd/distr_gamlss_copula.cpp.s:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/distr_gamlss_copula.cpp.s
+.PHONY : structadd/distr_gamlss_copula.cpp.s
 
 structadd/distr_gamlss_nadja.obj: structadd/distr_gamlss_nadja.cpp.obj
 .PHONY : structadd/distr_gamlss_nadja.obj
@@ -3522,6 +3570,9 @@ help:
 	@echo ... structadd/design_pspline.obj
 	@echo ... structadd/design_pspline.i
 	@echo ... structadd/design_pspline.s
+	@echo ... structadd/design_userdefined.obj
+	@echo ... structadd/design_userdefined.i
+	@echo ... structadd/design_userdefined.s
 	@echo ... structadd/distr.obj
 	@echo ... structadd/distr.i
 	@echo ... structadd/distr.s
@@ -3534,6 +3585,9 @@ help:
 	@echo ... structadd/distr_gamlss.obj
 	@echo ... structadd/distr_gamlss.i
 	@echo ... structadd/distr_gamlss.s
+	@echo ... structadd/distr_gamlss_copula.obj
+	@echo ... structadd/distr_gamlss_copula.i
+	@echo ... structadd/distr_gamlss_copula.s
 	@echo ... structadd/distr_gamlss_nadja.obj
 	@echo ... structadd/distr_gamlss_nadja.i
 	@echo ... structadd/distr_gamlss_nadja.s

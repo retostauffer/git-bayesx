@@ -125,6 +125,7 @@ set(STRUCTADD_SRC
 	../structadd/design_hrandom.cpp
 	../structadd/design_mrf.cpp
 	../structadd/design_pspline.cpp
+	../structadd/design_userdefined.cpp
 	../structadd/distr.cpp
 	../structadd/distr_categorical.cpp
 	../structadd/distr_categorical_mult.cpp
@@ -161,7 +162,7 @@ else()
   set(32BIT 1)
 endif()
 
-add_definitions(-DJAVA_OUTPUT_WINDOW -m64)
+add_definitions(-DJAVA_OUTPUT_WINDOW -Os -m64)
 add_library(BayesXdll SHARED ${SRC} ${JAVA_SRC} ../java/BayesXdll.cpp)
 add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
 
