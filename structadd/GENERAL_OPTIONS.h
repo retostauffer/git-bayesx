@@ -119,16 +119,13 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   // saveestimation = sa
   // copula = cop
 
+  GENERAL_OPTIONS(
   #if defined(JAVA_OUTPUT_WINDOW)
-  GENERAL_OPTIONS(administrator_basic * abp,
-              const unsigned & it,const unsigned & bu,const unsigned & st,
-              const bool & sa, ostream * lo=&cout,const double & l1=95,
-              const double & l2=80);
-  #else
-  GENERAL_OPTIONS(const unsigned & it,const unsigned & bu,const unsigned & st,
+                  administrator_basic * abp,
+  #endif
+                  const unsigned & it,const unsigned & bu,const unsigned & st,
                   const bool & sa,const bool & cop,ostream * lo=&cout,const double & l1=95,
                   const double & l2=80);
-  #endif
 
   // COPY CONSTRUCTOR
 
