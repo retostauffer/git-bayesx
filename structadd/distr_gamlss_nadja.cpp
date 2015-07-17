@@ -7692,7 +7692,7 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   family = "Binomial Distribution - probit";
     outpredictor = true;
   outexpectation = true;
-  predictor_name = "pi";
+  predictor_name = "mu";
   responseorig = r;
 //  linpredminlimit=-7.5;
 //  linpredmaxlimit=2.2;
