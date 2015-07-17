@@ -508,6 +508,22 @@ double truncnormal(const double & a,const double & b)
   }
 
 
+// efficient random number generation from truncated normal for copula models.
+//compared to trunc_normal2, u has already been computed
+double trunc_normal_copula(const double & a,const double & b,const double & mu,
+                    const double & s, const double & F1)
+  {
+  double at = Phi2((a-mu)/s);
+  double bt = Phi2((b-mu)/s);
+  double u = at+(bt-at)*F1;
+  double r = mu+s*invPhi2(u);
+  if (r < a)
+    r = a+0.00000001;
+  if (r > b)
+    r = b-0.00000001;
+
+  return r;
+  }
 
 // Erzeugen eines standardnormalverteilten Zufallsvektors (Spaltenvektor)
 // mit Dimension dim !

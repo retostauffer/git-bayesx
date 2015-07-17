@@ -7944,11 +7944,12 @@ void DISTR_binomialprobit_copula::update(void)
       double x = randnumbers::uniform();
       double F1 = distrcopulap[0]->condcdf(x, copulapos);
       if(*workresporig>0)
-        *workresp = *worklin_current + randnumbers::invPhi2((1-randnumbers::Phi2(-*worklin_current))*F1 + randnumbers::Phi2(-*worklin_current));
+        //*workresp = *worklin_current + randnumbers::invPhi2((1-randnumbers::Phi2(-*worklin_current))*F1 + randnumbers::Phi2(-*worklin_current));
+        *workresp = randnumbers::trunc_normal_copula(0,20,*worklin_current,1,F1);
       else
-        *workresp = *worklin_current + randnumbers::invPhi2(randnumbers::Phi2(-*worklin_current)*F1);
+        //*workresp = *worklin_current + randnumbers::invPhi2(randnumbers::Phi2(-*worklin_current)*F1);
+        *workresp = randnumbers::trunc_normal_copula(-20,0,*worklin_current,1,F1);
       *responsecop = *workresp;
-
       }
     }
   }
