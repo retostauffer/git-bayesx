@@ -1,19 +1,22 @@
 BayesX - Software for Bayesian Inference in
 Structured Additive Regression Models.
-Copyright (C) 2011  Christiane Belitz, Andreas Brezger,
+Copyright (C) 2015  Christiane Belitz, Andreas Brezger, Nadja Klein
 Thomas Kneib, Stefan Lang, Nikolaus Umlauf
 
 Developed by
 
 Christiane Belitz
 Andreas Brezger
-Thomas Kneib (Carl von Ossietzky University Oldenburg)
+Nadja Klein (Georg-August-University Goettingen)
+Thomas Kneib (Georg-August-University Goettingen)
 Stefan Lang (Leopold-Franzens-University Innsbruck)
 Nikolaus Umlauf Lang (Leopold-Franzens-University Innsbruck)
 
-With contributions
+With contributions by
 
 Daniel Adler
+Paul Cochrane
+Jan Fahrenholz
 Eva-Maria Fronk
 Felix Heinzl
 Andrea Hennerfeind
@@ -22,8 +25,8 @@ Alexander Jerak
 Susanne Konrath
 Petra Kragler
 Cornelia Oberhauser
-Leyre Estíbaliz Osuna Echavarría
-Daniel Sabanés Bové
+Leyre Estibaliz Osuna Echavarria
+Daniel Sabanes Bove
 Achim Zeileis 
 
 This program is free software; you can redistribute it and/or
