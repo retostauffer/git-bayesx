@@ -307,6 +307,11 @@ class __EXPORT_TYPE DESIGN
   void compute_effect(datamatrix & effect,datamatrix & f,
                       effecttype2 et = Function);
 
+
+  // FUNCTION: set_intvar
+  // TASK:
+
+
   void set_intvar(datamatrix & iv, double add=0);
 
   // FUNCTION: update_linpred

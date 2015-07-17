@@ -1375,12 +1375,19 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
         for (i=0;i<ind.rows();i++,workingresponsep++,indp++,worklinp++,
                                 workingweightp++,workintvar++,workintvar2++)
           {
+
           res(*indp,0) +=  (*workingweightp) * (*workintvar) *
                             (*workingresponsep - *worklinp +
                             (*workintvar) * f(*indp,0));
 
           Wsum(*indp,0) += *workingweightp * (*workintvar2);
           }
+
+
+/*        ofstream out("c:\\bayesx\\trunk\\testh\\results\\wresp_one.res");
+        likep->workingresponse.prettyPrint(out);
+        out.close();
+*/
 
         }
 
@@ -1425,6 +1432,12 @@ void DESIGN::compute_partres(datamatrix & res, datamatrix & f,bool cwsum)
 
           Wsum(*indp,0) += *workingweightp;
           }
+
+
+/*        ofstream out("c:\\bayesx\\trunk\\testh\\results\\wresp.res");
+        likep->workingresponse.prettyPrint(out);
+        out.close();
+*/
 
         }
 

@@ -7784,6 +7784,9 @@ void superbayesreg::create_pspline(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
+  if (terms[i].options[35] == "ssvs")
+    iv = datamatrix(d.rows(),1,1);
+
   // TEST
   //  ofstream out("c:\\bayesx\\testh\\results\\d.res");
   //  d.prettyPrint(out);

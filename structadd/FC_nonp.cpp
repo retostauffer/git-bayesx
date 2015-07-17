@@ -1434,6 +1434,9 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
   if (pathresults.isvalidfile() != 1)
     {
 
+    if ((designp->intvar.rows()==designp->data.rows()) && (designp->datanames.size() == 1))
+      designp->intvar = datamatrix(1,1,1);
+
     outgraphs(out_stata,out_R,pathresults);
 
     FC::outresults(out_stata,out_R,"");

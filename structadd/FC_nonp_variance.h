@@ -159,6 +159,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   protected:
 
+  datamatrix onevec;
+
   bool singleomega;
 
   FC FC_psi2;
@@ -228,6 +230,11 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   //         storing order: first row, second row, ...
 
   void update(void);
+
+  void update_IWLS(void);
+  void update_gaussian(void);
+
+
 
   bool posteriormode(void);
 
