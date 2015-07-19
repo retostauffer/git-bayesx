@@ -162,7 +162,13 @@ else()
   set(32BIT 1)
 endif()
 
-add_definitions(-DJAVA_OUTPUT_WINDOW -Os -m64)
+add_definitions(-DJAVA_OUTPUT_WINDOW -Os)
+if(32BIT)
+  add_definitions(-m32)
+else()
+  add_definitions(-m64)
+endif()
+
 add_library(BayesXdll SHARED ${SRC} ${JAVA_SRC} ../java/BayesXdll.cpp)
 add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
 

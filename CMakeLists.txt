@@ -152,6 +152,13 @@ set(SRC
 	adaptiv/fullcond_adaptiv.cpp
 	alex/mixture.cpp
 )
+
+if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+  set(64BIT 1)
+else()
+  set(32BIT 1)
+endif()
+
 include_directories(bib alex adaptiv andrea dag graph mcmc psplines samson leyre structadd)
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS} ${GSLCBLAS_INCLUDE_DIRS})
@@ -159,7 +166,14 @@ link_libraries( ${GSL_LIBRARIES}  ${GSLCBLAS_LIBRARIES})
 add_definitions(${GSL_CFLAGS})
 add_subdirectory(java)
 add_executable(bayesx ${SRC})
-add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -Os -m64)
+
+add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -Os)
+if(32BIT)
+  add_definitions(-m32)
+else()
+  add_definitions(-m64)
+endif()
+
 if(NOT WIN32)
 add_definitions(-D__BUILDING_LINUX)
 find_package(Readline REQUIRED)
