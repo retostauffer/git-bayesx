@@ -295,7 +295,7 @@ class __EXPORT_TYPE DISTR
     return res;
     }
 
-  virtual double condcdf(double & F, int & copulapos)
+  virtual double condfc(double & x, double & linpred_F, double & y, int & copulapos)
     {
     return 0.0;
     }

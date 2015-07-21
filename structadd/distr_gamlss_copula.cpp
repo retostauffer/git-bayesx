@@ -201,7 +201,7 @@ double DISTR_copula_basis::logc(double & F1, double & F2, double * linpred)
   return 0.0;
   }
 
-double DISTR_copula_basis::condcdf(double & x, int & copulapos)
+double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, int & copulapos)
   {
   if (counter==0)
     {
@@ -218,7 +218,7 @@ double DISTR_copula_basis::condcdf(double & x, int & copulapos)
     Fa = distrp[1]->cdf(*response1p,true);
   else
     Fa = distrp[0]->cdf(*response2p,true);
-  double res = condcdf(x, Fa, linpredp);
+  double res = condfc(x, linpred_F, y, Fa, linpredp);
 
   linpredp++;
   response1p++;
@@ -231,7 +231,7 @@ double DISTR_copula_basis::condcdf(double & x, int & copulapos)
   return res;
   }
 
-double DISTR_copula_basis::condcdf(double & x, double & F2, double * linpred)
+double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
   return 0.0;
   }
@@ -490,10 +490,18 @@ double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   return lc;
   }
 
-double DISTR_gausscopula::condcdf(double & x, double & F2, double * linpred)
+double DISTR_gausscopula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
-  double res = randnumbers::Phi2(randnumbers::invPhi2(x)*sqrt(1-rho*rho) + rho*randnumbers::invPhi2(F2));
+  double help2 = sqrt(1-rho*rho);
+  double help3 = randnumbers::invPhi2(F2);
+  double help = randnumbers::Phi2( (-linpred_F - rho*help3) / (help2));
+  double xstar = x;
+  if(y>0)
+     xstar = x*(1-help) + help;
+  else
+     xstar = x*help;
+  double res = randnumbers::invPhi2(xstar)*help2 + rho*help3 + linpred_F;
   return res;
   }
 
@@ -747,10 +755,12 @@ double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
   return lc;
   }
 
-double DISTR_clayton_copula::condcdf(double & x, double & F2, double * linpred)
+double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
-  double rho = exp(*linpred);
-  double res = pow(pow(-pow(F2, -rho-1)/x, rho/(1+rho))-pow(F2, -rho), -1/rho);
+  // ToDo
+//  double rho = exp(*linpred);
+//  double res = pow(pow(-pow(F2, -rho-1)/x, rho/(1+rho))-pow(F2, -rho), -1/rho);
+  double res =0.0;
   return res;
   }
 

@@ -93,9 +93,9 @@ class __EXPORT_TYPE DISTR_copula_basis : public DISTR_gamlss
 
   virtual double logc(double & F1, double & F2, double * linpred);
 
-  virtual double condcdf(double & x, double & F2, double * linpred);
+  virtual double condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred);
 
-  double condcdf(double & x, int & copulapos);
+  double condfc(double & x, double & linpred_F, double & y, int & copulapos);
 
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
@@ -166,7 +166,7 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_copula_basis
 
   double logc(double & F1, double & F2, double * linpred);
 
-  double condcdf(double & x, double & F2, double * linpred);
+  double condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
@@ -235,7 +235,7 @@ class __EXPORT_TYPE DISTR_clayton_copula : public DISTR_copula_basis
 
   double logc(double & F1, double & F2, double * linpred);
 
-  double condcdf(double & x, double & F2, double * linpred);
+  double condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
                                               double * linpred,
