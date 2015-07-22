@@ -111,8 +111,8 @@ double __EXPORT_TYPE truncnormal(const double & a,const double & b);
 
 // efficient random number generation from truncated normal for copula models.
 //compared to trunc_normal2, u has already been computed
-double __EXPORT_TYPE trunc_normal_copula(const double & a,const double & b,const double & mu,
-                    const double & s = 1, const double & F1 = 0.5);
+//double __EXPORT_TYPE trunc_normal_copula(const double & a,const double & b,const double & mu,
+//                    const double & s = 1, const double & F1 = 0.5);
 
 // Erzeugen von exponentialverteilten Zufallszahlen mit Parameter lambda
 
