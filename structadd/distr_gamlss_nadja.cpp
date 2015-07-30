@@ -2651,6 +2651,46 @@ const DISTR_dagum_p & DISTR_dagum_p::operator=(
   return *this;
   }
 
+double DISTR_dagum_p::cdf(const double & resp, const bool & ifcop)
+  {
+  if(counter==0)
+    {
+    if(ifcop)
+      {
+      set_worklin();
+      }
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+ //  double test = *linpred;
+// compute cdf (might work more efficiently)
+  double res,a,b,p;
+  p = exp(*linpredp);
+  a = *worktransformlin[1];//exp(*linpred[0]);
+  b = *worktransformlin[0];
+  res = pow(1+pow(resp/b,-a),-p);
+
+  if(ifcop)
+    {
+    modify_worklin();
+    }
+  linpredp++;
+  return res;
+  }
+
+double DISTR_dagum_p::cdf(const double & resp, const double & linpred)
+  {
+  double res,a,b,p;
+  p = exp(linpred);
+  a = *worktransformlin[1];//exp(*linpred[0]);
+  b = *worktransformlin[0];
+  res = pow(1+pow(resp/b,-a),-p);
+  return res;
+  }
+
 
 double DISTR_dagum_p::get_intercept_start(void)
   {
@@ -2684,6 +2724,12 @@ double DISTR_dagum_p::loglikelihood_weightsone(double * response,
      l = log(p) + (*worktransformlin[1])*p*log((*response)) - (*worktransformlin[1])*p*log((*worktransformlin[0]))
         -p*log(1+hilfs);
 
+  if(optionsp->copula)
+    {
+    //implement loglik for copula models, i.e. add part logc
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
 
   modify_worklin();
 
@@ -2717,10 +2763,32 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
     double nu = 1 + (*worktransformlin[1])*p*log((*response)) - (*worktransformlin[1])*p*log((*worktransformlin[0]))
                 -p*log(1+hilfs);
 
-	double exp_linsigma_plus1 = ((*worktransformlin[0])+1);
-
     *workingweight = 1;
 
+ /*   if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+    if (compute_like)
+      {
+      like += logcandderivs[0];
+      }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    double lyb = log(*response/(*worktransformlin[1]));
+    double ybpma = pow(*response/(*worktransformlin[1]),-a);
+    double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
+    double va = -lyb*ybpma*a;
+    double wa = (*worktransformlin[0]+1)*a*lyb*ybpma*pow(1+ybpma,-(*worktransformlin)-2);
+    double dF = p*lyb*a*ybpma*ybpmap;
+    double ddF = p*lyb+(a*ybpma**ybmap+a*va*ybpmap+a*ybpma*wa);
+    nu += logcandderivs[1]*dF;
+
+   // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+    if (*workingweight <=0)
+      *workingweight = 0.001;
+    }
+*/
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -2802,6 +2870,46 @@ const DISTR_dagum_b & DISTR_dagum_b::operator=(
   return *this;
   }
 
+double DISTR_dagum_b::cdf(const double & resp, const bool & ifcop)
+  {
+  if(counter==0)
+    {
+    if(ifcop)
+      {
+      set_worklin();
+      }
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+ //  double test = *linpred;
+// compute cdf (might work more efficiently)
+  double res,a,b,p;
+  b = exp(*linpredp);
+  a = *worktransformlin[1];//exp(*linpred[0]);
+  p = *worktransformlin[0];
+  res = pow(1+pow(resp/b,-a),-p);
+
+  if(ifcop)
+    {
+    modify_worklin();
+    }
+  linpredp++;
+  return res;
+  }
+
+double DISTR_dagum_b::cdf(const double & resp, const double & linpred)
+  {
+  double res,a,b,p;
+  b = exp(linpred);
+  a = *worktransformlin[1];//exp(*linpred[0]);
+  p = *worktransformlin[0];
+  res = pow(1+pow(resp/b,-a),-p);
+  return res;
+  }
+
 
 double DISTR_dagum_b::get_intercept_start(void)
   {
@@ -2833,6 +2941,12 @@ double DISTR_dagum_b::loglikelihood_weightsone(double * response,
 
      l = - (*worktransformlin[1])*(*worktransformlin[0])*log(b) - ((*worktransformlin[0])+1)*log(1+hilfs);
 
+  if(optionsp->copula)
+    {
+    //implement loglik for copula models, i.e. add part logc
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
 
   modify_worklin();
 
@@ -2868,6 +2982,30 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
     *workingweight = (pow((*worktransformlin[1]),2)*(*worktransformlin[0]))/((*worktransformlin[0])+2);
    // *workingweight = (((*worktransformlin[0])+1)*pow((*worktransformlin[1]),2)*hilfs)/pow((1+hilfs),2);
 
+ /*  if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+    if (compute_like)
+      {
+      like += logcandderivs[0];
+      }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    double lyb = log(*response/(*worktransformlin[1]));
+    double ybpma = pow(*response/(*worktransformlin[1]),-a);
+    double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
+    double va = -lyb*ybpma*a;
+    double wa = (*worktransformlin[0]+1)*a*lyb*ybpma*pow(1+ybpma,-(*worktransformlin)-2);
+    double dF = p*lyb*a*ybpma*ybpmap;
+    double ddF = p*lyb+(a*ybpma**ybmap+a*va*ybpmap+a*ybpma*wa);
+    nu += logcandderivs[1]*dF;
+
+   // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+    if (*workingweight <=0)
+      *workingweight = 0.001;
+    }
+*/
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -2991,6 +3129,55 @@ const DISTR_dagum_a & DISTR_dagum_a::operator=(
   return *this;
   }
 
+double DISTR_dagum_a::cdf(const double & resp, const bool & ifcop)
+  {
+  if(counter==0)
+    {
+    if(ifcop)
+      {
+      set_worklin();
+      }
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+ //  double test = *linpred;
+// compute cdf (might work more efficiently)
+  double res,a,b,p;
+  a = exp(*linpredp);
+  b = *worktransformlin[1];//exp(*linpred[0]);
+  p = *worktransformlin[0];
+  res = pow(1+pow(resp/b,-a),-p);
+
+  if(ifcop)
+    {
+    modify_worklin();
+    }
+  linpredp++;
+  return res;
+  }
+
+double DISTR_dagum_a::cdf(const double & resp, const double & linpred)
+  {
+  double res,a,b,p;
+  a = exp(linpred);
+  b = *worktransformlin[1];//exp(*linpred[0]);
+  p = *worktransformlin[0];
+  res = pow(1+pow(resp/b,-a),-p);
+  return res;
+  }
+
+double DISTR_dagum_a::cdf(const double & resp, vector<double *>  linpred)
+  {
+  double res,a,b,p;
+  a = exp(*linpred[2]);
+  b = exp(*linpred[1]);
+  p = exp(*linpred[0]);
+  res = pow(1+pow(resp/b,-a),-p);
+  return res;
+  }
 
 void DISTR_dagum_a::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
@@ -3073,6 +3260,13 @@ double DISTR_dagum_a::loglikelihood_weightsone(double * response,
 
      l =  log(a) +(a*(*worktransformlin[0]))*log((*response)) - a*(*worktransformlin[0])*log((*worktransformlin[1]))
             - ((*worktransformlin[0])+1)*log(1+hilfs);
+
+  if(optionsp->copula)
+    {
+    //implement loglik for copula models, i.e. add part logc
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
   modify_worklin();
 
   return l;
@@ -3113,6 +3307,30 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
                 - (((*worktransformlin[0])+1)*a*hilfs*log((*response)/(*worktransformlin[1])))/(1+hilfs);
 
     *workingweight = 1 + (((*worktransformlin[0])+1)*pow(a,2)*hilfs*pow(log((*response)/(*worktransformlin[1])),2))/pow((1+hilfs),2);
+
+    if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+    if (compute_like)
+      {
+      like += logcandderivs[0];
+      }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    double lyb = log(*response/(*worktransformlin[1]));
+    double ybpma = pow(*response/(*worktransformlin[1]),-a);
+    double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
+    double va = -lyb*ybpma*a;
+    double wa = (*worktransformlin[0]+1)*a*lyb*ybpma*pow(1+ybpma,-(*worktransformlin[0])-2);
+    double dF = (*worktransformlin[0])*lyb*a*ybpma*ybpmap;
+    double ddF = (*worktransformlin[0])*lyb+(a*ybpma*ybpmap+a*va*ybpmap+a*ybpma*wa);
+    nu += logcandderivs[1]*dF;
+
+   // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+    if (*workingweight <=0)
+      *workingweight = 0.001;
+    }
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -10663,6 +10881,7 @@ double DISTR_gaussiancopula_dagum_a::loglikelihood_weightsone(double * response,
     l = (*worktransformlin[0]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[0]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho +
                 log(a) +(a*pcurrent)*log((*response)) - a*pcurrent*log((*worktransformlin[4]))
                 - (pcurrent+1)*log(1+hilfs);
+
 
     modify_worklin();
 

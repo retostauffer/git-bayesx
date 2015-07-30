@@ -922,6 +922,10 @@ class __EXPORT_TYPE DISTR_dagum_p : public DISTR_gamlss
 
   void compute_param_mult(vector<double *>  linpred,double * param);
 
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
   double loglikelihood_weightsone(double * response, double * linpred);
 
   void compute_iwls_wweightschange_weightsone(double * response,
@@ -978,6 +982,10 @@ class __EXPORT_TYPE DISTR_dagum_b : public DISTR_gamlss
   double get_intercept_start(void);
 
   void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
@@ -1052,6 +1060,12 @@ class __EXPORT_TYPE DISTR_dagum_a : public DISTR_gamlss
                           vector<double *> param,
                           vector<double *> weight,
                           vector<datamatrix *> aux);
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, vector<double *>  linpred);
 
   double loglikelihood_weightsone(double * response, double * linpred);
 
