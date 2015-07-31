@@ -2765,7 +2765,7 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
 
     *workingweight = 1;
 
- /*   if(optionsp->copula)
+    if(optionsp->copula)
     {
     double F = cdf(*response,*linpred);
     vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
@@ -2774,13 +2774,11 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double lyb = log(*response/(*worktransformlin[1]));
-    double ybpma = pow(*response/(*worktransformlin[1]),-a);
-    double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
-    double va = -lyb*ybpma*a;
-    double wa = (*worktransformlin[0]+1)*a*lyb*ybpma*pow(1+ybpma,-(*worktransformlin)-2);
-    double dF = p*lyb*a*ybpma*ybpmap;
-    double ddF = p*lyb+(a*ybpma**ybmap+a*va*ybpmap+a*ybpma*wa);
+    double lyb = log(*response/(*worktransformlin[0]));
+    double ybpma = pow(*response/(*worktransformlin[0]),-(*worktransformlin[1]));
+    double ybpmap = pow(1+ybpma,-p-1);
+    double dF = -p*log(1+ybpma)*ybpmap;
+    double ddF = p*log(1+ybpma)*ybpma*(p*log(ybpma)-1);
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -2788,7 +2786,7 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
-*/
+
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -2982,7 +2980,7 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
     *workingweight = (pow((*worktransformlin[1]),2)*(*worktransformlin[0]))/((*worktransformlin[0])+2);
    // *workingweight = (((*worktransformlin[0])+1)*pow((*worktransformlin[1]),2)*hilfs)/pow((1+hilfs),2);
 
- /*  if(optionsp->copula)
+   if(optionsp->copula)
     {
     double F = cdf(*response,*linpred);
     vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
@@ -2991,13 +2989,11 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double lyb = log(*response/(*worktransformlin[1]));
-    double ybpma = pow(*response/(*worktransformlin[1]),-a);
-    double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
-    double va = -lyb*ybpma*a;
-    double wa = (*worktransformlin[0]+1)*a*lyb*ybpma*pow(1+ybpma,-(*worktransformlin)-2);
-    double dF = p*lyb*a*ybpma*ybpmap;
-    double ddF = p*lyb+(a*ybpma**ybmap+a*va*ybpmap+a*ybpma*wa);
+    double lyb = log(*response/b);
+    double ybpa = pow(*response/b,(*worktransformlin[1]));
+    double ybpmap = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0])-1);
+    double dF = -(*worktransformlin[1])*(*worktransformlin[0])*ybpmap/ybpa;
+    double ddF = (*worktransformlin[1])*(*worktransformlin[1])*(*worktransformlin[0])*((*worktransformlin[0])-ybpa)*ybpmap/((ybpa+1)*(ybpa+1));
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -3005,7 +3001,7 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
-*/
+
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
@@ -3317,13 +3313,14 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
+    double ybpa = pow((*response/(*worktransformlin[1])),a);
     double lyb = log(*response/(*worktransformlin[1]));
     double ybpma = pow(*response/(*worktransformlin[1]),-a);
     double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
     double va = -lyb*ybpma*a;
     double wa = (*worktransformlin[0]+1)*a*lyb*ybpma*pow(1+ybpma,-(*worktransformlin[0])-2);
     double dF = (*worktransformlin[0])*lyb*a*ybpma*ybpmap;
-    double ddF = (*worktransformlin[0])*lyb+(a*ybpma*ybpmap+a*va*ybpmap+a*ybpma*wa);
+    double ddF = a*(*worktransformlin[0])*lyb*ybpmap*(a*lyb*((*worktransformlin[0])-ybpma)+ybpa+1)/pow(1+ybpa,2);
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;

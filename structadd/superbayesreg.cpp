@@ -1944,13 +1944,6 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_normal_mus[distr_normal_mus.size()-1];
     equations[modnr].pathd = "";
 
-    if(generaloptions.copula){}
-    else
-      {
-      predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
-      predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
-      }
-
     if (distr_normal_sigma2s.size() != (1+countmarginal))
       {
       outerror("ERROR: Equation for sigma2 is missing");
@@ -1965,7 +1958,12 @@ bool superbayesreg::create_distribution(void)
       (&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
 
       countmarginal += 1;
-      cout << "number of correct marginals that were found: " << countmarginal << endl;
+      }
+    if(generaloptions.copula){}
+    else
+      {
+      predict_mult_distrs.push_back(&distr_normal_sigma2s[distr_normal_sigma2s.size()-1]);
+      predict_mult_distrs.push_back(&distr_normal_mus[distr_normal_mus.size()-1]);
       }
 
     if(generaloptions.copula)
@@ -2637,7 +2635,14 @@ bool superbayesreg::create_distribution(void)
    else if (family.getvalue() == "dagum" && equationtype.getvalue()=="a")
      {
 
-     mainequation=true;
+     if(generaloptions.copula)
+      {
+      mainequation=false;
+      }
+    else
+      {
+      mainequation=true;
+      }
 
      computemodeforstartingvalues = true;
 
@@ -2646,40 +2651,59 @@ bool superbayesreg::create_distribution(void)
      equations[modnr].distrp = &distr_dagum_as[distr_dagum_as.size()-1];
      equations[modnr].pathd = "";
 
-     if (distr_dagum_ps.size() != 1)
+     if (distr_dagum_ps.size() != 1+countmarginal)
        {
        outerror("ERROR: Equation for p is missing");
        return true;
        }
 
-     if (distr_dagum_bs.size() != 1)
+     if (distr_dagum_bs.size() != 1+countmarginal)
        {
        outerror("ERROR: Equation for b is missing");
        return true;
        }
+     else
+       {
+       distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
+       &distr_dagum_bs[distr_dagum_bs.size()-1]);
 
-     predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-1]);
-     predict_mult_distrs.push_back(&distr_dagum_bs[distr_dagum_bs.size()-1]);
-     predict_mult_distrs.push_back(&distr_dagum_as[distr_dagum_as.size()-1]);
+	     distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
+       &distr_dagum_as[distr_dagum_as.size()-1]);
 
-     distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
-     &distr_dagum_bs[distr_dagum_bs.size()-1]);
+       distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
+       &distr_dagum_ps[distr_dagum_ps.size()-1]);
 
-	 distr_dagum_ps[distr_dagum_ps.size()-1].distrp.push_back(
-     &distr_dagum_as[distr_dagum_as.size()-1]);
+       distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
+       &distr_dagum_as[distr_dagum_as.size()-1]);
 
-     distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
-     &distr_dagum_ps[distr_dagum_ps.size()-1]);
+       distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
+       &distr_dagum_ps[distr_dagum_ps.size()-1]);
 
-     distr_dagum_bs[distr_dagum_bs.size()-1].distrp.push_back(
-     &distr_dagum_as[distr_dagum_as.size()-1]);
+       distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
+       &distr_dagum_bs[distr_dagum_bs.size()-1]);
 
-     distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
-     &distr_dagum_ps[distr_dagum_ps.size()-1]);
+       countmarginal += 1;
+       }
+     if(generaloptions.copula){}
+     else
+       {
+       predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-1]);
+       predict_mult_distrs.push_back(&distr_dagum_bs[distr_dagum_bs.size()-1]);
+       predict_mult_distrs.push_back(&distr_dagum_as[distr_dagum_as.size()-1]);
+       }
 
-     distr_dagum_as[distr_dagum_as.size()-1].distrp.push_back(
-     &distr_dagum_bs[distr_dagum_bs.size()-1]);
-
+     if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(0);}
+      else if(countmarginal == 2)
+        {distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(1);}
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
+      }
      }
  //------------------------------ END: dagum_a ----------------------------------
 
@@ -3802,13 +3826,6 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_weibull_lambdas[distr_weibull_lambdas.size()-1];
     equations[modnr].pathd = "";
 
-    if(generaloptions.copula){}
-    else
-      {
-      predict_mult_distrs.push_back(&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
-      predict_mult_distrs.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-1]);
-      }
-
     if (distr_weibull_alphas.size() != (1+countmarginal))
       {
       outerror("ERROR: Equation for alpha is missing");
@@ -3823,6 +3840,12 @@ bool superbayesreg::create_distribution(void)
       (&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
 
       countmarginal += 1;
+      }
+    if(generaloptions.copula){}
+    else
+      {
+      predict_mult_distrs.push_back(&distr_weibull_alphas[distr_weibull_alphas.size()-1]);
+      predict_mult_distrs.push_back(&distr_weibull_lambdas[distr_weibull_lambdas.size()-1]);
       }
 
     if(generaloptions.copula)
@@ -5201,6 +5224,8 @@ bool superbayesreg::create_distribution(void)
 
         distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
 
+        cout << distr_gausscopulas[0].distrp.size() << endl;
+
         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
 
@@ -5239,6 +5264,36 @@ bool superbayesreg::create_distribution(void)
         else if(distr_normal_mus[coi].get_copulapos()==1)
           {
           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_normal_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    else if(distr_dagum_as.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_dagum_as.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_dagum_ps[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_as[coi]);
+
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+
+        distr_dagum_as[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+        distr_dagum_bs[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+        distr_dagum_ps[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+        if(distr_dagum_as[coi].get_copulapos()==0)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_dagum_as[coi].response;
+          }
+        else if(distr_dagum_as[coi].get_copulapos()==1)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_dagum_as[coi].response;
           }
         else
           {
@@ -7865,7 +7920,7 @@ bool superbayesreg::create_userdefined(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
-  datamatrix designmat, penmat, priormean;
+  datamatrix designmat, penmat, priormean,constrmat;
   if (terms[i].options[60] != "")
     {
     dataobject * datap;                           // pointer to datasetobject
@@ -7940,6 +7995,30 @@ bool superbayesreg::create_userdefined(unsigned i)
   else
     {
     priormean = datamatrix(penmat.cols(),1,0);
+    }
+
+  if (terms[i].options[67] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[67],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[67] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[67] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,constrmat,expr);
     }
 //  ST::string pathdesign = terms[i].options[60];
 //  ST::string pathpenmat = pathdesign + "_penmat.raw";
@@ -8520,7 +8599,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,2);
 
-  datamatrix designmat, designmat2, penmat, penmat2, priormean;
+  datamatrix designmat, designmat2, penmat, penmat2, priormean, constrmat;
 
   if (terms[i].options[60] != "")
     {
@@ -8650,6 +8729,35 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     {
     priormean = datamatrix(penmat.cols(),1,0);
     }
+
+  if (terms[i].options[67] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[67],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[67] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[67] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,constrmat,expr);
+    }
+  else
+    {
+    constrmat = datamatrix(0,0);
+    }
+
 //  ST::string pathdesign = terms[i].options[60];
 //  ST::string pathpenmat = pathdesign + "_penmat.raw";
 //  ST::string pathdesignmat = pathdesign + "_designmat.raw";
