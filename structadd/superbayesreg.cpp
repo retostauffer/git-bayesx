@@ -5224,8 +5224,6 @@ bool superbayesreg::create_distribution(void)
 
         distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
 
-        cout << distr_gausscopulas[0].distrp.size() << endl;
-
         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
 
@@ -5244,7 +5242,7 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else if(distr_normal_mus.size()>0)
+    if(distr_normal_mus.size()>0)
       {
       int coi;
       for(coi=0;coi<distr_normal_mus.size();coi++)
@@ -5272,7 +5270,7 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else if(distr_dagum_as.size()>0)
+    if(distr_dagum_as.size()>0)
       {
       int coi;
       for(coi=0;coi<distr_dagum_as.size();coi++)
@@ -5302,7 +5300,7 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else if(distr_binomialprobit_copulas.size()>0)
+    if(distr_binomialprobit_copulas.size()>0)
       {
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
@@ -5388,7 +5386,7 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else if(distr_normal_mus.size()>0)
+    if(distr_normal_mus.size()>0)
       {
       int coi;
       for(coi=0;coi<distr_normal_mus.size();coi++)
@@ -5416,7 +5414,7 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else if(distr_binomialprobit_copulas.size()>0)
+    if(distr_binomialprobit_copulas.size()>0)
       {
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
