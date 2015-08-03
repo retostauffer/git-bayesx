@@ -476,7 +476,7 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
 
   if(centermethod==userdefined)
     {
-    out("\nNOTE: Effect will be centered according to the provided constraint matrix.\n\n");
+    optionsp->out("\nNOTE: Effect will be centered according to the provided constraint matrix.\n\n");
     basisNull = constrmat;
     }
 
@@ -906,7 +906,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
 
   if(centermethod==userdefined)
     {
-    out("\nNOTE: Effect will be centered according to the provided constraint matrix.\n\n");
+    optionsp->out("\nNOTE: Effect will be centered according to the provided constraint matrix.\n\n");
     basisNull = constrmat;
     }
 
