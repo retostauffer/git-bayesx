@@ -72,9 +72,11 @@ enum effecttype2 {
 //    sum_i f(x_i) = 0 (over all observations)
 // c) meanfd
 //    sum_j f(x_(j)) = 0 (over the different observations)
+// d) userdefined
+//    use constraint matrix provided by the user (only available for userdefined and tensor)
 
 enum centerm {meancoeff,nullspace,meansimple,integralsimple,
-              cmeanintegral,cmeaninvvar,meanf,meanfd,meansum2,meansimplevar};
+              cmeanintegral,cmeaninvvar,meanf,meanfd,meansum2,meansimplevar,userdefined};
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: DESIGN ------------------------------------

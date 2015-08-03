@@ -75,7 +75,7 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
   // CONSTRUCTOR
 
   DESIGN_userdefined(datamatrix & dm, datamatrix & iv, datamatrix & designmat,
-             datamatrix & penmat, datamatrix & priormean,
+             datamatrix & penmat, datamatrix & priormean, datamatrix & constrmat,
              GENERAL_OPTIONS * o, DISTR * dp, FC_linear * fcl,
              vector<ST::string> & op,
              vector<ST::string> & vn);
@@ -147,7 +147,7 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
   DESIGN_userdefined_tensor(datamatrix & dm, datamatrix & iv,
              datamatrix & designmat1, datamatrix & designmat2,
              datamatrix & penmat1, datamatrix & penmat2,
-             datamatrix & priormean,
+             datamatrix & priormean, datamatrix & constrmat,
              GENERAL_OPTIONS * o, DISTR * dp, FC_linear * fcl,
              vector<ST::string> & op,
              vector<ST::string> & vn);

@@ -109,6 +109,8 @@ void DESIGN_userdefined::read_options(vector<ST::string> & op,
     centermethod = meanfd;
   else if (op[16] == "meansum2")
     centermethod = meansum2;
+  else if (op[16] == "userdefined")
+    centermethod = userdefined;
 
   f = op[20].strtodouble(binning);
 
@@ -454,7 +456,7 @@ DESIGN_userdefined::DESIGN_userdefined(GENERAL_OPTIONS * o,DISTR * dp,FC_linear 
   }
 
 DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
-                       datamatrix & designmat, datamatrix & penmat, datamatrix & priormean,
+                       datamatrix & designmat, datamatrix & penmat, datamatrix & priormean,  datamatrix & constrmat,
                        GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                        vector<ST::string> & op,
                        vector<ST::string> & vn)
@@ -471,6 +473,12 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
 
   mK = penmat*priormean;
   Kdatamat = penmat;
+
+  if(centermethod==userdefined)
+    {
+    out("\nNOTE: Effect will be centered according to the provided constraint matrix.\n\n");
+    basisNull = constrmat;
+    }
 
   compute_Zout(designmat);
   compute_Zout_transposed(designmat);
@@ -717,6 +725,8 @@ void DESIGN_userdefined_tensor::read_options(vector<ST::string> & op,
     centermethod = meanfd;
   else if (op[16] == "meansum2")
     centermethod = meansum2;
+  else if (op[16] == "userdefined")
+    centermethod = userdefined;
 
   f = op[20].strtodouble(binning);
 
@@ -879,7 +889,7 @@ void DESIGN_userdefined_tensor::compute_precision(double l)
 
 DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix & iv,
                        datamatrix & designmat1, datamatrix & designmat2,
-                       datamatrix & penmat1, datamatrix & penmat2, datamatrix & priormean,
+                       datamatrix & penmat1, datamatrix & penmat2, datamatrix & priormean, datamatrix & constrmat,
                        GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                        vector<ST::string> & op,
                        vector<ST::string> & vn)
@@ -893,6 +903,12 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
   nrpar = designmat1.cols()*designmat2.cols();
 
   mK = datamatrix(nrpar,1,0.0);
+
+  if(centermethod==userdefined)
+    {
+    out("\nNOTE: Effect will be centered according to the provided constraint matrix.\n\n");
+    basisNull = constrmat;
+    }
 
   datamatrix designmat(designmat1.rows(), nrpar, 0.0);
   unsigned i,j,k;

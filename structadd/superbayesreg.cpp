@@ -7997,6 +7997,7 @@ bool superbayesreg::create_userdefined(unsigned i)
 
   if (terms[i].options[67] != "")
     {
+    terms[i].options[16] = "userdefined";
     dataobject * datap;                           // pointer to datasetobject
     int objpos = findstatobject(*statobj,terms[i].options[67],"dataset");
     if (objpos >= 0)
@@ -8061,7 +8062,7 @@ bool superbayesreg::create_userdefined(unsigned i)
   cout << "test" << "\n";*/
 
   design_userdefineds.push_back(DESIGN_userdefined(d,iv,
-                            designmat, penmat, priormean,
+                            designmat, penmat, priormean, constrmat,
                             &generaloptions,equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
@@ -8730,6 +8731,8 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
 
   if (terms[i].options[67] != "")
     {
+    terms[i].options[16] = "userdefined";
+
     dataobject * datap;                           // pointer to datasetobject
     int objpos = findstatobject(*statobj,terms[i].options[67],"dataset");
     if (objpos >= 0)
@@ -8750,10 +8753,6 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     list<ST::string> varnames = datap->getVarnames();
     ST::string expr = "";
     datap->makematrix(varnames,constrmat,expr);
-    }
-  else
-    {
-    constrmat = datamatrix(0,0);
     }
 
 //  ST::string pathdesign = terms[i].options[60];
@@ -8799,7 +8798,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
   cout << "test" << "\n";*/
 
   design_userdefined_tensors.push_back(DESIGN_userdefined_tensor(d,iv,
-                            designmat, designmat2, penmat, penmat2, priormean,
+                            designmat, designmat2, penmat, penmat2, priormean, constrmat,
                             &generaloptions,equations[modnr].distrp,
                             &FC_linears[FC_linears.size()-1],
                             terms[i].options,terms[i].varnames));
