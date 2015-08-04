@@ -34,7 +34,7 @@ namespace MCMC
 {
 
 //------------------------------------------------------------------------------
-//-------------------------- CLASS: DISTR_gausscopula --------------------------
+//-------------------------- CLASS: DISTR_copula_basis --------------------------
 //------------------------------------------------------------------------------
 
 class __EXPORT_TYPE DISTR_copula_basis : public DISTR_gamlss
@@ -188,6 +188,79 @@ class __EXPORT_TYPE DISTR_gausscopula : public DISTR_copula_basis
   void update_end(void);
 
   };
+
+
+//------------------------------------------------------------------------------
+//-------------------------- CLASS: DISTR_gausscopula2 --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gausscopula2 : public DISTR_copula_basis
+  {
+
+  protected:
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gausscopula2(void) : DISTR_copula_basis()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gausscopula2(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gausscopula2(const DISTR_gausscopula2 & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gausscopula2 & operator=(const DISTR_gausscopula2 & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gausscopula2() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  //vector<double> derivative(double & F, int & copulapos);
+
+  vector<double> derivative(double & F1, double & F2, double * linpred);
+
+  double logc(double & F1, double & F2, double * linpred);
+
+  double condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
 
 //------------------------------------------------------------------------------
 //-------------------------- CLASS: DISTR_clayton_copula --------------------------

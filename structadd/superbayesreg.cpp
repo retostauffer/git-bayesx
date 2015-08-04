@@ -321,6 +321,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("copulas");
   families.push_back("tcopula");
   families.push_back("gauss_copula");
+  families.push_back("gauss_copula2");
   families.push_back("clayton_copula");
   families.push_back("gaussiancopula");
   families.push_back("frankcopula");
@@ -982,6 +983,9 @@ void superbayesreg::clear(void)
   distr_gausscopulas.erase(distr_gausscopulas.begin(),distr_gausscopulas.end());
   distr_gausscopulas.reserve(20);
 
+  distr_gausscopula2s.erase(distr_gausscopula2s.begin(),distr_gausscopula2s.end());
+  distr_gausscopula2s.reserve(20);
+
   distr_binomialprobit_copulas.erase(distr_binomialprobit_copulas.begin(),
                               distr_binomialprobit_copulas.end());
   distr_binomialprobit_copulas.reserve(20);
@@ -1278,6 +1282,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
   distr_gausscopulas = b.distr_gausscopulas;
+  distr_gausscopula2s = b.distr_gausscopula2s;
   distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
 
   resultsyesno = b.resultsyesno;
@@ -1492,6 +1497,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_sfa_sigma_vs = b.distr_sfa_sigma_vs;
   distr_sfa_alphas = b.distr_sfa_alphas;
   distr_gausscopulas = b.distr_gausscopulas;
+  distr_gausscopula2s = b.distr_gausscopula2s;
   distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
 
   resultsyesno = b.resultsyesno;
@@ -5328,15 +5334,150 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-    else
-      {
-      outerror("ERROR: family not implemented or something else wrong");
-      return true;
-      }
     //cout << "size predict mults: " << predict_mult_distrs.size() << endl;
     predict_mult_distrs.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
     }
 //-------------------------- END: gausscopula---------------------------
+
+
+//----------------------------- gausscopula2 --------------------------------
+  else if ((family.getvalue() == "gauss_copula2") && (equationtype.getvalue()=="rho"))
+    {
+
+    mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_gausscopula2s.push_back(DISTR_gausscopula2(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gausscopula2s[distr_gausscopula2s.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((countmarginal != 2))
+      {
+      outerror("ERROR: Two equations for marginal distributions required or family not implemented yet");
+      return true;
+      }
+
+    if(distr_weibull_lambdas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_weibull_lambdas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
+        predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
+
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+
+        distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+        distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+
+        if(distr_weibull_lambdas[coi].get_copulapos()==0)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response2 = distr_weibull_lambdas[coi].response;
+          }
+        else if(distr_weibull_lambdas[coi].get_copulapos()==1)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_weibull_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_normal_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_normal_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
+        predict_mult_distrs.push_back(&distr_normal_mus[coi]);
+
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+
+        distr_normal_mus[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+        distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+
+        if(distr_normal_mus[coi].get_copulapos()==0)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response2 = distr_normal_mus[coi].response;
+          }
+        else if(distr_normal_mus[coi].get_copulapos()==1)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_normal_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_dagum_as.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_dagum_as.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_dagum_ps[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_as[coi]);
+
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+
+        distr_dagum_as[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+        distr_dagum_bs[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+        distr_dagum_ps[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+
+        if(distr_dagum_as[coi].get_copulapos()==0)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response2 = distr_dagum_as[coi].response;
+          }
+        else if(distr_dagum_as[coi].get_copulapos()==1)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_dagum_as[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
+
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+
+        distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+
+        if(distr_binomialprobit_copulas[coi].get_copulapos()==0)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response2 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_gausscopula2s[distr_gausscopula2s.size()-1].response2;
+          }
+        else if(distr_binomialprobit_copulas[coi].get_copulapos()==1)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_gausscopula2s[distr_gausscopula2s.size()-1].response1;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    //cout << "size predict mults: " << predict_mult_distrs.size() << endl;
+    predict_mult_distrs.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+    }
+//-------------------------- END: gausscopula2---------------------------
+
 
 
 //----------------------------- clayton_copula --------------------------------
@@ -5441,11 +5582,6 @@ bool superbayesreg::create_distribution(void)
           return true;
           }
         }
-      }
-    else
-      {
-      outerror("ERROR: family not implemented or something else wrong");
-      return true;
       }
      predict_mult_distrs.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
     }

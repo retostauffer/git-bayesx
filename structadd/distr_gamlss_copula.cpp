@@ -507,6 +507,262 @@ double DISTR_gausscopula::condfc(double & x, double & linpred_F, double & y, dou
 
 
 //------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_gausscopula2 --------------------
+//------------------------------------------------------------------------------
+void DISTR_gausscopula2::check_errors(void)
+  {
+  // Note: check marginal distributions & weights.
+  if (errors==false)
+    {
+    errors=false;
+    }
+  }
+
+
+DISTR_gausscopula2::DISTR_gausscopula2(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_copula_basis(o,r,w)
+  {
+  family = "Gauss Copula - rho=tanh(eta)";
+
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "rho";
+  linpredminlimit=-100;
+  linpredmaxlimit=100;
+  check_errors();
+  }
+
+
+DISTR_gausscopula2::DISTR_gausscopula2(const DISTR_gausscopula2 & nd)
+   : DISTR_copula_basis(DISTR_copula_basis(nd))
+  {
+  }
+
+
+const DISTR_gausscopula2 & DISTR_gausscopula2::operator=(
+                            const DISTR_gausscopula2 & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_copula_basis::operator=(DISTR_copula_basis(nd));
+  return *this;
+  }
+
+
+double DISTR_gausscopula2::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_gausscopula2::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = tanh(*linpred[(linpred.size()-1)]);
+  }
+
+void DISTR_gausscopula2::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+   if ((*weight[0] == 0) || (*weight[weight.size()-2] == 0))
+     *deviance=0;
+   else
+     {
+     double rho = tanh((*linpred[(linpred.size()-1)]));
+     if (*linpred[(linpred.size()-1)] <= -100)
+        rho  = -0.99995;
+     else if (*linpred[(linpred.size()-1)] >= 100)
+        rho  = 0.99995;
+
+     double orho = 1 - pow(rho, 2);
+
+    int s1 = distrp[1]->distrp.size();
+    int s2 = distrp[0]->distrp.size();
+
+    vector<double*> linpredvec1;
+    vector<double*> responsevec1;
+    vector<double*> weightvec1;
+    vector<double*> linpredvec2;
+    vector<double*> responsevec2;
+    vector<double*> weightvec2;
+
+
+    int j;
+    for (j=0;j<(s2+1);j++)
+      {
+      linpredvec2.push_back(linpred[j]);
+      weightvec2.push_back(weight[j]);
+      responsevec2.push_back(response[j]);
+      }
+    int k;
+    for (k=0;k<(s1+1);k++)
+      {
+      linpredvec1.push_back(linpred[s2+1+k]);
+      weightvec1.push_back(weight[s2+1+k]);
+      responsevec1.push_back(response[s2+1+k]);
+      }
+
+    double d1;
+    double d2;
+    distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
+    distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
+
+    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
+    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+
+
+     double l;
+
+      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+
+    *deviance = -2*l+d1+d2;
+    }
+
+  }
+
+double DISTR_gausscopula2::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+   if (counter==0)
+    {
+    set_worklin();
+    }
+    double rho = tanh(*linpred);
+    if (*linpred <= -100)
+        rho  = -0.99995;
+    else if (*linpred >= 100)
+        rho  = 0.99995;
+
+    double orho = 1 - pow(rho, 2);
+    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
+    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
+
+    double l;
+
+    l = - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_gausscopula2::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+ if (counter==0)
+    {
+    set_worklin();
+    }
+  double rho = tanh(*linpred);
+  if (*linpred <= -100)
+      rho  = -0.99995;
+  else if (*linpred >= 100)
+      rho  = 0.99995;
+
+  double orho = 1 - pow(rho, 2);
+  double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
+  double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
+
+  //cout << *response1p << endl;
+  double nu = rho + ((1+rho*rho)/(1-rho*rho)) * (phinvu * phinvv) -
+              0.25*( exp(*linpred)*exp(*linpred) - exp(-(*linpred))*exp(-(*linpred)) ) * (pow(phinvu, 2) + pow(phinvv, 2));
+
+  double drho = 4/((exp((*linpred))+exp(-(*linpred)))*(exp((*linpred))+exp(-(*linpred))));
+
+  *workingweight = -drho - ((4*rho*drho)/pow(1-rho*rho,2)) * (phinvu * phinvv) +
+              0.5*(exp((*linpred))*exp((*linpred))+exp(-(*linpred))*exp(-(*linpred))) * (pow(phinvu, 2) + pow(phinvv, 2));
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like += - 0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+    }
+
+  modify_worklin();
+
+  }
+
+void DISTR_gausscopula2::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = 2 * std::asin((*linpred[predstart_mumult+(linpred.size()-1)]) / (pow(1 + pow((*linpred[predstart_mumult+(linpred.size()-1)]), 2), 0.5))) / PI ;
+  }
+
+
+void DISTR_gausscopula2::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (rho): tanh(eta)\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_gausscopula2::update_end(void)
+  {
+
+  }
+
+vector<double> DISTR_gausscopula2::derivative(double & F1, double & F2, double * linpred)
+  {
+
+  vector<double> res;
+
+  double rho = tanh(*linpred);
+  double phiinvu = randnumbers::invPhi2(F1);
+  double phiinvv = randnumbers::invPhi2(F2);
+
+  //first and second derivative of Phi^-1
+  double dphiinvu = sqrt(2*PI)/exp(-0.5*phiinvu*phiinvu);
+  double ddphiinvu = 2*PI*phiinvu/pow(exp(-0.5*phiinvu*phiinvu),2);
+
+  // first derivative
+  double dlc = rho*dphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho);
+  // second derivative
+  double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);
+  // return first and second derivative.
+  res.push_back(dlc);
+  res.push_back(ddlc);
+  return res;
+  }
+
+
+double DISTR_gausscopula2::logc(double & F1, double & F2, double * linpred)
+  {
+  double rho = tanh(*linpred);
+  double phiinvu = randnumbers::invPhi2(F1);
+  double phiinvv = randnumbers::invPhi2(F2);
+  double lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);
+  return lc;
+  }
+
+double DISTR_gausscopula2::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
+  {
+  double rho = tanh(*linpred);
+  double help2 = sqrt(1-rho*rho);
+  double help3 = randnumbers::invPhi2(F2);
+  double help = randnumbers::Phi2( (-linpred_F - rho*help3) / (help2));
+  double xstar = x;
+  if(y>0)
+     xstar = x*(1-help) + help;
+  else
+     xstar = x*help;
+  double res = randnumbers::invPhi2(xstar)*help2 + rho*help3 + linpred_F;
+  return res;
+  }
+
+
+
+//------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_clayton_copula ------------------------
 //------------------------------------------------------------------------------
 void DISTR_clayton_copula::check_errors(void)
