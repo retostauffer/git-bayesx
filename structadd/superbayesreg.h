@@ -136,6 +136,8 @@ using MCMC::DISTR_zeroadjusted;
 using MCMC::DISTR_zeroadjusted_mult;
 using MCMC::DISTR_weibull_lambda;
 using MCMC::DISTR_weibull_alpha;
+using MCMC::DISTR_weibull2_lambda;
+using MCMC::DISTR_weibull2_alpha;
 using MCMC::DISTR_dagum_a;
 using MCMC::DISTR_dagum_b;
 using MCMC::DISTR_dagum_p;
@@ -484,6 +486,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_t_df> distr_t_dfs;
   vector<DISTR_weibull_lambda> distr_weibull_lambdas;
   vector<DISTR_weibull_alpha> distr_weibull_alphas;
+  vector<DISTR_weibull2_lambda> distr_weibull2_lambdas;
+  vector<DISTR_weibull2_alpha> distr_weibull2_alphas;
   vector<DISTR_dagum_a> distr_dagum_as;
   vector<DISTR_dagum_b> distr_dagum_bs;
   vector<DISTR_dagum_p> distr_dagum_ps;

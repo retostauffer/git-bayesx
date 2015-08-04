@@ -285,6 +285,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("bivprobit2");
   families.push_back("bivlogit");
   families.push_back("weibull");
+  families.push_back("weibull2");
   families.push_back("dagum");
   families.push_back("betainf0");
   families.push_back("betainf1");
@@ -815,7 +816,13 @@ void superbayesreg::clear(void)
   distr_weibull_alphas.erase(distr_weibull_alphas.begin(),distr_weibull_alphas.end());
   distr_weibull_alphas.reserve(20);
 
-   distr_dagum_as.erase(distr_dagum_as.begin(),distr_dagum_as.end());
+  distr_weibull2_lambdas.erase(distr_weibull2_lambdas.begin(),distr_weibull2_lambdas.end());
+  distr_weibull2_lambdas.reserve(20);
+
+  distr_weibull2_alphas.erase(distr_weibull2_alphas.begin(),distr_weibull2_alphas.end());
+  distr_weibull2_alphas.reserve(20);
+
+  distr_dagum_as.erase(distr_dagum_as.begin(),distr_dagum_as.end());
   distr_dagum_as.reserve(20);
 
   distr_dagum_bs.erase(distr_dagum_bs.begin(),distr_dagum_bs.end());
@@ -1226,6 +1233,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_dirichlets = b.distr_dirichlets;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
   distr_weibull_alphas = b.distr_weibull_alphas;
+  distr_weibull2_lambdas = b.distr_weibull2_lambdas;
+  distr_weibull2_alphas = b.distr_weibull2_alphas;
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
@@ -1441,6 +1450,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_zeroadjusted_mults = b.distr_zeroadjusted_mults;
   distr_weibull_lambdas = b.distr_weibull_lambdas;
   distr_weibull_alphas = b.distr_weibull_alphas;
+  distr_weibull2_lambdas = b.distr_weibull2_lambdas;
+  distr_weibull2_alphas = b.distr_weibull2_alphas;
   distr_dagum_as = b.distr_dagum_as;
   distr_dagum_bs = b.distr_dagum_bs;
   distr_dagum_ps = b.distr_dagum_ps;
@@ -3870,6 +3881,81 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: weibull_lambda -------------------------------
 
+
+//-------------------------------- weibull2_alpha ---------------------------------
+  else if (family.getvalue() == "weibull2" && equationtype.getvalue()=="alpha")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_weibull2_alphas.push_back(DISTR_weibull2_alpha(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_weibull2_alphas[distr_weibull2_alphas.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//---------------------------- END: weibull2_alpha -------------------------------
+
+
+//------------------------------- weibull2_lambda ------------------------------------
+  else if (family.getvalue() == "weibull2" && equationtype.getvalue()=="lambda")
+    {
+    if(generaloptions.copula)
+      {
+      mainequation=false;
+      }
+    else
+      {
+      mainequation=true;
+      }
+
+
+    computemodeforstartingvalues = true;
+
+    distr_weibull2_lambdas.push_back(DISTR_weibull2_lambda(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1];
+    equations[modnr].pathd = "";
+
+    if (distr_weibull2_alphas.size() != (1+countmarginal))
+      {
+      outerror("ERROR: Equation for alpha is missing");
+      return true;
+      }
+    else
+      {
+      distr_weibull2_alphas[distr_weibull2_alphas.size()-1].distrp.push_back
+      (&distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1]);
+
+      distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].distrp.push_back
+      (&distr_weibull2_alphas[distr_weibull2_alphas.size()-1]);
+
+      countmarginal += 1;
+      }
+    if(generaloptions.copula){}
+    else
+      {
+      predict_mult_distrs.push_back(&distr_weibull2_alphas[distr_weibull2_alphas.size()-1]);
+      predict_mult_distrs.push_back(&distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1]);
+      }
+
+    if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(0);}
+      else if(countmarginal == 2)
+        {distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(1);}
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
+      }
+
+    }
+//------------------------------- END: weibull2_lambda -------------------------------
+
+
 //-------------------------------- gamma_sigma ---------------------------------
   else if ((family.getvalue() == "gamma" || family.getvalue() == "za_gamma")
            && equationtype.getvalue()=="sigma")
@@ -5248,6 +5334,34 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+    if(distr_weibull2_lambdas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_weibull2_lambdas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
+        predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+        distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+        if(distr_weibull2_lambdas[coi].get_copulapos()==0)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_weibull2_lambdas[coi].response;
+          }
+        else if(distr_weibull2_lambdas[coi].get_copulapos()==1)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_weibull2_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
     if(distr_normal_mus.size()>0)
       {
       int coi;
@@ -5379,6 +5493,34 @@ bool superbayesreg::create_distribution(void)
         else if(distr_weibull_lambdas[coi].get_copulapos()==1)
           {
           distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_weibull_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_weibull2_lambdas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_weibull2_lambdas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
+        predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+        distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+
+        if(distr_weibull2_lambdas[coi].get_copulapos()==0)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response2 = distr_weibull2_lambdas[coi].response;
+          }
+        else if(distr_weibull2_lambdas[coi].get_copulapos()==1)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_weibull2_lambdas[coi].response;
           }
         else
           {
@@ -5519,6 +5661,34 @@ bool superbayesreg::create_distribution(void)
         else if(distr_weibull_lambdas[coi].get_copulapos()==1)
           {
           distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_weibull_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_weibull2_lambdas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_weibull2_lambdas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
+        predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+        distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+        if(distr_weibull2_lambdas[coi].get_copulapos()==0)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response2 = distr_weibull2_lambdas[coi].response;
+          }
+        else if(distr_weibull2_lambdas[coi].get_copulapos()==1)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_weibull2_lambdas[coi].response;
           }
         else
           {

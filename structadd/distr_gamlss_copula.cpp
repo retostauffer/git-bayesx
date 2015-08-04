@@ -678,8 +678,8 @@ void DISTR_gausscopula2::compute_iwls_wweightschange_weightsone(
 
   double drho = 4/((exp((*linpred))+exp(-(*linpred)))*(exp((*linpred))+exp(-(*linpred))));
 
-  *workingweight = -drho - ((4*rho*drho)/pow(1-rho*rho,2)) * (phinvu * phinvv) +
-              0.5*(exp((*linpred))*exp((*linpred))+exp(-(*linpred))*exp(-(*linpred))) * (pow(phinvu, 2) + pow(phinvv, 2));
+  *workingweight = 2-drho;//-drho - ((4*rho*drho)/pow(1-rho*rho,2)) * (phinvu * phinvv) +
+              //0.5*(exp((*linpred))*exp((*linpred))+exp(-(*linpred))*exp(-(*linpred))) * (pow(phinvu, 2) + pow(phinvv, 2));
 
   *workingresponse = *linpred + nu/(*workingweight);
 
@@ -694,7 +694,7 @@ void DISTR_gausscopula2::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gausscopula2::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = 2 * std::asin((*linpred[predstart_mumult+(linpred.size()-1)]) / (pow(1 + pow((*linpred[predstart_mumult+(linpred.size()-1)]), 2), 0.5))) / PI ;
+  *mu = 2 * std::asin(tanh(*linpred[predstart_mumult+(linpred.size()-1)]) ) / PI ;
   }
 
 

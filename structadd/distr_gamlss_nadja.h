@@ -1232,6 +1232,151 @@ class __EXPORT_TYPE DISTR_weibull_lambda : public DISTR_gamlss
 
 
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_weibull2_alpha ---------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_weibull2_alpha : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_weibull2_alpha(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_weibull2_alpha(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_weibull2_alpha(const DISTR_weibull2_alpha & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_weibull2_alpha & operator=(const DISTR_weibull2_alpha & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_weibull2_alpha() {}
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_weibull2_lambda --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_weibull2_lambda : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_weibull2_lambda(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_weibull2_lambda(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_weibull2_lambda(const DISTR_weibull2_lambda & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_weibull2_lambda & operator=(const DISTR_weibull2_lambda & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_weibull2_lambda() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, vector<double *>  linpred);
+
+ // double logpdf(const double & resp);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS: DISTR_gengamma_tau ----------------------------
