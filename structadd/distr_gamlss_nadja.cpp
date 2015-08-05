@@ -4003,7 +4003,7 @@ DISTR_weibull2_alpha::DISTR_weibull2_alpha(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "weibull2 Distribution - alpha";
+  family = "Weibull2 Distribution - alpha";
     outpredictor = true;
   outexpectation = false;
   predictor_name = "alpha";
@@ -4051,7 +4051,7 @@ double DISTR_weibull2_alpha::cdf(const double & resp, const bool & ifcop)
   double res,lambda,alpha;
   alpha = exp(*linpredp);
   lambda = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-pow(resp*lambda,alpha));
+  res = 1 - exp(-pow(resp/lambda,alpha));
 
   if(ifcop)
     {
@@ -4071,7 +4071,7 @@ double DISTR_weibull2_alpha::cdf(const double & resp, const double & linpred)
   double res,lambda,alpha;
   alpha = exp(linpred);
   lambda = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-pow(resp*lambda,alpha));
+  res = 1 - exp(-pow(resp/lambda,alpha));
   return res;
   }
 
@@ -4106,7 +4106,7 @@ double DISTR_weibull2_alpha::loglikelihood_weightsone(double * response,
 
   double l;
 
-  l = (alpha-1)*log(*response) - pow((*response)*(*worktransformlin[0]),alpha) +alpha*log((*worktransformlin[0])) + log(alpha);
+  l = (alpha-1)*log(*response) - pow((*response)/(*worktransformlin[0]),alpha) - alpha*log((*worktransformlin[0])) + log(alpha);
 
   if(optionsp->copula)
     {
@@ -4143,9 +4143,9 @@ void DISTR_weibull2_alpha::compute_iwls_wweightschange_weightsone(
     }
 
     double alpha = exp((*linpred));
-    double hilfs1 = pow((*response)*(*worktransformlin[0]),alpha);
+    double hilfs1 = pow((*response)/(*worktransformlin[0]),alpha);
 
-    double nu = 1 + alpha*log((*response)*(*worktransformlin[0]))*(1-hilfs1);
+    double nu = 1 + alpha*log((*response)/(*worktransformlin[0]))*(1-hilfs1);
 
   //  *workingweight = 1 + pow(alpha,2)*pow((log((*response)/(*worktransformlin[0]))),2)*hilfs1;
     *workingweight =  1.823681;
@@ -4159,9 +4159,9 @@ void DISTR_weibull2_alpha::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = alpha*hilfs1*exp(-hilfs1)*log((*worktransformlin[0])*(*response));
+    double dF = alpha*hilfs1*exp(-hilfs1)*log((*response)/(*worktransformlin[0]));
     double ddF = -dF*dF/exp(-hilfs1)+dF
-                +hilfs1*log((*worktransformlin[0])*(*response))*log((*worktransformlin[0])*(*response))*exp(-hilfs1)*alpha*alpha;
+                +hilfs1*log((*response)/(*worktransformlin[0]))*log((*response)/(*worktransformlin[0]))*exp(-hilfs1)*alpha*alpha;
     nu += logcandderivs[1]*dF;
 
   /*  *workingweight = -alpha*log((*response)*(*worktransformlin[0])) * (1-hilfs1-hilfs1*alpha*log((*response)*(*worktransformlin[0])))
@@ -4176,7 +4176,7 @@ void DISTR_weibull2_alpha::compute_iwls_wweightschange_weightsone(
 
     if (compute_like)
       {
-        like +=  (alpha-1)*log(*response) - hilfs1 +alpha*log((*worktransformlin[0])) + log(alpha);
+        like +=  (alpha-1)*log(*response) - hilfs1 -alpha*log((*worktransformlin[0])) + log(alpha);
 
       }
 
@@ -4267,7 +4267,7 @@ DISTR_weibull2_lambda::DISTR_weibull2_lambda(GENERAL_OPTIONS * o,
                                            const datamatrix & w)
   : DISTR_gamlss(o,r,1,w)
   {
-  family = "weibull2 Distribution - lambda";
+  family = "Weibull2 Distribution - lambda";
     outpredictor = true;
   outexpectation = true;
   predictor_name = "lambda";
@@ -4317,7 +4317,7 @@ double DISTR_weibull2_lambda::cdf(const double & resp, const bool & ifcop)
   double res,lambda,alpha;
   lambda = exp(*linpredp);
   alpha = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-pow(resp*lambda,alpha));
+  res = 1 - exp(-pow(resp/lambda,alpha));
 
   if(ifcop)
     {
@@ -4329,56 +4329,22 @@ double DISTR_weibull2_lambda::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_weibull2_lambda::cdf(const double & resp, const double & linpred)
   {
- /* if(counter<=3)
-    {
-    cout << "DISTR_weibull2_lambda::cdf(const double & resp, const double & linpred)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   double res,lambda,alpha;
   lambda = exp(linpred);
   alpha = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-pow(resp*lambda,alpha));
+  res = 1 - exp(-pow(resp/lambda,alpha));
   return res;
   }
 
 double DISTR_weibull2_lambda::cdf(const double & resp, vector<double *>  linpred)
   {
- // if(counter<=3)
- //   {
- //   cout << "DISTR_weibull2_lambda::cdf(const double & resp, const double & linpred)\n";
- //   cout << "counter " << counter << "\n";
- //   }
   double res,lambda,alpha;
   lambda = exp(*linpred[1]);
   alpha = exp(*linpred[0]);//exp(*linpred[0]);
-  res = 1 - exp(-pow(resp*lambda,alpha));
+  res = 1 - exp(-pow(resp/lambda,alpha));
   return res;
   }
 
-
-/*double DISTR_weibull2_lambda::logpdf(const double & resp)
-  {
-  if(counter==0)
-    {
-    set_worklin();
-
-    if (linpred_current==1)
-      linpredp = linearpred1.getV();
-    else
-      linpredp = linearpred2.getV();
-    }
-
- //  double test = *linpred;
-// compute cdf (might work more efficiently)
-  double res,lambda,alpha;
-  lambda = exp(*linpredp);
-  alpha = *worktransformlin[0];//exp(*linpred[0]);
-  res = (alpha-1)*log(resp) - pow(resp*lambda,alpha) +alpha*log(lambda) + log(alpha);
-
-  modify_worklin();
-  linpredp++;
-  return res;
-  }*/
 
 void DISTR_weibull2_lambda::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
@@ -4400,7 +4366,7 @@ void DISTR_weibull2_lambda::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-      l =   (alpha-1)*log(*response[1]) - pow((*response[1])*lambda,alpha) +alpha*log(lambda) + log(alpha) ;
+      l =   (alpha-1)*log(*response[1]) - pow((*response[1])/lambda,alpha) -alpha*log(lambda) + log(alpha) ;
 
 
     *deviance = -2*l;
@@ -4435,18 +4401,12 @@ double DISTR_weibull2_lambda::cdf_mult(vector<double *> response,
 
     {
 
-    return ( 1 - exp(-pow((*response[1])*(*param[1]),(*param[0]))) );
+    return ( 1 - exp(-pow((*response[1])/(*param[1]),(*param[0]))) );
     }
 
 double DISTR_weibull2_lambda::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
-
- /*  if(counter<=3)
-    {
-    cout << "DISTR_weibull2_lambda::loglikelihood_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
  // *worklin[0] = linear predictor of alpha equation
   // *worktransformlin[0] = alpha;
 
@@ -4458,7 +4418,7 @@ double DISTR_weibull2_lambda::loglikelihood_weightsone(double * response,
   double lambda = exp(*linpred);
 
   double l;
-  l = - pow((*response)*lambda,(*worktransformlin[0])) + (*worktransformlin[0])*log(lambda) ;
+  l = - pow((*response)/lambda,(*worktransformlin[0])) - (*worktransformlin[0])*log(lambda) ;
 
   if(optionsp->copula)
     {
@@ -4484,11 +4444,6 @@ void DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone(
                                               const bool & compute_like)
   {
 
- /*   if(counter<=3)
-    {
-    cout << "DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
  // *worklin[0] = linear predictor of sigma equation
   // *worktransformlin[0] = sigma;
 
@@ -4503,10 +4458,10 @@ void DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone(
     }
   double lambda = exp(*linpred);
 
-  double hilfs1 = pow((*response)*lambda,(*worktransformlin[0]));
+  double hilfs1 = pow((*response)/lambda,(*worktransformlin[0]));
  //   double hilfs2 = (*worktransformlin[0])+1;
 
-  double nu = (*worktransformlin[0])*(1-hilfs1);
+  double nu = -(*worktransformlin[0])*(1-hilfs1);
 
   //  *workingweight = (*worktransformlin[0])*randnumbers::gamma_exact(hilfs2)*((*worktransformlin[0])-1)+(*worktransformlin[0]);
 
@@ -4521,7 +4476,7 @@ void DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = hilfs1*exp(-hilfs1)*(*worktransformlin[0]);
+    double dF = -hilfs1*exp(-hilfs1)*(*worktransformlin[0]);
     double ddF = dF*(*worktransformlin[0])-hilfs1*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*(*worktransformlin[0]);
     nu += logcandderivs[1]*dF;
 
@@ -4535,7 +4490,7 @@ void DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone(
 
     if (compute_like)
       {
-      like += - hilfs1 + (*worktransformlin[0])*log(lambda);
+      like += - hilfs1 - (*worktransformlin[0])*log(lambda);
       }
 
     modify_worklin();
