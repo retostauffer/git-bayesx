@@ -418,6 +418,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // has the user specified a copula model?
   simpleoption copula;
 
+  // rotations
+  intoption rotation;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------

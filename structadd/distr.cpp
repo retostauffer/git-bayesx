@@ -92,6 +92,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   family = "unknown";
   familyshort = "unknown";
   updateIWLS = false;
+  copularotate = false;
 
   response = r;
   workingresponse = r;
@@ -145,6 +146,7 @@ DISTR::DISTR(const DISTR & d)
   counter = d.counter;
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
+  copularotate = d.copularotate;
 
   FCpredict_betamean = d.FCpredict_betamean;
 
@@ -220,6 +222,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   counter = d.counter;
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
+  copularotate = d.copularotate;
 
   FCpredict_betamean = d.FCpredict_betamean;
 
@@ -287,6 +290,32 @@ const DISTR & DISTR::operator=(const DISTR & d)
   return *this;
   }
 
+
+void DISTR::set_copulapos(int cp)
+    {
+    copulapos = cp;
+    if(copulapos==0)
+      {
+      if((optionsp->rotation==270) || (optionsp->rotation==180))
+        {
+        copularotate = true;
+        cout << "copulapos=" << copulapos << endl;
+        cout << "rotation=" << optionsp->rotation << endl;
+        cout << "copularotate=" << copularotate << endl;
+        }
+      }
+    if(copulapos==1)
+      {
+      if((optionsp->rotation==90) || (optionsp->rotation==180))
+        {
+        copularotate = true;
+        cout << "copulapos=" << copulapos << endl;
+        cout << "rotation=" << optionsp->rotation << endl;
+        cout << "copularotate=" << copularotate << endl;
+        }
+      }
+
+    }
 
 bool DISTR::check_linpred(bool current)
   {

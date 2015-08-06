@@ -51,6 +51,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   set_level2(80);
   saveestimation = false;
   copula = false;
+  rotation = 0;
   }
 
 
@@ -59,7 +60,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(
 administrator_basic * abp,
 #endif
 const unsigned & it,const unsigned & bu,
-                         const unsigned & st, const bool & sa, const bool & cop, ostream * lo,
+                         const unsigned & st, const bool & sa, const bool & cop, const unsigned & rot, ostream * lo,
                          const double & l1,const double & l2)
   {
   iterations = it;
@@ -77,6 +78,7 @@ const unsigned & it,const unsigned & bu,
   logout = lo;
   saveestimation = sa;
   copula = cop;
+  rotation = rot;
 
   (*logout) << flush;
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -111,6 +113,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   upper2 = o.upper2;
   saveestimation = o.saveestimation;
   copula = o.copula;
+  rotation = o.rotation;
   }
 
 
@@ -137,6 +140,7 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   upper2 = o.upper2;
   saveestimation = o.saveestimation;
   copula = o.copula;
+  rotation = o.rotation;
   return *this;
   }
 
@@ -186,7 +190,14 @@ void GENERAL_OPTIONS::outoptions(void)
     out("  Saveestimation:        disabled\n");
   out("\n");
   if (copula)
+    {
     out(" Copula Model specified\n");
+    out("\n");
+    if((rotation==0)||(rotation==90)||(rotation==180)||(rotation==270))
+      out("  Copula is rotated by "+ ST::inttostring(rotation) + "\n");
+    else
+      out("  Invalid angle of rotation specified. Copula will not be rotated\n");
+    }
   else {}
 
   out("\n");

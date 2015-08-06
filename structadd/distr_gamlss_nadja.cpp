@@ -2779,6 +2779,11 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
     double ybpmap = pow(1+ybpma,-p);
     double dF = -p*log(1+ybpma)*ybpmap;
     double ddF = p*log(1+ybpma)*ybpmap*(p*log(1+ybpma)-1);
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -2995,6 +3000,11 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
     double ybpmap2 = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0]));
     double dF = -(*worktransformlin[1])*(*worktransformlin[0])*ybpmap/ybpa;
     double ddF = (*worktransformlin[1])*(*worktransformlin[1])*(*worktransformlin[0])*((*worktransformlin[0])-ybpa)*ybpmap2/((ybpa+1)*(ybpa+1));
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -3321,6 +3331,11 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
     double ybpmap2 = pow(1+ybpma,-(*worktransformlin[0]));
     double dF = (*worktransformlin[0])*lyb*a*ybpma*ybpmap;
     double ddF = a*(*worktransformlin[0])*lyb*ybpmap2*(a*lyb*((*worktransformlin[0])-ybpma)+ybpa+1)/pow(1+ybpa,2);
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -3568,6 +3583,11 @@ void DISTR_weibull_alpha::compute_iwls_wweightschange_weightsone(
     double dF = alpha*hilfs1*exp(-hilfs1)*log((*worktransformlin[0])*(*response));
     double ddF = -dF*dF/exp(-hilfs1)+dF
                 +hilfs1*log((*worktransformlin[0])*(*response))*log((*worktransformlin[0])*(*response))*exp(-hilfs1)*alpha*alpha;
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
   /*  *workingweight = -alpha*log((*response)*(*worktransformlin[0])) * (1-hilfs1-hilfs1*alpha*log((*response)*(*worktransformlin[0])))
@@ -3929,6 +3949,11 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
     // compute and implement dF/deta, d^2 F/deta ^2
     double dF = hilfs1*exp(-hilfs1)*(*worktransformlin[0]);
     double ddF = dF*(*worktransformlin[0])-hilfs1*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*(*worktransformlin[0]);
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -4162,6 +4187,11 @@ void DISTR_weibull2_alpha::compute_iwls_wweightschange_weightsone(
     double dF = alpha*hilfs1*exp(-hilfs1)*log((*response)/(*worktransformlin[0]));
     double ddF = -dF*dF/exp(-hilfs1)+dF
                 +hilfs1*log((*response)/(*worktransformlin[0]))*log((*response)/(*worktransformlin[0]))*exp(-hilfs1)*alpha*alpha;
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
   /*  *workingweight = -alpha*log((*response)*(*worktransformlin[0])) * (1-hilfs1-hilfs1*alpha*log((*response)*(*worktransformlin[0])))
@@ -4478,6 +4508,11 @@ void DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone(
     // compute and implement dF/deta, d^2 F/deta ^2
     double dF = -hilfs1*exp(-hilfs1)*(*worktransformlin[0]);
     double ddF = dF*(*worktransformlin[0])-hilfs1*hilfs1*exp(-hilfs1)*(*worktransformlin[0])*(*worktransformlin[0]);
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -7228,6 +7263,11 @@ void DISTR_normal_sigma2::compute_iwls_wweightschange_weightsone(
     double z = ((*response)-(*worklin[0]))/sqrt(sigma_2);
     double dF = -0.5*z*exp(-0.5*z*z)*0.3989423;
     double ddF = -0.25*z*exp(-0.5*z*z)*(1-z*z)*0.3989423;
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
   //  *workingweight = 0.5*z*z-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
@@ -7575,6 +7615,11 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
     double z = ((*response)-mu)/sqrt((*worktransformlin[0]));
     double dF = -0.3989423*exp(-0.5*z*z)/(sqrt(*worktransformlin[0]));
     double ddF = -0.3989423*z*exp(-0.5*z*z)/((*worktransformlin[0]));
+    if(copularotate)
+      {
+      dF = -dF;
+      ddF = -ddF;
+      }
     nu += logcandderivs[1]*dF;
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;

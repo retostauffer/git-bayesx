@@ -446,6 +446,8 @@ void superbayesreg::create_hregress(void)
 
   copula = simpleoption("copula",false);
 
+  rotation = intoption("rotation",0,0,270);
+
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -489,6 +491,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&nrcat);
   regressoptions.push_back(&imeasures);
   regressoptions.push_back(&singleomega);
+  regressoptions.push_back(&rotation);
   regressoptions.push_back(&copula);
 
   // methods 0
@@ -1591,7 +1594,7 @@ bool superbayesreg::create_generaloptions(void)
     adminb_p,
     #endif
     iterations.getvalue(),burnin.getvalue(),
-                                step.getvalue(),saveestimation.getvalue(),copula.getvalue(),logout,
+                                step.getvalue(),saveestimation.getvalue(),copula.getvalue(),rotation.getvalue(),logout,
                                  level1.getvalue(),level2.getvalue());
 
     describetext.push_back("ESTIMATION OPTIONS:\n");
@@ -1986,9 +1989,15 @@ bool superbayesreg::create_distribution(void)
     if(generaloptions.copula)
       {
       if (countmarginal == 1)
-        {distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(0);}
+        {
+        distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(0);
+        distr_normal_sigma2s[distr_normal_sigma2s.size()-1].set_copulapos(0);
+        }
       else if(countmarginal == 2)
-        {distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(1);}
+        {
+        distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(1);
+        distr_normal_sigma2s[distr_normal_sigma2s.size()-1].set_copulapos(1);
+        }
       else
         {
         outerror("ERROR: currently only bivariate copula models implemented");
@@ -2712,9 +2721,17 @@ bool superbayesreg::create_distribution(void)
      if(generaloptions.copula)
       {
       if (countmarginal == 1)
-        {distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(0);}
+        {
+        distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(0);
+        distr_dagum_bs[distr_dagum_bs.size()-1].set_copulapos(0);
+        distr_dagum_ps[distr_dagum_ps.size()-1].set_copulapos(0);
+        }
       else if(countmarginal == 2)
-        {distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(1);}
+        {
+        distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(1);
+        distr_dagum_bs[distr_dagum_bs.size()-1].set_copulapos(1);
+        distr_dagum_ps[distr_dagum_ps.size()-1].set_copulapos(1);
+        }
       else
         {
         outerror("ERROR: currently only bivariate copula models implemented");
@@ -3868,9 +3885,15 @@ bool superbayesreg::create_distribution(void)
     if(generaloptions.copula)
       {
       if (countmarginal == 1)
-        {distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(0);}
+        {
+        distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(0);
+        distr_weibull_alphas[distr_weibull_alphas.size()-1].set_copulapos(0);
+        }
       else if(countmarginal == 2)
-        {distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(1);}
+        {
+        distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(1);
+        distr_weibull_alphas[distr_weibull_alphas.size()-1].set_copulapos(1);
+        }
       else
         {
         outerror("ERROR: currently only bivariate copula models implemented");
@@ -3942,9 +3965,15 @@ bool superbayesreg::create_distribution(void)
     if(generaloptions.copula)
       {
       if (countmarginal == 1)
-        {distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(0);}
+        {
+        distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(0);
+        distr_weibull2_alphas[distr_weibull2_alphas.size()-1].set_copulapos(0);
+        }
       else if(countmarginal == 2)
-        {distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(1);}
+        {
+        distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(1);
+        distr_weibull2_alphas[distr_weibull2_alphas.size()-1].set_copulapos(1);
+        }
       else
         {
         outerror("ERROR: currently only bivariate copula models implemented");
@@ -5304,6 +5333,11 @@ bool superbayesreg::create_distribution(void)
       {
       outerror("ERROR: Two equations for marginal distributions required or family not implemented yet");
       return true;
+      }
+    if ((generaloptions.rotation != 0))
+      {
+      out("WARNING: No meaningful rotation for Gauss copula. Copula will not be rotated.\n\n");
+      generaloptions.rotation = 0;
       }
 
     if(distr_weibull_lambdas.size()>0)

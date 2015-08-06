@@ -74,6 +74,7 @@ class __EXPORT_TYPE DISTR
 
   int copulapos; //gives position of marginals in case of copula model
   bool copula; //bool only true if copula model specified
+  bool copularotate; // bool only true if copula is rotated
 
   // FUNCTION: check_workingweights_one
   // TASK: checks if all workingweights are one (returns true if this is the
@@ -274,10 +275,8 @@ class __EXPORT_TYPE DISTR
   // FUNCTION: set_copulapos get_copulapos
   // TASK: sets and gets copula position if copula models specificed
 
-  void set_copulapos(int cp)
-    {
-    copulapos = cp;
-    }
+  void set_copulapos(int cp);
+
   int get_copulapos(void)
     {
     return copulapos;

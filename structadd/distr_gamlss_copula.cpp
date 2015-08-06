@@ -168,6 +168,15 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     //implement Fa
     //cdf virtual in distr hat nur ein Argument!
     Fa = distrp[1]->cdf(*response1p,true);
+    if(optionsp->rotation == 90)
+      Fa = 1-Fa;
+    else if(optionsp->rotation == 180)
+      {
+      Fa = 1-Fa;
+      F = 1-F;
+      }
+    else if(optionsp->rotation == 270)
+      F = 1-F;
 
     res.push_back(logc(Fa, F, linpredp));
     }
@@ -175,6 +184,15 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     {
     // implement Fa
     Fa = distrp[0]->cdf(*response2p,true);
+  if(optionsp->rotation == 90)
+      F = 1-F;
+    else if(optionsp->rotation == 180)
+      {
+      Fa = 1-Fa;
+      F = 1-F;
+      }
+    else if(optionsp->rotation == 270)
+      Fa = 1-Fa;
 
     res.push_back(logc(F, Fa, linpredp));
     }
@@ -238,7 +256,7 @@ double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, do
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_gausscopula --------------------
+//------------------------- CLASS: DISTR_gausscopula ---------------------------
 //------------------------------------------------------------------------------
 void DISTR_gausscopula::check_errors(void)
   {
@@ -344,10 +362,9 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
 
+    double l;
 
-     double l;
-
-      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+    l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
 
     *deviance = -2*l+d1+d2;
     }
@@ -486,6 +503,7 @@ double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
   double phiinvu = randnumbers::invPhi2(F1);
   double phiinvv = randnumbers::invPhi2(F2);
+
   double lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);
   return lc;
   }
@@ -495,7 +513,9 @@ double DISTR_gausscopula::condfc(double & x, double & linpred_F, double & y, dou
   double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
   double help2 = sqrt(1-rho*rho);
   double help3 = randnumbers::invPhi2(F2);
+
   double help = randnumbers::Phi2( (-linpred_F - rho*help3) / (help2));
+
   double xstar = x;
   if(y>0)
      xstar = x*(1-help) + help;
@@ -507,7 +527,7 @@ double DISTR_gausscopula::condfc(double & x, double & linpred_F, double & y, dou
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_gausscopula2 --------------------
+//------------------------- CLASS: DISTR_gausscopula2 --------------------------
 //------------------------------------------------------------------------------
 void DISTR_gausscopula2::check_errors(void)
   {
@@ -613,10 +633,9 @@ void DISTR_gausscopula2::compute_deviance_mult(vector<double *> response,
     double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
     double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
 
+    double l;
 
-     double l;
-
-      l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+     l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
 
     *deviance = -2*l+d1+d2;
     }
@@ -858,6 +877,21 @@ void DISTR_clayton_copula::compute_deviance_mult(vector<double *> response,
 
      double u = distrp[1]->cdf(*response[response.size()-2],linpredvec1);
      double v = distrp[0]->cdf(*response[0],linpredvec2);
+     if(optionsp->rotation==90)
+       {
+       u = 1-u;
+       //rho=-rho;
+       }
+     else if(optionsp->rotation==270)
+       {
+       v = 1-v;
+       //rho=-rho;
+       }
+     else if(optionsp->rotation==180)
+       {
+       u = 1-u;
+       v = 1-v;
+       }
      double logu = log(u);
      double logv = log(v);
      double urho = pow(u, -rho);
@@ -883,6 +917,21 @@ double DISTR_clayton_copula::loglikelihood_weightsone(double * response,
   double rho = exp((*linpred));
   double u = distrp[1]->cdf(*response1p,true);
   double v = distrp[0]->cdf(*response2p,true);
+       if(optionsp->rotation==90)
+       {
+       u = 1-u;
+       //rho=-rho;
+       }
+     else if(optionsp->rotation==270)
+       {
+       v = 1-v;
+       //rho=-rho;
+       }
+     else if(optionsp->rotation==180)
+       {
+       u = 1-u;
+       v = 1-v;
+       }
   double logu = log(u);
   double logv = log(v);
   double urho = pow(u, -rho);
@@ -912,11 +961,22 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
     }
   double rho = exp((*linpred));
   double u = distrp[1]->cdf(*response1p,true);
- /* cout << "rho: " << rho << endl;
-  cout << "y1: " << *response1p << endl;
-  cout << "y2: " << *response2p << endl;
-  cout << "u: " << u << endl;*/
   double v = distrp[0]->cdf(*response2p,true);
+       if(optionsp->rotation==90)
+       {
+       u = 1-u;
+       //rho=-rho;
+       }
+     else if(optionsp->rotation==270)
+       {
+       v = 1-v;
+       //rho=-rho;
+       }
+     else if(optionsp->rotation==180)
+       {
+       u = 1-u;
+       v = 1-v;
+       }
   double logu = log(u);
   double logv = log(v);
   double urho = pow(u, -rho);
@@ -988,13 +1048,17 @@ vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double
 //////////////////////////////////////////////////////////
 
   double rho = exp(*linpred);
+
   double logu = log(F1);
   double logv = log(F2);
+
   double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
   // first derivative
   double dlc = -(1+rho)/F1+(2+1/rho)*rho*pow(F1,(-rho-1))/arg;
   // second derivative
   double ddlc = (1+rho)/(F1*F1)+(2+1/rho)*pow(rho*pow(F1,(-rho-1))/arg,2)-(2+1/rho)*rho*(rho+1)*pow(F1,(-rho-2))/arg;
+
+
   // return first and second derivative.
   res.push_back(dlc);
   res.push_back(ddlc);
@@ -1004,6 +1068,7 @@ vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double
 double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
   {
   double rho = exp((*linpred));
+
   double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
 
 
