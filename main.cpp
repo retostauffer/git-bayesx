@@ -146,6 +146,8 @@ int main(int argc, char *argv[])
 
   if(!commandline)
     {
+    std::cout << "BayesX - Software for Bayesian Inference in Structured Additive Regression" << endl;
+    std::cout << "Version 3.0.2 (17.07.2015)" << endl;
     while(!run)
       {
       #if defined(__BUILDING_LINUX)
