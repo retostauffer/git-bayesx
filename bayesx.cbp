@@ -47,8 +47,6 @@
 			<Add directory="..\..\..\gsl" />
 		</Compiler>
 		<Linker>
-			<Add option="-static-libgcc" />
-			<Add option="-static-libstdc++" />
 			<Add library="..\..\gsl\lib\libgsl.a" />
 			<Add library="..\..\gsl\lib\libgslcblas.a" />
 		</Linker>
