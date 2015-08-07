@@ -3197,18 +3197,11 @@ bool stepwisereg::create_random(const unsigned & collinpred)
 
 void drawmaprun(stepwisereg & b)
   {
-
-
-
-#if defined(BORLAND_OUTPUT_WINDOW)
+#if !defined(JAVA_OUTPUT_WINDOW)
 
   b.outerror("ERROR: method drawmap is not available in this version\n");
 
-#elif defined(__BUILDING_GNU)
-
-  b.outerror("ERROR: method drawmap is not available in this version\n");
-
-#elif defined(JAVA_OUTPUT_WINDOW)
+#else
 
   bool error = false;
 
@@ -3313,16 +3306,11 @@ void drawmaprun(stepwisereg & b)
 void plotnonprun(stepwisereg & b)
   {
 
-#if defined(BORLAND_OUTPUT_WINDOW)
+#if !defined(JAVA_OUTPUT_WINDOW)
 
   b.outerror("ERROR: method plotnonp is not available in this version\n");
 
-#elif defined(__BUILDING_GNU)
-
-  b.outerror("ERROR: method plotnonp is not available in this version\n");
-
-#elif defined(JAVA_OUTPUT_WINDOW)
-
+#else
 
   bool error = false;
 
@@ -3475,11 +3463,11 @@ void plotnonprun(stepwisereg & b)
 void texsummaryrun(stepwisereg & b)
   {
 
-#if defined(BORLAND_OUTPUT_WINDOW)
+#if !defined(JAVA_OUTPUT_WINDOW)
 
   b.outerror("ERROR: method texsummary is not available in this version\n");
 
-#elif defined(JAVA_OUTPUT_WINDOW)
+#else
 
   bool error = false;
 

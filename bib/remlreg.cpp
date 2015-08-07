@@ -4233,11 +4233,9 @@ void remlrun(remlreg & b)
 
 void drawmaprun(remlreg & b)
   {
-#if defined(BORLAND_OUTPUT_WINDOW)
+#if !defined(JAVA_OUTPUT_WINDOW)
   b.outerror("ERROR: method drawmap is not available in this version\n");
-#elif defined(__BUILDING_GNU)
-  b.outerror("ERROR: method drawmap is not available in this version\n");
-#elif defined(JAVA_OUTPUT_WINDOW)
+#else
   bool error = false;
 
   vector<ST::string> varnames = b.mdrawmap.getModelVarnamesAsVector();
@@ -4370,11 +4368,9 @@ void drawmaprun(remlreg & b)
 
 void plotnonprun(remlreg & b)
   {
-#if defined(BORLAND_OUTPUT_WINDOW)
+#if !defined(JAVA_OUTPUT_WINDOW)
   b.outerror("ERROR: method plotnonp is not available in this version\n");
-#elif defined(__BUILDING_GNU)
-  b.outerror("ERROR: method plotnonp is not available in this version\n");
-#elif defined(JAVA_OUTPUT_WINDOW)
+#else defined(JAVA_OUTPUT_WINDOW)
   bool error = false;
 
   vector<ST::string> varnames = b.mplotnonp.getModelVarnamesAsVector();
@@ -4551,11 +4547,9 @@ void plotnonprun(remlreg & b)
 void texsummaryrun(remlreg & b)
   {
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-
+#if !defined(JAVA_OUTPUT_WINDOW)
   b.outerror("ERROR: method texsummary is not available in this version\n");
-
-#elif defined(JAVA_OUTPUT_WINDOW)
+#else
 
   bool error = false;
 
