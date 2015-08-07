@@ -184,7 +184,7 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     {
     // implement Fa
     Fa = distrp[0]->cdf(*response2p,true);
-  if(optionsp->rotation == 90)
+    if(optionsp->rotation == 90)
       F = 1-F;
     else if(optionsp->rotation == 180)
       {
