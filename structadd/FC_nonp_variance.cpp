@@ -1683,7 +1683,8 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
   void FC_tensor_omega::get_samples(const ST::string & filename,ofstream & outg) const
     {
-
+    ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
+        FC::get_samples(filename_omega,outg);
     }
 
   // FUNCTION: update
@@ -1771,6 +1772,19 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
     for(i=0; i<nromegas; i++)
       optionsp->out("  " + ST::doubletostring(omegas(i,0),4) + ": " +
       ST::doubletostring(omegafreq(i,0)/((double)sampled_beta.rows()),3) + "\n");
+    optionsp->out("\n");
+
+    ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
+    for(i=0; i<nromegas; i++)
+      optionsp->out("  " + ST::doubletostring(omegas(i,0),4) + ": " +
+      ST::doubletostring(omegafreq(i,0)/((double)sampled_beta.rows()),3) + "\n");
+    optionsp->out("\n");
+    FC::outresults(out_stata,out_R,pathresults_omega);
+
+    optionsp->out("\n");
+    optionsp->out("    Results for the frequencies of anisotropy values are also stored in file\n");
+    optionsp->out("    " +  pathresults_omega + "\n");
+    optionsp->out("\n");
     optionsp->out("\n");
     }
 
