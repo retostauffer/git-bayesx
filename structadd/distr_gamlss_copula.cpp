@@ -200,6 +200,16 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
   if(deriv)
     {
     vector<double> derivs = derivative(F, Fa, linpredp);
+    if(copulapos==0)
+      {
+      if((optionsp->rotation == 180) || (optionsp->rotation == 270))
+        derivs[0] = -derivs[0];
+      }
+    else
+      {
+      if((optionsp->rotation == 180) || (optionsp->rotation == 90))
+        derivs[0] = -derivs[0];
+      }
     res.push_back(derivs[0]);
     res.push_back(derivs[1]);
     }
@@ -917,21 +927,19 @@ double DISTR_clayton_copula::loglikelihood_weightsone(double * response,
   double rho = exp((*linpred));
   double u = distrp[1]->cdf(*response1p,true);
   double v = distrp[0]->cdf(*response2p,true);
-       if(optionsp->rotation==90)
-       {
-       u = 1-u;
-       //rho=-rho;
-       }
-     else if(optionsp->rotation==270)
-       {
-       v = 1-v;
-       //rho=-rho;
-       }
-     else if(optionsp->rotation==180)
-       {
-       u = 1-u;
-       v = 1-v;
-       }
+  if(optionsp->rotation==90)
+    {
+    u = 1-u;
+    }
+  else if(optionsp->rotation==270)
+    {
+    v = 1-v;
+    }
+  else if(optionsp->rotation==180)
+    {
+    u = 1-u;
+    v = 1-v;
+    }
   double logu = log(u);
   double logv = log(v);
   double urho = pow(u, -rho);
@@ -962,21 +970,19 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
   double rho = exp((*linpred));
   double u = distrp[1]->cdf(*response1p,true);
   double v = distrp[0]->cdf(*response2p,true);
-       if(optionsp->rotation==90)
-       {
-       u = 1-u;
-       //rho=-rho;
-       }
-     else if(optionsp->rotation==270)
-       {
-       v = 1-v;
-       //rho=-rho;
-       }
-     else if(optionsp->rotation==180)
-       {
-       u = 1-u;
-       v = 1-v;
-       }
+  if(optionsp->rotation==90)
+    {
+    u = 1-u;
+    }
+  else if(optionsp->rotation==270)
+    {
+    v = 1-v;
+    }
+  else if(optionsp->rotation==180)
+    {
+    u = 1-u;
+    v = 1-v;
+    }
   double logu = log(u);
   double logv = log(v);
   double urho = pow(u, -rho);
@@ -992,9 +998,6 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
 
   *workingresponse = *linpred + nu/(*workingweight);
 
-/*  cout << "nu: " << nu << endl;
-  cout << "workingweight: " << *workingweight << endl;
-  cout << "workingresponse: " << *workingresponse << endl;*/
 
   if (compute_like)
     {

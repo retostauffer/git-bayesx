@@ -294,14 +294,11 @@ const DISTR & DISTR::operator=(const DISTR & d)
 void DISTR::set_copulapos(int cp)
     {
     copulapos = cp;
-    if(copulapos==0)
+ /*   if(copulapos==0)
       {
       if((optionsp->rotation==270) || (optionsp->rotation==180))
         {
         copularotate = true;
-        cout << "copulapos=" << copulapos << endl;
-        cout << "rotation=" << optionsp->rotation << endl;
-        cout << "copularotate=" << copularotate << endl;
         }
       }
     if(copulapos==1)
@@ -309,11 +306,8 @@ void DISTR::set_copulapos(int cp)
       if((optionsp->rotation==90) || (optionsp->rotation==180))
         {
         copularotate = true;
-        cout << "copulapos=" << copulapos << endl;
-        cout << "rotation=" << optionsp->rotation << endl;
-        cout << "copularotate=" << copularotate << endl;
         }
-      }
+      }*/
 
     }
 
