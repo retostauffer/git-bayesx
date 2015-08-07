@@ -1684,7 +1684,52 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
   void FC_tensor_omega::get_samples(const ST::string & filename,ofstream & outg) const
     {
     ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
-        FC::get_samples(filename_omega,outg);
+        //FC::get_samples(filename_omega,outg);
+    if ((nosamples == false) && (nosamplessave == false))
+    {
+
+    unsigned i,j,k;
+
+    unsigned nrpar = beta.rows()*beta.cols();
+
+    ofstream out(filename_omega.strtochar());
+    assert(!out.fail());
+
+    out << "intnr " << " ";
+    if (beta.cols() > 1)
+      {
+      for (j=0;j<beta.rows();j++)
+        for(k=0;k<beta.cols();k++)
+          out << "b_" << (j+1) << "_" << (k+1) << " ";
+      }
+    else
+      {
+      for (j=0;j<nrpar;j++)
+        out << "b_" << (j+1) << " ";
+      }
+
+    out << endl;
+
+    double * sampled_betap = sampled_beta.getV();
+    for(i=0;i<optionsp->samplesize;i++)
+      {
+      out << (i+1) << " ";
+      for (j=0;j<nrpar;j++,sampled_betap++)
+        out << ST::doubletostring(omegas(*sampled_betap,0),4) << " ";
+
+      out << endl;
+      }
+
+    out.close();
+
+    optionsp->out(filename_omega + "\n");
+
+    outg << "_d.infile using " << filename_omega << endl;
+    ST::string pathps = filename_omega.substr(0,filename_omega.length()-4) + ".ps";
+    outg << "_g.plotsample , outfile=" <<  pathps.strtochar() <<  " using _d" << endl;
+    outg << endl;
+
+    } // end: if (nosamples == false)
     }
 
   // FUNCTION: update
