@@ -148,7 +148,7 @@ set(SRC
 	${PSPLINES_SRC}
 	${STRUCTADD_SRC}
 	main.cpp
-    samson/multgaussian.cpp
+        samson/multgaussian.cpp
 	adaptiv/fullcond_adaptiv.cpp
 	alex/mixture.cpp
 )
