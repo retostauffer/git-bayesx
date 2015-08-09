@@ -1082,9 +1082,56 @@ double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
 double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
   // ToDo
-//  double rho = exp(*linpred);
-//  double res = pow(pow(-pow(F2, -rho-1)/x, rho/(1+rho))-pow(F2, -rho), -1/rho);
-  double res =0.0;
+  double rho = exp(*linpred);
+  double help1 = 0;
+
+  double xstar = x;
+  double argPhi=0;
+
+  if(optionsp->rotation==90)
+    {
+    help1 = 1-pow(F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(F2,-rho)-1),-1/rho-1);
+
+    if(y>0)
+      xstar = x*help1 - help1;
+    else
+      xstar = 1-x*help1;
+
+    argPhi = 1-pow(((xstar-1)/pow(-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho);
+    }
+  else if(optionsp->rotation==270)
+    {
+    help1 = -pow(1-F2,-rho-1)*pow((pow(randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
+    if(y>0)
+      xstar = x*help1 - help1;
+    else
+      xstar = 1-x*(1-help1);
+
+    argPhi = pow((xstar/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho);
+    }
+  else if(optionsp->rotation==180)
+    {
+    help1 = pow(1-F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
+    if(y>0)
+      xstar = x*(1-help1) + help1;
+    else
+      xstar = x*help1;
+
+    argPhi = 1-pow(((1-xstar)/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho);
+    }
+  else
+    {
+    help1 = pow(F2,-rho-1)*pow((pow(randnumbers::Phi2(-linpred_F),-rho)+pow(F2,-rho)-1),-1/rho-1);
+    if(y>0)
+      xstar = x*(1-help1) + help1;
+    else
+      xstar = x*help1;
+
+    argPhi = pow((xstar/pow(F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho);
+    }
+
+
+  double res = randnumbers::invPhi2(argPhi)  + linpred_F;
   return res;
   }
 
