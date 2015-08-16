@@ -5759,6 +5759,36 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+    if(distr_dagum_as.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_dagum_as.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_dagum_ps[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_as[coi]);
+
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+
+        distr_dagum_as[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+        distr_dagum_bs[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+        distr_dagum_ps[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+        if(distr_dagum_as[coi].get_copulapos()==0)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response2 = distr_dagum_as[coi].response;
+          }
+        else if(distr_dagum_as[coi].get_copulapos()==1)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_dagum_as[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
     if(distr_binomialprobit_copulas.size()>0)
       {
       int coi;

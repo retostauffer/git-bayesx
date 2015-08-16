@@ -1097,7 +1097,7 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
     else
       xstar = 1-x*help1;
 
-    argPhi = 1-pow(((xstar-1)/pow(-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho);
+    argPhi = 1-pow(pow(((xstar-1)/pow(-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho),-1/rho);
     }
   else if(optionsp->rotation==270)
     {
@@ -1107,7 +1107,7 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
     else
       xstar = 1-x*(1-help1);
 
-    argPhi = pow((xstar/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho);
+    argPhi = pow(pow((xstar/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho),-1/rho);
     }
   else if(optionsp->rotation==180)
     {
@@ -1117,7 +1117,7 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
     else
       xstar = x*help1;
 
-    argPhi = 1-pow(((1-xstar)/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho);
+    argPhi = 1-pow(pow(((1-xstar)/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho),-1/rho);
     }
   else
     {
@@ -1127,7 +1127,7 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
     else
       xstar = x*help1;
 
-    argPhi = pow((xstar/pow(F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho);
+    argPhi = pow( ( pow( (xstar/pow(F2,-rho-1)) ,-rho/(rho+1) ) + 1 - pow(F2,-rho)) ,-1/rho);
     }
 
 
