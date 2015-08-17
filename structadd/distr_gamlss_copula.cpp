@@ -1018,7 +1018,7 @@ void DISTR_clayton_copula::compute_mu_mult(vector<double *> linpred,vector<doubl
 void DISTR_clayton_copula::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function (rho): \n");
+  optionsp->out("  Response function (rho): exp(eta)\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -1093,25 +1093,25 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
     help1 = 1-pow(F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(F2,-rho)-1),-1/rho-1);
 
     if(y>0)
-      xstar = x*help1 - help1;
+      xstar = x*(1-help1) + help1;
     else
-      xstar = 1-x*help1;
+      xstar = x*help1;
 
-    argPhi = 1-pow(pow(((xstar-1)/pow(-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho),-1/rho);
+    argPhi = 1-pow(pow(((1-xstar)/pow(F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho),-1/rho);
     }
   else if(optionsp->rotation==270)
     {
-    help1 = -pow(1-F2,-rho-1)*pow((pow(randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
+    help1 = pow(1-F2,-rho-1)*pow((pow(randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
     if(y>0)
-      xstar = x*help1 - help1;
+      xstar = x*(1-help1) + help1;
     else
-      xstar = 1-x*(1-help1);
+      xstar = x*help1;
 
     argPhi = pow(pow((xstar/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho),-1/rho);
     }
   else if(optionsp->rotation==180)
     {
-    help1 = pow(1-F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
+    help1 = 1-pow(1-F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
     if(y>0)
       xstar = x*(1-help1) + help1;
     else
