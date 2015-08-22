@@ -3330,7 +3330,7 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
     double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
     double ybpmap2 = pow(1+ybpma,-(*worktransformlin[0]));
     double dF = (*worktransformlin[0])*lyb*a*ybpma*ybpmap;
-    double ddF = a*(*worktransformlin[0])*lyb*ybpmap2*(a*lyb*((*worktransformlin[0])-ybpma)+ybpa+1)/pow(1+ybpa,2);
+    double ddF = a*(*worktransformlin[0])*lyb*ybpmap2*(a*lyb*((*worktransformlin[0])-ybpa)+ybpa+1)/pow(1+ybpa,2);
   /*  if(copularotate)
       {
       dF = -dF;
