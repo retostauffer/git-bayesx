@@ -8477,12 +8477,12 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,0,w)
   {
   family = "Binomial Distribution - probit";
-    outpredictor = true;
+  outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
   responseorig = r;
-//  linpredminlimit=-7.5;
-//  linpredmaxlimit=2.2;
+  linpredminlimit=-10;
+  linpredmaxlimit=10;
   check_errors();
   }
 
