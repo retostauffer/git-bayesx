@@ -6711,7 +6711,7 @@ bool superbayesreg::create_distribution(void)
    else if (family.getvalue() == "BCCG" && equationtype.getvalue()=="mu")
      {
 
-    mainequation=true;
+      mainequation=true;
 
 
      computemodeforstartingvalues = true;
@@ -7911,6 +7911,7 @@ bool superbayesreg::create_distribution(void)
       &generaloptions,D.getCol(0),w));
 
       equations[modnr].distrp = &distr_binomialprobit_copulas[distr_binomialprobit_copulas.size()-1];
+      equations[modnr].pathd = "";
 
       if (countmarginal == 1)
         {
