@@ -3158,6 +3158,13 @@ double DISTR_dagum_a::cdf(const double & resp, const bool & ifcop)
   p = *worktransformlin[0];
   res = pow(1+pow(resp/b,-a),-p);
 
+/*  if(counter==0)
+    {
+    cout << "a: " << a << endl;
+    cout << "b: " << b << endl;
+    cout << "p: " << b << endl;
+    }*/
+
   if(ifcop)
     {
     modify_worklin();
@@ -8645,21 +8652,21 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   {
   if (counter==0)
     {
-    cout << "TEST" << endl;
+//    cout << "TEST" << endl;
     set_worklin();
-    if (counter==0)
-    cout << "counter1:" << counter << endl;
+//    if (counter==0)
+//    cout << "counter1:" << counter << endl;
     }
 
   double F = cdf(*response,*linpred);
 
-  if (counter==0)
-    cout << "counter2:" << counter << endl;
+//  if (counter==0)
+//    cout << "counter2:" << counter << endl;
 
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
 
-  if (counter==0)
-    cout << "counter3:" << counter << endl;
+//  if (counter==0)
+//    cout << "counter3:" << counter << endl;
 
   // compute and implement dF/deta, d^2 F/deta ^2
   double z = (*response-*linpred);
@@ -8669,7 +8676,7 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   double nu = *response - *linpred + logcandderivs[1]*dF;
   *workingweight = 1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
 
-  if (counter==0)
+/*  if (counter==0)
     {
     cout << "counter:" << counter << endl;
     cout << "copulapos:" << copulapos << endl;
@@ -8682,7 +8689,7 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
     cout << "logcandderivs[1]:" << logcandderivs[1] << endl;
     cout << "logcandderivs[2]:" << logcandderivs[2] << endl;
     cout << endl;
-    }
+    }*/
 
   if (*workingweight <=0)
     *workingweight = 0.0001;

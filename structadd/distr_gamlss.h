@@ -414,8 +414,6 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
 
   protected:
 
-  unsigned counter;
-
   double * worklinpi;
   double * workexplinpi;
   double * workonempi;
@@ -428,6 +426,8 @@ class __EXPORT_TYPE DISTR_negbinzip_mu : public DISTR
 
 
   public:
+
+  unsigned counter;
 
   DISTR*  distrpi;
   DISTR*  distrdelta;

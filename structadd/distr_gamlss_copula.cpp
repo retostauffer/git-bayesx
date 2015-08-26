@@ -168,11 +168,12 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     //implement Fa
     //cdf virtual in distr hat nur ein Argument!
     Fa = distrp[1]->cdf(*response1p,true);
-    if (counter==0)
+/*    if (counter==0)
       {
       cout << "copulapos:" << copulapos << endl;
       cout << "Fa:" << Fa << endl;
-      }
+      cout << "counter1: " << distrp[0]->counter << endl;
+      }*/
     if(optionsp->rotation == 90)
       Fa = 1-Fa;
     else if(optionsp->rotation == 180)
@@ -189,11 +190,11 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     {
     // implement Fa
     Fa = distrp[0]->cdf(*response2p,true);
-    if (counter==0)
+/*    if (counter==0)
       {
       cout << "copulapos:" << copulapos << endl;
       cout << "Fa:" << Fa << endl;
-      }
+      }*/
     if(optionsp->rotation == 90)
       F = 1-F;
     else if(optionsp->rotation == 180)
@@ -207,9 +208,20 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     res.push_back(logc(F, Fa, linpredp));
     }
 
+/*    if (counter==0)
+      {
+      cout << "counter2: " << distrp[0]->counter << endl;
+      }*/
+
   if(deriv)
     {
     vector<double> derivs = derivative(F, Fa, linpredp);
+
+/*    if (counter==0)
+      {
+      cout << "counter3: " << distrp[0]->counter << endl;
+      }*/
+
     if(copulapos==0)
       {
       if((optionsp->rotation == 180) || (optionsp->rotation == 270))

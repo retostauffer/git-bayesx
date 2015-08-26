@@ -70,8 +70,6 @@ class __EXPORT_TYPE DISTR
 
   protected:
 
-  unsigned counter;
-
   int copulapos; //gives position of marginals in case of copula model
   bool copula; //bool only true if copula model specified
   bool copularotate; // bool only true if copula is rotated
@@ -92,6 +90,8 @@ class __EXPORT_TYPE DISTR
 
 
   public:
+
+  unsigned counter;
 
   vector<DISTR*> distrp;  //pointer to other distributions
 
