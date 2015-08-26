@@ -418,6 +418,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // has the user specified a copula model?
   simpleoption copula;
 
+  // has the user specified a sample selection model?
+  simpleoption samplesel;
+
   // rotations
   intoption rotation;
 

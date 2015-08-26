@@ -89,6 +89,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   bool saveestimation;
 
   bool copula;                    // does the user want to specify a copula model? default is false
+  bool samplesel;                 // does the user want to specify a sample selection model? default is false
 
   unsigned rotation;             // possible rotation of the copula
 
@@ -125,7 +126,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
                   administrator_basic * abp,
   #endif
                   const unsigned & it,const unsigned & bu,const unsigned & st,
-                  const bool & sa,const bool & cop, const unsigned & rot,ostream * lo=&cout,const double & l1=95,
+                  const bool & sa,const bool & cop, const unsigned & rot, ostream * lo=&cout,const double & l1=95,
                   const double & l2=80);
 
   // COPY CONSTRUCTOR

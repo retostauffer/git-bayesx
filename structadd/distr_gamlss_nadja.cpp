@@ -8664,6 +8664,18 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   double nu = *response - *linpred + logcandderivs[1]*dF;
   *workingweight = 1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
 
+  cout << "counter:" << counter << endl;
+  cout << "copulapos:" << copulapos << endl;
+  cout << "linpred:" << *linpred << endl;
+  cout << "response:" << *response << endl;
+  cout << "F:" << F << endl;
+  cout << "dF:" << dF << endl;
+  cout << "ddF:" << ddF << endl;
+  cout << "logcandderivs[0]:" << logcandderivs[0] << endl;
+  cout << "logcandderivs[1]:" << logcandderivs[1] << endl;
+  cout << "logcandderivs[2]:" << logcandderivs[2] << endl;
+  cout << endl;
+
   if (*workingweight <=0)
     *workingweight = 0.0001;
 
