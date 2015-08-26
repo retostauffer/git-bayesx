@@ -8584,7 +8584,11 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, const bool & ifcop)
   {
   if(counter==0)
     {
-   if (linpred_current==1)
+    if(ifcop)
+      {
+      set_worklin();
+      }
+    if (linpred_current==1)
       linpredp = linearpred1.getV();
     else
       linpredp = linearpred2.getV();
@@ -8593,18 +8597,9 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, const bool & ifcop)
   double res;
   res = randnumbers::Phi2(resp-*linpredp);
 
-/*  if(resp>0)
-    res = (randnumbers::Phi2(resp - *linpredp) - randnumbers::Phi2(-*linpredp))/(1-randnumbers::Phi2(-*linpredp));
-  else
-    res = randnumbers::Phi2(resp - *linpredp)/ randnumbers::Phi2(-*linpredp);*/
-
-  if (counter<nrobs-1)
+  if(ifcop)
     {
-    counter++;
-    }
-  else
-    {
-    counter=0;
+    modify_worklin();
     }
   linpredp++;
   return res;
@@ -8650,11 +8645,21 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   {
   if (counter==0)
     {
+    cout << "TEST" << endl;
     set_worklin();
+    if (counter==0)
+    cout << "counter1:" << counter << endl;
     }
 
   double F = cdf(*response,*linpred);
+
+  if (counter==0)
+    cout << "counter2:" << counter << endl;
+
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
+
+  if (counter==0)
+    cout << "counter3:" << counter << endl;
 
   // compute and implement dF/deta, d^2 F/deta ^2
   double z = (*response-*linpred);
