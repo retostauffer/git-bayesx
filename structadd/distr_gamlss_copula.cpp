@@ -168,12 +168,6 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     //implement Fa
     //cdf virtual in distr hat nur ein Argument!
     Fa = distrp[1]->cdf(*response1p,true);
-/*    if (counter==0)
-      {
-      cout << "copulapos:" << copulapos << endl;
-      cout << "Fa:" << Fa << endl;
-      cout << "counter1: " << distrp[0]->counter << endl;
-      }*/
     if(optionsp->rotation == 90)
       Fa = 1-Fa;
     else if(optionsp->rotation == 180)
@@ -190,11 +184,6 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     {
     // implement Fa
     Fa = distrp[0]->cdf(*response2p,true);
-/*    if (counter==0)
-      {
-      cout << "copulapos:" << copulapos << endl;
-      cout << "Fa:" << Fa << endl;
-      }*/
     if(optionsp->rotation == 90)
       F = 1-F;
     else if(optionsp->rotation == 180)
@@ -208,19 +197,9 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     res.push_back(logc(F, Fa, linpredp));
     }
 
-/*    if (counter==0)
-      {
-      cout << "counter2: " << distrp[0]->counter << endl;
-      }*/
-
   if(deriv)
     {
     vector<double> derivs = derivative(F, Fa, linpredp);
-
-/*    if (counter==0)
-      {
-      cout << "counter3: " << distrp[0]->counter << endl;
-      }*/
 
     if(copulapos==0)
       {
@@ -452,8 +431,6 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
   double orho = 1 - pow(rho, 2);
   double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
   double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
-
-  //cout << *response1p << endl;
 
   double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phinvu * phinvv) - (*linpred) * (pow(phinvu, 2) + pow(phinvv, 2));
 
@@ -723,7 +700,6 @@ void DISTR_gausscopula2::compute_iwls_wweightschange_weightsone(
   double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response1p,true));
   double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response2p,true));
 
-  //cout << *response1p << endl;
   double nu = rho + ((1+rho*rho)/(1-rho*rho)) * (phinvu * phinvv) -
               0.25*( exp(*linpred)*exp(*linpred) - exp(-(*linpred))*exp(-(*linpred)) ) * (pow(phinvu, 2) + pow(phinvv, 2));
 

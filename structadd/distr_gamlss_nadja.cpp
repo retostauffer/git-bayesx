@@ -3158,13 +3158,6 @@ double DISTR_dagum_a::cdf(const double & resp, const bool & ifcop)
   p = *worktransformlin[0];
   res = pow(1+pow(resp/b,-a),-p);
 
-/*  if(counter==0)
-    {
-    cout << "a: " << a << endl;
-    cout << "b: " << b << endl;
-    cout << "p: " << b << endl;
-    }*/
-
   if(ifcop)
     {
     modify_worklin();
@@ -3707,11 +3700,6 @@ const DISTR_weibull_lambda & DISTR_weibull_lambda::operator=(
 
 double DISTR_weibull_lambda::cdf(const double & resp, const bool & ifcop)
   {
-/*  if(counter<=3)
-    {
-    cout << "DISTR_weibull_lambda::cdf(const double & resp, const bool & ifcop)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   if(counter==0)
     {
     if(ifcop)
@@ -3741,11 +3729,6 @@ double DISTR_weibull_lambda::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)
   {
- /* if(counter<=3)
-    {
-    cout << "DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   double res,lambda,alpha;
   lambda = exp(linpred);
   alpha = *worktransformlin[0];//exp(*linpred[0]);
@@ -3755,11 +3738,6 @@ double DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)
 
 double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
   {
- // if(counter<=3)
- //   {
- //   cout << "DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)\n";
- //   cout << "counter " << counter << "\n";
- //   }
   double res,lambda,alpha;
   lambda = exp(*linpred[1]);
   alpha = exp(*linpred[0]);//exp(*linpred[0]);
@@ -3854,14 +3832,6 @@ double DISTR_weibull_lambda::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
 
- /*  if(counter<=3)
-    {
-    cout << "DISTR_weibull_lambda::loglikelihood_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
- // *worklin[0] = linear predictor of alpha equation
-  // *worktransformlin[0] = alpha;
-
   if (counter==0)
     {
     set_worklin();
@@ -3895,19 +3865,6 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
                                               double & like,
                                               const bool & compute_like)
   {
-
- /*   if(counter<=3)
-    {
-    cout << "DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
- // *worklin[0] = linear predictor of sigma equation
-  // *worktransformlin[0] = sigma;
-
-  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
-  // helpmat1.prettyPrint(out);
-  // for (i=0;i<helpmat1.rows();i++)
-  //   out << helpmat1(i,0) << endl;
 
   if (counter==0)
     {
@@ -4041,11 +3998,6 @@ const DISTR_weibull2_alpha & DISTR_weibull2_alpha::operator=(
 
 double DISTR_weibull2_alpha::cdf(const double & resp, const bool & ifcop)
   {
- /*  if(counter<=3)
-    {
-    cout << "DISTR_weibull2_alpha::cdf(const double & resp, const bool & ifcop)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   if(counter==0)
     {
     if(ifcop)
@@ -4074,11 +4026,6 @@ double DISTR_weibull2_alpha::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_weibull2_alpha::cdf(const double & resp, const double & linpred)
   {
- /*   if(counter<=3)
-    {
-    cout << "DISTR_weibull2_alpha::cdf(const double & resp, const double & linpred)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   double res,lambda,alpha;
   alpha = exp(linpred);
   lambda = *worktransformlin[0];//exp(*linpred[0]);
@@ -4099,14 +4046,6 @@ void DISTR_weibull2_alpha::compute_param_mult(vector<double *>  linpred,double *
 double DISTR_weibull2_alpha::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
-
-/*    if(counter<=3)
-    {
-    cout << "DISTR_weibull2_alpha::loglikelihood_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
-  // *worklin[0] = linear predictor of mu equation
-  // *worktransformlin[0] = exp(eta_mu);
 
   if (counter==0)
     {
@@ -4139,14 +4078,6 @@ void DISTR_weibull2_alpha::compute_iwls_wweightschange_weightsone(
                                               double & like,
                                               const bool & compute_like)
   {
-
- /*   if(counter<=3)
-    {
-    cout << "DISTR_weibull2_alpha::compute_iwls_wweightschange_weightsone\n";
-    cout << "counter " << counter << "\n";
-    }*/
-  // *worklin[0] = linear predictor of mu equation
-  // *worktransformlin[0] = exp(eta_mu);
 
   if (counter==0)
     {
@@ -4311,11 +4242,6 @@ const DISTR_weibull2_lambda & DISTR_weibull2_lambda::operator=(
 
 double DISTR_weibull2_lambda::cdf(const double & resp, const bool & ifcop)
   {
-/*  if(counter<=3)
-    {
-    cout << "DISTR_weibull2_lambda::cdf(const double & resp, const bool & ifcop)\n";
-    cout << "counter " << counter << "\n";
-    }*/
   if(counter==0)
     {
     if(ifcop)
@@ -7359,12 +7285,10 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
   if(o->copula)
     {
     updateIWLS = true;
-    //cout << "IWLS: " << updateIWLS << endl;
     }
   else
     {
     updateIWLS = false;
-    //cout << "Gibbs: " << updateIWLS << endl;
     }
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
@@ -8652,22 +8576,13 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   {
   if (counter==0)
     {
-//    cout << "TEST" << endl;
     set_worklin();
-//    if (counter==0)
-//    cout << "counter1:" << counter << endl;
     }
 
   double F = cdf(*response,*linpred);
 
-//  if (counter==0)
-//    cout << "counter2:" << counter << endl;
-
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
    //   cout << "distrcopulap.sie():" << distrcopulap.size() << endl;
-//  if (counter==0)
-//    cout << "counter3:" << counter << endl;
-
   // compute and implement dF/deta, d^2 F/deta ^2
   double z = (*response-*linpred);
   double dF = -0.3989423*exp(-0.5*z*z);
@@ -8675,21 +8590,6 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
 
   double nu = *response - *linpred + logcandderivs[1]*dF;
   *workingweight = 1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
-
-/*  if (counter==0)
-    {
-    cout << "counter:" << counter << endl;
-    cout << "copulapos:" << copulapos << endl;
-    cout << "linpred:" << *linpred << endl;
-    cout << "response:" << *response << endl;
-    cout << "F:" << F << endl;
-    cout << "dF:" << dF << endl;
-    cout << "ddF:" << ddF << endl;
-    cout << "logcandderivs[0]:" << logcandderivs[0] << endl;
-    cout << "logcandderivs[1]:" << logcandderivs[1] << endl;
-    cout << "logcandderivs[2]:" << logcandderivs[2] << endl;
-    cout << endl;
-    }*/
 
   if (*workingweight <=0)
     *workingweight = 0.0001;
@@ -17384,18 +17284,6 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
     hilfs = pow((1+pow((*linpred),2)),0.5);
   }
 
-//          std::ofstream out;
-//  // helpmat1.prettyPrint(out);
-//    out.open ("C:\\tmp\\bivprobit.raw", std::ofstream::out | std::ofstream::app);
-//    out << *workingresponse ;
-//    out << " " ;
-//    out << *response1p ;
-//    out << " " ;
-//    out << *response  ;
-//    out << " " ;
-//    out << *response2p << endl;
-//    out.close();
-
   double rho2 = pow(rho,2);
   double oneminusrho2 = 1- rho2;
 
@@ -17405,9 +17293,7 @@ void DISTR_bivprobit_rho::compute_iwls_wweightschange_weightsone(
                 +(hilfs+rho*(*linpred))*( (((*response1p)-(*worktransformlin[1])))*(((*response2p)-(*worktransformlin[0]))) );
 
 
- // cout << "rho equation y1: " << *response << endl;
- // cout << "rho equation y2: " << *response2p << endl;
-    *workingweight = 1-pow(rho2,2);
+     *workingweight = 1-pow(rho2,2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
