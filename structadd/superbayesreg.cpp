@@ -5445,6 +5445,8 @@ bool superbayesreg::create_distribution(void)
       generaloptions.rotation = 0;
       }
 
+    distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(equations[modnr-1].distrp);
+    distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(equations[modnr-2].distrp);
     if(distr_binomialprobit_copulas.size()>0)
       {
       int coi;
@@ -5452,7 +5454,7 @@ bool superbayesreg::create_distribution(void)
         {
         predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
 
-        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp[distr_binomialprobit_copulas[coi].get_copulapos()]= (&distr_binomialprobit_copulas[coi]);
 
         distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
 
@@ -5481,7 +5483,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
 
-        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        //distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp[distr_weibull_lambdas[coi].get_copulapos()]= (&distr_weibull_lambdas[coi]);
 
         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
@@ -5509,7 +5512,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
 
-        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+        //distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp[distr_weibull2_lambdas[coi].get_copulapos()]= (&distr_weibull2_lambdas[coi]);
 
         distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
         distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
@@ -5537,7 +5541,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
         predict_mult_distrs.push_back(&distr_normal_mus[coi]);
 
-        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+        //distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp[distr_normal_mus[coi].get_copulapos()]= (&distr_normal_mus[coi]);
 
         distr_normal_mus[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
         distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
@@ -5566,7 +5571,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
         predict_mult_distrs.push_back(&distr_dagum_as[coi]);
 
-        distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+        //distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+        distr_gausscopulas[distr_gausscopulas.size()-1].distrp[distr_dagum_as[coi].get_copulapos()]= (&distr_dagum_as[coi]);
 
         distr_dagum_as[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
         distr_dagum_bs[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
@@ -5612,6 +5618,9 @@ bool superbayesreg::create_distribution(void)
       return true;
       }
 
+    distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(equations[modnr-1].distrp);
+    distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(equations[modnr-2].distrp);
+
     if(distr_weibull_lambdas.size()>0)
       {
       int coi;
@@ -5620,7 +5629,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
 
-        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        //distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[distr_weibull_lambdas[coi].get_copulapos()]= (&distr_weibull_lambdas[coi]);
 
         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
@@ -5648,7 +5658,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
 
-        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+        //distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[distr_weibull2_lambdas[coi].get_copulapos()]= (&distr_weibull2_lambdas[coi]);
 
         distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
         distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
@@ -5676,7 +5687,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
         predict_mult_distrs.push_back(&distr_normal_mus[coi]);
 
-        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+        //distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[distr_normal_mus[coi].get_copulapos()]= (&distr_normal_mus[coi]);
 
         distr_normal_mus[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
         distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
@@ -5705,7 +5717,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
         predict_mult_distrs.push_back(&distr_dagum_as[coi]);
 
-        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+        //distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[distr_dagum_as[coi].get_copulapos()]= (&distr_dagum_as[coi]);
 
         distr_dagum_as[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
         distr_dagum_bs[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
@@ -5733,7 +5746,8 @@ bool superbayesreg::create_distribution(void)
         {
         predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
 
-        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+        //distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+        distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[distr_binomialprobit_copulas[coi].get_copulapos()]= (&distr_binomialprobit_copulas[coi]);
 
         distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
 
@@ -5780,6 +5794,9 @@ bool superbayesreg::create_distribution(void)
       return true;
       }
 
+    distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(equations[modnr-1].distrp);
+    distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(equations[modnr-2].distrp);
+
     if(distr_weibull_lambdas.size()>0)
       {
       int coi;
@@ -5788,7 +5805,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
 
-        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        //distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[distr_weibull_lambdas[coi].get_copulapos()]= (&distr_weibull_lambdas[coi]);
 
         distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_weibull_alphas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
@@ -5816,7 +5834,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
         predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
 
-        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+        //distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull2_lambdas[coi]);
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[distr_weibull2_lambdas[coi].get_copulapos()]= (&distr_weibull2_lambdas[coi]);
 
         distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
@@ -5844,7 +5863,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
         predict_mult_distrs.push_back(&distr_normal_mus[coi]);
 
-        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+        //distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_normal_mus[coi]);
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[distr_normal_mus[coi].get_copulapos()]= (&distr_normal_mus[coi]);
 
         distr_normal_mus[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
@@ -5873,7 +5893,8 @@ bool superbayesreg::create_distribution(void)
         predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
         predict_mult_distrs.push_back(&distr_dagum_as[coi]);
 
-        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+        //distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_dagum_as[coi]);
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[distr_dagum_as[coi].get_copulapos()]= (&distr_dagum_as[coi]);
 
         distr_dagum_as[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_dagum_bs[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
@@ -5901,7 +5922,8 @@ bool superbayesreg::create_distribution(void)
         {
         predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
 
-        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+       // distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_binomialprobit_copulas[coi]);
+        distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[distr_binomialprobit_copulas[coi].get_copulapos()]= (&distr_binomialprobit_copulas[coi]);
 
         distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
 

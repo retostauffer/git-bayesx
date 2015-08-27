@@ -8664,7 +8664,7 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
 //    cout << "counter2:" << counter << endl;
 
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
-
+   //   cout << "distrcopulap.sie():" << distrcopulap.size() << endl;
 //  if (counter==0)
 //    cout << "counter3:" << counter << endl;
 
