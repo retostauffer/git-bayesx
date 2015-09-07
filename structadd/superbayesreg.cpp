@@ -5960,7 +5960,16 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
-     predict_mult_distrs.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+    predict_mult_distrs.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+    if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        distr_binomialprobit_copulas[coi].update();
+        }
+      }
     }
 //-------------------------- END: clayton_copula---------------------------
 
