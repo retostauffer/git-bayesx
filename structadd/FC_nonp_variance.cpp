@@ -780,7 +780,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
 
   tauold = sqrt(likep->get_scale()/FCnonpp->lambda);
   FCnonpp->tau2=1;
-  FCnonpp->lambda=1;
+  FCnonpp->lambda=likep->get_scale();
   FCnonpp->designp->set_intvar(onevec,tauold);
   FCnonpp->designp->changingdesign=true;
   }
@@ -996,7 +996,7 @@ void FC_nonp_variance_varselection::update_gaussian(void)
 
   double * Xp = X.getV();
   double * responsep = likep->workingresponse.getV();
-  double varinv = 1/(likep->get_scale());
+  double var = (likep->get_scale());
   double xtx=0;
   for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
     {
@@ -1005,19 +1005,27 @@ void FC_nonp_variance_varselection::update_gaussian(void)
     mutau += (*Xp) * ((*responsep) - (*worklin) + sqrt(beta(0,0))*(*Xp));
     }
 
-  Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
-  mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
+  Sigmatau = 1/(xtx + var/(r_delta*FC_psi2.beta(0,0)));
+  mutau *= Sigmatau;
+  Sigmatau *= var;
 
   double tau = mutau + sqrt(Sigmatau) * rand_normal();
 
-  double tau2 = tau*tau;
-  if (tau2 < 0.000000001)
-    tau2 = 0.000000001;
+  double * diffp = diff.getV();
+  Xp = X.getV();
+  for(i=0; i<X.rows(); i++, Xp++, diffp++)
+    {
+    *diffp = (tau - sqrt(beta(0,0))) * (*Xp);
+    }
+  add_linpred(diff);
 
-  beta(0,0) = tau2;
+  beta(0,0) = tau*tau;
   beta(0,1) = likep->get_scale()/beta(0,0);
 
-  FCnonpp->tau2 = beta(0,0);
+  FCnonpp->ssvs_update(tau,false);
+  designp->set_intvar(onevec, tau);
+
+  // adjust update_gaussian in FCnonp
 
   acceptance++;
   }

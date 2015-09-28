@@ -502,7 +502,6 @@ void FC_nonp::update_IWLS(void)
     }
   }
 
-
 void FC_nonp::ssvs_update(double & tau, bool signswitch)
   {
   if(signswitch)
@@ -751,14 +750,17 @@ void FC_nonp::update_gaussian(void)
       fsample.update();
       }
 
-    paramsample.beta.assign(param);
+    if(!ssvs)
+      {
+      paramsample.beta.assign(param);
 
-    paramsample.update();
+      paramsample.update();
 
-    if (derivative)
-      derivativesample.update();
+      if (derivative)
+        derivativesample.update();
 
-    FC::update();
+      FC::update();
+      }
     }
 
   }
