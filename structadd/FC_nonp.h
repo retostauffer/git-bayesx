@@ -90,6 +90,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   bool IWLS;
 
+  bool ssvs;
+
   DESIGN * designp;                          // Pointer to design object
 
 
@@ -118,7 +120,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
   //--------------------------- importance measures ---------------------------
 
   bool imeasures;
-
 
   void get_linparam(void);
 
@@ -166,6 +167,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void update_gaussian(void);
   void update_IWLS(void);
   void update_isotonic(void);
+
+  void ssvs_update(double & tau, bool signswitch);
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode

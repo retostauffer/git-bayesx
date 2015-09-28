@@ -174,6 +174,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   double tildev1;
   double tildev2;
 
+  double r_delta;
+
   bool gig;
 
   double r;

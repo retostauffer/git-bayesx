@@ -95,7 +95,12 @@ void FC_nonp::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   else
     samplef = true;
 
-   f = op[34].strtodouble(meaneffectconstant);
+  f = op[34].strtodouble(meaneffectconstant);
+
+  if(op[35] == "ssvs")
+    ssvs=true;
+  else
+    ssvs=false;
 
   }
 
@@ -230,6 +235,8 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   derivativesample = m.derivativesample;
   samplederivative = m.samplederivative;
   samplef = m.samplef;
+
+  ssvs = m.ssvs;
   }
 
 
@@ -288,6 +295,8 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   derivativesample = m.derivativesample;
   samplederivative = m.samplederivative;
   samplef = m.samplef;
+
+  ssvs = m.ssvs;
 
   return *this;
   }
@@ -481,16 +490,52 @@ void FC_nonp::update_IWLS(void)
     }
 
 
+  if(!ssvs)
+    {
+    paramsample.beta.assign(param);
+    paramsample.update();
+
+    if (derivative)
+      derivativesample.update();
+
+    FC::update();
+    }
+  }
+
+
+void FC_nonp::ssvs_update(double & tau, bool signswitch)
+  {
+  if(signswitch)
+    {
+    param.assign(-param);
+    paramold.assign(-paramold);
+    }
+
+  datamatrix betacopy = beta;
+  beta.mult_scalar(beta,tau);
+
+  if (derivative)
+    {
+    (derivativesample.beta).mult_scalar(derivativesample.beta,tau);
+    derivativesample.update();
+    }
+
+// standardisation a la Scheipl
+/*  double helpsum = 0.0;
+  unsigned i;
+  for(i=0; i<param.rows(); i++)
+    helpsum += fabs(param(i,0));
+  helpsum /= (double)(param.rows());
+  for(i=0; i<param.rows(); i++)
+    param(i,0) /= helpsum;
+  tau *= helpsum;*/
+
   paramsample.beta.assign(param);
   paramsample.update();
 
-  if (derivative)
-    derivativesample.update();
-
   FC::update();
-
+  beta.assign(betacopy);
   }
-
 
 void FC_nonp::update(void)
   {
