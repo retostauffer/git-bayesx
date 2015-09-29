@@ -775,14 +775,21 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
     FC_omega.setbeta(1,1,omega);
     }
 
-  diff = datamatrix(likep->nrobs, 1, 0);
-  onevec = datamatrix(likep->nrobs,1,0);
+  if(FCnonpp->IWLS)
+    {
+    diff = datamatrix(likep->nrobs, 1, 0);
+    onevec = datamatrix(likep->nrobs,1,0);
 
-  tauold = sqrt(likep->get_scale()/FCnonpp->lambda);
-  FCnonpp->tau2=1;
-  FCnonpp->lambda=likep->get_scale();
-  FCnonpp->designp->set_intvar(onevec,tauold);
-  FCnonpp->designp->changingdesign=true;
+    tauold = sqrt(likep->get_scale()/FCnonpp->lambda);
+    FCnonpp->tau2=1;
+    FCnonpp->lambda=likep->get_scale();
+    FCnonpp->designp->set_intvar(onevec,tauold);
+    FCnonpp->designp->changingdesign=true;
+    }
+  else
+    {
+
+    }
   }
 
 
@@ -982,6 +989,44 @@ void FC_nonp_variance_varselection::update_IWLS(void)
 void FC_nonp_variance_varselection::update_gaussian(void)
   {
   unsigned i;
+  double Sigmatau;
+  double mutau;
+
+  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+
+  double * worklin;
+  if (likep->linpred_current==1)
+    worklin = likep->linearpred1.getV();
+  else
+    worklin = likep->linearpred2.getV();
+
+  double * Xp = X.getV();
+  double * responsep = likep->workingresponse.getV();
+  double varinv = 1/(likep->get_scale()*beta(0,0));
+  double xtx=0;
+  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
+    {
+    xtx += pow(*Xp,2);
+    mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
+    }
+  Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
+  mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
+
+  double tau = mutau + sqrt(Sigmatau) * rand_normal();
+
+  double tau2 = tau*tau;
+  if (tau2 < 0.000000001)
+    tau2 = 0.000000001;
+
+  beta(0,0) = tau2;
+
+  beta(0,1) = likep->get_scale()/beta(0,0);
+
+  FCnonpp->tau2 = beta(0,0);
+
+  acceptance++;
+
+/*  unsigned i;
 
   double Sigmatau;
   double mutau;
@@ -1027,7 +1072,7 @@ void FC_nonp_variance_varselection::update_gaussian(void)
 
   // adjust update_gaussian in FCnonp
 
-  acceptance++;
+  acceptance++;*/
   }
 
 

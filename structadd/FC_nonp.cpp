@@ -750,17 +750,14 @@ void FC_nonp::update_gaussian(void)
       fsample.update();
       }
 
-    if(!ssvs)
-      {
-      paramsample.beta.assign(param);
+    paramsample.beta.assign(param);
 
-      paramsample.update();
+    paramsample.update();
 
-      if (derivative)
-        derivativesample.update();
+    if (derivative)
+      derivativesample.update();
 
-      FC::update();
-      }
+    FC::update();
     }
 
   }
