@@ -962,12 +962,13 @@ void FC_nonp_variance_varselection::update_gaussian(void)
 
   double * Xp = X.getV();
   double * responsep = likep->workingresponse.getV();
+  double * wp = likep->workingweight.getV();
   double varinv = 1/(likep->get_scale()*beta(0,0));
   double xtx=0;
-  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++)
+  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,wp++)
     {
-    xtx += pow(*Xp,2);
-    mutau += (*Xp) * ((*responsep) - (*worklin)+(*Xp));
+    xtx += pow(*Xp,2) * *wp;
+    mutau += (*Xp) * *wp * ((*responsep) - (*worklin)+(*Xp));
     }
   Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
   mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
