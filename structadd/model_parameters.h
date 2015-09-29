@@ -91,14 +91,17 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption tildea;
   doubleoption tildeb;
   simpleoption cauchy;
+
+  // deprecated
   simpleoption wei;
   doubleoption scaletau2;
   doubleoption r2;
+  doubleoption tildev1;
+  doubleoption tildev2;
+  // end: deprecated
 
   doubleoption v1;
   doubleoption v2;
-  doubleoption tildev1;
-  doubleoption tildev2;
   simpleoption gig;
   stroption proposal;
 

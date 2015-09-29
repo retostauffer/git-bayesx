@@ -716,24 +716,17 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
   {
   FC_nonp_variance::read_options(op,vn);
 
+  datanames=vn;
+
   int f;
 
   f = op[39].strtodouble(a_omega);
   f = op[40].strtodouble(b_omega);
 
   f = op[41].strtodouble(r);
-  if (op[50] == "true")
-    wei = true;
-  else
-    wei = false;
-  f = op[51].strtodouble(scaletau2);
-  f = op[52].strtodouble(r2);
 
   f = op[53].strtodouble(v1);
   f = op[54].strtodouble(v2);
-  f = op[55].strtodouble(tildev1);
-  f = op[56].strtodouble(tildev2);
-
 
   if (op[57] == "true")
     gig = true;
@@ -786,10 +779,6 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
     FCnonpp->designp->set_intvar(onevec,tauold);
     FCnonpp->designp->changingdesign=true;
     }
-  else
-    {
-
-    }
   }
 
 
@@ -805,18 +794,14 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   b_omega = m.b_omega;
   omega = m.omega;
   tauold = m.tauold;
-  wei = m.wei;
   v1 = m.v1;
   v2 = m.v2;
-  tildev1 = m.tildev1;
-  tildev2 = m.tildev2;
   r = m.r;
-  scaletau2 = m.scaletau2;
-  r2 = m.r2;
   X = m.X;
   diff = m.diff;
   gig = m.gig;
   r_delta = m.r_delta;
+  datanames = m.datanames;
   }
 
 
@@ -835,18 +820,14 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   b_omega = m.b_omega;
   omega = m.omega;
   tauold = m.tauold;
-  wei = m.wei;
   v1 = m.v1;
   v2 = m.v2;
-  tildev1 = m.tildev1;
-  tildev2 = m.tildev2;
   r = m.r;
-  scaletau2 = m.scaletau2;
-  r2 = m.r2;
   X = m.X;
   diff = m.diff;
   gig = m.gig;
   r_delta = m.r_delta;
+  datanames = m.datanames;
   return *this;
   }
 
@@ -863,20 +844,6 @@ void FC_nonp_variance_varselection::add_linpred(datamatrix & l)
 
 void FC_nonp_variance_varselection::update_IWLS(void)
   {
-/*  double tauprop = 0.25 + 0.02*rand_normal();
-  designp->set_intvar(onevec,tauprop);
-
-  FCnonpp->designp->compute_effect(X,FCnonpp->beta);
-
-  double * diffp = diff.getV();
-  double * Xp = X.getV();
-  for(unsigned i=0; i<X.rows(); i++, Xp++, diffp++)
-    {
-    *diffp = (tauprop - tauold) * (*Xp);
-    }
-  add_linpred(diff);
-  tauold=tauprop;*/
-
   unsigned i;
 
   double Sigmatauprop, Sigmataucurr;
@@ -949,13 +916,6 @@ void FC_nonp_variance_varselection::update_IWLS(void)
     acceptance++;
     double tau2 = tauprop*tauprop;
 
-/*    if (tau2 < 0.000000001)
-      {
-      // would require to adapt the linear predictor as well.
-      tau2 = 0.000000001;
-      tauprop = sqrt(tau2);
-      }*/
-
     // random sign switch
 /*    double z = uniform();
     if(z<=0.5)
@@ -1011,11 +971,6 @@ void FC_nonp_variance_varselection::update_gaussian(void)
     }
   Sigmatau = 1/(varinv*xtx + 1/(r_delta*FC_psi2.beta(0,0)));
   mutau *= Sigmatau/(likep->get_scale()*sqrt(beta(0,0)));
-
-/*  cout << "beta(0,0):" << beta(0,0) << "  " << endl;
-  cout << "scale: " << likep->get_scale() << "  " << endl;
-  cout << "Sigmatau: " << Sigmatau << "  " << endl;
-  cout << "varinv: " << varinv << "  " << endl;*/
 
   double tau = mutau + sqrt(Sigmatau) * rand_normal();
 
@@ -1102,83 +1057,70 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
     {
 
     ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
+    ST::string pathresults_delta_prob = pathresults.substr(0,pathresults.length()-4) + "_delta_prob.res";
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
     ST::string pathresults_psi2 = pathresults.substr(0,pathresults.length()-4) + "_psi2.res";
 
     if(singleomega == false)
-    {
-        FC_omega.outresults(out_stata,out_R,pathresults_omega);
-    }
+      {
+      FC_omega.outresults(out_stata,out_R,pathresults_omega);
+      }
 
 
     FC_nonp_variance::outresults(out_stata,out_R,pathresults);
 
+    optionsp->out("    Inclusion probability:\n");
+    optionsp->out("\n");
 
-    optionsp->out("    Inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,0),6)  + "\n");
-    optionsp->out("\n");
-	optionsp->out("    Rao-Blackwellised inclusion probability: " + ST::doubletostring(FC_delta.betamean(0,1),6)  + "\n");
-    optionsp->out("\n");
+    FC_delta.outresults(out_stata,out_R,pathresults_delta);
+    FC_delta.outresults_help(out_stata,out_R,pathresults_delta,datanames,0);
+
     optionsp->out("    Results for the inclusion probabilities are also stored in file\n");
     optionsp->out("    " +  pathresults_delta + "\n");
     optionsp->out("\n");
     optionsp->out("\n");
 
-    // deltas
-    ofstream ou(pathresults_delta.strtochar());
-
-    ou << "pmean_delta " << "pmean_prob" << endl;
-    ou << FC_delta.betamean(0,0) << " " << FC_delta.betamean(0,1) << endl;
-
-
-    FC_psi2.outresults(out_stata,out_R,pathresults_psi2);
-    optionsp->out("    Psi2: " + ST::doubletostring(FC_psi2.betamean(0,0),6)  + "\n");
+	optionsp->out("    Rao-Blackwellised inclusion probability:\n");
     optionsp->out("\n");
 
-    if(wei==true)
-      {
-      FC_psi2.outresults_acceptance();
-      optionsp->out("\n");
-      optionsp->out("    Results for psi2 are also stored in file\n");
-      optionsp->out("    " +  pathresults_psi2 + "\n");
-      optionsp->out("\n");
-      optionsp->out("\n");
-      double rate;
-      if (nrtrials == 0)
-        {
-        rate = (double(FC_psi2.acceptance)/double(optionsp->nriter))*100;
-        }
-      else
-        {
-        rate = (double(FC_psi2.acceptance)/double(nrtrials))*100;
-        }
-      ST::string pathresults_psi2_acceptance = pathresults.substr(0,pathresults.length()-4) + "_psi2_acceptance.res";
-      ofstream ou2(pathresults_psi2_acceptance.strtochar());
+    FC_delta.outresults(out_stata,out_R,pathresults_delta_prob);
+    FC_delta.outresults_help(out_stata,out_R,pathresults_delta_prob,datanames,1);
 
-      ou2 << "acceptance ";
-      ou2 << "r2" << endl;
-      ou2 << rate ;
-      ou2 << " ";
-      ou2 << r2 << endl;
-      }
-    else
-      {
-      optionsp->out("\n");
-      optionsp->out("    Results for psi2 are also stored in file\n");
-      optionsp->out("    " +  pathresults_psi2 + "\n");
-      optionsp->out("\n");
-      optionsp->out("\n");
-      }
+    optionsp->out("    Results for the Rao-Blackwellised inclusion probabilities are also stored in file\n");
+    optionsp->out("    " +  pathresults_delta_prob + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
+
+
+    // deltas
+/*    ofstream ou(pathresults_delta.strtochar());
+
+    ou << "pmean_delta " << "pmean_prob" << endl;
+    ou << FC_delta.betamean(0,0) << " " << FC_delta.betamean(0,1) << endl;'*/
+
+    optionsp->out("    Variance hyperparameter psi2: \n");
+    optionsp->out("\n");
+    FC_psi2.outresults(out_stata,out_R,"");
+//    optionsp->out("\n");
+    FC_psi2.outresults_singleparam(out_stata,out_R,pathresults_psi2);
+//    optionsp->out("    psi2: " + ST::doubletostring(FC_psi2.betamean(0,0),6)  + "\n");
+
+//    optionsp->out("\n");
+    optionsp->out("    Results for psi2 are also stored in file\n");
+    optionsp->out("    " +  pathresults_psi2 + "\n");
+    optionsp->out("\n");
+    optionsp->out("\n");
 
     if(singleomega == false)
-    {
-        optionsp->out("    Inclusion probability parameter omega:\n");
-        optionsp->out("\n");
-        FC_omega.outresults_singleparam(out_stata,out_R,"");
-        optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
-        optionsp->out("    " +  pathresults_omega + "\n");
-        optionsp->out("\n");
-        optionsp->out("\n");
-    }
+      {
+      optionsp->out("    Inclusion probability parameter omega:\n");
+      optionsp->out("\n");
+      FC_omega.outresults_singleparam(out_stata,out_R,pathresults_omega);
+      optionsp->out("    Results for the inclusion probability parameter omega are also stored in file\n");
+      optionsp->out("    " +  pathresults_omega + "\n");
+      optionsp->out("\n");
+      optionsp->out("\n");
+      }
 
     }
 
@@ -1206,29 +1148,17 @@ void FC_nonp_variance_varselection::get_samples(
 void FC_nonp_variance_varselection::outoptions(void)
   {
   FC_nonp_variance::outoptions();
-  if (wei)
-    {
-    optionsp->out("  Weibull prior for psi2 \n");
+  optionsp->out("  IG prior for psi2 \n");
 
-    optionsp->out("  Scale parameter for prior: " +
-                ST::doubletostring(scaletau2) + "\n" );
+  optionsp->out("  Hyperparameter v1 for prior: " +
+              ST::doubletostring(v1) + "\n" );
 
-    optionsp->out("  Parameter r2 for spike: " +
-                ST::doubletostring(r2) + "\n" );
-    }
-  else
-    {
-    optionsp->out("  IG prior for psi2 \n");
+  optionsp->out("  Hyperparameter v2 for prior: " +
+              ST::doubletostring(v2) + "\n" );
 
-    optionsp->out("  Hyperparameter v1 for prior: " +
-                ST::doubletostring(v1) + "\n" );
+  optionsp->out("  Parameter r for spike: " +
+              ST::doubletostring(r) + "\n" );
 
-    optionsp->out("  Hyperparameter v2 for prior: " +
-                ST::doubletostring(v2) + "\n" );
-
-    optionsp->out("  Parameter r for spike: " +
-                ST::doubletostring(r) + "\n" );
-    }
   if(singleomega==false)
     {
     optionsp->out("\n");

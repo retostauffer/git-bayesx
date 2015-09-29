@@ -9558,7 +9558,8 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
       pathpenres = outfile.getvalue() + "_" + h +
                    "_LinearEffects_ssvs.res";
 
-      titlevar = h + ": linear effects with ssvs prior (var)";
+//      titlevar = h + ": variance of linear effects with ssvs prior";
+      titlevar = "";
 
 #if defined(__BUILDING_LINUX)
       pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()

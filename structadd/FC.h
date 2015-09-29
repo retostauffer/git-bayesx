@@ -110,7 +110,7 @@ class __EXPORT_TYPE FC
   unsigned long nrtrials;              // number of trials
   unsigned long outsidelinpredlimits;  // number of iterations outside
                                        // linpredlimits
-                                    
+
 
 
   unsigned column;               // the response category the fc belongs to
@@ -277,7 +277,8 @@ class __EXPORT_TYPE FC
 
   void outresults_help(ofstream & out_stata, ofstream & out_R,
                     const ST::string & pathresults,
-                    const vector<ST::string> & datanames);
+                    const vector<ST::string> & datanames,
+                    unsigned col=0);
 
 
   // FUNCTION: outresults_singleparam

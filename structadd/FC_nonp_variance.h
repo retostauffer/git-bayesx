@@ -160,6 +160,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   protected:
 
   datamatrix onevec;
+  vector<ST::string> datanames;
 
   bool singleomega;
 
@@ -171,17 +172,12 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   double v1;
   double v2;
-  double tildev1;
-  double tildev2;
 
   double r_delta;
 
   bool gig;
 
   double r;
-  double scaletau2;
-  double r2;
-  bool wei;
 
   datamatrix X;
   datamatrix diff;

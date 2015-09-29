@@ -842,7 +842,8 @@ double FC::simconfBand(bool l1)
 
 void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
                     const ST::string & pathresults,
-                    const vector<ST::string> & datanames)
+                    const vector<ST::string> & datanames,
+                    unsigned col)
   {
 
   unsigned i;
@@ -927,12 +928,12 @@ void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
     else
       nsp = 10-vnames[i].length();
 
-    m= betamean(i,0);
+    m= betamean(i,col);
 
-    if (betavar(i,0) < 0.0000000000001)
+    if (betavar(i,col) < 0.0000000000001)
       stddouble = 0;
     else
-      stddouble = sqrt(betavar(i,0));
+      stddouble = sqrt(betavar(i,col));
 
     if (pathresults.isvalidfile() != 1)
       {
@@ -941,21 +942,21 @@ void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
       outp << m << "   ";
       outp << stddouble << "   ";
 
-      outp << betaqu_l1_lower(i,0) << "   ";
-      outp << betaqu_l2_lower(i,0) << "   ";
-      outp << betaqu50(i,0) << "   ";
-      outp << betaqu_l2_upper(i,0) << "   ";
-      outp << betaqu_l1_upper(i,0) << "   ";
-      if (betaqu_l1_lower(i,0) > 0)
+      outp << betaqu_l1_lower(i,col) << "   ";
+      outp << betaqu_l2_lower(i,col) << "   ";
+      outp << betaqu50(i,col) << "   ";
+      outp << betaqu_l2_upper(i,col) << "   ";
+      outp << betaqu_l1_upper(i,col) << "   ";
+      if (betaqu_l1_lower(i,col) > 0)
         outp << "1   ";
-      else if (betaqu_l1_upper(i,0) < 0)
+      else if (betaqu_l1_upper(i,col) < 0)
         outp << "-1   ";
       else
         outp << "0   ";
 
-      if (betaqu_l2_lower(i,0) > 0)
+      if (betaqu_l2_lower(i,col) > 0)
         outp << "1   ";
-      else if (betaqu_l2_upper(i,0) < 0)
+      else if (betaqu_l2_upper(i,col) < 0)
         outp << "-1   ";
       else
         outp << "0   ";
@@ -964,8 +965,8 @@ void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
 
 
       optionsp->out(ST::outresults(nsp,vnames[i],m,
-                        stddouble,betaqu_l1_lower(i,0),
-                        betaqu50(i,0),betaqu_l1_upper(i,0)) + "\n");
+                        stddouble,betaqu_l1_lower(i,col),
+                        betaqu50(i,col),betaqu_l1_upper(i,col)) + "\n");
 
       }
 

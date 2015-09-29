@@ -842,6 +842,9 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
                                              const ST::string & pathresults)
   {
 
+   optionsp->out("\n");
+   optionsp->out("    Variance parameters:\n");
+
    FC::outresults(out_stata,out_R,"");
    FC::outresults_help(out_stata,out_R,pathresults,Cp->datanames);
 
@@ -851,6 +854,8 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    optionsp->out("    " + pathresults + "\n");
    optionsp->out("\n");
 
+   optionsp->out("\n");
+   optionsp->out("    Inclusion probabilities:\n");
 
    ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-7)+"delta.res";
    ST::string pathresults_delta_prob = pathresults.substr(0,pathresults.length()-7)+"delta_prob.res";
@@ -858,30 +863,42 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    delta.outresults(out_stata,out_R,"");
    delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
 
-   unsigned j;
+   optionsp->out("\n");
+   optionsp->out("    Results for delta parameters are also stored in file\n");
+   optionsp->out("    " + pathresults_delta + "\n");
+   optionsp->out("\n");
+   optionsp->out("\n");
+
+   optionsp->out("    Rao-Blackwellised inclusion probabilities:\n");
+
+   delta.outresults_help(out_stata,out_R,pathresults_delta_prob,Cp->datanames,1);
+
+   optionsp->out("\n");
+   optionsp->out("    Results for Rao-Blackwellised inclusion probabilities are also stored in file\n");
+   optionsp->out("    " + pathresults_delta + "\n");
+   optionsp->out("\n");
+   optionsp->out("\n");
+
+
+/*   unsigned j;
    ofstream ou(pathresults_delta_prob.strtochar());
 
    ou << "pmean_prob" << endl;
    for(j=0;j<nrpen;j++)
      {
     ou  << " " << delta.betamean(j,1) << endl;
-     }
-   optionsp->out("\n");
-   optionsp->out("    Results for linear effects delta parameters are also stored in file\n");
-   optionsp->out("    " + pathresults_delta + "\n");
-   optionsp->out("\n");
-   optionsp->out("\n");
+     }*/
 
    ST::string pathresults_theta = pathresults.substr(0,pathresults.length()-7)+"omega.res";
 
+   optionsp->out("    Inclusion probability parameter omega:\n");
+   optionsp->out("\n");
 
    theta.outresults(out_stata,out_R,"");
    theta.outresults_singleparam(out_stata,out_R,pathresults_theta);
 
-   optionsp->out("\n");
    optionsp->out("    Results for linear effects omega parameters are also stored in file\n");
    optionsp->out("    " + pathresults_theta + "\n");
-   optionsp->out("\n");
    optionsp->out("\n");
 
   }
