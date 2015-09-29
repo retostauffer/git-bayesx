@@ -2604,6 +2604,8 @@ class __EXPORT_TYPE DISTR_binomialprobit_copula : public DISTR_gamlss
 
   protected:
 
+  bool posteriormodemode;
+
   datamatrix responseorig;
 
   public:

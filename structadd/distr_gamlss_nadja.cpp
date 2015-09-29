@@ -8414,6 +8414,7 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   responseorig = r;
   linpredminlimit=-10;
   linpredmaxlimit=10;
+  posteriormodemode=true;
   check_errors();
   }
 
@@ -8423,6 +8424,7 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(const DISTR_binomialpro
   {
   responseorig = nd.responseorig;
   responsecopmat = nd.responsecopmat;
+  posteriormodemode = nd.posteriormodemode;
   }
 
 
@@ -8434,6 +8436,7 @@ const DISTR_binomialprobit_copula & DISTR_binomialprobit_copula::operator=(
   DISTR_gamlss::operator=(DISTR_gamlss(nd));
   responseorig = nd.responseorig;
   responsecopmat = nd.responsecopmat;
+  posteriormodemode = nd.posteriormodemode;
   return *this;
   }
 
@@ -8638,6 +8641,8 @@ void DISTR_binomialprobit_copula::update_end(void)
 
 void DISTR_binomialprobit_copula::update(void)
   {
+  posteriormodemode = false;
+
   double * workresporig = responseorig.getV();
   double * workresp = response.getV();
   double * weightwork = weight.getV();
