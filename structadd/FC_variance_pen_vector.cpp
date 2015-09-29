@@ -611,8 +611,8 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   double a,b;
   bool cpr;
 
-  f = op[5].strtodouble(a);
-  f = op[6].strtodouble(b);
+  f = op[53].strtodouble(a);
+  f = op[54].strtodouble(b);
   atau2.push_back(a);
   btau2.push_back(b);
 
@@ -827,14 +827,13 @@ void FC_variance_pen_vector_ssvs::update(void)
 
 void FC_variance_pen_vector_ssvs::get_samples(const ST::string & filename,ofstream & outg) const
   {
+  FC::get_samples(filename, outg);
 
+  ST::string filename_delta = filename.substr(0,filename.length()-15) + "_delta_sample.raw";
+  delta.get_samples(filename_delta,outg);
 
-//  this->get_samples(filename,outg);
-
-//  ST::string pathhelp = filename.substr(0,filename.length()-14)+"shrinkage_sample.raw";
-
-//  FC.get_samples(pathhelp,outg);
-
+  ST::string filename_theta = filename.substr(0,filename.length()-15) + "_omega_sample.raw";
+  theta.get_samples(filename_theta,outg);
   }
 
 

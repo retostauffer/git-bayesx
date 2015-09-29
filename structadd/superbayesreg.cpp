@@ -8416,8 +8416,12 @@ void superbayesreg::create_pspline(unsigned i)
       {
       if (firstvarselection==true)
         {
+        vector<ST::string> help;
+        help.push_back("");
+        make_paths(pathnonp,pathres,title,help,
+        "_omega.raw","omega_of_nonlinear_pspline_effects","Prior inclusion probability for nonlinear terms");
         FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
-                                         equations[modnr].distrp,""));
+                                         equations[modnr].distrp,title));
         equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],pathres);
         firstvarselection=false;
         }

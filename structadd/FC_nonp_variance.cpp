@@ -1280,15 +1280,14 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
   void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
                   const ST::string & pathresults)
    {
-        ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
-        optionsp->out("    Prior inclusion probability parameter omega: " + ST::doubletostring(FC::betamean(0,0),6)  + "\n");
-        optionsp->out("\n");
+      ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
+//        optionsp->out("    Prior inclusion probability parameter omega: " + ST::doubletostring(FC::betamean(0,0),6)  + "\n");
+//        optionsp->out("\n");
         FC::outresults(out_stata,out_R,pathresults_omega);
+        FC::outresults_singleparam(out_stata,out_R,pathresults_omega);
 
-        optionsp->out("\n");
         optionsp->out("    Results for the prior inclusion probability parameter omega are also stored in file\n");
         optionsp->out("    " +  pathresults_omega + "\n");
-        optionsp->out("\n");
         optionsp->out("\n");
    }
 
