@@ -142,6 +142,12 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
 
   read_options(op,vn);
 
+  if(op[35]=="ssvs" && centermethod != nullspace)
+    {
+    optionsp->out("WARNING: centermethod=nullspace has to be specified when using ssvs priors for nonlinear effects\n");
+    }
+
+
   datamatrix dmr = dm;
   if (round != -1)
     {

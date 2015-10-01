@@ -884,6 +884,10 @@ void FC_linear_pen::update(void)
   FC_linear::update();
   }
 
+void FC_linear_pen::find_const(datamatrix & design)
+  {
+
+  }
 
 
 bool FC_linear_pen::posteriormode(void)

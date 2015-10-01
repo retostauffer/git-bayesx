@@ -178,7 +178,7 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
     errors=true;
     }
 
-//  check_errors();
+  check_errors();
 
   }
 

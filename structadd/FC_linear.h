@@ -88,7 +88,7 @@ class __EXPORT_TYPE FC_linear  : public FC
   datamatrix * linoldp;
   datamatrix * linnewp;
 
-  void find_const(datamatrix & design);
+  virtual void find_const(datamatrix & design);
 
   void create_matrices(void);
 
@@ -225,6 +225,8 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
   // FUNCTION: posteriormode
 
   bool posteriormode(void);
+
+  void find_const(datamatrix & design);
 
   void compute_XWX(datamatrix & r);
   void compute_XWXroot(datamatrix & r);
