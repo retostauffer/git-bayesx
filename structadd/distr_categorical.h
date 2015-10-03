@@ -327,7 +327,7 @@ class __EXPORT_TYPE DISTR_binomialprobit : public DISTR
 
   void update(void);
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   ST::string pathresults);
 
   void get_samples(const ST::string & filename,ofstream & outg) const;

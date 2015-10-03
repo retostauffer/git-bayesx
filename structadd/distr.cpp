@@ -984,7 +984,7 @@ void DISTR::compute_iwls(const bool & current,datamatrix & likelihood,
 
 
 
-void DISTR::outresults(ofstream & out_stata, ofstream & out_R,ST::string pathresults)
+void DISTR::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX, ST::string pathresults)
   {
   optionsp->out("\n");
   }
@@ -1456,12 +1456,12 @@ bool DISTR_gaussian::posteriormode(void)
   }
 
 
-void DISTR_gaussian::outresults(ofstream & out_stata, ofstream & out_R,
+void DISTR_gaussian::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                 ST::string pathresults)
   {
-  DISTR::outresults(out_stata,out_R);
+  DISTR::outresults(out_stata,out_R,out_R2BayesX);
 
-  FCsigma2.outresults(out_stata,out_R,"");
+  FCsigma2.outresults(out_stata,out_R,out_R2BayesX,"");
 
   ST::string l1 = ST::doubletostring(optionsp->lower1,4);
   ST::string l2 = ST::doubletostring(optionsp->lower2,4);
@@ -1933,11 +1933,11 @@ bool DISTR_hetgaussian::posteriormode(void)
   }
 
 
-void DISTR_hetgaussian::outresults(ofstream & out_stata, ofstream & out_R,
+void DISTR_hetgaussian::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                    ST::string pathresults)
   {
   if (!sigma2const)
-    DISTR_gaussian::outresults(out_stata,out_R,pathresults);
+    DISTR_gaussian::outresults(out_stata,out_R,out_R2BayesX,pathresults);
   }
 
 //------------------------------------------------------------------------------
@@ -2789,7 +2789,7 @@ void DISTR_gaussian_re::outoptions(void)
   }
 
 
-void DISTR_gaussian_re::outresults(ofstream & out_stata, ofstream & out_R,
+void DISTR_gaussian_re::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                    ST::string pathresults)
   {
   }

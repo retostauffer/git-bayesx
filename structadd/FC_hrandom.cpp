@@ -650,7 +650,7 @@ void FC_hrandom::get_samples(const ST::string & filename,ofstream & outg) const
   }
 
 
-void FC_hrandom::outgraphs(ofstream & out_stata, ofstream & out_R,
+void FC_hrandom::outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                           const ST::string & path)
   {
 
@@ -713,25 +713,38 @@ void FC_hrandom::outgraphs(ofstream & out_stata, ofstream & out_R,
             << path << endl
             << "drop in 1" << endl;
 
+  char hchar = '\\';
+  ST::string hstring = "/";
+  ST::string pathR = path.insert_string_char(hchar,hstring);
+  out_R << "dat <- read.table(\"" << pathR << "\", header=TRUE)\n";
+
   out_stata << "kdensity pmean_tot" << endl
             << "graph export " << pathps << "_tot.eps, replace"
             << endl << endl;
 
+  out_R << "plot(density(dat$pmean_tot))\n";
+
   out_stata << "kdensity pmean" << endl
             << "graph export " << pathps << ".eps, replace"
             << endl << endl;
+
+  out_R << "plot(density(dat$pmean))\n";
 
   if (computemeaneffect==true)
     {
     out_stata << "kdensity pmean_mu" << endl
               << "graph export " << pathps << "_mu.eps, replace"
               << endl << endl;
+    out_R << "plot(density(dat$pmean_mu))\n";
+
     }
+
+  out_R << "\n";
 
   }
 
 
-void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
+void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                             const ST::string & pathresults)
   {
 
@@ -748,24 +761,24 @@ void FC_hrandom::outresults(ofstream & out_stata,ofstream & out_R,
                                  "_sample.raw";
 
 
-    out_R << "family=" << likep->family.strtochar() << ",";
-    out_R << "hlevel=" << likep->hlevel << ",";
-    out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
-    out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
-    out_R << "filetype=nonlinear,";
-    out_R << "pathsamples=" << paths.strtochar() << ",";
-    out_R << "pathbasis=" << pathbasis.strtochar() << ",";
+    out_R2BayesX << "family=" << likep->family.strtochar() << ",";
+    out_R2BayesX << "hlevel=" << likep->hlevel << ",";
+    out_R2BayesX << "equationtype=" << likep->equationtype.strtochar() << ",";
+    out_R2BayesX << "term=sx("  << designp->datanames[0].strtochar()  << "),";
+    out_R2BayesX << "filetype=nonlinear,";
+    out_R2BayesX << "pathsamples=" << paths.strtochar() << ",";
+    out_R2BayesX << "pathbasis=" << pathbasis.strtochar() << ",";
 
 
-    outgraphs(out_stata,out_R,pathresults);
+    outgraphs(out_stata,out_R,out_R2BayesX,pathresults);
 
-    FC::outresults(out_stata,out_R,"");
-    FCrcoeff.outresults(out_stata,out_R,"");
+    FC::outresults(out_stata,out_R,out_R2BayesX,"");
+    FCrcoeff.outresults(out_stata,out_R,out_R2BayesX,"");
 
     outresults_acceptance();
 
    if (computemeaneffect==true)
-      meaneffect_sample.outresults(out_stata,out_R,"");
+      meaneffect_sample.outresults(out_stata,out_R,out_R2BayesX,"");
 
     optionsp->out("    Results are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
@@ -1240,16 +1253,16 @@ void FC_hrandom_distributional::get_samples(const ST::string & filename,ofstream
   FC_hrandom::get_samples(filename,outg);
   }
 
-void FC_hrandom_distributional::outgraphs(ofstream & out_stata, ofstream & out_R,
+void FC_hrandom_distributional::outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                           const ST::string & path)
   {
-  FC_hrandom::outgraphs(out_stata, out_R, path);
+  FC_hrandom::outgraphs(out_stata, out_R, out_R2BayesX, path);
   }
 
-void FC_hrandom_distributional::outresults(ofstream & out_stata,ofstream & out_R,
+void FC_hrandom_distributional::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                             const ST::string & pathresults)
   {
-  FC_hrandom::outresults(out_stata, out_R, pathresults);
+  FC_hrandom::outresults(out_stata, out_R, out_R2BayesX, pathresults);
   }
 
 

@@ -107,9 +107,9 @@ class __EXPORT_TYPE FC_predict   : public FC
   void outoptions(void);
 
   void outresults_deviance(void);
-  void outresults_DIC(ofstream & out_stata, ofstream & out_R,
+  void outresults_DIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                       const ST::string & pathresults);
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   void compute_autocorr_all(const ST::string & path, unsigned lag,

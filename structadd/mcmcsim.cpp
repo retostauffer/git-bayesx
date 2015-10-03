@@ -370,9 +370,17 @@ const int & seed, const bool & computemode)
 
       ST::string pathstata = pathgraphs + "_stata.do";
       ST::string pathR = pathgraphs + "_R.r";
+      char hchar = '\\';
+      ST::string hstring = "/";
+      pathR = pathR.insert_string_char(hchar,hstring);
+
+      ST::string pathR2BayesX = pathgraphs + "_R2BayesX.txt";
 
       ofstream out_stata(pathstata.strtochar());
       ofstream out_R(pathR.strtochar());
+      ofstream out_R2BayesX(pathR2BayesX.strtochar());
+
+      out_R << "library(\"BayesX\")\n\n";
 
       for (i=0;i<nrmodels;i++)
         {
@@ -392,11 +400,11 @@ const int & seed, const bool & computemode)
 //              << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
 
 
-        equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,
+        equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,out_R2BayesX,
                                                  equations[nrmodels-1-i].pathd);
 
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-          equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);
+          equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,out_R2BayesX,equations[nrmodels-1-i].FCpaths[j]);
 
         }
 
@@ -404,7 +412,11 @@ const int & seed, const bool & computemode)
       genoptions->out("\n");
       genoptions->out("    STATA DO-FILE\n");
       genoptions->out("\n");
-      genoptions->out("    " + pathstata);
+      genoptions->out("    " + pathstata + "\n");
+      genoptions->out("\n");
+      genoptions->out("    R-FILE\n");
+      genoptions->out("\n");
+      genoptions->out("    " + pathR + "\n");
       genoptions->out("\n");
 
 
@@ -605,10 +617,16 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
         ST::string pathstata = pathgraphs + "_stata.do";
         ST::string pathR = pathgraphs + "_R.r";
+        ST::string pathR2BayesX = pathgraphs + "_R2BayesX.txt";
+        char hchar = '\\';
+        ST::string hstring = "/";
+        pathR = pathR.insert_string_char(hchar,hstring);
 
         ofstream out_stata(pathstata.strtochar());
         ofstream out_R(pathR.strtochar());
+        ofstream out_R2BayesX(pathR2BayesX.strtochar());
 
+        out_R << "library(\"BayesX\")\n\n";
 
         for(i=0;i<nrmodels;i++)
           {
@@ -620,10 +638,10 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 //                << " hlevel="        << equations[nrmodels-1-i].hlevel <<  endl;
 
 
-          equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,equations[nrmodels-1-i].pathd);
+          equations[nrmodels-1-i].distrp->outresults(out_stata,out_R,out_R2BayesX,equations[nrmodels-1-i].pathd);
 
           for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-            equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,equations[nrmodels-1-i].FCpaths[j]);
+            equations[nrmodels-1-i].FCpointer[j]->outresults(out_stata,out_R,out_R2BayesX,equations[nrmodels-1-i].FCpaths[j]);
 
           }
 

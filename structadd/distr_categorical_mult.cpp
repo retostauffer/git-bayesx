@@ -543,14 +543,14 @@ void DISTR_multgaussian::outresults_help(ST::string t,datamatrix & r)
   }
 
 
-void DISTR_multgaussian::outresults(ofstream & out_stata,ofstream & out_R,
+void DISTR_multgaussian::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                                    ST::string pathresults)
   {
 
   if (master)
     {
 
-    FC_scale.outresults(out_stata,out_R,"");
+    FC_scale.outresults(out_stata,out_R,out_R2BayesX,"");
 
     ST::string l1 = ST::doubletostring(optionsp->lower1,4);
     ST::string l2 = ST::doubletostring(optionsp->lower2,4);

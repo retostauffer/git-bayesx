@@ -94,11 +94,11 @@ class __EXPORT_TYPE FC_mult  : public FC
 
   bool posteriormode(void);
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
 
-  void outgraphs(ofstream & out_stata, ofstream & out_R,
+  void outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
   const ST::string & path);
 
 

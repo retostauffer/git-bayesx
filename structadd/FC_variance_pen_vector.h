@@ -140,7 +140,7 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
   // TASK: - write results to output window and files
   //____________________________________________________________________________
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   //____________________________________________________________________________
@@ -224,7 +224,7 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
 
   bool posteriormode(void);
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   void outoptions(void);

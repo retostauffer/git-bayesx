@@ -134,10 +134,10 @@ class __EXPORT_TYPE FC_hrandom  : public FC_nonp
     // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                  const ST::string & pathresults);
 
-  void outgraphs(ofstream & out_stata, ofstream & out_R,
+  void outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                          const ST::string & path);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
@@ -219,10 +219,10 @@ class __EXPORT_TYPE FC_hrandom_distributional  : public FC_hrandom
     // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                  const ST::string & pathresults);
 
-  void outgraphs(ofstream & out_stata, ofstream & out_R,
+  void outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                          const ST::string & path);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);

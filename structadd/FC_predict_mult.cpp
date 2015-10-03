@@ -200,14 +200,14 @@ void FC_predict_mult::outoptions(void)
   }
 
 
-void FC_predict_mult::outresults_DIC(ofstream & out_stata, ofstream & out_R,
+void FC_predict_mult::outresults_DIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                      const ST::string & pathresults)
   {
 
   ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
   ofstream out(pathresultsdic.strtochar());
 
-  out_R << "DIC=" << pathresultsdic << ";" <<  endl;
+  out_R2BayesX << "DIC=" << pathresultsdic << ";" <<  endl;
 
   optionsp->out("    Results for the DIC are stored in file\n");
   optionsp->out("    " +  pathresultsdic + "\n");
@@ -380,16 +380,16 @@ void FC_predict_mult::outresults_deviance(void)
     }
 
 
-void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                             const ST::string & pathresults)
   {
 
   if (pathresults.isvalidfile() != 1)
     {
 
-    FC::outresults(out_stata,out_R,"");
+    FC::outresults(out_stata,out_R,out_R2BayesX,"");
 
-    FC_deviance.outresults(out_stata,out_R,"");
+    FC_deviance.outresults(out_stata,out_R,out_R2BayesX,"");
 
     optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");
@@ -397,7 +397,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    Results for the predictor, mean are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
-    out_R << "predict=" << pathresults << ";" <<  endl;
+    out_R2BayesX << "predict=" << pathresults << ";" <<  endl;
 
     ofstream outres(pathresults.strtochar());
 
@@ -710,7 +710,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R,
       }
 
      outresults_deviance();
-     outresults_DIC(out_stata,out_R,pathresults);
+     outresults_DIC(out_stata,out_R,out_R2BayesX,pathresults);
 
 
     }   // end if (pathresults.isvalidfile() != 1)

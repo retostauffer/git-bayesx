@@ -234,7 +234,7 @@ void FC_cv::outoptions(void)
   }
 
 
-void FC_cv::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_cv::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                             const ST::string & pathresults)
   {
 
@@ -242,7 +242,7 @@ void FC_cv::outresults(ofstream & out_stata, ofstream & out_R,
   if (pathresults.isvalidfile() != 1)
     {
 
-    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults(out_stata,out_R,out_R2BayesX,pathresults);
 
     optionsp->out("  Marshall-Spiegelhalter Cross Validation: \n",true);
     optionsp->out("\n");
@@ -255,7 +255,7 @@ void FC_cv::outresults(ofstream & out_stata, ofstream & out_R,
     ST::string pathresults_like = pathresults.substr(0,pathresults.length()-4)+
                                   "_like.res";
 
-    FC_sampled_l.outresults(out_stata,out_R,pathresults_like);
+    FC_sampled_l.outresults(out_stata,out_R,out_R2BayesX,pathresults_like);
 
     optionsp->out("    Estimated individual observation likelihoods are stored in\n");
     optionsp->out("    " +  pathresults_like + "\n");

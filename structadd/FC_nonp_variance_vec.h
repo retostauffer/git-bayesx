@@ -99,7 +99,7 @@ class __EXPORT_TYPE FC_nonp_variance_vec  : public FC_nonp_variance
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   // FUNCTION: reset

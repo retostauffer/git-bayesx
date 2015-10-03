@@ -202,11 +202,11 @@ bool FC_hrandom_variance::posteriormode(void)
   }
 
 
-void FC_hrandom_variance::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_hrandom_variance::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                          const ST::string & pathresults)
   {
   if (lambdaconst==false)
-    FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+    FC_nonp_variance::outresults(out_stata,out_R,out_R2BayesX,pathresults);
   }
 
 
@@ -402,7 +402,7 @@ void FC_hrandom_variance_ssvs::outoptions(void)
 
 
 void FC_hrandom_variance_ssvs::outresults(ofstream & out_stata,
-                                              ofstream & out_R,
+                                              ofstream & out_R, ofstream & out_R2BayesX,
                                               const ST::string & pathresults)
   {
 
@@ -412,10 +412,10 @@ void FC_hrandom_variance_ssvs::outresults(ofstream & out_stata,
     ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-4) + "_delta.res";
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
 
-    FC_hrandom_variance::outresults(out_stata,out_R,pathresults);
+    FC_hrandom_variance::outresults(out_stata,out_R,out_R2BayesX,pathresults);
 
-    FC_delta.outresults(out_stata,out_R,"");
-    FC_omega.outresults(out_stata,out_R,pathresults_omega);
+    FC_delta.outresults(out_stata,out_R,out_R2BayesX,"");
+    FC_omega.outresults(out_stata,out_R,out_R2BayesX,pathresults_omega);
 
     optionsp->out("    Results for the inclusion probabilities are stored in file\n");
     optionsp->out("    " +  pathresults_delta + "\n");

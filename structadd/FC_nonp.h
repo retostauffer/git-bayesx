@@ -185,7 +185,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // FUNCTION: outgraphs
   // TASK: writes batch files for STATA and R for visualizing results
 
-  void outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path);
+  void outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,const ST::string & path);
 
 
   double kernel_density(const double & x, const double & h);
@@ -196,13 +196,13 @@ class __EXPORT_TYPE FC_nonp  : public FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   // FUNCTION: outresults_derivative
   // TASK: writes estimated first derivatives
 
-  void outresults_derivative(ofstream & out_stata, ofstream & out_R,
+  void outresults_derivative(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                         const ST::string & pathresults);
 
   void outbasis_R(const ST::string & pathbasis);

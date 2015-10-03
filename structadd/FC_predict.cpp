@@ -218,14 +218,14 @@ void FC_predict::outoptions(void)
 
 
 
-void FC_predict::outresults_DIC(ofstream & out_stata, ofstream & out_R,
+void FC_predict::outresults_DIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                 const ST::string & pathresults)
   {
 
   ST::string pathresultsdic = pathresults.substr(0,pathresults.length()-4) + "_DIC.res";
   ofstream out(pathresultsdic.strtochar());
 
-  out_R << "DIC=" << pathresultsdic << ";" <<  endl;
+  out_R2BayesX << "DIC=" << pathresultsdic << ";" <<  endl;
 
   optionsp->out("    Results for the DIC are stored in file\n");
   optionsp->out("    " +  pathresultsdic + "\n");
@@ -428,18 +428,18 @@ void FC_predict::compute_MSE(const ST::string & pathresults)
   }
 
 
-void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_predict::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                             const ST::string & pathresults)
   {
 
   if (pathresults.isvalidfile() != 1)
     {
 
-    FC::outresults(out_stata,out_R,"");
+    FC::outresults(out_stata,out_R,out_R2BayesX,"");
 
     if (likep->maindistribution == true)
       {
-      FC_deviance.outresults(out_stata,out_R,"");
+      FC_deviance.outresults(out_stata,out_R,out_R2BayesX,"");
       }
 
     optionsp->out("  PREDICTED VALUES: \n",true);
@@ -449,7 +449,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     optionsp->out("    " +  pathresults + "\n");
     optionsp->out("\n");
 
-    out_R << "predict=" << pathresults << ";" <<  endl;
+    out_R2BayesX << "predict=" << pathresults << ";" <<  endl;
 
 
     if ((likep->maindistribution == true) && (MSE != noMSE))
@@ -649,7 +649,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R,
     if (likep->maindistribution == true)
       {
       outresults_deviance();
-      outresults_DIC(out_stata,out_R,pathresults);
+      outresults_DIC(out_stata,out_R,out_R2BayesX,pathresults);
       }
 
     }   // end if (pathresults.isvalidfile() != 1)

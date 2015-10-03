@@ -1089,7 +1089,7 @@ void FC_nonp::outoptions(void)
   }
 
 
-void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path)
+void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,const ST::string & path)
   {
 
   ST::string pathps = path.substr(0,path.length()-4) + "_statagraph";
@@ -1150,6 +1150,11 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
    out_stata << "sleep 1000" << endl << endl;
 
+   char hchar = '\\';
+   ST::string hstring = "/";
+   ST::string pathderivativeR = pathderivative.insert_string_char(hchar,hstring);
+
+   out_R << "plotnonp(\"" << pathderivativeR << "\", y=c(3,5,6,9,8))\n";
 
     }
 
@@ -1189,15 +1194,23 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
   out_stata << " using "
             << path << endl
             << "drop in 1" << endl;
-            if (designp->type == Mrf)
-              {
-              out_stata << "kdensity pmean" << endl
-              << "graph export " << pathps << ".eps, replace"
-                      << endl << endl;
-              }
-            else
-              {
-              out_stata << "graph twoway rarea pqu" << pu1_str << " pqu" << pu2_str
+
+  if (designp->type == Mrf)
+    {
+    out_stata << "kdensity pmean" << endl
+     << "graph export " << pathps << ".eps, replace"
+     << endl << endl;
+
+    char hchar = '\\';
+    ST::string hstring = "/";
+    ST::string pathR = path.insert_string_char(hchar,hstring);
+    out_R << "Replace pathtomap with the actual path to file containing the map in bnd format\n";
+    out_R << "m <- read.bnd(\"pathtothemap\")\n";
+    out_R << "drawmap(\"" << pathR << "\",map=m)\n";
+    }
+  else if(designp->type == Rw1 || designp->type == Rw2 || designp->type == Rw3)
+    {
+    out_stata << "graph twoway rarea pqu" << pu1_str << " pqu" << pu2_str
               << " " << xvar << ", bcolor(gs13) || rarea pqu" << po1_str
               << " pqu" << po2_str << " " << xvar << " , bcolor(gs10) || /*"
               << endl << " */ scatter pmean "
@@ -1207,7 +1220,11 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
               << "\") xlab(,grid) ylab(,grid) legend(off)"
               << endl << "graph export " << pathps << ".eps, replace"
                       << endl << endl;
-              }
+    char hchar = '\\';
+    ST::string hstring = "/";
+    ST::string pathR = path.insert_string_char(hchar,hstring);
+    out_R << "plotnonp(\"" << pathR << "\", y=c(3,5,6,9,8))\n";
+    }
 
    out_stata << "sleep 1000" << endl << endl;
 
@@ -1220,8 +1237,15 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
                 << "graph export " << pathps << "_linexluded.eps, replace"
                 << endl << endl;
 
+      char hchar = '\\';
+      ST::string hstring = "/";
+      ST::string pathR = path.insert_string_char(hchar,hstring);
+
+      out_R << "Replace pathtomap with the actual path to file containing the map in bnd format\n";
+      out_R << "m <- read.bnd(\"pathtothemap\")\n";
+      out_R << "drawmap(\"" << pathR << "\",map=m)\n";
       }
-    else
+    else if(designp->type == Rw1 || designp->type == Rw2 || designp->type == Rw3)
       {
 
       out_stata << "graph twoway rarea pqu" << pu1_str << "_d"
@@ -1236,6 +1260,10 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
                 << "\") xlab(,grid) ylab(,grid) legend(off)"
                 << endl << "graph export " << pathps << "_linexluded.eps, replace"
                       << endl << endl;
+    char hchar = '\\';
+    ST::string hstring = "/";
+    ST::string pathR = path.insert_string_char(hchar,hstring);
+      out_R << "plotnonp(\"" << pathR << "\", y=c(3,5,6,9,8))\n";
       }
 
     out_stata << "sleep 1000" << endl << endl;
@@ -1251,7 +1279,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
                 << "graph export " << pathps << "_mu.eps, replace"
                 << endl << endl;
       }
-    else
+    else if(designp->type != userdefined)
       {
       out_stata << "graph twoway rarea pqu" << pu1_str << "_mu"
                 << " pqu" << pu2_str << "_mu"
@@ -1274,14 +1302,14 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
 
 
 
-void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R,
+void FC_nonp::outresults_derivative(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                         const ST::string & pathresults)
   {
 
   if (pathresults.isvalidfile() != 1)
     {
 
-    derivativesample.outresults(out_stata,out_R,"");
+    derivativesample.outresults(out_stata,out_R,out_R2BayesX,"");
 
     optionsp->out("    Estimated first derivatives are stored in file\n");
     optionsp->out("    " +  pathresults + "\n");
@@ -1471,7 +1499,7 @@ double FC_nonp::compute_importancemeasure_discrete(bool absolute)
   }
 
 
-void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                         const ST::string & pathresults)
   {
 
@@ -1481,14 +1509,14 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
     if ((designp->intvar.rows()==designp->data.rows()) && (designp->datanames.size() == 1))
       designp->intvar = datamatrix(1,1,1);
 
-    outgraphs(out_stata,out_R,pathresults);
+    outgraphs(out_stata,out_R,out_R2BayesX,pathresults);
 
-    FC::outresults(out_stata,out_R,"");
+    FC::outresults(out_stata,out_R,out_R2BayesX,"");
     if (designp->position_lin != -1)
-      fsample.outresults(out_stata,out_R,"");
+      fsample.outresults(out_stata,out_R,out_R2BayesX,"");
 
     if (computemeaneffect==true)
-       meaneffect_sample.outresults(out_stata,out_R,"");
+       meaneffect_sample.outresults(out_stata,out_R,out_R2BayesX,"");
 
     ST::string pathresultsbeta = pathresults.substr(0,pathresults.length()-4) +
                                  "_param.res";
@@ -1501,21 +1529,21 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
 
     outresults_acceptance();
 
-    paramsample.outresults(out_stata,out_R,pathresultsbeta);
+    paramsample.outresults(out_stata,out_R,out_R2BayesX,pathresultsbeta);
 
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out_R << "family=" << likep->familyshort.strtochar() << ",";
-    out_R << "hlevel=" << likep->hlevel << ",";
-    out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
+    out_R2BayesX << "family=" << likep->familyshort.strtochar() << ",";
+    out_R2BayesX << "hlevel=" << likep->hlevel << ",";
+    out_R2BayesX << "equationtype=" << likep->equationtype.strtochar() << ",";
     if (designp->intvar.rows()==designp->data.rows())
-      out_R << "term=sx("  << designp->datanames[1].strtochar() << ",by=" << designp->datanames[0].strtochar() << "),";
+      out_R2BayesX << "term=sx("  << designp->datanames[1].strtochar() << ",by=" << designp->datanames[0].strtochar() << "),";
     else
-      out_R << "term=sx("  << designp->datanames[0].strtochar()  << "),";
-    out_R << "filetype=nonlinear,";
-    out_R << "pathsamples=" << paths.strtochar() << ",";
-    out_R << "pathbasis=" << pathbasis.strtochar() << ",";
+      out_R2BayesX << "term=sx("  << designp->datanames[0].strtochar()  << "),";
+    out_R2BayesX << "filetype=nonlinear,";
+    out_R2BayesX << "pathsamples=" << paths.strtochar() << ",";
+    out_R2BayesX << "pathbasis=" << pathbasis.strtochar() << ",";
 
     optionsp->out("    Estimated parameters are stored in file\n");
     optionsp->out("    " +  pathresultsbeta + "\n");
@@ -1606,7 +1634,7 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R,
                          pathresults.substr(0,pathresults.length()-4) +
                                  "_derivative.res";
 
-      outresults_derivative(out_stata,out_R,pathresultsderivative);
+      outresults_derivative(out_stata,out_R,out_R2BayesX,pathresultsderivative);
       }
 
 

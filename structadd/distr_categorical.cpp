@@ -988,14 +988,14 @@ void DISTR_binomialprobit::update(void)
   }
 
 
-void DISTR_binomialprobit::outresults(ofstream & out_stata, ofstream & out_R,
+void DISTR_binomialprobit::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                       ST::string pathresults)
   {
   if (utilities && pathresults.isvalidfile() != 1)
     {
     unsigned i;
 
-    FC_latentutilities.outresults(out_stata,out_R,"");
+    FC_latentutilities.outresults(out_stata,out_R,out_R2BayesX,"");
 
     ofstream out(pathresults.strtochar());
 

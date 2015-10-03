@@ -97,7 +97,7 @@ class __EXPORT_TYPE FC_hrandom_variance_vec_nmig
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
 

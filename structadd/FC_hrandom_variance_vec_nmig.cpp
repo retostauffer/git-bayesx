@@ -209,7 +209,7 @@ void FC_hrandom_variance_vec_nmig::update(void)
 
 
 void FC_hrandom_variance_vec_nmig::outresults(ofstream & out_stata,
-                                              ofstream & out_R,
+                                              ofstream & out_R, ofstream & out_R2BayesX,
                                               const ST::string & pathresults)
   {
 
@@ -221,11 +221,11 @@ void FC_hrandom_variance_vec_nmig::outresults(ofstream & out_stata,
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
     ST::string pathresults_Q = pathresults.substr(0,pathresults.length()-4) + "_Q.res";
 
-    FC_nonp_variance_vec::outresults(out_stata,out_R,pathresults);
+    FC_nonp_variance_vec::outresults(out_stata,out_R,out_R2BayesX,pathresults);
 
-    FC_delta.outresults(out_stata,out_R,"");
-    FC_omega.outresults(out_stata,out_R,pathresults_omega);
-    FC_Q.outresults(out_stata,out_R,pathresults_Q);
+    FC_delta.outresults(out_stata,out_R,out_R2BayesX,"");
+    FC_omega.outresults(out_stata,out_R,out_R2BayesX,pathresults_omega);
+    FC_Q.outresults(out_stata,out_R,out_R2BayesX,pathresults_Q);
 
     optionsp->out("    Results for the inclusion probabilities are stored in file\n");
     optionsp->out("    " +  pathresults_delta + "\n");

@@ -490,11 +490,11 @@ bool FC_nonp_variance::posteriormode(void)
 
 
 
-void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
+void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                                   const ST::string & pathresults)
   {
 
-  FC::outresults(out_stata,out_R,"");
+  FC::outresults(out_stata,out_R,out_R2BayesX,"");
 
   ST::string l1 = ST::doubletostring(optionsp->lower1,4);
   ST::string l2 = ST::doubletostring(optionsp->lower2,4);
@@ -570,7 +570,7 @@ void FC_nonp_variance::outresults(ofstream & out_stata,ofstream & out_R,
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out_R << "pathvarsample=" << paths << endl;
+    out_R2BayesX << "pathvarsample=" << paths << endl;
 //    out_R << "filetype=param; path=" << pathresults << ";" <<  endl;
 
     ofstream ou(pathresults.strtochar());
@@ -1050,7 +1050,7 @@ bool FC_nonp_variance_varselection::posteriormode(void)
   return true;
   }
 
-void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & out_R,
+void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                                   const ST::string & pathresults)
   {
 
@@ -1064,16 +1064,16 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
 
     if(singleomega == false)
       {
-      FC_omega.outresults(out_stata,out_R,pathresults_omega);
+      FC_omega.outresults(out_stata,out_R,out_R2BayesX,pathresults_omega);
       }
 
 
-    FC_nonp_variance::outresults(out_stata,out_R,pathresults);
+    FC_nonp_variance::outresults(out_stata,out_R,out_R2BayesX,pathresults);
 
     optionsp->out("    Inclusion probability:\n");
     optionsp->out("\n");
 
-    FC_delta.outresults(out_stata,out_R,pathresults_delta);
+    FC_delta.outresults(out_stata,out_R,out_R2BayesX,pathresults_delta);
     FC_delta.outresults_help(out_stata,out_R,pathresults_delta,datanames,0);
 
     optionsp->out("    Results for the inclusion probabilities are also stored in file\n");
@@ -1084,7 +1084,7 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
 	optionsp->out("    Rao-Blackwellised inclusion probability:\n");
     optionsp->out("\n");
 
-    FC_delta.outresults(out_stata,out_R,pathresults_delta_prob);
+    FC_delta.outresults(out_stata,out_R,out_R2BayesX,pathresults_delta_prob);
     FC_delta.outresults_help(out_stata,out_R,pathresults_delta_prob,datanames,1);
 
     optionsp->out("    Results for the Rao-Blackwellised inclusion probabilities are also stored in file\n");
@@ -1101,7 +1101,7 @@ void FC_nonp_variance_varselection::outresults(ofstream & out_stata,ofstream & o
 
     optionsp->out("    Variance hyperparameter psi2: \n");
     optionsp->out("\n");
-    FC_psi2.outresults(out_stata,out_R,"");
+    FC_psi2.outresults(out_stata,out_R,out_R2BayesX,"");
 //    optionsp->out("\n");
     FC_psi2.outresults_singleparam(out_stata,out_R,pathresults_psi2);
 //    optionsp->out("    psi2: " + ST::doubletostring(FC_psi2.betamean(0,0),6)  + "\n");
@@ -1277,13 +1277,13 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
     }
 
 
-  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R,
+  void FC_varselection_omega::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults)
    {
       ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
 //        optionsp->out("    Prior inclusion probability parameter omega: " + ST::doubletostring(FC::betamean(0,0),6)  + "\n");
 //        optionsp->out("\n");
-        FC::outresults(out_stata,out_R,pathresults_omega);
+        FC::outresults(out_stata,out_R,out_R2BayesX,pathresults_omega);
         FC::outresults_singleparam(out_stata,out_R,pathresults_omega);
 
         optionsp->out("    Results for the prior inclusion probability parameter omega are also stored in file\n");
@@ -1493,10 +1493,10 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void FC_tensor_omega::outresults(ofstream & out_stata, ofstream & out_R,
+  void FC_tensor_omega::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                const ST::string & pathresults)
     {
-    FC::outresults(out_stata, out_R, "");
+    FC::outresults(out_stata, out_R, out_R2BayesX, "");
     datamatrix omegafreq(nromegas,1,0.0);
     unsigned i;
     for(i=0; i<sampled_beta.rows(); i++)

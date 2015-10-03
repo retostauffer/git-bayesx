@@ -108,7 +108,7 @@ class __EXPORT_TYPE FC_hrandom_variance  : public FC_nonp_variance
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);
 
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                          const ST::string & pathresults);
 
 
@@ -179,7 +179,7 @@ class __EXPORT_TYPE FC_hrandom_variance_ssvs
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   // FUNCTION: outoptions

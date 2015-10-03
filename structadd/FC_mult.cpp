@@ -312,7 +312,7 @@ bool FC_mult::posteriormode(void)
   }
 
 
-void FC_mult::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string & path)
+void FC_mult::outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,const ST::string & path)
   {
 
   ST::string pathps = path.substr(0,path.length()-4) + "_statagraph";
@@ -362,28 +362,33 @@ void FC_mult::outgraphs(ofstream & out_stata, ofstream & out_R,const ST::string 
             << path << endl
             << "drop in 1" << endl;
 
+  char hchar = '\\';
+  ST::string hstring = "/";
+  ST::string pathR = path.insert_string_char(hchar,hstring);
+  out_R << "dat <- read.table(\"" << pathR << "\", header=TRUE)\n";
+
   out_stata << "scatter pmean " << xvar2 <<  endl << endl;
 
-
+  out_R << "with(dat, plot(" << xvar2 << ",pmean)\n";
   }
 
 
 
 
-void FC_mult::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_mult::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                          const ST::string & pathresults)
   {
   if ((RE_update==false) && (samplemult))
     {
-    FCmulteffect.outresults(out_stata,out_R,"");
+    FCmulteffect.outresults(out_stata,out_R,out_R2BayesX,"");
 
     if (compmeaneffect)
-      FCmulteffect_mean.outresults(out_stata,out_R,"");
+      FCmulteffect_mean.outresults(out_stata,out_R,out_R2BayesX,"");
 
     if (pathresults.isvalidfile() != 1)
       {
 
-      outgraphs(out_stata,out_R,pathresults);
+      outgraphs(out_stata,out_R,out_R2BayesX,pathresults);
 
       FCmulteffect.optionsp->out("    Results are stored in file\n");
       FCmulteffect.optionsp->out("    " +  pathresults + "\n");

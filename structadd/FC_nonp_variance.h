@@ -136,7 +136,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   // FUNCTION: reset
@@ -244,7 +244,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   // FUNCTION: reset
@@ -331,7 +331,7 @@ class __EXPORT_TYPE FC_varselection_omega  : public FC
 //  // FUNCTION: outresults
 //  // TASK: writes estimation results to logout or into a file
 //
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 //
 //  // FUNCTION: reset
@@ -417,7 +417,7 @@ class __EXPORT_TYPE FC_tensor_omega : public FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  void outresults(ofstream & out_stata, ofstream & out_R,
+  void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                const ST::string & pathresults);
 
   void read_options(vector<ST::string> & op,vector<ST::string> & vn);

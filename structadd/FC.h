@@ -269,7 +269,7 @@ class __EXPORT_TYPE FC
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 
-  virtual void outresults(ofstream & out_stata, ofstream & out_R,
+  virtual void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                const ST::string & pathresults);
 
   // FUNCTION: outresults_help

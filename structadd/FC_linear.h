@@ -153,7 +153,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   // FUNCTION: outresults
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   void compute_autocorr_all(const ST::string & path,
@@ -237,7 +237,7 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
 
   // FUNCTION: outresults
 
-  void outresults(ofstream & out_stata,ofstream & out_R,
+  void outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 
   // FUNCTION: reset

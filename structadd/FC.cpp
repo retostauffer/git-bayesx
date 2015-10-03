@@ -978,7 +978,7 @@ void FC::outresults_help(ofstream & out_stata, ofstream & out_R,
 
 
 
-void FC::outresults(ofstream & out_stata, ofstream & out_R,
+void FC::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                     const ST::string & pathresults)
   {
 

@@ -773,13 +773,13 @@ void FC_linear::outoptions(void)
 
 
 
-void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
+void FC_linear::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                            const ST::string & pathresults)
   {
   if ((datanames.size() > 0) && (rankXWX_ok==true))
     {
 
-    FC::outresults(out_stata,out_R,pathresults);
+    FC::outresults(out_stata,out_R,out_R2BayesX,pathresults);
     FC::outresults_help(out_stata,out_R,pathresults,datanames);
     FC::outresults_acceptance();
 
@@ -789,17 +789,17 @@ void FC_linear::outresults(ofstream & out_stata,ofstream & out_R,
     ST::string paths = pathresults.substr(0,pathresults.length()-4) +
                                  "_sample.raw";
 
-    out_R << "family=" << likep->familyshort.strtochar() << ",";
-    out_R << "hlevel=" << likep->hlevel << ",";
-    out_R << "equationtype=" << likep->equationtype.strtochar() << ",";
-    out_R << "term=";
+    out_R2BayesX << "family=" << likep->familyshort.strtochar() << ",";
+    out_R2BayesX << "hlevel=" << likep->hlevel << ",";
+    out_R2BayesX << "equationtype=" << likep->equationtype.strtochar() << ",";
+    out_R2BayesX << "term=";
     unsigned k;
     for (k=0;k<datanames.size();k++)
-      out_R << datanames[k].strtochar() << " ";
-    out_R  << ",";
-    out_R << "filetype=linear,";
-    out_R << "pathsamples=" << paths.strtochar() << ",";
-    out_R << "pathbasis=" << endl;
+      out_R2BayesX << datanames[k].strtochar() << " ";
+    out_R2BayesX  << ",";
+    out_R2BayesX << "filetype=linear,";
+    out_R2BayesX << "pathsamples=" << paths.strtochar() << ",";
+    out_R2BayesX << "pathbasis=" << endl;
 
     if (center==true)
       {
@@ -904,10 +904,10 @@ void FC_linear_pen::outoptions(void)
 //  optionsp->out("\n");
   }
 
-void FC_linear_pen::outresults(ofstream & out_stata,ofstream & out_R,
+void FC_linear_pen::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
                            const ST::string & pathresults)
   {
-  FC_linear::outresults(out_stata,out_R,pathresults);
+  FC_linear::outresults(out_stata,out_R,out_R2BayesX,pathresults);
   }
 
 

@@ -465,7 +465,7 @@ void FC_variance_pen_vector::get_samples(const ST::string & filename,ofstream & 
 // TASK: - write results for varianceparameters to output window and files
 //______________________________________________________________________________
 
-void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                              const ST::string & pathresults)
   {
 
@@ -473,7 +473,7 @@ void FC_variance_pen_vector::outresults(ofstream & out_stata, ofstream & out_R,
   vector<ST::string> vnames;
   vnames = Cp->datanames;
 
-  FC::outresults(out_stata,out_R,"");
+  FC::outresults(out_stata,out_R,out_R2BayesX,"");
   FC::outresults_help(out_stata,out_R,pathresults,vnames);
 
   optionsp->out("\n");
@@ -509,8 +509,9 @@ void FC_variance_pen_vector::outresults_shrinkage(const ST::string & pathresults
 
     ofstream out1;
     ofstream out2;
+    ofstream out3;
 
-    FC_shrinkage.outresults(out1,out2,"");
+    FC_shrinkage.outresults(out1,out2,out3,"");
     FC_shrinkage.outresults_help(out1,out2,shrinkage_pathresults,vnames);
 
     // unsigned nr;
@@ -837,14 +838,14 @@ void FC_variance_pen_vector_ssvs::get_samples(const ST::string & filename,ofstre
   }
 
 
-void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & out_R,
+void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                                              const ST::string & pathresults)
   {
 
    optionsp->out("\n");
    optionsp->out("    Variance parameters:\n");
 
-   FC::outresults(out_stata,out_R,"");
+   FC::outresults(out_stata,out_R,out_R2BayesX,"");
    FC::outresults_help(out_stata,out_R,pathresults,Cp->datanames);
 
 
@@ -859,7 +860,7 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-7)+"delta.res";
    ST::string pathresults_delta_prob = pathresults.substr(0,pathresults.length()-7)+"delta_prob.res";
 
-   delta.outresults(out_stata,out_R,"");
+   delta.outresults(out_stata,out_R,out_R2BayesX,"");
    delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
 
    optionsp->out("\n");
@@ -893,7 +894,7 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    optionsp->out("    Inclusion probability parameter omega:\n");
    optionsp->out("\n");
 
-   theta.outresults(out_stata,out_R,"");
+   theta.outresults(out_stata,out_R,out_R2BayesX,"");
    theta.outresults_singleparam(out_stata,out_R,pathresults_theta);
 
    optionsp->out("    Results for linear effects omega parameters are also stored in file\n");
