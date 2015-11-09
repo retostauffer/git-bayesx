@@ -512,7 +512,7 @@ namespace MCMC
         logold += likep->loglikelihood(k,k,inde,true);
 
  	      help = e(k,0);
-        help = help/drows;
+        help = help / ((double)drows);
 
         propold = proposalold(k,0);
         propold = propold*help;
@@ -593,7 +593,7 @@ namespace MCMC
       double propmean = (biasmean/biasvar + empbias/sigma12)/propvar;
 
       *biasp = propmean + sqrt(propvar)*rand_normal();
-      
+
       // and update
       fc_bias.update();
 

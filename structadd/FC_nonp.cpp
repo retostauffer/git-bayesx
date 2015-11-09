@@ -1076,9 +1076,9 @@ bool FC_nonp::posteriormode(void)
                                 beta,meaneffect_sample.beta,computemeaneffect,
                                 meaneffectconstant);
 
-    return FC::posteriormode();
     }
 
+  return FC::posteriormode();
   }
 
 void FC_nonp::outoptions(void)
