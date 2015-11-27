@@ -86,8 +86,8 @@ const unsigned & it,const unsigned & bu,
 #elif defined(JAVA_OUTPUT_WINDOW)
 adminb_p = abp;
 #else
-  if (logout->fail())
-    logout = &cout;
+//  if (logout->fail())
+//    logout = &cout;
 #endif
   }
 

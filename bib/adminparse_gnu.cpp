@@ -65,9 +65,9 @@ void admin_gnu::out(const ST::string & c,
   sh = sh.replaceallsigns('\n',' ');
   sh = sh+"\n";
 
-  std::cout << c << flush;
+  std::cout << c << endl;
   if (logfileopen)
-    logout << c << flush;
+    logout << c << endl;
   }
 
 
