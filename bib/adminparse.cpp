@@ -35,57 +35,111 @@ administrator::administrator(void)
   char disk = 'A'+getdisk();
   ST::string d(disk,1);
 
-  defaultpath = d + ":\\" + path;
+  #if defined(__BUILDING_LINUX)
+    defaultpath = d + ":/" + path;
+  #else
+    defaultpath = d + ":\\" + path;
+  #endif
 
   bool error = false;
 
-  if(DirectoryExists((defaultpath+"\\temp").strtochar()))
-    {
-    AnsiString temp = (defaultpath+"\\temp\\test").strtochar();
-    ForceDirectories(temp);
-    if(DirectoryExists(temp))
+  #if defined(__BUILDING_LINUX)
+    if(DirectoryExists((defaultpath+"/temp").strtochar()))
       {
-      rmdir((defaultpath+"\\temp\\test").strtochar());
+      AnsiString temp = (defaultpath+"/temp/test").strtochar();
+      ForceDirectories(temp);
+      if(DirectoryExists(temp))
+        {
+        rmdir((defaultpath+"/temp/test").strtochar());
+        }
+      else
+        {
+        outerror("ERROR: No permission to write to " + defaultpath + "/temp\n");
+        error = true;
+        }
       }
     else
       {
-      outerror("ERROR: No permission to write to " + defaultpath + "\\temp\n");
-      error = true;
+      AnsiString temp = (defaultpath+"/temp").strtochar();
+      ForceDirectories(temp);
+      if(!DirectoryExists(temp))
+        {
+        error = true;
+        }
       }
-    }
-  else
-    {
-    AnsiString temp = (defaultpath+"\\temp").strtochar();
-    ForceDirectories(temp);
-    if(!DirectoryExists(temp))
+  
+    if(DirectoryExists((defaultpath+"/output").strtochar()))
       {
-      error = true;
-      }
-    }
-
-  if(DirectoryExists((defaultpath+"\\output").strtochar()))
-    {
-    AnsiString output = (defaultpath+"\\output\\test").strtochar();
-    ForceDirectories(output);
-    if(DirectoryExists(output))
-      {
-      rmdir((defaultpath+"\\output\\test").strtochar());
+      AnsiString output = (defaultpath+"/output/test").strtochar();
+      ForceDirectories(output);
+      if(DirectoryExists(output))
+        {
+        rmdir((defaultpath+"/output/test").strtochar());
+        }
+      else
+        {
+        outerror("ERROR: No permission to write to " + defaultpath + "/output\n");
+        error = true;
+        }
       }
     else
       {
-      outerror("ERROR: No permission to write to " + defaultpath + "\\output\n");
-      error = true;
+      AnsiString output = (defaultpath+"/output").strtochar();
+      ForceDirectories(output);
+      if(!DirectoryExists(output))
+        {
+        error = true;
+        }
       }
-    }
-  else
-    {
-    AnsiString output = (defaultpath+"\\output").strtochar();
-    ForceDirectories(output);
-    if(!DirectoryExists(output))
+  #else
+    if(DirectoryExists((defaultpath+"\\temp").strtochar()))
       {
-      error = true;
+      AnsiString temp = (defaultpath+"\\temp\\test").strtochar();
+      ForceDirectories(temp);
+      if(DirectoryExists(temp))
+        {
+        rmdir((defaultpath+"\\temp\\test").strtochar());
+        }
+      else
+        {
+        outerror("ERROR: No permission to write to " + defaultpath + "\\temp\n");
+        error = true;
+        }
       }
-    }
+    else
+      {
+      AnsiString temp = (defaultpath+"\\temp").strtochar();
+      ForceDirectories(temp);
+      if(!DirectoryExists(temp))
+        {
+        error = true;
+        }
+      }
+  
+    if(DirectoryExists((defaultpath+"\\output").strtochar()))
+      {
+      AnsiString output = (defaultpath+"\\output\\test").strtochar();
+      ForceDirectories(output);
+      if(DirectoryExists(output))
+        {
+        rmdir((defaultpath+"\\output\\test").strtochar());
+        }
+      else
+        {
+        outerror("ERROR: No permission to write to " + defaultpath + "\\output\n");
+        error = true;
+        }
+      }
+    else
+      {
+      AnsiString output = (defaultpath+"\\output").strtochar();
+      ForceDirectories(output);
+      if(!DirectoryExists(output))
+        {
+        error = true;
+        }
+      }
+  #endif
 
   if(error==true)
     {
