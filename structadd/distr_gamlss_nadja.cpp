@@ -7510,7 +7510,7 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = ((*response)-mu)/(*worktransformlin[0]);
 
-    *workingweight = 1/(*worktransformlin[0]);
+    *workingweight = (*weightp)/(*worktransformlin[0]);
 
 
     if(optionsp->copula)
@@ -7580,10 +7580,11 @@ void DISTR_normal_mu::update(void)
 
   worktransformlinp = distrp[0]->helpmat1.getV();
   workweight = workingweight.getV();
+  weightp = weight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
     {
-        *workweight = 1/(*worktransformlinp);
+        *workweight = (*weightp)/(*worktransformlinp);
     }
 
   }
@@ -7608,6 +7609,29 @@ void DISTR_normal_mu::update_end(void)
     {
     *pmu = (*worklin);
 //    double t = 0;
+    }
+
+  }
+
+void DISTR_normal_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  weightp = weight.getV();
+
+  }
+
+
+
+void DISTR_normal_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    {
+    weightp++;
     }
 
   }

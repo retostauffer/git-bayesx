@@ -2305,6 +2305,11 @@ class __EXPORT_TYPE DISTR_normal_mu : public DISTR_gamlss
 
   public:
 
+  double * weightp;
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
   void check_errors(void);
 
    // DEFAULT CONSTRUCTOR

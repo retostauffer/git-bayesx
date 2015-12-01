@@ -437,7 +437,10 @@ void FC_linear::compute_XWX(datamatrix & r)
           workingweightp = likep->workingweight.getV();
 
           for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
+            {
+//            cout << *workingweightp << endl;
             help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
+            }
 
           r(i,j) = help;
           if (i!=j)
@@ -628,11 +631,14 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
     {
     for (i=0;i<likep->nrobs;i++,workingweightp++,workingresponsep++,
                                 residualp++,linpredp++,predictorp++)
+      {
+//      cout << *workingweightp << endl;
       if (*workingweightp==0)
         *residualp=0;
       else
         *residualp = *workingweightp * ((*workingresponsep)  - (*predictorp)
                      + (*linpredp));
+      }
     }
   }
 
