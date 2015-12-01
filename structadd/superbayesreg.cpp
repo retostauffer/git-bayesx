@@ -5597,6 +5597,15 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+
+    if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        distr_binomialprobit_copulas[coi].update();
+        }
+      }
     //cout << "size predict mults: " << predict_mult_distrs.size() << endl;
     predict_mult_distrs.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
     }
@@ -5776,6 +5785,15 @@ bool superbayesreg::create_distribution(void)
           outerror("ERROR: Two equations for marginal distributions required");
           return true;
           }
+        }
+      }
+
+    if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        distr_binomialprobit_copulas[coi].update();
         }
       }
     //cout << "size predict mults: " << predict_mult_distrs.size() << endl;
