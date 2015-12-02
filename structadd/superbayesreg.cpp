@@ -245,6 +245,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
   families.push_back("za_binomial_logit");
+	families.push_back("za_binomial_cloglog");
   families.push_back("binomial_probit");
   families.push_back("binomial_svm");
   families.push_back("binomial_cloglog");
@@ -4379,10 +4380,20 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: beta mu -------------------------------
 
 //----------------------------- cloglog -------------------------------
-  else if (family.getvalue() == "binomial_cloglog") //&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
+  else if (family.getvalue() == "binomial_cloglog" || family.getvalue() == "za_binomial_cloglog")//&& equationtype.getvalue()=="mean"|| (equationtype.getvalue()=="meanservant"))
     {
-
-    mainequation=true;
+    datamatrix dnew = D.getCol(0);
+    if(family.getvalue() == "binomial_cloglog")
+      mainequation=true;
+    else
+      {
+      mainequation=false;
+      for(unsigned i=0; i<dnew.rows(); i++)
+        {
+        if(dnew(i,0)>0)
+          dnew(i,0) = 1;
+        }
+      }
 
     computemodeforstartingvalues = true;
 
