@@ -8265,7 +8265,7 @@ DISTR_cloglog::DISTR_cloglog(GENERAL_OPTIONS * o,
   family = "Binomial Distribution - cloglog";
     outpredictor = true;
   outexpectation = true;
-  predictor_name = "mu";
+  predictor_name = "pi";
   linpredminlimit=-7.5;
   linpredmaxlimit=2.2;
   check_errors();
@@ -8460,7 +8460,7 @@ void DISTR_cloglog::compute_mu_mult(vector<double *> linpred,vector<double *> re
 void DISTR_cloglog::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu):cloglog\n");
+  optionsp->out("  Link function (pi):cloglog\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }

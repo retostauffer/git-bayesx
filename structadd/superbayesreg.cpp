@@ -4397,10 +4397,10 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-    distr_cloglogs.push_back(DISTR_cloglog(&generaloptions,D.getCol(0),w));
+    distr_cloglogs.push_back(DISTR_cloglog(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_cloglogs[distr_cloglogs.size()-1];
-    equations[modnr].pathd = "";
+    equations[modnr].pathd = "pi";
 
     predict_mult_distrs.push_back(&distr_cloglogs[distr_cloglogs.size()-1]);
 
