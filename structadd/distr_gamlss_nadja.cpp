@@ -5766,7 +5766,10 @@ void DISTR_lognormal2_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = (log(*response)-mu)/(*worktransformlin[0]);
 
-    *workingweight = 1/(*worktransformlin[0]);
+    if(updateIWLS)
+      *workingweight = 1/(*worktransformlin[0]);
+    else
+      *workingweight = (*weightp)/(*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -5811,9 +5814,20 @@ void DISTR_lognormal2_mu::update(void)
   worktransformlinp = distrp[0]->helpmat1.getV();
   workweight = workingweight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+  if(updateIWLS)
     {
-        *workweight = 1/(*worktransformlinp);
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+      {
+      *workweight = 1/(*worktransformlinp);
+      }
+    }
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/(*worktransformlinp);
+      }
     }
 
   }
@@ -5841,6 +5855,26 @@ void DISTR_lognormal2_mu::update_end(void)
 
   }
 
+void DISTR_lognormal2_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  weightp = weight.getV();
+
+  }
+
+void DISTR_lognormal2_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    {
+    weightp++;
+    }
+
+  }
 
 
 //------------------------------------------------------------------------------
@@ -6180,15 +6214,16 @@ void DISTR_lognormal_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = (log(*response)-mu)/(*worktransformlin[0]);
 
-    *workingweight = 1/(*worktransformlin[0]);
+    if(updateIWLS)
+      *workingweight = 1/(*worktransformlin[0]);
+    else
+      *workingweight = (*weightp)/(*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
-
-        like += -pow((log((*response))-mu),2)/(2*(*worktransformlin[0]));
-
+      like += -pow((log((*response))-mu),2)/(2*(*worktransformlin[0]));
       }
 
 
@@ -6225,11 +6260,21 @@ void DISTR_lognormal_mu::update(void)
   worktransformlinp = distrp[0]->helpmat1.getV();
   workweight = workingweight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+  if(updateIWLS)
     {
-        *workweight = 1/(*worktransformlinp);
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+      *workweight = 1/(*worktransformlinp);
+      }
     }
-
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/(*worktransformlinp);
+      }
+    }
   }
 
 void DISTR_lognormal_mu::update_end(void)
@@ -6255,6 +6300,28 @@ void DISTR_lognormal_mu::update_end(void)
 
   }
 
+void DISTR_lognormal_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  weightp = weight.getV();
+
+  }
+
+
+
+void DISTR_lognormal_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    {
+    weightp++;
+    }
+
+  }
 
 //------------------------------------------------------------------------------
 //------------------------- CLASS: DISTR_truncnormal2_sigma --------------------
@@ -6970,7 +7037,10 @@ void DISTR_normal2_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = ((*response)-mu)/(*worktransformlin[0]);
 
-    *workingweight = 1/(*worktransformlin[0]);
+    if(updateIWLS)
+      *workingweight = 1/(*worktransformlin[0]);
+    else
+      *workingweight = (*weightp)/(*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -7015,9 +7085,20 @@ void DISTR_normal2_mu::update(void)
   worktransformlinp = distrp[0]->helpmat1.getV();
   workweight = workingweight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+  if(updateIWLS)
     {
-        *workweight = 1/(*worktransformlinp);
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+      *workweight = 1/(*worktransformlinp);
+      }
+    }
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/(*worktransformlinp);
+      }
     }
 
   }
@@ -7045,6 +7126,26 @@ void DISTR_normal2_mu::update_end(void)
 
   }
 
+void DISTR_normal2_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  weightp = weight.getV();
+
+  }
+
+void DISTR_normal2_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    {
+    weightp++;
+    }
+
+  }
 
 
 
@@ -7510,7 +7611,10 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = ((*response)-mu)/(*worktransformlin[0]);
 
-    *workingweight = (*weightp)/(*worktransformlin[0]);
+    if(updateIWLS)
+      *workingweight = 1/(*worktransformlin[0]);
+    else
+      *workingweight = (*weightp)/(*worktransformlin[0]);
 
 
     if(optionsp->copula)
@@ -7580,15 +7684,23 @@ void DISTR_normal_mu::update(void)
 
   worktransformlinp = distrp[0]->helpmat1.getV();
   workweight = workingweight.getV();
-  weightp = weight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
+  if(updateIWLS)
     {
-        *workweight = (*weightp)/(*worktransformlinp);
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+      *workweight = 1/(*worktransformlinp);
+      }
     }
-
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/(*worktransformlinp);
+      }
+    }
   }
-
 
 void DISTR_normal_mu::update_end(void)
   {
@@ -16251,6 +16363,7 @@ void DISTR_bivnormal_mufz::set_worklin(void)
   DISTR_gamlss::set_worklin();
 
   response2p = response2.getV();
+  weightp = weight.getV();
 
   }
 
@@ -16264,6 +16377,7 @@ void DISTR_bivnormal_mufz::modify_worklin(void)
   if (counter<nrobs)
     {
     response2p++;
+    weightp++;
     }
 
   }
@@ -16334,22 +16448,23 @@ void DISTR_bivnormal_mufz::compute_iwls_wweightschange_weightsone(
 
     double mu = (*linpred);
     double rho2 = pow((*worktransformlin[0]),2);
-   double oneminusrho2 = 1- rho2;
+    double oneminusrho2 = 1- rho2;
 
 
     double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
                                  ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
-    *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
+    if(updateIWLS)
+      *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
+    else
+      *workingweight = (*weightp)/(oneminusrho2*pow((*worktransformlin[2]),2));
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
-
-        like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
+      like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2)/pow((*worktransformlin[2]),2) -
                                  2*(*worktransformlin[0])*(((*response)-mu)/((*worktransformlin[2])))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
-
       }
 
 
@@ -16387,11 +16502,21 @@ void DISTR_bivnormal_mufz::update(void)
   worktransformlins = distrp[2]->helpmat1.getV();
   workweight = workingweight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++)
+  if(updateIWLS)
     {
-        *workweight = 1/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+    for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++)
+      {
+      *workweight = 1/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+      }
     }
-
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+      }
+    }
   }
 
 void DISTR_bivnormal_mufz::update_end(void)
@@ -16985,6 +17110,7 @@ void DISTR_bivnormal_mu::set_worklin(void)
   DISTR_gamlss::set_worklin();
 
   response2p = response2.getV();
+  weightp = weight.getV();
 
   }
 
@@ -16998,6 +17124,7 @@ void DISTR_bivnormal_mu::modify_worklin(void)
   if (counter<nrobs)
     {
     response2p++;
+    weightp++;
     }
 
   }
@@ -17074,7 +17201,10 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
     double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
                                  ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
-    *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
+    if(updateIWLS)
+      *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
+    else
+      *workingweight = (*weightp)/(oneminusrho2*pow((*worktransformlin[2]),2));
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -17121,11 +17251,21 @@ void DISTR_bivnormal_mu::update(void)
   worktransformlins = distrp[2]->helpmat1.getV();
   workweight = workingweight.getV();
 
-  for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++)
+  if(updateIWLS)
     {
-        *workweight = 1/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+    for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++)
+      {
+      *workweight = 1/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+      }
     }
-
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinr++,worktransformlins++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
+      }
+    }
   }
 
 void DISTR_bivnormal_mu::update_end(void)
@@ -17153,7 +17293,7 @@ void DISTR_bivnormal_mu::update_end(void)
 
 
 //------------------------------------------------------------------------------
-//------------------------- CLASS: DISTR_bivprobit_rho -------------------------
+//------------------------- CLASS: #_rho -------------------------
 //------------------------------------------------------------------------------
 
 
@@ -17505,7 +17645,8 @@ void DISTR_bivprobit_mu::set_worklin(void)
 
   DISTR_gamlss::set_worklin();
 
-    response2p = workingresponse2p->getV();
+  response2p = workingresponse2p->getV();
+  weightp = weight.getV();
 
   }
 
@@ -17517,9 +17658,10 @@ void DISTR_bivprobit_mu::modify_worklin(void)
   DISTR_gamlss::modify_worklin();
 
   if (counter<nrobs)
+    {
     response2p++;
-
-
+    weightp++;
+    }
 
   }
 
@@ -17636,14 +17778,17 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
 
     double mu = (*linpred);
     double rho2 = pow((*worktransformlin[0]),2);
-   double oneminusrho2 = 1- rho2;
+    double oneminusrho2 = 1- rho2;
  // cout << "mu equation y1: " << *response << endl;
  // cout << "mu equation y2: " << *response2p << endl;
 
     double nu = (1/(oneminusrho2))*( (((*response))-mu) -
                                  ((*worktransformlin[0]))*(((*response2p)-(*worktransformlin[1]))) );
 
-    *workingweight = 1/(oneminusrho2);
+    if(updateIWLS)
+      *workingweight = 1/(oneminusrho2);
+    else
+      *workingweight = (*weightp)/(oneminusrho2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 

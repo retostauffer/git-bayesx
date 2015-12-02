@@ -1768,8 +1768,12 @@ class __EXPORT_TYPE DISTR_lognormal2_mu : public DISTR_gamlss
 
   protected:
 
-
   public:
+
+  double * weightp;
+
+  void set_worklin(void);
+  void modify_worklin(void);
 
   void check_errors(void);
 
@@ -1903,8 +1907,12 @@ class __EXPORT_TYPE DISTR_lognormal_mu : public DISTR_gamlss
 
   protected:
 
-
   public:
+
+  double * weightp;
+
+  void set_worklin(void);
+  void modify_worklin(void);
 
   void check_errors(void);
 
@@ -2167,6 +2175,11 @@ class __EXPORT_TYPE DISTR_normal2_mu : public DISTR_gamlss
 
 
   public:
+
+  double * weightp;
+
+  void set_worklin(void);
+  void modify_worklin(void);
 
   void check_errors(void);
 
@@ -4875,6 +4888,8 @@ class __EXPORT_TYPE DISTR_bivnormal_mufz : public DISTR_gamlss
 
   public:
 
+  double * weightp;
+
   datamatrix response2;
   double * response2p;
 
@@ -5014,6 +5029,8 @@ class __EXPORT_TYPE DISTR_bivnormal_mu : public DISTR_gamlss
 
 
   public:
+
+  double * weightp;
 
   datamatrix response2;
   double * response2p;
@@ -5161,6 +5178,8 @@ class __EXPORT_TYPE DISTR_bivprobit_mu : public DISTR_gamlss
   protected:
 
   unsigned pos;
+
+  double * weightp;
 
   void set_worklin(void);
   void modify_worklin(void);
