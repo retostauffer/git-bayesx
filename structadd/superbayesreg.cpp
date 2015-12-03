@@ -4400,7 +4400,7 @@ bool superbayesreg::create_distribution(void)
     distr_cloglogs.push_back(DISTR_cloglog(&generaloptions,dnew,w));
 
     equations[modnr].distrp = &distr_cloglogs[distr_cloglogs.size()-1];
-    equations[modnr].pathd = "pi";
+    equations[modnr].pathd = "";
     equations[modnr].equationtype = "pi";
 
     predict_mult_distrs.push_back(&distr_cloglogs[distr_cloglogs.size()-1]);
