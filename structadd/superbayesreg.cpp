@@ -245,7 +245,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussian_mult");
   families.push_back("binomial_logit");
   families.push_back("za_binomial_logit");
-	families.push_back("za_binomial_cloglog");
+  families.push_back("za_binomial_cloglog");
   families.push_back("binomial_probit");
   families.push_back("binomial_svm");
   families.push_back("binomial_cloglog");
@@ -4401,6 +4401,7 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_cloglogs[distr_cloglogs.size()-1];
     equations[modnr].pathd = "pi";
+    equations[modnr].equationtype = "pi";
 
     predict_mult_distrs.push_back(&distr_cloglogs[distr_cloglogs.size()-1]);
 
