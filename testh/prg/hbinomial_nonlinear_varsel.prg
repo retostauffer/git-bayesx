@@ -19,11 +19,13 @@ mcmcreg b
 logopen using c:\bayesx\trunk\testh\results\binomial_nonlinear_varsel.log
 
 
-b.outfile = c:\bayesx\trunk\testh\results\binomial_nonlinear
-b.hregress ybin = const + x1 + x1(pspline,centermethod=nullspace) + x2 + x2(pspline,centermethod=nullspace), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
+%b.outfile = c:\bayesx\trunk\testh\results\binomial_nonlinear
+%b.hregress ybin = const + x1 + x1(pspline,centermethod=nullspace) + x2 + x2(pspline,centermethod=nullspace), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
 
 b.outfile = c:\bayesx\trunk\testh\results\binomial_nonlinear_varsel
-b.hregress ybin = const + x1 + x1(pspline,centermethod=nullspace,prior=ssvs) + x2 + x2(pspline,centermethod=nullspace,prior=ssvs), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
+b.hregress ybin = const + x1(ssvs) + x1(pspline,centermethod=nullspace,prior=ssvs) + x2(ssvs) + x2(pspline,centermethod=nullspace,prior=ssvs), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
+%b.hregress ybin = const + x1(ssvs) + x2(ssvs), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
+%b.hregress ybin = const + x1 + x2, iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
 
 %b.hregress ybin = const + x2 + x2(pspline,centermethod=nullspace,prior=ssvs), iterations=12000 step=10 burnin=2000 family=binomial_logit predict=light setseed=1234 using d
 
