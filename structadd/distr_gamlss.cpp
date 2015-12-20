@@ -1200,12 +1200,19 @@ double DISTR_gamlss::compute_iwls(double * response, double * linpred,
     compute_iwls_wweightschange_weightsone(response,linpred, workingweight,
                                            workingresponse, l,
                                            like);
-     *workingweight *= (*weight);
+    *workingweight *= (*weight);
 
-     return (*weight)*l;
+    return (*weight)*l;
 
     }
 
+/*    double l=0;
+    compute_iwls_wweightschange_weightsone(response,linpred, workingweight,
+                                           workingresponse, l,
+                                           like);
+    *workingweight *= (*weight);
+
+    return (*weight)*l;*/
   }
 
 

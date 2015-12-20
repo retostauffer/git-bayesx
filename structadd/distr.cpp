@@ -962,7 +962,6 @@ void DISTR::compute_iwls(const bool & current,datamatrix & likelihood,
     for (i=0;i<nrobs;i++,workresponse++,
           work_workingresponse++,worklin++,workind++)
       {
-
       compute_iwls_wweightsnochange_one(workresponse,worklin,
                                         work_workingresponse,
                                         likelihood(*workind,0),true);

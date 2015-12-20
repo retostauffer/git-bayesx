@@ -84,7 +84,6 @@ void DISTR_copula_basis::set_worklin(void)
   {
   response1p = response1.getV();
   response2p = response2.getV();
-  weightp = weight.getV();
   }
 
 void DISTR_copula_basis::modify_worklin(void)
@@ -101,7 +100,6 @@ void DISTR_copula_basis::modify_worklin(void)
     {
     response1p++;
     response2p++;
-    weightp++;
     }
   }
 
@@ -161,7 +159,6 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
 
     response1p = response1.getV();
     response2p = response2.getV();
-    weightp = weight.getV();
     }
   double Fa;
   vector<double> res;
@@ -220,7 +217,6 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
   linpredp++;
   response1p++;
   response2p++;
-  weightp++;
   if (counter<nrobs-1)
     counter++;
   else
@@ -245,7 +241,6 @@ double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, in
 
     response1p = response1.getV();
     response2p = response2.getV();
-    weightp = weight.getV();
     }
   double Fa;
   if(copulapos==0)
@@ -257,7 +252,6 @@ double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, in
   linpredp++;
   response1p++;
   response2p++;
-  weightp++;
   if (counter<nrobs-1)
     counter++;
   else
@@ -427,6 +421,10 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
     {
     set_worklin();
     }
+
+//  if(counter>=997)
+//    cout << "counter: " << counter << "\n";
+
   double hilfs = pow(1 + pow((*linpred), 2), 0.5);
   double rho = (*linpred) / hilfs;
   if (*linpred <= -100)
@@ -494,71 +492,50 @@ vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * 
 
   vector<double> res;
 
-  if(*weightp==0)
-    {
-    res.push_back(0.0);
-    res.push_back(0.0);
-    }
-  else
-    {
-    double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
-    double phiinvu = randnumbers::invPhi2(F1);
-    double phiinvv = randnumbers::invPhi2(F2);
+  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
+  double phiinvu = randnumbers::invPhi2(F1);
+  double phiinvv = randnumbers::invPhi2(F2);
 
     //first and second derivative of Phi^-1
-    double dphiinvu = sqrt(2*PI)/exp(-0.5*phiinvu*phiinvu);
-    double ddphiinvu = 2*PI*phiinvu/pow(exp(-0.5*phiinvu*phiinvu),2);
+  double dphiinvu = sqrt(2*PI)/exp(-0.5*phiinvu*phiinvu);
+  double ddphiinvu = 2*PI*phiinvu/pow(exp(-0.5*phiinvu*phiinvu),2);
 
     // first derivative
-    double dlc = rho*dphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho);
+  double dlc = rho*dphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho);
     // second derivative
-    double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);
+  double ddlc = rho*ddphiinvu*(phiinvv-rho*phiinvu)/(1-rho*rho) - rho*rho*dphiinvu*dphiinvu/(1-rho*rho);
     // return first and second derivative.
-    res.push_back(dlc);
-    res.push_back(ddlc);
-    }
+  res.push_back(dlc);
+  res.push_back(ddlc);
+
   return res;
   }
 
 
 double DISTR_gausscopula::logc(double & F1, double & F2, double * linpred)
   {
-  double lc = 0.0;
-  if(*weightp==0)
-    {
-    }
-  else
-    {
-    double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
-    double phiinvu = randnumbers::invPhi2(F1);
-    double phiinvv = randnumbers::invPhi2(F2);
-    lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);
-    }
+  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
+  double phiinvu = randnumbers::invPhi2(F1);
+  double phiinvv = randnumbers::invPhi2(F2);
+  double lc = -0.5*log(1-rho*rho) + rho*phiinvu*phiinvv/(1-rho*rho)-0.5*rho*rho*(phiinvu*phiinvu+phiinvv*phiinvv)/(1-rho*rho);
   return lc;
   }
 
 double DISTR_gausscopula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
-  double res = 0.0;
-  if(*weightp==0)
-    {
-    res = randnumbers::invPhi2(x);
-    }
+  double res = randnumbers::invPhi2(x);
+  double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
+  double help2 = sqrt(1-rho*rho);
+  double help3 = randnumbers::invPhi2(F2);
+
+  double help = randnumbers::Phi2( (-linpred_F - rho*help3) / (help2));
+
+  double xstar = x;
+  if(y>0)
+    xstar = x*(1-help) + help;
   else
-    {
-    double rho = (*linpred)/sqrt(1+(*linpred)*(*linpred));
-    double help2 = sqrt(1-rho*rho);
-    double help3 = randnumbers::invPhi2(F2);
-
-    double help = randnumbers::Phi2( (-linpred_F - rho*help3) / (help2));
-
-    double xstar = x;
-    if(y>0)
-      xstar = x*(1-help) + help;
-    else
-      xstar = x*help;
-    res = randnumbers::invPhi2(xstar)*help2 + rho*help3 + linpred_F;
-    }
+    xstar = x*help;
+  res = randnumbers::invPhi2(xstar)*help2 + rho*help3 + linpred_F;
   return res;
   }
 
