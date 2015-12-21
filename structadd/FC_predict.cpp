@@ -89,6 +89,15 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
   if (likep->maindistribution == true)
     {
     FC_deviance = FC(o,"",1,1,fpd);
+
+    FC_p = FC(o,"",lp->nrobs,1,"");
+    FC_p.nosamples = true;
+
+    FC_logp = FC(o,"",lp->nrobs,1,"");
+    FC_logp.nosamples = true;
+
+    FC_logp2 = FC(o,"",lp->nrobs,1,"");
+    FC_logp2.nosamples = true;
     }
 
   }
@@ -103,8 +112,12 @@ FC_predict::FC_predict(const FC_predict & m)
   designmatrix = m.designmatrix;
   varnames = m.varnames;
   FC_deviance = m.FC_deviance;
+  FC_p = m.FC_p;
+  FC_logp = m.FC_logp;
+  FC_logp2 = m.FC_logp2;
   deviance = m.deviance;
   deviancesat = m.deviancesat;
+  lpd = m.lpd;
   }
 
 
@@ -119,8 +132,12 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
   designmatrix = m.designmatrix;
   varnames = m.varnames;
   FC_deviance = m.FC_deviance;
+  FC_p = m.FC_p;
+  FC_logp = m.FC_logp;
+  FC_logp2 = m.FC_logp2;
   deviance = m.deviance;
   deviancesat = m.deviancesat;
+  lpd = m.lpd;
   return *this;
   }
 
@@ -146,6 +163,16 @@ void  FC_predict::update(void)
     FC_deviance.beta(0,0) = deviance;
     FC_deviance.acceptance++;
     FC_deviance.update();
+
+    FC_p.acceptance++;
+    FC_p.update();
+
+    FC_logp.acceptance++;
+    FC_logp.update();
+
+    FC_logp2.acceptance++;
+    FC_logp2.update();
+
     }
 
   }
@@ -166,11 +193,14 @@ void FC_predict::get_predictor(void)
   deviance=0;
   double deviancehelp;
 
+
   double * workresponse = likep->response.getV();
   double * workweight = likep->weight.getV();
   double muhelp;
   double paramhelp;
   double scalehelp=likep->get_scale();
+
+  double logp;
 
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
@@ -186,6 +216,11 @@ void FC_predict::get_predictor(void)
       &scalehelp);
 
       deviance+=deviancehelp;
+
+      logp = -0.5*deviancehelp;
+      FC_logp.beta(i,0) = logp;
+      FC_p.beta(i,0) = exp(logp);
+      FC_logp2.beta(i,0) = pow(logp,2);
 
       }
 
@@ -288,6 +323,65 @@ void FC_predict::outresults_DIC(ofstream & out_stata, ofstream & out_R, ofstream
   optionsp->out("\n");
 
   }
+
+
+
+void FC_predict::outresults_WAIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
+                                const ST::string & pathresults)
+  {
+
+  ST::string pathresultswaic = pathresults.substr(0,pathresults.length()-4) + "_WAIC.res";
+  ofstream out(pathresultswaic.strtochar());
+
+  out_R2BayesX << "WAIC=" << pathresultswaic << ";" <<  endl;
+
+  optionsp->out("    Results for the WAIC are stored in file\n");
+  optionsp->out("    " +  pathresultswaic + "\n");
+  optionsp->out("\n");
+
+  double l_pd=0;
+  double p_d=0;
+
+  unsigned i;
+  for (i=0;i<likep->nrobs;i++)
+    {
+
+
+    }
+
+
+
+
+  unsigned d;
+  if (l_pd > 1000000000)
+    d = 14;
+  else if (l_pd > 1000000)
+    d = 11;
+  else
+    d = 8;
+
+//  out << "deviance   pd dic" << endl;
+
+
+  optionsp->out("  ESTIMATION RESULTS FOR THE WAIC: \n",true);
+  optionsp->out("\n");
+
+  optionsp->out("    p_d:           " + ST::doubletostring(p_d,d) + "\n");
+  out << p_d << "   ";
+
+  optionsp->out("    l_pd:                         " +
+  ST::doubletostring(l_pd,d) + "\n");
+  out << l_pd << "   ";
+
+  optionsp->out("    WAIC:                        " +
+  ST::doubletostring(-2*(l_pd-p_d),d) + "\n");
+  optionsp->out("\n");
+  out << (-2*(l_pd-p_d)) << "   " << endl;
+
+  optionsp->out("\n");
+
+  }
+
 
 
 void FC_predict::outresults_deviance(void)

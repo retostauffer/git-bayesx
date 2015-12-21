@@ -54,6 +54,9 @@ class __EXPORT_TYPE FC_predict   : public FC
   protected:
 
   FC FC_deviance;
+  FC FC_p;
+  FC FC_logp;
+  FC FC_logp2;
 
   DISTR * likep;
   datamatrix designmatrix;
@@ -63,6 +66,7 @@ class __EXPORT_TYPE FC_predict   : public FC
   double deviance;
   double deviancesat;
 
+  double lpd;
 
   void get_predictor(void);
 
@@ -109,6 +113,10 @@ class __EXPORT_TYPE FC_predict   : public FC
   void outresults_deviance(void);
   void outresults_DIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                       const ST::string & pathresults);
+
+  void outresults_WAIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
+                      const ST::string & pathresults);
+
   void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                   const ST::string & pathresults);
 

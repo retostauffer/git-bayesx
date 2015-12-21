@@ -206,6 +206,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("kriging");
   tnames.push_back("geokriging");
   tnames.push_back("hrandom_pspline");
+  tnames.push_back("hrandom_mrf");
   tnames.push_back("hrandomexp_pspline");
   tnames.push_back("ridge");
   tnames.push_back("lasso");
@@ -8962,6 +8963,81 @@ bool  superbayesreg::create_random_pspline(unsigned i)
   }
 
 
+
+bool  superbayesreg::create_random_mrf(unsigned i)
+  {
+
+  unsigned modnr = equations.size()-1;
+
+  terms[i].options[12] = "true";
+  bool multexp = false;
+
+  create_mrf(i);
+  FC_nonp * fcnp_mrf = &FC_nonps[FC_nonps.size()-1];
+  MCMC::DESIGN * dp_mrf = &design_mrfs[design_mrfs.size()-1];
+  dp_mrf->changingdesign=true;
+  datamatrix effect(D.rows(),1,1);
+  dp_mrf->set_intvar(effect,0);
+  dp_mrf->meaneffectintvar = 1;
+
+  FC_mults.push_back(FC_mult(true,multexp));
+  equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],"");
+
+  term helpt = terms[i];
+  terms[i].varnames.erase(terms[i].varnames.begin(),terms[i].varnames.end());
+  terms[i].varnames.push_back(helpt.varnames[1]);
+  terms[i].varnames.push_back(helpt.varnames[0]);
+
+  terms[i].options[12] = "true";
+  bool error=false;
+  error = create_hrandom(i);
+  if (error==true)
+    return true;
+  FC_nonp * fcnp_hrandom = &FC_hrandoms[FC_hrandoms.size()-1];
+  MCMC::DESIGN * dp_hrandom = &design_hrandoms[design_hrandoms.size()-1];
+  dp_hrandom->changingdesign=true;
+  dp_hrandom->meaneffectintvar=0;
+  dp_hrandom->center=true;
+
+  FC_mults.push_back(FC_mult(false,multexp));
+
+  FC_mults[FC_mults.size()-2].set_effectp(dp_mrf,fcnp_mrf);
+  FC_mults[FC_mults.size()-2].set_intp(dp_hrandom,fcnp_hrandom);
+
+  FC_mults[FC_mults.size()-1].set_effectp(dp_hrandom,fcnp_hrandom);
+  FC_mults[FC_mults.size()-1].set_intp(dp_mrf,fcnp_mrf);
+
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_mult.raw","_multiplicative_effect_of",
+             "Multiplicative effect of ");
+
+  bool samplem;
+  if (terms[i].options[13] == "false")
+    samplem = false;
+  else
+    samplem = true;
+
+  bool me=false ;
+  if (terms[i].options[19] == "true")
+    me = true;
+
+  double mec;
+  int f;
+   f = (terms[i].options[34]).strtodouble(mec);
+
+
+  FC_mults[FC_mults.size()-1].set_multeffects(&master,nrlevel1,&generaloptions,
+                                              title,pathnonp,samplem,me,mec);
+
+  equations[modnr].add_FC(&FC_mults[FC_mults.size()-1],pathres);
+
+  return false;
+
+  }
+
+
+
+
 bool  superbayesreg::find_map(unsigned i,MAP::map & m)
     {
 
@@ -9751,6 +9827,8 @@ bool superbayesreg::create_nonp(void)
       if ((terms[i].options[0] == "hrandom_pspline") ||
           (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);
+      if ((terms[i].options[0] == "hrandom_mrf"))
+        error = create_random_mrf(i);
       if (terms[i].options[0] == "ridge")
         error = create_ridge_lasso(i);
       if (terms[i].options[0] == "lasso")

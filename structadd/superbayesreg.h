@@ -722,6 +722,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_mult> FC_mults;
 
   bool create_random_pspline(unsigned i);
+  bool create_random_mrf(unsigned i);
+
 
 //-------------------- end: multiplicative random effects ----------------------
 
