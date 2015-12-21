@@ -5766,10 +5766,10 @@ void DISTR_lognormal2_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = (log(*response)-mu)/(*worktransformlin[0]);
 
-    if(updateIWLS)
+//    if(updateIWLS)
       *workingweight = 1/(*worktransformlin[0]);
-    else
-      *workingweight = (*weightp)/(*worktransformlin[0]);
+//    else
+//      *workingweight = (*weightp)/(*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -5801,7 +5801,7 @@ void DISTR_lognormal2_mu::outoptions(void)
   optionsp->out("\n");
   }
 
-void DISTR_lognormal2_mu::update(void)
+/*void DISTR_lognormal2_mu::update(void)
   {
 
   register unsigned i;
@@ -5830,7 +5830,7 @@ void DISTR_lognormal2_mu::update(void)
       }
     }
 
-  }
+  }*/
 
 void DISTR_lognormal2_mu::update_end(void)
   {
@@ -6214,10 +6214,10 @@ void DISTR_lognormal_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = (log(*response)-mu)/(*worktransformlin[0]);
 
-    if(updateIWLS)
+//    if(updateIWLS)
       *workingweight = 1/(*worktransformlin[0]);
-    else
-      *workingweight = (*weightp)/(*worktransformlin[0]);
+//    else
+//      *workingweight = (*weightp)/(*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -6247,7 +6247,7 @@ void DISTR_lognormal_mu::outoptions(void)
   optionsp->out("\n");
   }
 
-void DISTR_lognormal_mu::update(void)
+/*void DISTR_lognormal_mu::update(void)
   {
 
   register unsigned i;
@@ -6275,7 +6275,7 @@ void DISTR_lognormal_mu::update(void)
       *workweight = (*weightp)/(*worktransformlinp);
       }
     }
-  }
+  }*/
 
 void DISTR_lognormal_mu::update_end(void)
   {
@@ -7037,10 +7037,10 @@ void DISTR_normal2_mu::compute_iwls_wweightschange_weightsone(
 
     double nu = ((*response)-mu)/(*worktransformlin[0]);
 
-    if(updateIWLS)
+//    if(updateIWLS)
       *workingweight = 1/(*worktransformlin[0]);
-    else
-      *workingweight = (*weightp)/(*worktransformlin[0]);
+//    else
+//      *workingweight = (*weightp)/(*worktransformlin[0]);
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -7072,7 +7072,7 @@ void DISTR_normal2_mu::outoptions(void)
   }
 
 
-void DISTR_normal2_mu::update(void)
+/*void DISTR_normal2_mu::update(void)
   {
 
   register unsigned i;
@@ -7101,7 +7101,7 @@ void DISTR_normal2_mu::update(void)
       }
     }
 
-  }
+  }*/
 
 void DISTR_normal2_mu::update_end(void)
   {
@@ -7607,17 +7607,16 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double mu = (*linpred);
+  double mu = (*linpred);
 
-    double nu = ((*response)-mu)/(*worktransformlin[0]);
+  double nu = ((*response)-mu)/(*worktransformlin[0]);
 
-    if(updateIWLS)
-      *workingweight = 1/(*worktransformlin[0]);
-    else
-      *workingweight = (*weightp)/(*worktransformlin[0]);
+//  if(updateIWLS)
+    *workingweight = 1/(*worktransformlin[0]);
+//  else
+//    *workingweight = (*weightp)/(*worktransformlin[0]);
 
-
-    if(optionsp->copula)
+  if(optionsp->copula)
     {
     double F = cdf(*response,*linpred);
     vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
@@ -7672,7 +7671,7 @@ void DISTR_normal_mu::outoptions(void)
   }
 
 
-void DISTR_normal_mu::update(void)
+/*void DISTR_normal_mu::update(void)
   {
 
   register unsigned i;
@@ -7688,7 +7687,7 @@ void DISTR_normal_mu::update(void)
   if(updateIWLS)
     {
     for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
-    {
+      {
       *workweight = 1/(*worktransformlinp);
       }
     }
@@ -7700,7 +7699,7 @@ void DISTR_normal_mu::update(void)
       *workweight = (*weightp)/(*worktransformlinp);
       }
     }
-  }
+  }*/
 
 void DISTR_normal_mu::update_end(void)
   {
@@ -16454,10 +16453,10 @@ void DISTR_bivnormal_mufz::compute_iwls_wweightschange_weightsone(
     double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
                                  ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
-    if(updateIWLS)
+//    if(updateIWLS)
       *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
-    else
-      *workingweight = (*weightp)/(oneminusrho2*pow((*worktransformlin[2]),2));
+//    else
+//      *workingweight = (*weightp)/(oneminusrho2*pow((*worktransformlin[2]),2));
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -16487,7 +16486,7 @@ void DISTR_bivnormal_mufz::outoptions(void)
   optionsp->out("\n");
   }
 
-void DISTR_bivnormal_mufz::update(void)
+/*void DISTR_bivnormal_mufz::update(void)
   {
 
   register unsigned i;
@@ -16517,7 +16516,7 @@ void DISTR_bivnormal_mufz::update(void)
       *workweight = (*weightp)/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
       }
     }
-  }
+  }*/
 
 void DISTR_bivnormal_mufz::update_end(void)
   {
@@ -17201,10 +17200,10 @@ void DISTR_bivnormal_mu::compute_iwls_wweightschange_weightsone(
     double nu = (1/(oneminusrho2))*( (((*response))-mu)/pow((*worktransformlin[2]),2) -
                                  ((*worktransformlin[0])/(*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/((*worktransformlin[3]))) );
 
-    if(updateIWLS)
+//    if(updateIWLS)
       *workingweight = 1/(oneminusrho2*pow((*worktransformlin[2]),2));
-    else
-      *workingweight = (*weightp)/(oneminusrho2*pow((*worktransformlin[2]),2));
+//    else
+//      *workingweight = (*weightp)/(oneminusrho2*pow((*worktransformlin[2]),2));
 
     *workingresponse = *linpred + nu/(*workingweight);
 
@@ -17236,7 +17235,7 @@ void DISTR_bivnormal_mu::outoptions(void)
   optionsp->out("\n");
   }
 
-void DISTR_bivnormal_mu::update(void)
+/*void DISTR_bivnormal_mu::update(void)
   {
 
   register unsigned i;
@@ -17266,7 +17265,7 @@ void DISTR_bivnormal_mu::update(void)
       *workweight = (*weightp)/((1 - pow((*worktransformlinr),2))*pow((*worktransformlins),2));
       }
     }
-  }
+  }*/
 
 void DISTR_bivnormal_mu::update_end(void)
   {
@@ -17785,10 +17784,10 @@ void DISTR_bivprobit_mu::compute_iwls_wweightschange_weightsone(
     double nu = (1/(oneminusrho2))*( (((*response))-mu) -
                                  ((*worktransformlin[0]))*(((*response2p)-(*worktransformlin[1]))) );
 
-    if(updateIWLS)
+//    if(updateIWLS)
       *workingweight = 1/(oneminusrho2);
-    else
-      *workingweight = (*weightp)/(oneminusrho2);
+//    else
+//      *workingweight = (*weightp)/(oneminusrho2);
 
     *workingresponse = *linpred + nu/(*workingweight);
 

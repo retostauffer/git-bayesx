@@ -1034,6 +1034,8 @@ DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
 
+  gamlss = true;
+
   predictor_name = "mu";
 
   predict_mult = true;

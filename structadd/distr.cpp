@@ -89,6 +89,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 
   optionsp = o;
 
+  gamlss = false;
+
   family = "unknown";
   familyshort = "unknown";
   updateIWLS = false;
@@ -211,6 +213,8 @@ DISTR::DISTR(const DISTR & d)
 
   copula = d.copula;
   copulapos = d.copulapos;
+
+  gamlss = d.gamlss;
   }
 
 
@@ -286,6 +290,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
 
   copula = d.copula;
   copulapos = d.copulapos;
+  gamlss = d.gamlss;
 
   return *this;
   }

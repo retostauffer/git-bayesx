@@ -105,6 +105,7 @@ class __EXPORT_TYPE DISTR
   bool optionbool1;
   ST::string option1;
 
+  bool gamlss;  // gamlss distribution
 
   double sigma2;
 

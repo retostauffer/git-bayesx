@@ -550,6 +550,8 @@ void FC_nonp::update(void)
       }
     else
       {
+      if(likep->gamlss)
+        double logold = likep->compute_iwls(true,false);
       update_gaussian();
       }
     }

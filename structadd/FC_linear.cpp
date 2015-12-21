@@ -301,7 +301,11 @@ void FC_linear::update(void)
     if (IWLS)
       update_IWLS();
     else
+      {
+      if(likep->gamlss)
+        double logold = likep->compute_iwls(true,false);
       update_gaussian();
+      }
 
     masterp->level1_likep[equationnr]->meaneffect -= meaneffect;
     meaneffect = (meaneffectdesign*beta)(0,0);
