@@ -8450,7 +8450,7 @@ void superbayesreg::create_pspline(unsigned i)
         vector<ST::string> help;
         help.push_back("");
         make_paths(pathnonp,pathres,title,help,
-        "_omega.raw","omega_of_nonlinear_pspline_effects","Prior inclusion probability for nonlinear terms");
+        "_omega.raw","omega_of_nonlinear_effects","Prior inclusion probability for nonlinear terms");
         FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
                                          equations[modnr].distrp,title));
         equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],pathres);
@@ -8461,7 +8461,6 @@ void superbayesreg::create_pspline(unsigned i)
       (&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1] );
 
       }
-
 
     }
 
@@ -9137,13 +9136,48 @@ bool superbayesreg::create_mrf(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_spatial_var.raw","variance_of_spatial_MRF_effect_of","Variance of spatial effect of ");
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,
+  bool so = singleomega.getvalue();
+
+  if (terms[i].options[35] == "iid")
+    {
+    FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,
                                 &generaloptions,equations[modnr].distrp,
                                 title,pathnonp,&design_mrfs[design_mrfs.size()-1],
                                 &FC_nonps[FC_nonps.size()-1],terms[i].options,
                                 terms[i].varnames));
 
-  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+    equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+    }
+  else if (terms[i].options[35] == "ssvs")
+    {
+
+    FC_nonp_variance_varselections.push_back(FC_nonp_variance_varselection(
+                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,so,
+                                  title,pathnonp,&design_mrfs[design_mrfs.size()-1],
+                                  &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                  terms[i].varnames));
+
+    equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
+
+    if (so==true)
+      {
+      if (firstvarselection==true)
+        {
+        vector<ST::string> help;
+        help.push_back("");
+        make_paths(pathnonp,pathres,title,help,
+        "_omega.raw","omega_of_nonlinear_effects","Prior inclusion probability for nonlinear terms");
+        FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
+                                         equations[modnr].distrp,title));
+        equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],pathres);
+        firstvarselection=false;
+        }
+
+      FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
+      (&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1] );
+
+      }
+    }
 
   return false;
   }
