@@ -358,8 +358,7 @@ void FC_predict::outresults_WAIC(ofstream & out_stata, ofstream & out_R, ofstrea
   else
     d = 8;
 
-//  out << "deviance   pd dic" << endl;
-
+  out << "l_pd  p_d  waic" << endl;
 
   optionsp->out("  ESTIMATION RESULTS FOR THE WAIC: \n",true);
   optionsp->out("\n");

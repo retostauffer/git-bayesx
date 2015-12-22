@@ -357,6 +357,8 @@ void FC_predict_mult::outresults_WAIC(ofstream & out_stata, ofstream & out_R, of
   else
     d = 8;
 
+  out << "l_pd  p_d  waic" << endl;
+
   optionsp->out("  ESTIMATION RESULTS FOR THE WAIC: \n",true);
   optionsp->out("\n");
 
