@@ -66,8 +66,6 @@ class __EXPORT_TYPE FC_predict   : public FC
   double deviance;
   double deviancesat;
 
-  double lpd;
-
   void get_predictor(void);
 
   void compute_MSE(const ST::string & pathresults);

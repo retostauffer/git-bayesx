@@ -60,6 +60,15 @@ FC_predict_mult::FC_predict_mult(GENERAL_OPTIONS * o,vector<DISTR *> lp,
 
   FC_deviance = FC(o,"",1,1,fpd);
 
+  FC_p = FC(o,"",(likep[0])->nrobs,1,"");
+  FC_p.nosamples = true;
+
+  FC_logp = FC(o,"",(likep[0])->nrobs,1,"");
+  FC_logp.nosamples = true;
+
+  FC_logp2 = FC(o,"",(likep[0])->nrobs,1,"");
+  FC_logp2.nosamples = true;
+
   }
 
 
@@ -70,6 +79,9 @@ FC_predict_mult::FC_predict_mult(const FC_predict_mult & m)
   designmatrix = m.designmatrix;
   varnames = m.varnames;
   FC_deviance = m.FC_deviance;
+  FC_p = m.FC_p;
+  FC_logp = m.FC_logp;
+  FC_logp2 = m.FC_logp2;
   deviance = m.deviance;
   }
 
@@ -83,6 +95,9 @@ const FC_predict_mult & FC_predict_mult::operator=(const FC_predict_mult & m)
   designmatrix = m.designmatrix;
   varnames = m.varnames;
   FC_deviance = m.FC_deviance;
+  FC_p = m.FC_p;
+  FC_logp = m.FC_logp;
+  FC_logp2 = m.FC_logp2;
   deviance = m.deviance;
   return *this;
   }
@@ -105,6 +120,15 @@ void  FC_predict_mult::update(void)
   FC_deviance.beta(0,0) = deviance;
   FC_deviance.acceptance++;
   FC_deviance.update();
+
+  FC_p.acceptance++;
+  FC_p.update();
+
+  FC_logp.acceptance++;
+  FC_logp.update();
+
+  FC_logp2.acceptance++;
+  FC_logp2.update();
 
   }
 
@@ -138,6 +162,7 @@ void FC_predict_mult::get_predictor(void)
 
     deviance=0;
     double deviancehelp;
+    double logp;
 
     for(i=0;i<likep[0]->nrobs;i++)
       {
@@ -172,6 +197,11 @@ void FC_predict_mult::get_predictor(void)
         }
 
       deviance+=deviancehelp;
+
+      logp = -0.5*deviancehelp;
+      FC_logp.beta(i,0) = logp;
+      FC_p.beta(i,0) = exp(logp);
+      FC_logp2.beta(i,0) = pow(logp,2);
       }
 
   // TEST
@@ -293,6 +323,59 @@ void FC_predict_mult::outresults_DIC(ofstream & out_stata, ofstream & out_R, ofs
 
   }
 
+void FC_predict_mult::outresults_WAIC(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
+                                const ST::string & pathresults)
+  {
+
+  ST::string pathresultswaic = pathresults.substr(0,pathresults.length()-4) + "_WAIC.res";
+  ofstream out(pathresultswaic.strtochar());
+
+  out_R2BayesX << "WAIC=" << pathresultswaic << ";" <<  endl;
+
+  optionsp->out("    Results for the WAIC are stored in file\n");
+  optionsp->out("    " +  pathresultswaic + "\n");
+  optionsp->out("\n");
+
+  double l_pd=0;
+  double p_d=0;
+
+  double r = ((double)optionsp->samplesize)/((double)(optionsp->samplesize-1));
+
+  unsigned i;
+  for (i=0;i<likep[0]->nrobs;i++)
+    {
+    l_pd += log(FC_p.betamean(i,0));
+    p_d += (FC_logp2.betamean(i,0) - FC_logp.betamean(i,0)*FC_logp.betamean(i,0))*r;
+    }
+  l_pd *= -2.0;
+
+  unsigned d;
+  if (l_pd > 1000000000)
+    d = 14;
+  else if (l_pd > 1000000)
+    d = 11;
+  else
+    d = 8;
+
+  optionsp->out("  ESTIMATION RESULTS FOR THE WAIC: \n",true);
+  optionsp->out("\n");
+
+  optionsp->out("    l_pd:                       " +
+  ST::doubletostring(l_pd,d) + "\n");
+  out << l_pd << "   ";
+
+  optionsp->out("    p_d:                        " +
+  ST::doubletostring(p_d,d) + "\n");
+  out << p_d << "   ";
+
+  optionsp->out("    WAIC:                       " +
+  ST::doubletostring((l_pd+2*p_d),d) + "\n");
+  optionsp->out("\n");
+  out << ((l_pd+2*p_d)) << "   " << endl;
+
+  optionsp->out("\n");
+
+  }
 
 void FC_predict_mult::outresults_deviance(void)
     {
@@ -390,6 +473,9 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R, ofstrea
     FC::outresults(out_stata,out_R,out_R2BayesX,"");
 
     FC_deviance.outresults(out_stata,out_R,out_R2BayesX,"");
+    FC_p.outresults(out_stata,out_R,out_R2BayesX,"");
+    FC_logp.outresults(out_stata,out_R,out_R2BayesX,"");
+    FC_logp2.outresults(out_stata,out_R,out_R2BayesX,"");
 
     optionsp->out("  PREDICTED VALUES: \n",true);
     optionsp->out("\n");
@@ -711,7 +797,7 @@ void FC_predict_mult::outresults(ofstream & out_stata, ofstream & out_R, ofstrea
 
      outresults_deviance();
      outresults_DIC(out_stata,out_R,out_R2BayesX,pathresults);
-
+     outresults_WAIC(out_stata,out_R,out_R2BayesX,pathresults);
 
     }   // end if (pathresults.isvalidfile() != 1)
 

@@ -117,7 +117,6 @@ FC_predict::FC_predict(const FC_predict & m)
   FC_logp2 = m.FC_logp2;
   deviance = m.deviance;
   deviancesat = m.deviancesat;
-  lpd = m.lpd;
   }
 
 
@@ -137,7 +136,6 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
   FC_logp2 = m.FC_logp2;
   deviance = m.deviance;
   deviancesat = m.deviancesat;
-  lpd = m.lpd;
   return *this;
   }
 
@@ -342,15 +340,15 @@ void FC_predict::outresults_WAIC(ofstream & out_stata, ofstream & out_R, ofstrea
   double l_pd=0;
   double p_d=0;
 
+  double r = ((double)optionsp->samplesize)/((double)(optionsp->samplesize-1));
+
   unsigned i;
   for (i=0;i<likep->nrobs;i++)
     {
-
-
+    l_pd += log(FC_p.betamean(i,0));
+    p_d += (FC_logp2.betamean(i,0) - FC_logp.betamean(i,0)*FC_logp.betamean(i,0))*r;
     }
-
-
-
+  l_pd *= -2.0;
 
   unsigned d;
   if (l_pd > 1000000000)
@@ -366,17 +364,18 @@ void FC_predict::outresults_WAIC(ofstream & out_stata, ofstream & out_R, ofstrea
   optionsp->out("  ESTIMATION RESULTS FOR THE WAIC: \n",true);
   optionsp->out("\n");
 
-  optionsp->out("    p_d:           " + ST::doubletostring(p_d,d) + "\n");
-  out << p_d << "   ";
-
-  optionsp->out("    l_pd:                         " +
+  optionsp->out("    l_pd:                       " +
   ST::doubletostring(l_pd,d) + "\n");
   out << l_pd << "   ";
 
-  optionsp->out("    WAIC:                        " +
-  ST::doubletostring(-2*(l_pd-p_d),d) + "\n");
+  optionsp->out("    p_d:                        " +
+  ST::doubletostring(p_d,d) + "\n");
+  out << p_d << "   ";
+
+  optionsp->out("    WAIC:                       " +
+  ST::doubletostring((l_pd+2*p_d),d) + "\n");
   optionsp->out("\n");
-  out << (-2*(l_pd-p_d)) << "   " << endl;
+  out << ((l_pd+2*p_d)) << "   " << endl;
 
   optionsp->out("\n");
 
@@ -534,6 +533,9 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R, ofstream & o
     if (likep->maindistribution == true)
       {
       FC_deviance.outresults(out_stata,out_R,out_R2BayesX,"");
+      FC_p.outresults(out_stata,out_R,out_R2BayesX,"");
+      FC_logp.outresults(out_stata,out_R,out_R2BayesX,"");
+      FC_logp2.outresults(out_stata,out_R,out_R2BayesX,"");
       }
 
     optionsp->out("  PREDICTED VALUES: \n",true);
@@ -744,6 +746,7 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R, ofstream & o
       {
       outresults_deviance();
       outresults_DIC(out_stata,out_R,out_R2BayesX,pathresults);
+      outresults_WAIC(out_stata,out_R,out_R2BayesX,pathresults);
       }
 
     }   // end if (pathresults.isvalidfile() != 1)
