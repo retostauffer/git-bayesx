@@ -6078,7 +6078,7 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS =false;
+  updateIWLS = true;
   check_errors();
    // linpredminlimit=-10;
   //linpredmaxlimit=15;
