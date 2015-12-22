@@ -7,7 +7,6 @@ d.generate y2 = normal()
 map m
 m.infile using c:\bayesx\trunk\testh\testdata\kreisesim.bnd
 
-
 mcmcreg b
 b.outfile = c:\bayesx\trunk\testh\results\gaussian_spatial_1fkt_work
 b.hregress y1 = const + region(spatial,map=m,centermethod=nullspace,prior=ssvs), family=gaussian iterations=12000 step=10 burnin=2000 using d
