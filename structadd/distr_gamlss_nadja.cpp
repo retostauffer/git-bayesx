@@ -8781,6 +8781,7 @@ void DISTR_binomialprobit_copula::update(void)
   double * workresporig = responseorig.getV();
   double * workresp = response.getV();
   double * weightwork = weight.getV();
+  double * weightworkcopula = (distrcopulap[0]->weight).getV();
 
   double * worklin_current;
   if (linpred_current==1)
@@ -8791,18 +8792,28 @@ void DISTR_binomialprobit_copula::update(void)
   double * responsecop = responsecopmat->getV();
 
   unsigned i;
-  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,responsecop++,workresporig++)
+  for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,responsecop++,workresporig++,weightworkcopula++)
     {
+// BEGIN: SAMPLESEL
     if (*weightwork != 0)
       {
-      double x = randnumbers::uniform();
-      *workresp = distrcopulap[0]->condfc(x, *worklin_current, *workresporig, copulapos);
-/*      if(*workresporig>0)
-        *workresp = distrcopulap[0]->condfc(x, *worklin_current, 1, copulapos);
+// END: SAMPLESEL
+      if(weightworkcopula!=0)
+        {
+        double x = randnumbers::uniform();
+        *workresp = distrcopulap[0]->condfc(x, *worklin_current, *workresporig, copulapos);
+        }
       else
-        *workresp = distrcopulap[0]->condfc(x, *worklin_current, 0, copulapos);*/
+        {
+        if(*workresporig>0)
+          *workresp = trunc_normal2(0,20,*worklin_current,1);
+        else
+          *workresp = trunc_normal2(-20,0,*worklin_current,1);
+        }
       *responsecop = *workresp;
+// BEGIN: SAMPLESEL
       }
+// END: SAMPLESEL
     }
   }
 
