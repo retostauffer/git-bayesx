@@ -52,6 +52,8 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   saveestimation = false;
   copula = false;
   rotation = 0;
+  samplesel = false;
+  sampleselval = 0.0;
   }
 
 
@@ -60,7 +62,10 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(
 administrator_basic * abp,
 #endif
 const unsigned & it,const unsigned & bu,
-                         const unsigned & st, const bool & sa, const bool & cop, const unsigned & rot, ostream * lo,
+                         const unsigned & st, const bool & sa,
+                         const bool & cop, const unsigned & rot,
+                         const bool & samsel, const double & samselval,
+                         ostream * lo,
                          const double & l1,const double & l2)
   {
   iterations = it;
@@ -79,6 +84,8 @@ const unsigned & it,const unsigned & bu,
   saveestimation = sa;
   copula = cop;
   rotation = rot;
+  samplesel = samsel;
+  sampleselval = samselval;
 
   (*logout) << flush;
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -114,6 +121,8 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   saveestimation = o.saveestimation;
   copula = o.copula;
   rotation = o.rotation;
+  samplesel = o.samplesel;
+  sampleselval = o.sampleselval;
   }
 
 
@@ -141,6 +150,8 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   saveestimation = o.saveestimation;
   copula = o.copula;
   rotation = o.rotation;
+  samplesel = o.samplesel;
+  sampleselval = o.sampleselval;
   return *this;
   }
 

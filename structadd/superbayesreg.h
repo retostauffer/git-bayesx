@@ -420,6 +420,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   // has the user specified a sample selection model?
   simpleoption samplesel;
+  doubleoption sampleselval;
 
   // rotations
   intoption rotation;

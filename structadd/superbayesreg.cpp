@@ -449,6 +449,7 @@ void superbayesreg::create_hregress(void)
   copula = simpleoption("copula",false);
 
   samplesel = simpleoption("samplesel",false);
+  sampleselval = doubleoption("sampleselval",-1000000000,9999,1000000000);
 
   rotation = intoption("rotation",0,0,270);
 
@@ -498,6 +499,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&rotation);
   regressoptions.push_back(&copula);
   regressoptions.push_back(&samplesel);
+  regressoptions.push_back(&sampleselval);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -1599,8 +1601,11 @@ bool superbayesreg::create_generaloptions(void)
     adminb_p,
     #endif
     iterations.getvalue(),burnin.getvalue(),
-                                step.getvalue(),saveestimation.getvalue(),copula.getvalue(),rotation.getvalue(),logout,
-                                 level1.getvalue(),level2.getvalue());
+                                step.getvalue(),saveestimation.getvalue(),
+                                copula.getvalue(),rotation.getvalue(),
+                                samplesel.getvalue(), sampleselval.getvalue(),
+                                logout,
+                                level1.getvalue(),level2.getvalue());
 
     describetext.push_back("ESTIMATION OPTIONS:\n");
     describetext.push_back("\n");
@@ -2640,32 +2645,7 @@ bool superbayesreg::create_distribution(void)
 
      computemodeforstartingvalues = true;
 
-     datamatrix dnew = D.getCol(0);
-     if(samplesel.getvalue())
-       {
-       if(distr_binomialprobit_copulas.size()==1)
-         {
-         if(w.rows()==1)
-           w = datamatrix(dnew.rows(),1,1);
-         double * respp = (distr_binomialprobit_copulas[0].response).getV();
-         for(unsigned i=0; i<dnew.rows(); i++, respp++)
-           {
-           if(*respp==0)
-             {
-             w(i,0) = 0;
-             if(dnew(i,0)<=0)
-               dnew(i,0) = 0.1;
-             }
-           }
-         }
-       else
-         {
-         outerror("ERROR: Selection equation required");
-         return true;
-         }
-       }
-
-     distr_dagum_ps.push_back(DISTR_dagum_p(&generaloptions,dnew,w));
+     distr_dagum_ps.push_back(DISTR_dagum_p(&generaloptions,D.getCol(0),w));
 
      equations[modnr].distrp = &distr_dagum_ps[distr_dagum_ps.size()-1];
      equations[modnr].pathd = "";
@@ -2679,32 +2659,7 @@ bool superbayesreg::create_distribution(void)
 
      computemodeforstartingvalues = true;
 
-     datamatrix dnew = D.getCol(0);
-     if(samplesel.getvalue())
-       {
-       if(distr_binomialprobit_copulas.size()==1)
-         {
-         if(w.rows()==1)
-           w = datamatrix(dnew.rows(),1,1);
-         double * respp = (distr_binomialprobit_copulas[0].response).getV();
-         for(unsigned i=0; i<dnew.rows(); i++, respp++)
-           {
-           if(*respp==0)
-             {
-             w(i,0) = 0;
-             if(dnew(i,0)<=0)
-               dnew(i,0) = 0.1;
-             }
-           }
-         }
-       else
-         {
-         outerror("ERROR: Selection equation required");
-         return true;
-         }
-       }
-
-     distr_dagum_bs.push_back(DISTR_dagum_b(&generaloptions,dnew,w));
+     distr_dagum_bs.push_back(DISTR_dagum_b(&generaloptions,D.getCol(0),w));
 
      equations[modnr].distrp = &distr_dagum_bs[distr_dagum_bs.size()-1];
      equations[modnr].pathd = "";
@@ -2727,32 +2682,7 @@ bool superbayesreg::create_distribution(void)
 
      computemodeforstartingvalues = true;
 
-     datamatrix dnew = D.getCol(0);
-     if(samplesel.getvalue())
-       {
-       if(distr_binomialprobit_copulas.size()==1)
-         {
-         if(w.rows()==1)
-           w = datamatrix(dnew.rows(),1,1);
-         double * respp = (distr_binomialprobit_copulas[0].response).getV();
-         for(unsigned i=0; i<dnew.rows(); i++, respp++)
-           {
-           if(*respp==0)
-             {
-             w(i,0) = 0;
-             if(dnew(i,0)<=0)
-               dnew(i,0) = 0.1;
-             }
-           }
-         }
-       else
-         {
-         outerror("ERROR: Selection equation required");
-         return true;
-         }
-       }
-
-     distr_dagum_as.push_back(DISTR_dagum_a(&generaloptions,dnew,w));
+     distr_dagum_as.push_back(DISTR_dagum_a(&generaloptions,D.getCol(0),w));
 
      equations[modnr].distrp = &distr_dagum_as[distr_dagum_as.size()-1];
      equations[modnr].pathd = "";
