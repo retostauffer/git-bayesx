@@ -241,17 +241,36 @@ double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, in
 
     response1p = response1.getV();
     response2p = response2.getV();
+    weightp = weight.getV();
     }
   double Fa;
   if(copulapos==0)
     Fa = distrp[1]->cdf(*response1p,true);
   else
     Fa = distrp[0]->cdf(*response2p,true);
-  double res = condfc(x, linpred_F, y, Fa, linpredp);
+
+  double res;
+
+  if(*weightp==0)
+    {
+    if(y==0)
+      {
+      res = trunc_normal2(-20,0,linpred_F,1);
+      }
+    else
+      {
+      res = trunc_normal2(0,20,linpred_F,1);
+      }
+    }
+  else
+    {
+    res = condfc(x, linpred_F, y, Fa, linpredp);
+    }
 
   linpredp++;
   response1p++;
   response2p++;
+  weightp++;
   if (counter<nrobs-1)
     counter++;
   else

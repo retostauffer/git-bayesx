@@ -51,6 +51,7 @@ class __EXPORT_TYPE DISTR_copula_basis : public DISTR_gamlss
   datamatrix response2;
   double * response1p;
   double * response2p;
+  double * weightp;
 
   double * linpredp;
 
