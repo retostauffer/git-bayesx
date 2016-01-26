@@ -8663,8 +8663,12 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, const bool & ifcop)
       linpredp = linearpred2.getV();
     }
 
+ //SAMPLESEL
   double res;
-  res = randnumbers::Phi2(resp-*linpredp);
+/*  if(resp==optionsp->sampleselval)
+    res = 0.5;
+  else*/
+    res = randnumbers::Phi2(resp-*linpredp);
 
   if(ifcop)
     {
@@ -8798,7 +8802,8 @@ void DISTR_binomialprobit_copula::update(void)
     if (*weightwork != 0)
       {
 // END: FIXME WEIGHTS COPULA
-      if(o->samplesel && *responsecop==o->sampleselval)
+// SAMPLESEL:
+/*      if(optionsp->samplesel && *responsecop==optionsp->sampleselval)
         {
         if(*workresporig>0)
           *workresp = trunc_normal2(0,20,*worklin_current,1);
@@ -8806,10 +8811,10 @@ void DISTR_binomialprobit_copula::update(void)
           *workresp = trunc_normal2(-20,0,*worklin_current,1);
         }
       else
-        {
+        {*/
         double x = randnumbers::uniform();
         *workresp = distrcopulap[0]->condfc(x, *worklin_current, *workresporig, copulapos);
-        }
+        //}
       *responsecop = *workresp;
 // BEGIN: FIXME WEIGHTS COPULA
       }

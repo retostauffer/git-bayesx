@@ -150,6 +150,7 @@ vector<double> DISTR_copula_basis::derivative(double & F1, double & F2, double *
 
 vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool & deriv)
   {
+  vector<double> res;
   if (counter==0)
     {
     if (linpred_current==1)
@@ -161,7 +162,6 @@ vector<double> DISTR_copula_basis::logc(double & F, int & copulapos, const bool 
     response2p = response2.getV();
     }
   double Fa;
-  vector<double> res;
  // double eta = (*linpred);
   if(copulapos==0)
     {
