@@ -243,6 +243,7 @@ double DISTR_copula_basis::condfc(double & x, double & linpred_F, double & y, in
     response2p = response2.getV();
     weightp = weight.getV();
     }
+
   double Fa;
   if(copulapos==0)
     Fa = distrp[1]->cdf(*response1p,true);

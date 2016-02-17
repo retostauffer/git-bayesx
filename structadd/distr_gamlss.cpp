@@ -1133,8 +1133,7 @@ double DISTR_gamlss::loglikelihood(double * response, double * linpred,
   // *worklin[0] = linear predictor of mu equation
   // *worktransformlin[0] = exp(eta_mu);
 
-// BEGIN: FIXME WEIGHTS COPULA
-/*  if (*weight == 0)
+  if (*weight == 0 && !optionsp->copula)
     {
     if (counter==0)
       {
@@ -1146,13 +1145,9 @@ double DISTR_gamlss::loglikelihood(double * response, double * linpred,
     return 0;
     }
   else
-    {*/
-// END: FIXME WEIGHTS COPULA
+    {
     return (*weight)*loglikelihood_weightsone(response,linpred);
-// BEGIN: FIXME WEIGHTS COPULA
-//    }
-// END: FIXME WEIGHTS COPULA
-
+    }
   }
 
 
@@ -1187,9 +1182,7 @@ double DISTR_gamlss::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)
   {
-
-// BEGIN: FIXME WEIGHTS COPULA
-/*  if (*weight == 0)
+  if (*weight == 0 && !optionsp->copula)
     {
     if (counter==0)
       {
@@ -1203,8 +1196,7 @@ double DISTR_gamlss::compute_iwls(double * response, double * linpred,
     return 0;
     }
   else
-    {*/
-// END: FIXME WEIGHTS COPULA
+    {
     double l=0;
     compute_iwls_wweightschange_weightsone(response,linpred, workingweight,
                                            workingresponse, l,
@@ -1212,9 +1204,7 @@ double DISTR_gamlss::compute_iwls(double * response, double * linpred,
     *workingweight *= (*weight);
 
     return (*weight)*l;
-// BEGIN: FIXME WEIGHTS COPULA
- //   }
-// END: FIXME WEIGHTS COPULA
+    }
   }
 
 

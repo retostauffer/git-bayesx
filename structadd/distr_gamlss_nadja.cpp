@@ -8794,16 +8794,9 @@ void DISTR_binomialprobit_copula::update(void)
   unsigned i;
   for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,responsecop++,workresporig++,weightworkcopula++)
     {
-// BEGIN: FIXME WEIGHTS COPULA
-    if (*weightwork != 0)
-      {
-// END: FIXME WEIGHTS COPULA
-      double x = randnumbers::uniform();
-      *workresp = distrcopulap[0]->condfc(x, *worklin_current, *workresporig, copulapos);
-      *responsecop = *workresp;
-// BEGIN: FIXME WEIGHTS COPULA
-      }
-// END: FIXME WEIGHTS COPULA
+    double x = randnumbers::uniform();
+    *workresp = distrcopulap[0]->condfc(x, *worklin_current, *workresporig, copulapos);
+    *responsecop = *workresp;
     }
   }
 
