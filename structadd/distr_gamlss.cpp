@@ -1040,7 +1040,8 @@ DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
 
   predict_mult = true;
 
-  if (check_weightsone() == true)
+  // FIX SAMPLESEL
+  if (check_weightsone() == true && !optionsp->copula)
     wtype = wweightschange_weightsone;
   else
     wtype = wweightschange_weightsneqone;
@@ -1133,6 +1134,7 @@ double DISTR_gamlss::loglikelihood(double * response, double * linpred,
   // *worklin[0] = linear predictor of mu equation
   // *worktransformlin[0] = exp(eta_mu);
 
+  // FIX SAMPLESEL
   if (*weight == 0 && !optionsp->copula)
     {
     if (counter==0)
@@ -1182,6 +1184,7 @@ double DISTR_gamlss::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)
   {
+  // FIX SAMPLESEL
   if (*weight == 0 && !optionsp->copula)
     {
     if (counter==0)

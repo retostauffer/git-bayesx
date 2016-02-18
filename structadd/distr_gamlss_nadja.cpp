@@ -8697,7 +8697,19 @@ double DISTR_binomialprobit_copula::loglikelihood_weightsone(double * response,
     }
 
   double F = cdf(*response,*linpred);
-  double l =-0.5*(*response-*linpred)*(*response-*linpred) + (distrcopulap[0]->logc(F,copulapos,false))[0];
+
+  vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,false);
+
+  // FIX SAMPLESEL
+  if(optionsp->samplesel)
+    {
+    if(*response<=0)
+      {
+      logcandderivs[0] = 0;
+      }
+    }
+
+  double l =-0.5*(*response-*linpred)*(*response-*linpred) + logcandderivs[0];
 
   modify_worklin();
 
@@ -8720,7 +8732,20 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   double F = cdf(*response,*linpred);
 
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
-   //   cout << "distrcopulap.sie():" << distrcopulap.size() << endl;
+
+  // FIX SAMPLESEL
+  if(optionsp->samplesel)
+    {
+    if(*response<=0)
+      {
+      for(unsigned j=0; j<logcandderivs.size(); j++)
+        {
+        logcandderivs[j] = 0;
+        }
+      }
+    }
+
+   //   cout << "distrcopulap.size():" << distrcopulap.size() << endl;
   // compute and implement dF/deta, d^2 F/deta ^2
   double z = (*response-*linpred);
   double dF = -0.3989423*exp(-0.5*z*z);

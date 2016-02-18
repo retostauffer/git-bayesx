@@ -5345,33 +5345,6 @@ bool superbayesreg::create_distribution(void)
 
     computemodeforstartingvalues = true;
 
-     datamatrix dnew = D.getCol(0);
-     if(samplesel.getvalue())
-       {
-       if(distr_binomialprobit_copulas.size()>=1)
-         {
-         if(w.rows()==1)
-           w = datamatrix(dnew.rows(),1,1);
-         double * respp = (distr_binomialprobit_copulas[0].response).getV();
-         for(unsigned i=0; i<dnew.rows(); i++, respp++)
-           {
-           if(*respp==0)
-             {
-             w(i,0) = 0;
-             if(dnew(i,0)<=0)
-               dnew(i,0) = 0.1;
-             }
-           }
-         if(distr_binomialprobit_copulas.size()>1)
-           out("\nNOTE: The first equation is interpreted as the selection equation!\n\n");
-         }
-       else
-         {
-         outerror("ERROR: Selection equation required\n");
-         return true;
-         }
-       }
-
     distr_gausscopulas.push_back(DISTR_gausscopula(&generaloptions,D.getCol(0),w));
 
     equations[modnr].distrp = &distr_gausscopulas[distr_gausscopulas.size()-1];
@@ -5541,8 +5514,60 @@ bool superbayesreg::create_distribution(void)
         }
       }
 
+    datamatrix sampleselweight;
+    if(generaloptions.samplesel)
+      {
+      sampleselweight = distr_binomialprobit_copulas[0].response;
+      distr_normal_mus[0].weight = sampleselweight;
+      distr_normal_sigma2s[0].weight = sampleselweight;
+      distr_gausscopulas[0].weight = sampleselweight;
+
+/*      sampleselweight = datamatrix(D.rows(),1,1);
+      if(distr_binomialprobit_copulas.size()>=1)
+        {
+        double * respoutcomep = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]->response.getV();
+        double * respselectionp = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->response.getV();
+        double mean=0;
+        int nonsel=0;
+        for(unsigned i=0; i<D.rows(); i++, respoutcomep++, respselectionp++)
+          {
+          if(*respselectionp == 1)
+            {
+            mean += *respoutcomep;
+            nonsel++;
+            }
+          }
+        mean /= nonsel;
+
+        respoutcomep = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]->response.getV();
+        respselectionp = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->response.getV();
+        for(unsigned i=0; i<D.rows(); i++, respoutcomep++, respselectionp++)
+          {
+          sampleselweight(i,0) =*respselectionp;
+          if(*respselectionp == 0)
+            {
+            *respoutcomep = mean;
+            }
+          }
+
+        if(distr_binomialprobit_copulas.size()>1)
+          out("\nNOTE: The first equation is interpreted as the selection equation!\n\n");
+        }
+      else
+        {
+        outerror("ERROR: Selection equation required\n");
+        return true;
+        }*/
+      }
+
+
+
     if(distr_binomialprobit_copulas.size()>0)
       {
+      // FIX SAMPLESEL
+      if(setseed.getvalue() >= 0)
+        srand(setseed.getvalue());
+
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
         {

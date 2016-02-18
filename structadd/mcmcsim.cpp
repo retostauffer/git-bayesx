@@ -208,6 +208,10 @@ const int & seed, const bool & computemode)
 
   //--------------- Compute posterior mode as starting value -------------------
 
+//    srand((unsigned)time(0));
+
+  if(seed >= 0)
+    srand(seed);
 
   if (computemode)
     {
@@ -221,10 +225,6 @@ const int & seed, const bool & computemode)
   //-------------- end: Compute posterior mode as starting value ---------------
 
 
-//    srand((unsigned)time(0));
-
-  if(seed >= 0)
-    srand(seed);
 
   clock_t beginsim = clock();
   clock_t it1per;
@@ -551,6 +551,32 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
           {
           if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
               allconverged = false;
+
+          cout << equations[nrmodels-1-i].distrp->family << "; " << equations[nrmodels-1-i].distrp->equationtype << "; FC " << equations[nrmodels-1-i].FCpointer[j]->title << endl;
+
+          ofstream out1("c://temp//sampleselection2//weight.raw");
+          (equations[nrmodels-1-i].distrp->weight).prettyPrint(out1);
+          out1.close();
+
+          ofstream out2("c://temp//sampleselection2//workingweight.raw");
+          (equations[nrmodels-1-i].distrp->workingweight).prettyPrint(out2);
+          out2.close();
+
+          ofstream out3("c://temp//sampleselection2//response.raw");
+          (equations[nrmodels-1-i].distrp->response).prettyPrint(out3);
+          out3.close();
+
+          ofstream out4("c://temp//sampleselection2//workingresponse.raw");
+          (equations[nrmodels-1-i].distrp->workingresponse).prettyPrint(out4);
+          out4.close();
+
+          ofstream out5("c://temp//sampleselection2//linpred.raw");
+          if (equations[nrmodels-1-i].distrp->linpred_current==1)
+            (equations[nrmodels-1-i].distrp->linearpred1).prettyPrint(out5);
+          else
+            (equations[nrmodels-1-i].distrp->linearpred2).prettyPrint(out5);
+          out5.close();
+
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
 
