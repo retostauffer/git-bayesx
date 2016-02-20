@@ -2670,6 +2670,8 @@ class __EXPORT_TYPE DISTR_binomialprobit_copula : public DISTR_gamlss
                           vector<double *> weight,
                           vector<datamatrix *> aux);
 
+//  bool posteriormode(void);
+
   double cdf(const double & resp, const bool & ifcop);
 
   double cdf(const double & resp, const double & linpred);

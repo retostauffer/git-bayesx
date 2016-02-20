@@ -8550,6 +8550,7 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   linpredminlimit=-10;
   linpredmaxlimit=10;
   posteriormodemode=true;
+  updateIWLS = true;
   check_errors();
   }
 
@@ -8574,6 +8575,12 @@ const DISTR_binomialprobit_copula & DISTR_binomialprobit_copula::operator=(
   posteriormodemode = nd.posteriormodemode;
   return *this;
   }
+
+/*bool DISTR_binomialprobit_copula::posteriormode(void)
+  {
+  update();
+  return true;
+  }*/
 
 
 void DISTR_binomialprobit_copula::compute_deviance_mult(vector<double *> response,
