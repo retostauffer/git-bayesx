@@ -552,7 +552,10 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
           if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
               allconverged = false;
 
+/* SAMPLESEL TESTS
           cout << equations[nrmodels-1-i].distrp->family << "; " << equations[nrmodels-1-i].distrp->equationtype << "; FC " << equations[nrmodels-1-i].FCpointer[j]->title << endl;
+          cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
+          cout << "j: " << j << endl;
 
           ofstream out1("c://temp//sampleselection2//weight.raw");
           (equations[nrmodels-1-i].distrp->weight).prettyPrint(out1);
@@ -575,7 +578,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
             (equations[nrmodels-1-i].distrp->linearpred1).prettyPrint(out5);
           else
             (equations[nrmodels-1-i].distrp->linearpred2).prettyPrint(out5);
-          out5.close();
+          out5.close();*/
 
           } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
@@ -583,7 +586,6 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         equations[nrmodels-1-i].distrp->posteriormode_end();
 
         }
-
 
       if (allconverged)
         converged = true;
@@ -622,6 +624,32 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
       } // end: while ((!converged) && (it <= maxiterations))
 
+
+/* SAMPLESEL TESTS
+      cout << "rows: " << equations[3].FCpointer[0]->beta.rows() << endl;
+      cout << "cols: " << equations[3].FCpointer[0]->beta.cols() << endl << endl;
+
+      cout << "rows: " << equations[2].FCpointer[0]->beta.rows() << endl;
+      cout << "cols: " << equations[2].FCpointer[0]->beta.cols() << endl << endl;
+
+      cout << "rows: " << equations[1].FCpointer[0]->beta.rows() << endl;
+      cout << "cols: " << equations[1].FCpointer[0]->beta.cols() << endl << endl;
+
+      cout << "rows: " << equations[0].FCpointer[0]->beta.rows() << endl;
+      cout << "cols: " << equations[0].FCpointer[0]->beta.cols() << endl << endl;
+
+
+      equations[3].FCpointer[0]->beta(0,0) = 0.5;
+
+      equations[2].FCpointer[0]->beta(0,0) = 0.0;
+      equations[2].FCpointer[0]->beta(1,0) = 2.0;
+      equations[2].FCpointer[0]->beta(2,0) = 1.0;
+
+      equations[1].FCpointer[0]->beta(0,0) = -0.75;
+      equations[1].FCpointer[0]->beta(1,0) = 0.5;
+      equations[1].FCpointer[0]->beta(2,0) = 0.75;
+
+      equations[0].FCpointer[0]->beta(0,0) = -2.0;*/
 
     if (!presim)
       {
