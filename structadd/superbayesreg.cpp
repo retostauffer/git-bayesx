@@ -1583,13 +1583,13 @@ bool superbayesreg::create_generaloptions(void)
   {
   if (equations.size()==1)
     {
-    if (iterations.getvalue()- burnin.getvalue() < 100)
+    if (iterations.getvalue()- burnin.getvalue() < 1)
       {
-      outerror("ERROR: number of iterations must exceed number of burnin iterations about 100\n");
+      outerror("ERROR: number of iterations must exceed number of burnin iterations\n");
       return true;
       }
 
-    if (step.getvalue() >= iterations.getvalue() - burnin.getvalue())
+    if (step.getvalue() > iterations.getvalue() - burnin.getvalue())
       {
       outerror("ERROR: thinning parameter too large\n");
       return true;

@@ -288,6 +288,67 @@ const int & seed, const bool & computemode)
       for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
          {
          equations[nrmodels-1-i].FCpointer[j]->update();
+
+/* SAMPLESEL TESTS
+          cout << equations[nrmodels-1-i].distrp->family << "; " << equations[nrmodels-1-i].distrp->equationtype << "; FC " << equations[nrmodels-1-i].FCpointer[j]->title << endl;
+          cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
+          cout << "j: " << j << endl;
+
+          char str[100];
+          ST::string help = equations[nrmodels-1-i].distrp->family;
+          ST::string help2 = ST::inttostring(it);
+          strcpy(str, "c://temp//sampleselection2//");
+          strcat(str, help.strtochar());
+          strcat(str, "_it");
+          strcat(str, help2.strtochar());
+          strcat(str, "_weight.raw");
+          ofstream out1(str);
+          (equations[nrmodels-1-i].distrp->weight).prettyPrint(out1);
+          out1.close();
+
+          str[100];
+          strcpy(str, "c://temp//sampleselection2//");
+          strcat(str, help.strtochar());
+          strcat(str, "_it");
+          strcat(str, help2.strtochar());
+          strcat(str, "_workingweight.raw");
+          ofstream out2(str);
+          (equations[nrmodels-1-i].distrp->workingweight).prettyPrint(out2);
+          out2.close();
+
+          str[100];
+          strcpy(str, "c://temp//sampleselection2//");
+          strcat(str, help.strtochar());
+          strcat(str, "_it");
+          strcat(str, help2.strtochar());
+          strcat(str, "_response.raw");
+          ofstream out3(str);
+          (equations[nrmodels-1-i].distrp->response).prettyPrint(out3);
+          out3.close();
+
+          str[100];
+          strcpy(str, "c://temp//sampleselection2//");
+          strcat(str, help.strtochar());
+          strcat(str, "_it");
+          strcat(str, help2.strtochar());
+          strcat(str, "_workingresponse.raw");
+          ofstream out4(str);
+          (equations[nrmodels-1-i].distrp->workingresponse).prettyPrint(out4);
+          out4.close();
+
+          str[100];
+          strcpy(str, "c://temp//sampleselection2//");
+          strcat(str, help.strtochar());
+          strcat(str, "_it");
+          strcat(str, help2.strtochar());
+          strcat(str, "_linpred.raw");
+          ofstream out5(str);
+          if (equations[nrmodels-1-i].distrp->linpred_current==1)
+            (equations[nrmodels-1-i].distrp->linearpred1).prettyPrint(out5);
+          else
+            (equations[nrmodels-1-i].distrp->linearpred2).prettyPrint(out5);
+          out5.close();*/
+
          }
 
       equations[nrmodels-1-i].distrp->update_end();
@@ -625,8 +686,8 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
       } // end: while ((!converged) && (it <= maxiterations))
 
 
-/* SAMPLESEL TESTS
-      cout << "rows: " << equations[3].FCpointer[0]->beta.rows() << endl;
+/* SAMPLESEL TESTS*/
+/*      cout << "rows: " << equations[3].FCpointer[0]->beta.rows() << endl;
       cout << "cols: " << equations[3].FCpointer[0]->beta.cols() << endl << endl;
 
       cout << "rows: " << equations[2].FCpointer[0]->beta.rows() << endl;
@@ -649,7 +710,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
       equations[1].FCpointer[0]->beta(1,0) = 0.5;
       equations[1].FCpointer[0]->beta(2,0) = 0.75;
 
-      equations[0].FCpointer[0]->beta(0,0) = -2.0;*/
+      equations[0].FCpointer[0]->beta(0,0) = -1.0;*/
 
     if (!presim)
       {
