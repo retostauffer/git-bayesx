@@ -9455,7 +9455,10 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_tensor_anisotropy.raw","anisotropy_of_nonlinear_tensor_effect_of","Anisotropy of nonlinear tensor effect of ");
 
-  unsigned nromegas = 11;
+  long nro;
+  int f;
+  f = terms[i].options[68].strtolong(nro);
+  unsigned nromegas = (unsigned)nro;
   FC_tensor_omegas.push_back(FC_tensor_omega(&design_userdefined_tensors[design_userdefined_tensors.size()-1],
                                              &FC_nonps[FC_nonps.size()-1],
                                              &generaloptions,

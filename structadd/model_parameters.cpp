@@ -164,6 +164,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
   designmatdata2 = stroption("designmatdata2");
 
   constrmatdata = stroption("constrmatdata");
+
+  nraniso = intoption("nraniso", 11, 1, 101);;
   }
 
 void term_nonp::setdefault(void)
@@ -244,6 +246,7 @@ void term_nonp::setdefault(void)
   designmatdata2.setdefault();
 
   constrmatdata.setdefault();
+  nraniso.setdefault();
   }
 
 
@@ -372,6 +375,7 @@ bool term_nonp::check(term & t)
 	  optlist.push_back(&designmatdata2);
 
 	  optlist.push_back(&constrmatdata);
+	  optlist.push_back(&nraniso);
 
     unsigned i;
     bool rec = true;
@@ -568,6 +572,7 @@ bool term_nonp::check(term & t)
     t.options[66] = designmatdata2.getvalue();
 
     t.options[67] = constrmatdata.getvalue();
+    t.options[68] = ST::inttostring(nraniso.getvalue());
 
     setdefault();
     return true;

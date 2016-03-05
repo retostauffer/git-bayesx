@@ -121,6 +121,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   stroption constrmatdata;
 
+  intoption nraniso;
+
   vector<ST::string> termnames;
 
   void setdefault(void);

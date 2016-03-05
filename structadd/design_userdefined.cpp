@@ -732,6 +732,8 @@ void DESIGN_userdefined_tensor::read_options(vector<ST::string> & op,
 
   f = op[59].strtodouble(rankK);
 
+  f = op[68].strtolong(nromega);
+
   datanames = vn;
   }
 
@@ -917,7 +919,6 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
        for(k=0; k<designmat2.cols(); k++)
          designmat(i,j + k*designmat2.cols()) = designmat1(i,j)*designmat2(i,k);
 
-  nromega=11;
   for(i=0; i<nromega; i++)
     {
     omegas.push_back(0.05 + ((double)i)/((double)(nromega-1)) * 0.9);

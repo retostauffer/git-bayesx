@@ -125,7 +125,7 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
   vector<double> dets;     // vector of determinants of penalty matrices
   vector<double> omegas;   // vector of fixed weights (grid between 0 and 1)
 
-  unsigned nromega;
+  long nromega;
   FC FC_omegas;
 
   vector<double> xvalues;             // unterschiedliche Werte der Kovariablen
