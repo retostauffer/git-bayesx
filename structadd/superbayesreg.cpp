@@ -336,6 +336,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("frankcopula2_normal_sigma2");
   families.push_back("gaussiancopula_dagum");
   families.push_back("gaussiancopula_binary_normal");
+  families.push_back("gaussiancopula_binary_dagum");
   families.push_back("dirichlet");
   family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
@@ -874,6 +875,21 @@ void superbayesreg::clear(void)
   distr_gaussiancopula_binary_normal_latents.erase(distr_gaussiancopula_binary_normal_latents.begin(),distr_gaussiancopula_binary_normal_latents.end());
   distr_gaussiancopula_binary_normal_latents.reserve(20);
 
+  distr_gaussiancopula_binary_dagum_rhos.erase(distr_gaussiancopula_binary_dagum_rhos.begin(),distr_gaussiancopula_binary_dagum_rhos.end());
+  distr_gaussiancopula_binary_dagum_rhos.reserve(20);
+
+  distr_gaussiancopula_binary_dagum_as.erase(distr_gaussiancopula_binary_dagum_as.begin(),distr_gaussiancopula_binary_dagum_as.end());
+  distr_gaussiancopula_binary_dagum_as.reserve(20);
+
+  distr_gaussiancopula_binary_dagum_bs.erase(distr_gaussiancopula_binary_dagum_bs.begin(),distr_gaussiancopula_binary_dagum_bs.end());
+  distr_gaussiancopula_binary_dagum_bs.reserve(20);
+
+  distr_gaussiancopula_binary_dagum_ps.erase(distr_gaussiancopula_binary_dagum_ps.begin(),distr_gaussiancopula_binary_dagum_ps.end());
+  distr_gaussiancopula_binary_dagum_ps.reserve(20);
+
+  distr_gaussiancopula_binary_dagum_latents.erase(distr_gaussiancopula_binary_dagum_latents.begin(),distr_gaussiancopula_binary_dagum_latents.end());
+  distr_gaussiancopula_binary_dagum_latents.reserve(20);
+
   distr_gaussiancopula_dagum_rhos.erase(distr_gaussiancopula_dagum_rhos.begin(),distr_gaussiancopula_dagum_rhos.end());
   distr_gaussiancopula_dagum_rhos.reserve(20);
 
@@ -1264,6 +1280,11 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussiancopula_binary_normal_sigmas = b.distr_gaussiancopula_binary_normal_sigmas;
   distr_gaussiancopula_binary_normal_mus = b.distr_gaussiancopula_binary_normal_mus;
   distr_gaussiancopula_binary_normal_latents = b.distr_gaussiancopula_binary_normal_latents;
+  distr_gaussiancopula_binary_dagum_rhos = b.distr_gaussiancopula_binary_dagum_rhos;
+  distr_gaussiancopula_binary_dagum_as = b.distr_gaussiancopula_binary_dagum_as;
+  distr_gaussiancopula_binary_dagum_bs = b.distr_gaussiancopula_binary_dagum_bs;
+  distr_gaussiancopula_binary_dagum_ps = b.distr_gaussiancopula_binary_dagum_ps;
+  distr_gaussiancopula_binary_dagum_latents = b.distr_gaussiancopula_binary_dagum_latents;
   distr_gaussiancopula_dagum_rhos = b.distr_gaussiancopula_dagum_rhos;
   distr_gaussiancopula_dagum_as = b.distr_gaussiancopula_dagum_as;
   distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
@@ -1481,6 +1502,11 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussiancopula_binary_normal_sigmas = b.distr_gaussiancopula_binary_normal_sigmas;
   distr_gaussiancopula_binary_normal_mus = b.distr_gaussiancopula_binary_normal_mus;
   distr_gaussiancopula_binary_normal_latents = b.distr_gaussiancopula_binary_normal_latents;
+  distr_gaussiancopula_binary_dagum_rhos = b.distr_gaussiancopula_binary_dagum_rhos;
+  distr_gaussiancopula_binary_dagum_as = b.distr_gaussiancopula_binary_dagum_as;
+  distr_gaussiancopula_binary_dagum_bs = b.distr_gaussiancopula_binary_dagum_bs;
+  distr_gaussiancopula_binary_dagum_ps = b.distr_gaussiancopula_binary_dagum_ps;
+  distr_gaussiancopula_binary_dagum_latents = b.distr_gaussiancopula_binary_dagum_latents;
   distr_gaussiancopula_dagum_rhos = b.distr_gaussiancopula_dagum_rhos;
   distr_gaussiancopula_dagum_as = b.distr_gaussiancopula_dagum_as;
   distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
@@ -5008,7 +5034,7 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- gaussiancopula_dagum_rho ----------------------
   else if (family.getvalue() == "gaussiancopula_dagum" && equationtype.getvalue()=="rho")
     {
-	mainequation = true;
+	  mainequation = true;
     computemodeforstartingvalues = true;
 
     distr_gaussiancopula_dagum_rhos.push_back(DISTR_gaussiancopula_dagum_rho(&generaloptions,D.getCol(0),w));
@@ -5023,7 +5049,7 @@ bool superbayesreg::create_distribution(void)
        }
 		if ((distr_dagum_as.size() == 2))
 		{
-		    predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-2]);
+		        predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-2]);
             predict_mult_distrs.push_back(&distr_dagum_bs[distr_dagum_bs.size()-2]);
             predict_mult_distrs.push_back(&distr_dagum_as[distr_dagum_as.size()-2]);
             predict_mult_distrs.push_back(&distr_dagum_ps[distr_dagum_ps.size()-1]);
@@ -5100,7 +5126,7 @@ bool superbayesreg::create_distribution(void)
 
             distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response2 = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-2].response;
             //
-			distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response;
+            distr_gaussiancopula_dagum_rhos[distr_gaussiancopula_dagum_rhos.size()-1].response = distr_gaussiancopula_dagum_as[distr_gaussiancopula_dagum_as.size()-1].response;
             distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].response2 = distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].response;
             distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-1].response2 = distr_gaussiancopula_dagum_ps[distr_gaussiancopula_dagum_ps.size()-2].response;
             distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-2].response2 = distr_gaussiancopula_dagum_bs[distr_gaussiancopula_dagum_bs.size()-1].response;
@@ -5261,7 +5287,7 @@ bool superbayesreg::create_distribution(void)
 
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-2]);
             predict_mult_distrs.push_back(&distr_copulas[distr_copulas.size()-1]);
-			predict_mult_distrs.push_back(&distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
+            predict_mult_distrs.push_back(&distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1]);
 
             distr_copulas[distr_copulas.size()-2].response2 = distr_copulas[distr_copulas.size()-1].response;
             distr_copulas[distr_copulas.size()-1].response2 = distr_copulas[distr_copulas.size()-2].response;
@@ -5279,7 +5305,7 @@ bool superbayesreg::create_distribution(void)
             distr_copulas[distr_copulas.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-2]);
 
-			distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
+            distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
             &distr_copulas[distr_copulas.size()-2]);
 
             distr_gaussiancopula_rhos[distr_gaussiancopula_rhos.size()-1].distrp.push_back(
@@ -7403,7 +7429,8 @@ bool superbayesreg::create_distribution(void)
 //------------------------------- END: sfa2_mu_y_id -------------------------------
 
 //-------------------------------- gaussiancopula_binary_normal_latent ---------------------------------
-  else if (family.getvalue() == "gaussiancopula_binary_normal" && equationtype.getvalue()=="latent")
+  else if ( ((family.getvalue() == "gaussiancopula_binary_normal"))
+            && equationtype.getvalue()=="latent")
     {
 
     computemodeforstartingvalues = true;
@@ -7433,7 +7460,8 @@ bool superbayesreg::create_distribution(void)
 
 
 //------------------------------- gaussiancopula_binary_normal_mu ------------------------------------
-  else if ((family.getvalue() == "gaussiancopula_binary_normal") && equationtype.getvalue()=="mu")
+  else if ( ((family.getvalue() == "gaussiancopula_binary_normal"))
+          && equationtype.getvalue()=="mu")
     {
 
     computemodeforstartingvalues = true;
@@ -7447,10 +7475,12 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------- END: ggaussiancopula_binary_normal_mu -------------------------------
 
+
 //----------------------------- gaussiancopula_binary_normal_rho ----------------------
-  else if (family.getvalue() == "gaussiancopula_binary_normal" && equationtype.getvalue()=="rho")
+  else if ( ((family.getvalue() == "gaussiancopula_binary_normal"))
+              && equationtype.getvalue()=="rho")
     {
-	mainequation = true;
+	  mainequation = true;
     computemodeforstartingvalues = true;
 
     distr_gaussiancopula_binary_normal_rhos.push_back(DISTR_gaussiancopula_binary_normal_rho(&generaloptions,D.getCol(0),w));
@@ -7458,14 +7488,16 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1];
     equations[modnr].pathd = "";
 
-    if ((distr_gaussiancopula_binary_normal_sigmas.size() != 1) || (distr_gaussiancopula_binary_normal_mus.size() != 1) || (distr_gaussiancopula_binary_normal_latents.size() != 1))
+    if ( ((distr_gaussiancopula_binary_normal_sigmas.size() != 1) || (distr_gaussiancopula_binary_normal_mus.size() != 1)
+            || (distr_gaussiancopula_binary_normal_latents.size() != 1))
+        )
        {
        outerror("ERROR: three equations for marginal distribution required");
        return true;
        }
     predict_mult_distrs.push_back(&distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1]);
     predict_mult_distrs.push_back(&distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1]);
-	predict_mult_distrs.push_back(&distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1]);
+    predict_mult_distrs.push_back(&distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1]);
     predict_mult_distrs.push_back(&distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1]);
 
     distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1].workingresponse2p = &distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].response;
@@ -7473,31 +7505,31 @@ bool superbayesreg::create_distribution(void)
     distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].workingresponse2p = &distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].response;
     distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].workingresponse2p = &distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].response;
 
-	distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1]);
 
-	distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1]);
 
-	distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1]);
 
-	distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1]);
 
-	distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1]);
 
-	distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1]);
 
-	distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1]);
 
-	distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_latents[distr_gaussiancopula_binary_normal_latents.size()-1]);
 
-	distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1]);
 
     distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1].distrp.push_back(
@@ -7506,11 +7538,168 @@ bool superbayesreg::create_distribution(void)
     distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_sigmas[distr_gaussiancopula_binary_normal_sigmas.size()-1]);
 
-	distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1].distrp.push_back(
+	  distr_gaussiancopula_binary_normal_rhos[distr_gaussiancopula_binary_normal_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_normal_mus[distr_gaussiancopula_binary_normal_mus.size()-1]);
     }
 //-------------------------- END: gaussiancopula_binary_normal_rho ---------------------
 
+
+//-------------------------------- gaussiancopula_binary_normal_latent ---------------------------------
+  else if ( ((family.getvalue() == "gaussiancopula_binary_dagum"))
+            && equationtype.getvalue()=="latent")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_binary_dagum_latents.push_back(DISTR_gaussiancopula_binary_dagum_latent(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//---------------------------- END: gaussiancopula_binary_normal_latent -------------------------------
+
+//------------------------------- gaussiancopula_binary_dagum_p ------------------------------------
+  else if ((family.getvalue() == "gaussiancopula_binary_dagum") && equationtype.getvalue()=="p")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_binary_dagum_ps.push_back(DISTR_gaussiancopula_binary_dagum_p(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1];
+    equations[modnr].pathd = "";
+
+
+    }
+//------------------------------- END: ggaussiancopula_binary_dagum_p -------------------------------
+
+
+//------------------------------- gaussiancopula_binary_dagum_b ------------------------------------
+  else if ((family.getvalue() == "gaussiancopula_binary_dagum") && equationtype.getvalue()=="b")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_binary_dagum_bs.push_back(DISTR_gaussiancopula_binary_dagum_b(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1];
+    equations[modnr].pathd = "";
+
+
+    }
+//------------------------------- END: ggaussiancopula_binary_dagum_b -------------------------------
+
+//------------------------------- gaussiancopula_binary_dagum_a ------------------------------------
+  else if ((family.getvalue() == "gaussiancopula_binary_dagum") && equationtype.getvalue()=="a")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_binary_dagum_as.push_back(DISTR_gaussiancopula_binary_dagum_a(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1];
+    equations[modnr].pathd = "";
+
+
+    }
+//------------------------------- END: ggaussiancopula_binary_dagum_a -------------------------------
+
+//----------------------------- gaussiancopula_binary_dagum_rho ----------------------
+  else if ( ((family.getvalue() == "gaussiancopula_binary_dagum"))
+              && equationtype.getvalue()=="rho")
+    {
+	  mainequation = true;
+    computemodeforstartingvalues = true;
+
+    distr_gaussiancopula_binary_dagum_rhos.push_back(DISTR_gaussiancopula_binary_dagum_rho(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1];
+    equations[modnr].pathd = "";
+
+    if ( ((distr_gaussiancopula_binary_dagum_bs.size() != 1) || (distr_gaussiancopula_binary_dagum_as.size() != 1)
+           || (distr_gaussiancopula_binary_dagum_ps.size() != 1) || (distr_gaussiancopula_binary_dagum_latents.size() != 1))
+        /* &&
+          ((distr_gaussiancopula_binary_dagum_ps.size() != 1) || (distr_gaussiancopula_binary_dagum_bs.size() != 1)
+            || (distr_gaussiancopula_binary_dagum_as.size() != 1) || (distr_gaussiancopula_binary_dagum_latents.size() != 1)) */
+        )
+       {
+       outerror("ERROR: three equations for marginal distribution required");
+       return true;
+       }
+    predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
+    predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
+    predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
+    predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
+    predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].workingresponse2p = &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].response;
+    distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].response2 = distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].response;
+    distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].workingresponse2p = &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].response;
+    distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].workingresponse2p = &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].response;
+    distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].workingresponse2p = &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].response;
+
+	  distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
+
+    distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
+
+	  distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
+    &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
+    }
+//-------------------------- END: gaussiancopula_binary_dagum_rho ---------------------
 
 
 //-------------------------------- ZIP pi cloglog ------------------------------
