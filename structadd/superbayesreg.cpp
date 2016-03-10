@@ -2308,7 +2308,6 @@ bool superbayesreg::create_distribution(void)
     }
 //------------------------------ END: ZINB mu ----------------------------------
 
-
 //-------------------------------- negbin delta --------------------------------
   else if (family.getvalue() == "negbin" && equationtype.getvalue()=="delta")
     {
