@@ -219,6 +219,14 @@ DESIGN_pspline::DESIGN_pspline(datamatrix & dm,datamatrix & iv,
 
   compute_basisNull();
 
+/*
+  ofstream out("c:\\bayesx\\trunk\\testh\\results\\dm.raw");
+  dm.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\trunk\\testh\\results\\iv.raw");
+  iv.prettyPrint(out2);
+*/
+
   }
 
 

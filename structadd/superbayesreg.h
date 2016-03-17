@@ -735,6 +735,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   bool create_random_pspline(unsigned i);
   bool create_random_mrf(unsigned i);
 
+  bool create_mrf_pspline(unsigned i);
+
 
 //-------------------- end: multiplicative random effects ----------------------
 

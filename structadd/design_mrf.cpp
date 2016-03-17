@@ -82,7 +82,7 @@ DESIGN_mrf::DESIGN_mrf(void) : DESIGN()
   // CONSTRUCTOR 1
   // Spatial covariates
 
-DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
+DESIGN_mrf::DESIGN_mrf(datamatrix & dm,datamatrix & iv,
                        GENERAL_OPTIONS * o,DISTR * dp,FC_linear * fcl,
                        const MAP::map & m,vector<ST::string> & op,
                        vector<ST::string> & vn)
@@ -124,6 +124,15 @@ DESIGN_mrf::DESIGN_mrf(const datamatrix & dm,const datamatrix & iv,
 
     identity=true;
     }
+
+/*
+  ofstream out("c:\\bayesx\\trunk\\testh\\results\\dm.raw");
+  dm.prettyPrint(out);
+
+  ofstream out2("c:\\bayesx\\trunk\\testh\\results\\iv.raw");
+  iv.prettyPrint(out2);
+*/
+
   }
 
 

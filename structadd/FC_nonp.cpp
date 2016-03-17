@@ -1078,6 +1078,9 @@ bool FC_nonp::posteriormode(void)
                                 beta,meaneffect_sample.beta,computemeaneffect,
                                 meaneffectconstant);
 
+//    ofstream out("c:\\bayesx\\trunk\\testh\\results\\intvar.raw");
+//    designp->intvar.prettyPrint(out);
+
     }
 
   return FC::posteriormode();
