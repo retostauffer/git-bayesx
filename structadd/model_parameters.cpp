@@ -165,7 +165,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   constrmatdata = stroption("constrmatdata");
 
-  nraniso = intoption("nraniso", 11, 1, 101);;
+  nraniso = intoption("nraniso", 11, 1, 101);
+
+  WAICoff = simpleoption("WAICoff",false);
   }
 
 void term_nonp::setdefault(void)
@@ -247,6 +249,7 @@ void term_nonp::setdefault(void)
 
   constrmatdata.setdefault();
   nraniso.setdefault();
+  WAICoff.setdefault();
   }
 
 
@@ -359,23 +362,24 @@ bool term_nonp::check(term & t)
     optlist.push_back(&tildev1);
     optlist.push_back(&tildev2);
     optlist.push_back(&gig);
-	  optlist.push_back(&proposal);
+	optlist.push_back(&proposal);
 
-	  optlist.push_back(&rankK);
-	  optlist.push_back(&penmatdata);
+	optlist.push_back(&rankK);
+	optlist.push_back(&penmatdata);
 
-	  optlist.push_back(&cprior);
+	optlist.push_back(&cprior);
 
-	  optlist.push_back(&designmatdata);
-	  optlist.push_back(&priormeandata);
+	optlist.push_back(&designmatdata);
+	optlist.push_back(&priormeandata);
 
-	  optlist.push_back(&hyperprior);
+	optlist.push_back(&hyperprior);
 
-	  optlist.push_back(&penmatdata2);
-	  optlist.push_back(&designmatdata2);
+	optlist.push_back(&penmatdata2);
+	optlist.push_back(&designmatdata2);
 
-	  optlist.push_back(&constrmatdata);
-	  optlist.push_back(&nraniso);
+	optlist.push_back(&constrmatdata);
+	optlist.push_back(&nraniso);
+    optlist.push_back(&WAICoff);
 
     unsigned i;
     bool rec = true;
@@ -573,6 +577,10 @@ bool term_nonp::check(term & t)
 
     t.options[67] = constrmatdata.getvalue();
     t.options[68] = ST::inttostring(nraniso.getvalue());
+    if (WAICoff.getvalue() == false)
+      t.options[69] = "false";
+    else
+      t.options[69] = "true";
 
     setdefault();
     return true;

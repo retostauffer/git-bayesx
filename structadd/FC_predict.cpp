@@ -58,7 +58,6 @@ void FC_predict::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   */
 
 
-
   }
 
 FC_predict::FC_predict(void)
@@ -71,6 +70,7 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
       vector<ST::string> & dn)
   : FC(o,t,1,1,fp)
   {
+  WAICoff=false;
   nosamples = true;
   MSE = noMSE;
   MSEparam = 0.5;
@@ -90,14 +90,17 @@ FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
     {
     FC_deviance = FC(o,"",1,1,fpd);
 
-    FC_p = FC(o,"",lp->nrobs,1,"");
-    FC_p.nosamples = true;
+    if (WAICoff ==false)
+      {
+      FC_p = FC(o,"",lp->nrobs,1,"");
+      FC_p.nosamples = true;
 
-    FC_logp = FC(o,"",lp->nrobs,1,"");
-    FC_logp.nosamples = true;
+      FC_logp = FC(o,"",lp->nrobs,1,"");
+      FC_logp.nosamples = true;
 
-    FC_logp2 = FC(o,"",lp->nrobs,1,"");
-    FC_logp2.nosamples = true;
+      FC_logp2 = FC(o,"",lp->nrobs,1,"");
+      FC_logp2.nosamples = true;
+      }
     }
 
   }
@@ -115,6 +118,7 @@ FC_predict::FC_predict(const FC_predict & m)
   FC_p = m.FC_p;
   FC_logp = m.FC_logp;
   FC_logp2 = m.FC_logp2;
+  WAICoff = m.WAICoff;
   deviance = m.deviance;
   deviancesat = m.deviancesat;
   }
@@ -134,6 +138,7 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
   FC_p = m.FC_p;
   FC_logp = m.FC_logp;
   FC_logp2 = m.FC_logp2;
+  WAICoff = m.WAICoff;
   deviance = m.deviance;
   deviancesat = m.deviancesat;
   return *this;
@@ -162,14 +167,17 @@ void  FC_predict::update(void)
     FC_deviance.acceptance++;
     FC_deviance.update();
 
-    FC_p.acceptance++;
-    FC_p.update();
+    if (WAICoff==false)
+      {
+      FC_p.acceptance++;
+      FC_p.update();
 
-    FC_logp.acceptance++;
-    FC_logp.update();
+      FC_logp.acceptance++;
+      FC_logp.update();
 
-    FC_logp2.acceptance++;
-    FC_logp2.update();
+      FC_logp2.acceptance++;
+      FC_logp2.update();
+      }
 
     }
 
@@ -215,10 +223,13 @@ void FC_predict::get_predictor(void)
 
       deviance+=deviancehelp;
 
-      logp = -0.5*deviancehelp;
-      FC_logp.beta(i,0) = logp;
-      FC_p.beta(i,0) = exp(logp);
-      FC_logp2.beta(i,0) = pow(logp,2);
+      if (WAICoff==false)
+        {
+        logp = -0.5*deviancehelp;
+        FC_logp.beta(i,0) = logp;
+        FC_p.beta(i,0) = exp(logp);
+        FC_logp2.beta(i,0) = pow(logp,2);
+        }
 
       }
 
@@ -532,9 +543,13 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R, ofstream & o
     if (likep->maindistribution == true)
       {
       FC_deviance.outresults(out_stata,out_R,out_R2BayesX,"");
-      FC_p.outresults(out_stata,out_R,out_R2BayesX,"");
-      FC_logp.outresults(out_stata,out_R,out_R2BayesX,"");
-      FC_logp2.outresults(out_stata,out_R,out_R2BayesX,"");
+
+      if (WAICoff==false)
+        {
+        FC_p.outresults(out_stata,out_R,out_R2BayesX,"");
+        FC_logp.outresults(out_stata,out_R,out_R2BayesX,"");
+        FC_logp2.outresults(out_stata,out_R,out_R2BayesX,"");
+        }
       }
 
     optionsp->out("  PREDICTED VALUES: \n",true);
@@ -745,7 +760,8 @@ void FC_predict::outresults(ofstream & out_stata, ofstream & out_R, ofstream & o
       {
       outresults_deviance();
       outresults_DIC(out_stata,out_R,out_R2BayesX,pathresults);
-      outresults_WAIC(out_stata,out_R,out_R2BayesX,pathresults);
+      if (WAICoff==false)
+        outresults_WAIC(out_stata,out_R,out_R2BayesX,pathresults);
       }
 
     }   // end if (pathresults.isvalidfile() != 1)

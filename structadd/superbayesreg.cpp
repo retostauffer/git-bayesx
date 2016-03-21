@@ -395,6 +395,8 @@ void superbayesreg::create_hregress(void)
 
   predict = stroption("predict",predictop,"no");
 
+  WAICoff = simpleoption("WAICoff",false);
+
   pred_check = simpleoption("pred_check",false);
 
   cv = simpleoption("cv",false);
@@ -502,6 +504,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&copula);
   regressoptions.push_back(&samplesel);
   regressoptions.push_back(&sampleselval);
+  regressoptions.push_back(&WAICoff);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -8333,6 +8336,10 @@ bool superbayesreg::create_predict(void)
             FC_predicts[FC_predicts.size()-1].MSE = MCMC::checkMSE;
             FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
             }
+
+          if (WAICoff.getvalue()==true)
+            FC_predicts[FC_predicts.size()-1].WAICoff = true;
+
 
           equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
           }

@@ -123,6 +123,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   intoption nraniso;
 
+  simpleoption WAICoff;
+
   vector<ST::string> termnames;
 
   void setdefault(void);

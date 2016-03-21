@@ -58,6 +58,7 @@ class __EXPORT_TYPE FC_predict   : public FC
   FC FC_logp;
   FC FC_logp2;
 
+
   DISTR * likep;
   datamatrix designmatrix;
   vector<ST::string> varnames;
@@ -74,6 +75,8 @@ class __EXPORT_TYPE FC_predict   : public FC
 
   msetype MSE;
   double MSEparam;
+
+  bool WAICoff;
 
   ST::string getloss(void);
 

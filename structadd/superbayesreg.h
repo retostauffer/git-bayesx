@@ -375,6 +375,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // prediction
   vector<ST::string> predictop;
   stroption predict;
+  simpleoption WAICoff;
 
   simpleoption pred_check;
 
