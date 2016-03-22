@@ -88,7 +88,7 @@ class __EXPORT_TYPE FC_predict   : public FC
 
   FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
      const ST::string & fp,const ST::string & fpd, datamatrix & dm,
-     vector<ST::string> & dn);
+     vector<ST::string> & dn,bool wa);
 
   // COPY CONSTRUCTOR
 

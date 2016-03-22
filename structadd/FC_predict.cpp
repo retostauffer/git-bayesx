@@ -67,10 +67,10 @@ FC_predict::FC_predict(void)
 
 FC_predict::FC_predict(GENERAL_OPTIONS * o,DISTR * lp,const ST::string & t,
      const ST::string & fp, const ST::string & fpd, datamatrix & dm,
-      vector<ST::string> & dn)
+      vector<ST::string> & dn,bool wa)
   : FC(o,t,1,1,fp)
   {
-  WAICoff=false;
+  WAICoff=wa;
   nosamples = true;
   MSE = noMSE;
   MSEparam = 0.5;

@@ -57,6 +57,7 @@ class __EXPORT_TYPE FC_predict_mult   : public FC
   FC FC_p;
   FC FC_logp;
   FC FC_logp2;
+  bool WAICoff;
 
   vector<DISTR *> likep;
   datamatrix designmatrix;
@@ -76,7 +77,7 @@ class __EXPORT_TYPE FC_predict_mult   : public FC
 
   FC_predict_mult(GENERAL_OPTIONS * o,vector<DISTR *> lp,const ST::string & t,
      const ST::string & fp,const ST::string & fpd, datamatrix & dm,
-     vector<ST::string> & dn);
+     vector<ST::string> & dn, bool wa);
 
   // COPY CONSTRUCTOR
 

@@ -8316,7 +8316,7 @@ bool superbayesreg::create_predict(void)
           {
           FC_predicts.push_back(FC_predict(&generaloptions,
                              equations[modnr].distrp,"",pathnonp,
-                             pathnonp2,D,modelvarnamesv));
+                             pathnonp2,D,modelvarnamesv,WAICoff.getvalue()));
 
        //   cout << modnr << endl;
           if (predict.getvalue() == "fulls")
@@ -8337,9 +8337,6 @@ bool superbayesreg::create_predict(void)
             FC_predicts[FC_predicts.size()-1].MSEparam = mseparam.getvalue();
             }
 
-          if (WAICoff.getvalue()==true)
-            FC_predicts[FC_predicts.size()-1].WAICoff = true;
-
 
           equations[modnr].add_FC(&FC_predicts[FC_predicts.size()-1],pathres);
           }
@@ -8348,7 +8345,7 @@ bool superbayesreg::create_predict(void)
 
           FC_predicts_mult.push_back(FC_predict_mult(&generaloptions,
                              predict_mult_distrs,"",pathnonp,
-                             pathnonp2,D,modelvarnamesv));
+                             pathnonp2,D,modelvarnamesv,WAICoff.getvalue()));
 
           if (predict.getvalue() == "fulls")
             FC_predicts_mult[FC_predicts_mult.size()-1].nosamples=false;
