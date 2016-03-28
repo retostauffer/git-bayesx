@@ -473,6 +473,7 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gausscopula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
+	// Kendall tau
   *mu = 2 * std::asin((*linpred[predstart_mumult+(linpred.size()-1)]) / (pow(1 + pow((*linpred[predstart_mumult+(linpred.size()-1)]), 2), 0.5))) / PI ;
   }
 
@@ -746,6 +747,7 @@ void DISTR_gausscopula2::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gausscopula2::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
+	//Kendall tau	
   *mu = 2 * std::asin(tanh(*linpred[predstart_mumult+(linpred.size()-1)]) ) / PI ;
   }
 
