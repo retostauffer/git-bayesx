@@ -25445,26 +25445,19 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
 
     if (*weightwork != 0)
       {
-      if (*workresporig > 0)
-        *workresp = trunc_normal2(0,20,*worklin_current+(*worktransformlin[2])*((*response2p)-(*worklin[1]))/(*worktransformlin[0]),pow(1-pow(*worktransformlin[2],2),0.5));
-      else
+      if(*workresporig == 0)
+        {
         *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[2])*((*response2p)-(*worklin[1]))/(*worktransformlin[0]),pow(1-pow(*worktransformlin[2],2),0.5));
-      }
-/*
-    //BEGIN: SAMPLESELCASE
-    //ADD SAMPLESSEL CASE
-    else
-      {
-      if (*workresporig > 0)
-        *workresp = ;
+        }
       else
-        *workresp = ;
+        {
+        //SAMPLESEL
+
+        }
 
       }
-     //END: SAMPLESEL CASE
- */
-    }
 
+    }
   }
 
 double DISTR_gaussiancopula_binary_dagum_latent::loglikelihood_weightsone(double * response,
@@ -25487,7 +25480,7 @@ double DISTR_gaussiancopula_binary_dagum_latent::loglikelihood_weightsone(double
   double oneminusrho2 = 1- rho2;
   double l;
 
-
+  //FIX SAMPLESEL and NOT case
      l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
                                  2*(*worktransformlin[2])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
 
@@ -25523,10 +25516,10 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
   double rho2 = pow((*worktransformlin[2]),2);
   double oneminusrho2 = 1- rho2;
 
-
+  //FIX SAMPLESEL and NOT case
   double nu = (1/(oneminusrho2))*( (((*response))-mu) -
                                  ((*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
-
+  //FIX SAMPLESEL and NOT case
   *workingweight = 1/(oneminusrho2);
 
 //  cout << "latent equation y1: " << *response << endl;
@@ -25537,7 +25530,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
   if (compute_like)
     {
-
+    //FIX SAMPLESEL and NOT case
     like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
                                  2*(*worktransformlin[2])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
 
@@ -26254,6 +26247,7 @@ void DISTR_gaussiancopula_binary_dagum_a::update_end(void)
 //------------------------------------------------------------------------------
 //---------- CLASS: DISTR_gaussiancopula_binary_dagum_rho ----------------------
 //------------------------------------------------------------------------------
+
 void DISTR_gaussiancopula_binary_dagum_rho::check_errors(void)
   {
 
