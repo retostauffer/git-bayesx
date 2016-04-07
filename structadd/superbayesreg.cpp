@@ -7612,73 +7612,51 @@ bool superbayesreg::create_distribution(void)
   else if ( ((family.getvalue() == "gaussiancopula_binary_dagum"))
               && equationtype.getvalue()=="rho")
     {
-	  mainequation = true;
+    mainequation = true;
     computemodeforstartingvalues = true;
 
-    // für was sind denn die folgenden 2 Zeilen? brauchen wir die hier? kopiert von hurdle.
-    if(w.rows()==1)
-        w = datamatrix(D.rows(),1,1);
+    distr_gaussiancopula_binary_dagum_rhos.push_back(DISTR_gaussiancopula_binary_dagum_rho(&generaloptions,D.getCol(0),w));
 
-    //das folgende nimmt gerade an, dass die response in der copula Gleichung die binaere Variable ist im Falle von samplesel.
+
     datamatrix sampleselweight;
     int i;
     if(generaloptions.samplesel)
       {
       sampleselweight = distr_gaussiancopula_binary_dagum_latents[0].response;
-      double * wp = distr_gaussiancopula_binary_dagum_as[0].weight.getV();
+      double * wp = (distr_gaussiancopula_binary_dagum_as[0].weight).getV();
       double * sampleselwp = sampleselweight.getV();
-      //double * rp = D.getV();
-      for(i=0;i< distr_gaussiancopula_binary_dagum_as[0].weight.rows(); i++,wp++,sampleselwp++)
-      {
-      if( ((*sampleselwp)==0) )
-        *wp = 0;
-      }
-      //besser das sampleselweight immer wieder neu definieren. Wie kann ich denn sampleselweight "removen" zum Neudefinieren oder Zeiger wieder auf 1.Element
-      // oder ist das auch so sichergestellt?
-      double * wp2 = distr_gaussiancopula_binary_dagum_bs[0].weight.getV();
-      //double * rp = D.getV();
-      for(i=0;i< distr_gaussiancopula_binary_dagum_bs[0].weight.rows(); i++,wp2++,sampleselwp++)
-      {
-      if( ((*sampleselwp)==0) )
-        *wp2 = 0;
-      }
+      for(i=0;i< (distr_gaussiancopula_binary_dagum_as[0].weight).rows(); i++,wp++,sampleselwp++)
+        {
+        if( ((*sampleselwp)==0) )
+          *wp = 0;
+        }
 
-      double * wp3 = distr_gaussiancopula_binary_dagum_ps[0].weight.getV();
-      //double * rp = D.getV();
-      for(i=0;i< distr_gaussiancopula_binary_dagum_ps[0].weight.rows(); i++,wp3++,sampleselwp++)
-      {
-      if( ((*sampleselwp)==0) )
-        *wp3 = 0;
-      }
+      wp = (distr_gaussiancopula_binary_dagum_bs[0].weight).getV();
+      for(i=0;i< (distr_gaussiancopula_binary_dagum_bs[0].weight).rows(); i++,wp++,sampleselwp++)
+        {
+        if( ((*sampleselwp)==0) )
+          *wp = 0;
+        }
 
-      double * wp4 = distr_gaussiancopula_binary_dagum_rhos[0].weight.getV();
-      //double * rp = D.getV();
-      for(i=0;i< distr_gaussiancopula_binary_dagum_rhos[0].weight.rows(); i++,wp4++,sampleselwp++)
-      {
-      if( ((*sampleselwp)==0) )
-        *wp4 = 0;
-      }
-      }
+      wp = (distr_gaussiancopula_binary_dagum_ps[0].weight).getV();
+      for(i=0;i< (distr_gaussiancopula_binary_dagum_ps[0].weight).rows(); i++,wp++,sampleselwp++)
+        {
+        if( ((*sampleselwp)==0) )
+          *wp = 0;
+        }
 
-    double * wp = w.getV();
-    double * rp = D.getV();
-    for(i=0;i<w.rows();i++,wp++,rp+=D.cols())
-      {
-   //       FIX ME
-   //   if( ((*rp)==0) && () )
-   //     *wp = 0;
+      wp = (distr_gaussiancopula_binary_dagum_rhos[0].weight).getV();
+      for(i=0;i< (distr_gaussiancopula_binary_dagum_rhos[0].weight).rows(); i++,wp++,sampleselwp++)
+        {
+        if( ((*sampleselwp)==0) )
+          *wp = 0;
+        }
       }
-
-    distr_gaussiancopula_binary_dagum_rhos.push_back(DISTR_gaussiancopula_binary_dagum_rho(&generaloptions,D.getCol(0),w));
-
     equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1];
     equations[modnr].pathd = "";
 
     if ( ((distr_gaussiancopula_binary_dagum_bs.size() != 1) || (distr_gaussiancopula_binary_dagum_as.size() != 1)
            || (distr_gaussiancopula_binary_dagum_ps.size() != 1) || (distr_gaussiancopula_binary_dagum_latents.size() != 1))
-        /* &&
-          ((distr_gaussiancopula_binary_dagum_ps.size() != 1) || (distr_gaussiancopula_binary_dagum_bs.size() != 1)
-            || (distr_gaussiancopula_binary_dagum_as.size() != 1) || (distr_gaussiancopula_binary_dagum_latents.size() != 1)) */
         )
        {
        outerror("ERROR: three equations for marginal distribution required");
