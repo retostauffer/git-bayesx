@@ -25440,18 +25440,19 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
 
   unsigned i;
   for(i=0;i<nrobs;i++,worklin_current++,workresp++,weightwork++,
-           response2p++,workresporig++,worktransformlin[2]++,worklin[1]++,worktransformlin[0]++)
+           response2p++,workresporig++,worktransformlin[2]++,worktransformlin[1]++,worktransformlin[0]++)
     {
 
     if (*weightwork != 0)
       {
       if(*workresporig == 0)
         {
-        *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[2])*((*response2p)-(*worklin[1]))/(*worktransformlin[0]),pow(1-pow(*worktransformlin[2],2),0.5));
+        *workresp = trunc_normal2(-20,0,*worklin_current, 1);
         }
       else
         {
         //SAMPLESEL
+        double Fdagum = pow( ( 1 + pow( *response2p / *worktransformlin[1], - *worktransformlin[2] ) ), - *worktransformlin[0] );
 
         }
 
