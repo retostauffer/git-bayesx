@@ -18541,7 +18541,7 @@ DISTR_bivlogit_or::DISTR_bivlogit_or(GENERAL_OPTIONS * o,
 
   outpredictor = true;
   outexpectation = false;
-  predictor_name = "rho";
+  predictor_name = "oddsratio";
     linpredminlimit=-10;
   linpredmaxlimit=15;
   datamatrix d(nrobs,1,0.00001);
@@ -25453,7 +25453,14 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
         {
         //SAMPLESEL
         double Fdagum = pow( ( 1 + pow( *response2p / *worktransformlin[1], - *worktransformlin[2] ) ), - *worktransformlin[0] );
+        double help2 = sqrt(1-(*worktransformlin[3])*(*worktransformlin[3]));
+        double help3 = randnumbers::invPhi2(Fdagum);
 
+        double help = randnumbers::Phi2( (- *worklin_current - (*worktransformlin[3])*help3) / (help2));
+        double x = randnumbers::uniform();
+        double xstar = x*(1-help) + help;
+
+        *workresp = randnumbers::invPhi2(xstar)*help2 + (*worktransformlin[3])*help3 + *worklin_current;
         }
 
       }
@@ -25477,14 +25484,22 @@ double DISTR_gaussiancopula_binary_dagum_latent::loglikelihood_weightsone(double
     }
 
   double mu = (*linpred);
-  double rho2 = pow((*worktransformlin[2]),2);
-  double oneminusrho2 = 1- rho2;
   double l;
 
+  if((optionsp->samplesel) && (*response <= 0))
+    {
   //FIX SAMPLESEL and NOT case
-     l = -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
-                                 2*(*worktransformlin[2])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
+     l = -0.5 * pow(((*response)-mu),2) ;
+    }
+  else
+    {
+    double rho2 = pow((*worktransformlin[3]),2);
+    double oneminusrho2 = 1- rho2;
+    double v = pow( ( 1 + pow( *response2p / *worktransformlin[1], - *worktransformlin[2] ) ), - *worktransformlin[0] );
+    double u = randnumbers::Phi2(*response-mu);
 
+    l = (*worktransformlin[3])*(oneminusrho2)*randnumbers::invPhi2(u)*( randnumbers::invPhi2(v) - 0.5*(*worktransformlin[3])*randnumbers::invPhi2(u) );
+    }
   modify_worklin();
 
   return l;
@@ -25514,26 +25529,46 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     }
 
   double mu = (*linpred);
-  double rho2 = pow((*worktransformlin[2]),2);
-  double oneminusrho2 = 1- rho2;
+  double rho2;
+  double oneminusrho2;
+  double v;
+  double u;
+  double phiinvu;
+  double phiinvv;
+  double nu;
+  if((optionsp->samplesel) && (*response <= 0))
+    {
+    nu = *response-mu ;
+    *workingweight = 1;
+    }
+    else
+    {
+    rho2 = pow((*worktransformlin[3]),2);
+    oneminusrho2 = 1- rho2;
+    v = pow( ( 1 + pow( *response2p / *worktransformlin[1], - *worktransformlin[2] ) ), - *worktransformlin[0] );
+    u = randnumbers::Phi2(*response-mu);
+    phiinvu = randnumbers::invPhi2(u);
+    phiinvv = randnumbers::invPhi2(v);
+    nu = (*worktransformlin[3])*(oneminusrho2)*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2))*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu )
+                + (*worktransformlin[3])*(oneminusrho2)*phiinvu*( - 0.5*(*worktransformlin[3])*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2)) );
+    *workingweight = 0;
+    }
 
-  //FIX SAMPLESEL and NOT case
-  double nu = (1/(oneminusrho2))*( (((*response))-mu) -
-                                 ((*worktransformlin[2]))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
-  //FIX SAMPLESEL and NOT case
-  *workingweight = 1/(oneminusrho2);
 
-//  cout << "latent equation y1: " << *response << endl;
-//  cout << "latent equation y2: " << *response2p << endl;
-//  cout << "latent equation y2orig: " << *workresporig << endl;
 
   *workingresponse = *linpred + nu/(*workingweight);
 
   if (compute_like)
     {
-    //FIX SAMPLESEL and NOT case
-    like += -(1/(2*oneminusrho2))*( pow((((*response))-mu),2) -
-                                 2*(*worktransformlin[2])*(((*response)-mu))*(((*response2p)-(*worktransformlin[1]))/(*worktransformlin[0])) );
+    if((optionsp->samplesel) && (*response <= 0))
+    {
+  //FIX SAMPLESEL and NOT case
+     like += -0.5 * pow(((*response)-mu),2) ;
+    }
+    else
+    {
+    like += (*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
+    }
 
     }
 
