@@ -36,6 +36,8 @@ class __EXPORT_TYPE FC_variance_pen_vector : public FC
 
   protected:
 
+  MASTER_OBJ * masterp;
+
   vector<double> tau2;                 //  tau^2
 
   bool update_sigma2;                 //  update sigma2
@@ -183,6 +185,9 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
 
   protected:
 
+  MASTER_OBJ * masterp;
+  unsigned equationnr;
+
   vector<bool> cprior;
   FC_linear_pen * Cp;
   DISTR * distrp;
@@ -190,6 +195,7 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
   FC delta;                           //  delta
   vector<double> atau2;               //  a_tau2
   vector<double> btau2;               //  b_tau2
+  vector<double> btau2_orig;          //  b_tau2
   FC theta;
   double atheta;
   double btheta;
@@ -206,7 +212,9 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
     }
 
 
-  FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,GENERAL_OPTIONS * o, FC_linear_pen * p,
+  FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
+                         unsigned & enr,
+                         GENERAL_OPTIONS * o, FC_linear_pen * p,
                          DISTR * d,const ST::string & ti,
                          const ST::string & fp);
 

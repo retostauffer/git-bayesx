@@ -10010,7 +10010,7 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
     else
       {
       FC_variance_pen_vector_ssvss.push_back(
-      FC_variance_pen_vector_ssvs(&master,&generaloptions,
+      FC_variance_pen_vector_ssvs(&master,nrlevel1,&generaloptions,
                               &(FC_linear_pens[FC_linear_pens.size()-1])  ,
                               equations[modnr].distrp,titlevar, pathpenvar));
       }

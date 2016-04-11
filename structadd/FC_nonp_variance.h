@@ -174,6 +174,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   double v1;
   double v2;
+  double v2_orig;
 
   double r_delta;
 

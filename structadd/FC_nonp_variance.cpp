@@ -726,7 +726,8 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
   f = op[41].strtodouble(r);
 
   f = op[53].strtodouble(v1);
-  f = op[54].strtodouble(v2);
+  f = op[54].strtodouble(v2_orig);
+  v2 = masterp->level1_likep[equationnr]->trmult*v2_orig;
 
   if (op[57] == "true")
     gig = true;
@@ -798,6 +799,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   tauold = m.tauold;
   v1 = m.v1;
   v2 = m.v2;
+  v2_orig = m.v2_orig;
   r = m.r;
   X = m.X;
   diff = m.diff;
@@ -825,6 +827,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   tauold = m.tauold;
   v1 = m.v1;
   v2 = m.v2;
+  v2_orig = m.v2_orig;
   r = m.r;
   X = m.X;
   diff = m.diff;
@@ -1004,6 +1007,8 @@ void FC_nonp_variance_varselection::update(void)
     r_delta = r;
   else
     r_delta = 1;
+
+  v2 = masterp->level1_likep[equationnr]->trmult*v2_orig;
 
   FC_psi2.beta(0,0) = rand_invgamma(v1+0.5,v2+0.5*beta(0,0)/r_delta);
   FC_psi2.update();

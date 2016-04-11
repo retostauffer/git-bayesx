@@ -149,6 +149,8 @@ FC_variance_pen_vector::FC_variance_pen_vector(MASTER_OBJ * mp,
                         :FC(o,ti,1,1,fp)
   {
 
+  masterp = mp;
+
   shtype = sh;
   if (shtype==ridge)
     is_ridge = true;
@@ -185,6 +187,7 @@ FC_variance_pen_vector::FC_variance_pen_vector(MASTER_OBJ * mp,
 FC_variance_pen_vector::FC_variance_pen_vector(const FC_variance_pen_vector & t)
     : FC(FC(t))
   {
+  masterp = t.masterp;
   tau2 = t.tau2;
   shelp = t.shelp;
   update_sigma2 = t.update_sigma2;
@@ -216,6 +219,7 @@ const FC_variance_pen_vector & FC_variance_pen_vector::operator=(
   if (this == &t)
     return *this;
   FC::operator=(FC(t));
+  masterp = t.masterp;
   tau2 = t.tau2;
   shelp = t.shelp;
   update_sigma2 = t.update_sigma2;
@@ -615,7 +619,8 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   f = op[53].strtodouble(a);
   f = op[54].strtodouble(b);
   atau2.push_back(a);
-  btau2.push_back(b);
+  btau2_orig.push_back(b);
+  btau2.push_back(masterp->level1_likep[equationnr]->trmult*b);
 
   if (op[61] == "true")
     {
@@ -643,11 +648,15 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
 
 
 FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
+                        unsigned & enr,
                         GENERAL_OPTIONS * o, FC_linear_pen * p,
                         DISTR * d,const ST::string & ti,
                         const ST::string & fp)
                         :FC(o,ti,1,1,fp)
   {
+
+  masterp = mp;
+  equationnr = enr;
 
   Cp = p;
 
@@ -668,6 +677,9 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
 FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_vector_ssvs & t)
     : FC(FC(t))
   {
+  masterp = t.masterp;
+  equationnr = t.equationnr;
+
   cprior = t.cprior;
   nrpen = t.nrpen;
 
@@ -677,6 +689,7 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_v
   delta = t.delta;
   atau2 = t.atau2;
   btau2 = t.btau2;
+  btau2_orig = t.btau2_orig;
   theta = t.theta;
   atheta = t.atheta;
   btheta = t.btheta;
@@ -691,6 +704,9 @@ const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const
   if (this == &t)
     return *this;
   FC::operator=(FC(t));
+  masterp = t.masterp;
+  equationnr = t.equationnr;
+
   cprior = t.cprior;
   nrpen = t.nrpen;
 
@@ -700,6 +716,7 @@ const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const
   delta = t.delta;
   atau2 = t.atau2;
   btau2 = t.btau2;
+  btau2_orig = t.btau2_orig;
   theta = t.theta;
   atheta = t.atheta;
   btheta = t.btheta;
