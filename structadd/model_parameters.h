@@ -122,6 +122,7 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption constrmatdata;
 
   intoption nraniso;
+  doubleoption minaniso;
 
   simpleoption WAICoff;
 

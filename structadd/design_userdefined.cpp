@@ -734,6 +734,8 @@ void DESIGN_userdefined_tensor::read_options(vector<ST::string> & op,
 
   f = op[68].strtolong(nromega);
 
+  f = op[70].strtodouble(minomega);
+
   datanames = vn;
   }
 
@@ -919,9 +921,10 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
        for(k=0; k<designmat2.cols(); k++)
          designmat(i,j + k*designmat2.cols()) = designmat1(i,j)*designmat2(i,k);
 
+  double rangeomega = 1.0-2.0*minomega;
   for(i=0; i<nromega; i++)
     {
-    omegas.push_back(0.05 + ((double)i)/((double)(nromega-1)) * 0.9);
+    omegas.push_back(minomega + ((double)i)/((double)(nromega-1)) * rangeomega);
     }
 
   FC_omegas = FC(o,"",1,1,"");
@@ -1009,6 +1012,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(const DESIGN_userdefined_te
   dets = m.dets;
   omegas = m.omegas;
   nromega = m.nromega;
+  minomega = m.minomega;
   FC_omegas = m.FC_omegas;
   omegaindex = m.omegaindex;
   xvalues = m.xvalues;
@@ -1028,6 +1032,7 @@ const DESIGN_userdefined_tensor & DESIGN_userdefined_tensor::operator=(const DES
   dets = m.dets;
   omegas = m.omegas;
   nromega = m.nromega;
+  minomega = m.minomega;
   FC_omegas = m.FC_omegas;
   omegaindex = m.omegaindex;
   xvalues = m.xvalues;

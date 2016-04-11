@@ -431,6 +431,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // rotations
   intoption rotation;
 
+  // restrict the range of variances for SSVS priors
+  doubleoption ssvsvarlimit;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------

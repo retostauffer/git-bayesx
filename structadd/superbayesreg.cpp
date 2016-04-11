@@ -457,6 +457,8 @@ void superbayesreg::create_hregress(void)
 
   rotation = intoption("rotation",0,0,270);
 
+  ssvsvarlimit = doubleoption("ssvsvarlimit",0.0000000001,0,0.1);
+
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -505,13 +507,13 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&samplesel);
   regressoptions.push_back(&sampleselval);
   regressoptions.push_back(&WAICoff);
+  regressoptions.push_back(&ssvsvarlimit);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
 			 optional,optional,optional,optional,required));
 
   functions[0] = hregressrun;
-
   }
 
 // forward declaration
@@ -8619,7 +8621,7 @@ void superbayesreg::create_pspline(unsigned i)
                                   &master,nrlevel1,&generaloptions,equations[modnr].distrp,so,
                                   title,pathnonp,&design_psplines[design_psplines.size()-1],
                                   &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                  terms[i].varnames));
+                                  terms[i].varnames,ssvsvarlimit.getvalue()));
 
     equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
 
@@ -9409,7 +9411,7 @@ bool superbayesreg::create_mrf(unsigned i)
                                   &master,nrlevel1,&generaloptions,equations[modnr].distrp,so,
                                   title,pathnonp,&design_mrfs[design_mrfs.size()-1],
                                   &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                                  terms[i].varnames));
+                                  terms[i].varnames,ssvsvarlimit.getvalue()));
 
     equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
 

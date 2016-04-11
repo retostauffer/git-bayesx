@@ -43,7 +43,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   burnin = 2000;
   step = 20;
   nrbetween = 1000;
-  nrout = 1000;
+  nrout = 100;
   nriter = 0;
   samplesize = 0;
   logout = &cout;

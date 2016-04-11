@@ -159,6 +159,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   protected:
 
+  double ssvsvarlimit;
+
   datamatrix onevec;
   vector<ST::string> datanames;
 
@@ -204,7 +206,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
           bool so,
            const ST::string & t,
            const ST::string & fp,DESIGN * dp,FC_nonp * FCn,
-           vector<ST::string> & op,vector<ST::string> & vn);
+           vector<ST::string> & op,vector<ST::string> & vn, double vl);
 
   // COPY CONSTRUCTOR
 
@@ -359,7 +361,7 @@ class __EXPORT_TYPE FC_tensor_omega : public FC
   protected:
 
   datamatrix omegas;
-  unsigned nromegas;
+  unsigned nromega;
   unsigned omegaindex;
 
   DESIGN_userdefined_tensor * dut;

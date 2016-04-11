@@ -165,7 +165,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   constrmatdata = stroption("constrmatdata");
 
-  nraniso = intoption("nraniso", 11, 1, 101);
+  nraniso = intoption("nraniso", 11, 2, 101);
+  minaniso = doubleoption("minaniso", 0.05, 0.0000000001, 0.49);
 
   WAICoff = simpleoption("WAICoff",false);
   }
@@ -248,7 +249,10 @@ void term_nonp::setdefault(void)
   designmatdata2.setdefault();
 
   constrmatdata.setdefault();
+
   nraniso.setdefault();
+  minaniso.setdefault();
+
   WAICoff.setdefault();
   }
 
@@ -380,6 +384,8 @@ bool term_nonp::check(term & t)
 	optlist.push_back(&constrmatdata);
 	optlist.push_back(&nraniso);
     optlist.push_back(&WAICoff);
+
+	optlist.push_back(&minaniso);
 
     unsigned i;
     bool rec = true;
@@ -581,6 +587,8 @@ bool term_nonp::check(term & t)
       t.options[69] = "false";
     else
       t.options[69] = "true";
+
+    t.options[70] = ST::doubletostring(minaniso.getvalue());
 
     setdefault();
     return true;

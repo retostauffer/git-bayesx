@@ -746,11 +746,13 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
                  unsigned & enr, GENERAL_OPTIONS * o,
                  DISTR * lp, bool so, const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,FC_nonp * FCn,vector<ST::string> & op,
-                 vector<ST::string> & vn)
+                 vector<ST::string> & vn, double vl)
      : FC_nonp_variance(mp,enr,o,lp,t,fp,Dp,FCn,op,vn)
   {
 
   read_options(op,vn);
+
+  ssvsvarlimit = vl;
 
   singleomega = so;
 
@@ -802,6 +804,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   gig = m.gig;
   r_delta = m.r_delta;
   datanames = m.datanames;
+  ssvsvarlimit = m.ssvsvarlimit;
   }
 
 
@@ -828,6 +831,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   gig = m.gig;
   r_delta = m.r_delta;
   datanames = m.datanames;
+  ssvsvarlimit = m.ssvsvarlimit;
   return *this;
   }
 
@@ -925,6 +929,8 @@ void FC_nonp_variance_varselection::update_IWLS(void)
       }
     else
       {*/
+      if(tauprop<=ssvsvarlimit)
+        tauprop=tauold;
       tauold = tauprop;
       FCnonpp->ssvs_update(tauold,false);
 //      }
@@ -1330,12 +1336,12 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
            const unsigned & nro, const ST::string & fp)
            : FC(o,t,1,1,fp)
     {
-    nromegas=nro;
+    nromega=d->nromega;
     unsigned i;
-    omegas = datamatrix(nromegas,1,0.0);
-    for(i=0; i<nromegas; i++)
-      omegas(i,0) = 0.05 + ((double)i)/((double)(nromegas-1)) * 0.9;
-    omegaindex = (unsigned)((nromegas-1)/2);
+    omegas = datamatrix(nromega,1,0.0);
+    for(i=0; i<nromega; i++)
+      omegas(i,0) = d->omegas[i];
+    omegaindex = (unsigned)((nromega-1)/2);
     dut = d;
     fcn = f;
     logdets = dut->logdets;
@@ -1346,7 +1352,7 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
          : FC(FC(m))
     {
     omegas = m.omegas;
-    nromegas = m.nromegas;
+    nromega = m.nromega;
     omegaindex = m.omegaindex;
     dut = m.dut;
     logdets = m.logdets;
@@ -1361,7 +1367,7 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
     	 return *this;
     FC::operator=(FC(m));
     omegas = m.omegas;
-    nromegas = m.nromegas;
+    nromega = m.nromega;
     omegaindex = m.omegaindex;
     dut = m.dut;
     logdets = m.logdets;
@@ -1429,12 +1435,12 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
   void FC_tensor_omega::update(void)
     {
-    datamatrix logprobs(nromegas,1,0.0);
-    datamatrix probs(nromegas,1,0.0);
+    datamatrix logprobs(nromega,1,0.0);
+    datamatrix probs(nromega,1,0.0);
     double probsum=0;
     double maxlogprob;
     unsigned i;
-    for(i=0; i<nromegas; i++)
+    for(i=0; i<nromega; i++)
       {
       dut->omegaindex=i;
       logprobs(i,0) = 0.5*logdets(i,0)-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param));
@@ -1453,18 +1459,18 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
           maxlogprob = logprobs(i,0);
         }
       }
-    for(i=0; i<nromegas; i++)
+    for(i=0; i<nromega; i++)
       {
       probs(i,0) = exp(logprobs(i,0)-maxlogprob);
       probsum += probs(i,0);
       }
-    for(i=0; i<nromegas; i++)
+    for(i=0; i<nromega; i++)
       {
       probs(i,0) /= probsum;
       }
-    datamatrix cumprobs(nromegas,1,0.0);
+    datamatrix cumprobs(nromega,1,0.0);
     cumprobs(0,0) = probs(0,0);
-    for(i=1; i<nromegas; i++)
+    for(i=1; i<nromega; i++)
       cumprobs(i,0) = cumprobs(i-1,0) + probs(i,0);
 
 /*    ofstream out1("c:/temp/userdefined_tensor/probs.raw");
@@ -1497,7 +1503,7 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
                const ST::string & pathresults)
     {
     FC::outresults(out_stata, out_R, out_R2BayesX, "");
-    datamatrix omegafreq(nromegas,1,0.0);
+    datamatrix omegafreq(nromega,1,0.0);
     unsigned i;
     for(i=0; i<sampled_beta.rows(); i++)
        omegafreq((int)sampled_beta(i,0),0) += 1.0;
@@ -1505,7 +1511,7 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
     optionsp->out("\n");
     optionsp->out("Frequencies of anisotropy values:\n");
     optionsp->out("\n");
-    for(i=0; i<nromegas; i++)
+    for(i=0; i<nromega; i++)
       optionsp->out("  " + ST::doubletostring(omegas(i,0),4) + ": " +
       ST::doubletostring(omegafreq(i,0)/((double)sampled_beta.rows()),3) + "\n");
     optionsp->out("\n");
@@ -1513,7 +1519,7 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
     ST::string pathresults_omega = pathresults.substr(0,pathresults.length()-4) + "_omega.res";
     ofstream outomegas(pathresults_omega.strtochar());
     outomegas << "omega   freq" << endl;
-    for(i=0; i<nromegas; i++)
+    for(i=0; i<nromega; i++)
       {
       outomegas << ST::doubletostring(omegas(i,0),4) << "   ";
       outomegas << ST::doubletostring(omegafreq(i,0)/((double)sampled_beta.rows()),3);

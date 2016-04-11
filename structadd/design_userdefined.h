@@ -123,15 +123,17 @@ class __EXPORT_TYPE DESIGN_userdefined_tensor : public DESIGN_userdefined
 
   vector<envmatdouble> Ks; // vector of penalty matrices (K = omega*K_1 + (1-omega)K_2)
   vector<double> dets;     // vector of determinants of penalty matrices
-  vector<double> omegas;   // vector of fixed weights (grid between 0 and 1)
-
-  long nromega;
+  double minomega;
   FC FC_omegas;
 
   vector<double> xvalues;             // unterschiedliche Werte der Kovariablen
   vector<double> yvalues;
 
   public:
+
+  vector<double> omegas;   // vector of fixed weights (grid between 0 and 1)
+
+  long nromega;
 
   unsigned omegaindex;
   datamatrix logdets;
