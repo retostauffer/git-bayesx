@@ -8273,18 +8273,18 @@ bool superbayesreg::create_distribution(void)
 
   if(mainequation)
     {
-    datamatrix checkweight = equations[equations.size()-1].distrp.weights;
+    datamatrix checkweight = equations[equations.size()-1].distrp->weight;
     unsigned j,k;
     for(j=0; j<equations.size(); j++)
       {
       if(equations[j].hlevel==1)
         {
-        datamatrix compareweight = equations[equations.size()-1].distrp.weights;
+        datamatrix compareweight = equations[j].distrp->weight;
         for(k=0; k<checkweight.rows(); k++)
           {
           if(checkweight(k,0)!=compareweight(k,0))
             {
-            outerror("ERROR: weights specified in the different equations are not equal!");
+            outerror("ERROR: weights specified in the different equations are not equal!\n\n");
             return true;
             }
           }
