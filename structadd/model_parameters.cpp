@@ -169,6 +169,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
   minaniso = doubleoption("minaniso", 0.05, 0.0000000001, 0.49);
 
   WAICoff = simpleoption("WAICoff",false);
+
+  betastart = stroption("betastart");
+
   }
 
 void term_nonp::setdefault(void)
@@ -254,6 +257,8 @@ void term_nonp::setdefault(void)
   minaniso.setdefault();
 
   WAICoff.setdefault();
+
+  betastart.setdefault();
   }
 
 
@@ -386,6 +391,8 @@ bool term_nonp::check(term & t)
     optlist.push_back(&WAICoff);
 
 	optlist.push_back(&minaniso);
+
+    optlist.push_back(&betastart);
 
     unsigned i;
     bool rec = true;
@@ -589,6 +596,8 @@ bool term_nonp::check(term & t)
       t.options[69] = "true";
 
     t.options[70] = ST::doubletostring(minaniso.getvalue());
+
+    t.options[71] = betastart.getvalue();
 
     setdefault();
     return true;

@@ -1,7 +1,7 @@
 clear
 set memory 5m
 
-infile region x y using c:\bayesx\testh\testdata\kreisecentroid.raw
+infile region x y using c:\bayesx\trunk\testh\testdata\kreisecentroid.raw
 
 replace x = (x-2323.031)/1201.466
 replace y = (y-3504.746)/1968.201

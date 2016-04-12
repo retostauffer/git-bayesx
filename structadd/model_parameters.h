@@ -126,6 +126,9 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   simpleoption WAICoff;
 
+  stroption betastart;
+
+
   vector<ST::string> termnames;
 
   void setdefault(void);

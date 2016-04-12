@@ -119,7 +119,7 @@ FC_nonp::FC_nonp(void)
 FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
                  const ST::string & t,const ST::string & fp,
                  DESIGN * Dp,vector<ST::string> & op,
-                 vector<ST::string> & vn)
+                 vector<ST::string> & vn,datamatrix  pstart)
      : FC(o,t,Dp->posbeg.size(),1,fp)
   {
 
@@ -136,7 +136,10 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
 
   if (designp->errors==false)
     {
-    param = datamatrix(designp->nrpar,1,0);
+    if (pstart.rows()==1)
+      param = datamatrix(designp->nrpar,1,0);
+    else
+      param = pstart;
     paramold = param;
     parammode = param;
     paramhelp = param;

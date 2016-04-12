@@ -1916,10 +1916,12 @@ bool superbayesreg::create_distribution(void)
 
 
   datamatrix w;
+  bool weightsdefined = false;
 
   if (wn.length() > 0)
     {
     w = D.getCol(weightpos);
+    weightsdefined=true;
     }
   else
     w = datamatrix(1,1);
@@ -1974,6 +1976,13 @@ bool superbayesreg::create_distribution(void)
     {
 
     mainequation=false;
+
+    if (weightsdefined==true)
+      {
+      outerror("ERROR: weights not allowed in sigma2 equation\n");
+      return true;
+      }
+
 
     computemodeforstartingvalues = true;
 
@@ -8661,7 +8670,7 @@ bool superbayesreg::create_userdefined(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
-  datamatrix designmat, penmat, priormean,constrmat;
+  datamatrix designmat, penmat, priormean,constrmat,betastart;
   if (terms[i].options[60] != "")
     {
     dataobject * datap;                           // pointer to datasetobject
@@ -8738,6 +8747,37 @@ bool superbayesreg::create_userdefined(unsigned i)
     priormean = datamatrix(penmat.cols(),1,0);
     }
 
+
+if (terms[i].options[71] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[71],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[71] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[71] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,priormean,expr);
+    }
+  else
+    {
+    betastart = datamatrix(penmat.cols(),1,0);
+    }
+
+
+
   if (terms[i].options[67] != "")
     {
     terms[i].options[16] = "userdefined";
@@ -8812,7 +8852,7 @@ bool superbayesreg::create_userdefined(unsigned i)
 
   FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_userdefineds[design_userdefineds.size()-1],
-                     terms[i].options,terms[i].varnames));
+                     terms[i].options,terms[i].varnames,betastart));
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 
