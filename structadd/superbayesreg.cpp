@@ -1977,13 +1977,6 @@ bool superbayesreg::create_distribution(void)
 
     mainequation=false;
 
-    if (weightsdefined==true)
-      {
-      outerror("ERROR: weights not allowed in sigma2 equation\n");
-      return true;
-      }
-
-
     computemodeforstartingvalues = true;
 
     distr_normal_sigma2s.push_back(DISTR_normal_sigma2(&generaloptions,D.getCol(0),w));
@@ -8275,10 +8268,29 @@ bool superbayesreg::create_distribution(void)
 
     }
 
-
-
   if (equations[modnr].hlevel==1)
     master.level1_likep.push_back(equations[modnr].distrp);
+
+  if(mainequation)
+    {
+    datamatrix checkweight = equations[equations.size()-1].distrp.weights;
+    unsigned j,k;
+    for(j=0; j<equations.size(); j++)
+      {
+      if(equations[j].hlevel==1)
+        {
+        datamatrix compareweight = equations[equations.size()-1].distrp.weights;
+        for(k=0; k<checkweight.rows(); k++)
+          {
+          if(checkweight(k,0)!=compareweight(k,0))
+            {
+            outerror("ERROR: weights specified in the different equations are not equal!");
+            return true;
+            }
+          }
+        }
+      }
+    }
 
   return false;
 
@@ -9094,8 +9106,6 @@ bool superbayesreg::create_random(unsigned i)
                                   terms[i].options, terms[i].varnames));
     }
   equations[modnr].add_FC(&FC_hrandom_variances[FC_hrandom_variances.size()-1],pathres);
-
-
 
   if (imeasures.getvalue() == true && FC_hrandoms.size() >= 1)
       FC_hrandoms[FC_hrandoms.size()-1].imeasures=true;
