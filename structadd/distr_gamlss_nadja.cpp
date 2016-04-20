@@ -2627,10 +2627,10 @@ DISTR_dagum_p::DISTR_dagum_p(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Dagum Distribution - p";
-    outpredictor = true;
+  outpredictor = true;
   outexpectation = false;
   predictor_name = "p";
-    linpredminlimit=-10;
+  linpredminlimit=-10;
   linpredmaxlimit=15;
   }
 
@@ -2849,10 +2849,10 @@ DISTR_dagum_b::DISTR_dagum_b(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,2,w)
   {
   family = "Dagum Distribution - b";
-    outpredictor = true;
+  outpredictor = true;
   outexpectation = false;
   predictor_name = "b";
-    linpredminlimit=-10;
+  linpredminlimit=-10;
   linpredmaxlimit=15;
   }
 
@@ -8552,6 +8552,8 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   posteriormodemode=true;
   updateIWLS = true;
   check_errors();
+
+  copulaoffset=0;
   }
 
 
