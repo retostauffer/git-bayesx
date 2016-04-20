@@ -96,6 +96,7 @@ class __EXPORT_TYPE DISTR
   vector<DISTR*> distrp;  //pointer to other distributions
 
   vector<DISTR*> distrcopulap; // pointer of copulas
+  int copulaoffset; // size of the other marginal distribution (if copulapos=1)
 
   bool maindistribution;
   bool predict_mult;

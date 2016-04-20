@@ -5593,7 +5593,11 @@ bool superbayesreg::create_distribution(void)
         }*/
       }
 
-
+    // initialize copulaoffset for the second marginal (required for marginal deviance etc.)
+    int off = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]->distrp.size()+1;
+    distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->copulaoffset = off;
+    for(unsigned k=0; k<distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->distrp.size(); k++)
+      distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->distrp[k]->copulaoffset = off;
 
     if(distr_binomialprobit_copulas.size()>0)
       {
@@ -5789,6 +5793,12 @@ bool superbayesreg::create_distribution(void)
         }
       }
 
+    // initialize copulaoffset for the second marginal (required for marginal deviance etc.)
+    int off = distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[0]->distrp.size()+1;
+    distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[1]->copulaoffset = off;
+    for(unsigned k=0; k<distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[1]->distrp.size(); k++)
+      distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[1]->distrp[k]->copulaoffset = off;
+
     if(distr_binomialprobit_copulas.size()>0)
       {
       int coi;
@@ -5980,6 +5990,12 @@ bool superbayesreg::create_distribution(void)
         }
       }
     predict_mult_distrs.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+    // initialize copulaoffset for the second marginal (required for marginal deviance etc.)
+    int off = distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[0]->distrp.size()+1;
+    distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[1]->copulaoffset = off;
+    for(unsigned k=0; k<distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[1]->distrp.size(); k++)
+      distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[1]->distrp[k]->copulaoffset = off;
 
     if(distr_binomialprobit_copulas.size()>0)
       {

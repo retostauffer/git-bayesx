@@ -2699,7 +2699,7 @@ double DISTR_dagum_p::get_intercept_start(void)
 
 void DISTR_dagum_p::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp(*linpred[0]);
+  *param = exp(*linpred[copulaoffset+0]);
   }
 
 double DISTR_dagum_p::loglikelihood_weightsone(double * response,
@@ -2921,7 +2921,7 @@ double DISTR_dagum_b::get_intercept_start(void)
 
 void DISTR_dagum_b::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp(*linpred[1]);
+  *param = exp(*linpred[copulaoffset+1]);
   }
 
 double DISTR_dagum_b::loglikelihood_weightsone(double * response,
@@ -3179,9 +3179,9 @@ double DISTR_dagum_a::cdf(const double & resp, const double & linpred)
 double DISTR_dagum_a::cdf(const double & resp, vector<double *>  linpred)
   {
   double res,a,b,p;
-  a = exp(*linpred[2]);
-  b = exp(*linpred[1]);
-  p = exp(*linpred[0]);
+  a = exp(*linpred[copulaoffset+2]);
+  b = exp(*linpred[copulaoffset+1]);
+  p = exp(*linpred[copulaoffset+0]);
   res = pow(1+pow(resp/b,-a),-p);
   return res;
   }
@@ -3198,18 +3198,18 @@ void DISTR_dagum_a::compute_deviance_mult(vector<double *> response,
    // *linpred[1] = eta_b
    // *linpred[2] = eta_a
 
-   if (*weight[2] == 0)
+   if (*weight[copulaoffset+2] == 0)
      *deviance=0;
    else
      {
-	 double p = exp(*linpred[0]);
-     double b = exp(*linpred[1]);
-     double a = exp(*linpred[2]);
+	 double p = exp(*linpred[copulaoffset+0]);
+     double b = exp(*linpred[copulaoffset+1]);
+     double a = exp(*linpred[copulaoffset+2]);
      double hilfs = pow((*response[2])/b,a);
 
      double l;
 
-       l = log(a) + log(p) +(a*p-1)*log((*response[2])) - a*p*log(b) - (p+1)*log(1+hilfs);
+       l = log(a) + log(p) +(a*p-1)*log((*response[copulaoffset+2])) - a*p*log(b) - (p+1)*log(1+hilfs);
 
 
     *deviance = -2*l;
@@ -3225,7 +3225,7 @@ double DISTR_dagum_a::get_intercept_start(void)
 
 void DISTR_dagum_a::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp(*linpred[2]);
+  *param = exp(*linpred[copulaoffset+2]);
   }
 
  double DISTR_dagum_a::pdf_mult(vector<double *> response,
@@ -3244,7 +3244,7 @@ double DISTR_dagum_a::cdf_mult(vector<double *> response,
 
     {
 
-    return ( pow((1+pow((*response[1])/(*param[1]),-(*param[2]))),-(*param[0])) );
+    return ( pow((1+pow((*response[copulaoffset+1])/(*param[copulaoffset+1]),-(*param[copulaoffset+2]))),-(*param[copulaoffset+0])) );
     }
 
 double DISTR_dagum_a::loglikelihood_weightsone(double * response,
@@ -3363,9 +3363,9 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
 void DISTR_dagum_a::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
-  double exp_lin_a = exp((*linpred[predstart_mumult+2]));
-  double exp_lin_b = exp((*linpred[predstart_mumult+1]));
-  double exp_lin_p = exp((*linpred[predstart_mumult]));
+  double exp_lin_a = exp((*linpred[copulaoffset+predstart_mumult+2]));
+  double exp_lin_b = exp((*linpred[copulaoffset+predstart_mumult+1]));
+  double exp_lin_p = exp((*linpred[copulaoffset+predstart_mumult]));
   double help1 = -1/exp_lin_a;
   double help2 = -help1 + exp_lin_p;
 
@@ -3492,7 +3492,7 @@ double DISTR_weibull_alpha::get_intercept_start(void)
 
 void DISTR_weibull_alpha::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp(*linpred[0]);
+  *param = exp(*linpred[copulaoffset+0]);
   }
 
 double DISTR_weibull_alpha::loglikelihood_weightsone(double * response,
@@ -3739,8 +3739,8 @@ double DISTR_weibull_lambda::cdf(const double & resp, const double & linpred)
 double DISTR_weibull_lambda::cdf(const double & resp, vector<double *>  linpred)
   {
   double res,lambda,alpha;
-  lambda = exp(*linpred[1]);
-  alpha = exp(*linpred[0]);//exp(*linpred[0]);
+  lambda = exp(*linpred[copulaoffset+1]);
+  alpha = exp(*linpred[copulaoffset+0]);//exp(*linpred[0]);
   res = 1 - exp(-pow(resp*lambda,alpha));
   return res;
   }
@@ -3781,16 +3781,16 @@ void DISTR_weibull_lambda::compute_deviance_mult(vector<double *> response,
    // *linpred[0] = eta_sigma
    // *linpred[1] = eta_mu
 
-   if (*weight[1] == 0)
+   if (*weight[copulaoffset+1] == 0)
      *deviance=0;
    else
      {
-     double alpha = exp(*linpred[0]);
-     double lambda = exp(*linpred[1]);
+     double alpha = exp(*linpred[copulaoffset+0]);
+     double lambda = exp(*linpred[copulaoffset+1]);
 
      double l;
 
-      l =   (alpha-1)*log(*response[1]) - pow((*response[1])*lambda,alpha) +alpha*log(lambda) + log(alpha) ;
+      l =   (alpha-1)*log(*response[copulaoffset+1]) - pow((*response[copulaoffset+1])*lambda,alpha) +alpha*log(lambda) + log(alpha) ;
 
 
     *deviance = -2*l;
@@ -3806,7 +3806,7 @@ double DISTR_weibull_lambda::get_intercept_start(void)
 
 void DISTR_weibull_lambda::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp(*linpred[1]);
+  *param = exp(*linpred[copulaoffset+1]);
   }
 
  double DISTR_weibull_lambda::pdf_mult(vector<double *> response,
@@ -3825,7 +3825,7 @@ double DISTR_weibull_lambda::cdf_mult(vector<double *> response,
 
     {
 
-    return ( 1 - exp(-pow((*response[1])*(*param[1]),(*param[0]))) );
+    return ( 1 - exp(-pow((*response[copulaoffset+1])*(*param[copulaoffset+1]),(*param[copulaoffset+0]))) );
     }
 
 double DISTR_weibull_lambda::loglikelihood_weightsone(double * response,
@@ -3920,8 +3920,8 @@ void DISTR_weibull_lambda::compute_iwls_wweightschange_weightsone(
 void DISTR_weibull_lambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
-   double hilfs = 1+1/exp((*linpred[predstart_mumult]));
-  *mu = (1/exp((*linpred[predstart_mumult+1])))*randnumbers::gamma_exact(hilfs);
+   double hilfs = 1+1/exp((*linpred[copulaoffset+predstart_mumult]));
+  *mu = (1/exp((*linpred[copulaoffset+predstart_mumult+1])))*randnumbers::gamma_exact(hilfs);
 
   }
 
@@ -4040,7 +4040,7 @@ double DISTR_weibull2_alpha::get_intercept_start(void)
 
 void DISTR_weibull2_alpha::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp(*linpred[0]);
+  *param = exp(*linpred[copulaoffset+0]);
   }
 
 double DISTR_weibull2_alpha::loglikelihood_weightsone(double * response,
@@ -4281,8 +4281,8 @@ double DISTR_weibull2_lambda::cdf(const double & resp, const double & linpred)
 double DISTR_weibull2_lambda::cdf(const double & resp, vector<double *>  linpred)
   {
   double res,lambda,alpha;
-  lambda = exp(*linpred[1]);
-  alpha = exp(*linpred[0]);//exp(*linpred[0]);
+  lambda = exp(*linpred[copulaoffset+1]);
+  alpha = exp(*linpred[copulaoffset+0]);//exp(*linpred[0]);
   res = 1 - exp(-pow(resp/lambda,alpha));
   return res;
   }
@@ -4299,16 +4299,16 @@ void DISTR_weibull2_lambda::compute_deviance_mult(vector<double *> response,
    // *linpred[0] = eta_sigma
    // *linpred[1] = eta_mu
 
-   if (*weight[1] == 0)
+   if (*weight[copulaoffset+1] == 0)
      *deviance=0;
    else
      {
-     double alpha = exp(*linpred[0]);
-     double lambda = exp(*linpred[1]);
+     double alpha = exp(*linpred[copulaoffset+0]);
+     double lambda = exp(*linpred[copulaoffset+1]);
 
      double l;
 
-      l =   (alpha-1)*log(*response[1]) - pow((*response[1])/lambda,alpha) -alpha*log(lambda) + log(alpha) ;
+      l =   (alpha-1)*log(*response[copulaoffset+1]) - pow((*response[copulaoffset+1])/lambda,alpha) -alpha*log(lambda) + log(alpha) ;
 
 
     *deviance = -2*l;
@@ -4343,7 +4343,7 @@ double DISTR_weibull2_lambda::cdf_mult(vector<double *> response,
 
     {
 
-    return ( 1 - exp(-pow((*response[1])/(*param[1]),(*param[0]))) );
+    return ( 1 - exp(-pow((*response[copulaoffset+1])/(*param[copulaoffset+1]),(*param[copulaoffset+0]))) );
     }
 
 double DISTR_weibull2_lambda::loglikelihood_weightsone(double * response,
@@ -4448,8 +4448,8 @@ void DISTR_weibull2_lambda::compute_iwls_wweightschange_weightsone(
 void DISTR_weibull2_lambda::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
-   double hilfs = 1+1/exp((*linpred[predstart_mumult]));
-  *mu = (1/exp((*linpred[predstart_mumult+1])))*randnumbers::gamma_exact(hilfs);
+   double hilfs = 1+1/exp((*linpred[copulaoffset+predstart_mumult]));
+  *mu = (1/exp((*linpred[copulaoffset+predstart_mumult+1])))*randnumbers::gamma_exact(hilfs);
 
   }
 
@@ -7205,7 +7205,7 @@ void DISTR_normal_sigma2::compute_param_mult(vector<double *>  linpred,double * 
   {
   //standarddeviations
   //*param = pow(exp((*linpred[0])),0.5);
-  *param = exp((*linpred[0]));
+  *param = exp((*linpred[copulaoffset+0]));
   }
 
 double DISTR_normal_sigma2::loglikelihood_weightsone(double * response,
@@ -7453,8 +7453,8 @@ double DISTR_normal_mu::cdf(const double & resp, const double & linpred)
 double DISTR_normal_mu::cdf(const double & resp, vector<double *>  linpred)
   {
   double res,mu,sigma2;
-  mu = (*linpred[1]);
-  sigma2 = exp(*linpred[0]);
+  mu = (*linpred[copulaoffset+1]);
+  sigma2 = exp(*linpred[copulaoffset+0]);
   double z = (resp-mu)/sqrt(sigma2);
   res = randnumbers::Phi2(z);
   return res;
@@ -7498,16 +7498,16 @@ void DISTR_normal_mu::compute_deviance_mult(vector<double *> response,
    // *linpred[0] = eta_sigma2
    // *linpred[1] = eta_mu
 
-   if (*weight[1] == 0)
+   if (*weight[copulaoffset+1] == 0)
      *deviance=0;
    else
      {
-     double sigma_2 = exp(*linpred[0]);
-     double mu = (*linpred[1]);
+     double sigma_2 = exp(*linpred[copulaoffset+0]);
+     double mu = (*linpred[copulaoffset+1]);
 
      double l;
 
-       l = -0.5*log(2*PI)-0.5*log(sigma_2)-pow((((*response[0]))-mu),2)/(2*sigma_2);
+       l = -0.5*log(2*PI)-0.5*log(sigma_2)-pow((((*response[copulaoffset+0]))-mu),2)/(2*sigma_2);
 
 
     *deviance = -2*l;
@@ -7523,7 +7523,7 @@ double DISTR_normal_mu::get_intercept_start(void)
 
 void DISTR_normal_mu::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = (*linpred[1]);
+  *param = (*linpred[copulaoffset+1]);
   }
 
  double DISTR_normal_mu::pdf_mult(vector<double *> response,
@@ -7541,7 +7541,7 @@ double DISTR_normal_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double arg = ((*response[1])-(*param[1]))/(sqrt(*param[0])) ;
+    double arg = ((*response[copulaoffset+1])-(*param[copulaoffset+1]))/(sqrt(*param[copulaoffset+0])) ;
 
     return (randnumbers::Phi2(arg));
     }
@@ -7658,7 +7658,7 @@ void DISTR_normal_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_normal_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = ((*linpred[predstart_mumult+1]));
+  *mu = ((*linpred[copulaoffset+predstart_mumult+1]));
   }
 
 
@@ -8589,15 +8589,15 @@ void DISTR_binomialprobit_copula::compute_deviance_mult(vector<double *> respons
                              double * deviance,
                              vector<datamatrix*> aux)
   {
-   if (*weight[0] == 0)
+   if (*weight[copulaoffset + 0] == 0)
      *deviance=0;
    else
      {
-     double pi = randnumbers::Phi2(*linpred[0]);
+     double pi = randnumbers::Phi2(*linpred[copulaoffset + 0]);
 
      double l;
 
-     if ((*response[0])<=0) {
+     if ((*response[copulaoffset + 0])<=0) {
         l = log(1-pi);
      } else {
         l = log(pi);
@@ -8614,7 +8614,7 @@ double DISTR_binomialprobit_copula::get_intercept_start(void)
 
 void DISTR_binomialprobit_copula::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = randnumbers::Phi2(*linpred[0]);
+  *param = randnumbers::Phi2(*linpred[copulaoffset + 0]);
   }
 
 double DISTR_binomialprobit_copula::cdf_mult(vector<double *> response,
@@ -8623,10 +8623,10 @@ double DISTR_binomialprobit_copula::cdf_mult(vector<double *> response,
                           vector<datamatrix *> aux)
   {
   double Fy = 0;
-  if (*response[0]>0)
+  if (*response[copulaoffset + 0]>0)
     Fy = 1;
   else
-    Fy = 1-(*param[0]);
+    Fy = 1-(*param[copulaoffset + 0]);
 
   return Fy;
   }
@@ -8645,11 +8645,11 @@ double DISTR_binomialprobit_copula::compute_quantile_residual_mult(vector<double
                                           vector<datamatrix *> aux)
     {
     double u_est;
-    if(*response[0]<=0) {
-        u_est = randnumbers::uniform_ab(0,1-(*param[0]));
+    if(*response[copulaoffset + 0]<=0) {
+        u_est = randnumbers::uniform_ab(0,1-(*param[copulaoffset + 0]));
     }
     else {
-        u_est = randnumbers::uniform_ab(1-(*param[0]), 1);
+        u_est = randnumbers::uniform_ab(1-(*param[copulaoffset + 0]), 1);
     }
     double res_est = randnumbers::invPhi2(u_est);
     return res_est;
@@ -8690,7 +8690,7 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, const double & linp
 
 double DISTR_binomialprobit_copula::cdf(const double & resp, vector<double *> linpred)
   {
-  double res = randnumbers::Phi2(resp-*linpred[0]);
+  double res = randnumbers::Phi2(resp-*linpred[copulaoffset + 0]);
 
   return res;
   }
@@ -8776,7 +8776,7 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
 
 void DISTR_binomialprobit_copula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = randnumbers::Phi2(*linpred[predstart_mumult]);
+  *mu = randnumbers::Phi2(*linpred[copulaoffset + predstart_mumult]);
   }
 
 

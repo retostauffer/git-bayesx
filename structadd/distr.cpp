@@ -95,6 +95,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   familyshort = "unknown";
   updateIWLS = false;
   copularotate = false;
+  copulaoffset = 0;
 
   response = r;
   workingresponse = r;
@@ -149,6 +150,7 @@ DISTR::DISTR(const DISTR & d)
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
   copularotate = d.copularotate;
+  copulaoffset = d.copulaoffset;
 
   FCpredict_betamean = d.FCpredict_betamean;
 
@@ -227,6 +229,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
   copularotate = d.copularotate;
+  copulaoffset = d.copulaoffset;
 
   FCpredict_betamean = d.FCpredict_betamean;
 
