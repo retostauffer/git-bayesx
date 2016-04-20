@@ -8591,6 +8591,10 @@ void DISTR_binomialprobit_copula::compute_deviance_mult(vector<double *> respons
                              double * deviance,
                              vector<datamatrix*> aux)
   {
+  cout << weight.size() << endl;
+  cout << linpred.size() << endl;
+  cout << response.size() << endl;
+
    if (*weight[copulaoffset + 0] == 0)
      *deviance=0;
    else
