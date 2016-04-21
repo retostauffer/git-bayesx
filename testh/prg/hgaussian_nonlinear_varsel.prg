@@ -13,7 +13,7 @@ logopen using c:\bayesx\trunk\testh\results\hgaussian_nonlinear_varsel.log
 
 b.outfile = c:\bayesx\trunk\testh\results\hgaussian_nonlinear_varsel
 
-b.hregress y = const + x1(pspline,lambda=100,prior=ssvs)+ x2(pspline,lambda=100,prior=ssvs)+ x3(pspline,lambda=100,prior=ssvs) , iterations=12000 step=10 burnin=2000 family=gaussian  using d
+b.hregress y = const+x1(ssvs)+x2(ssvs)+x3(ssvs)+ x1(pspline,lambda=100,prior=ssvs,centermethod=nullspace)+ x2(pspline,lambda=100,prior=ssvs,centermethod=nullspace)+ x3(pspline,lambda=100,prior=ssvs,centermethod=nullspace) , iterations=12000 step=10 burnin=2000 family=gaussian  using d
 
 b.getsample
 
