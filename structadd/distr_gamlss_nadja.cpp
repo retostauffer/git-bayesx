@@ -8570,7 +8570,6 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   updateIWLS = true;
   check_errors();
 
-  copulaoffset=0;
   }
 
 
@@ -25561,7 +25560,10 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
   double phiinvu;
   double phiinvv;
   double nu;
-
+  double dphiinvu;
+  double ddphiinvu;
+  double du;
+  double ddu;
 
   nu = *response-mu ;
   *workingweight = 1;
@@ -25574,9 +25576,13 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     u = randnumbers::Phi2(*response-mu);
     phiinvu = randnumbers::invPhi2(u);
     phiinvv = randnumbers::invPhi2(v);
-    nu += ((*worktransformlin[3])/oneminusrho2)*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2))*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu )
-                + (*worktransformlin[3])*(oneminusrho2)*phiinvu*( - 0.5*(*worktransformlin[3])*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2)) );
-    *workingweight += 0;
+    dphiinvu = pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2));
+    ddphiinvu = 2*PI*dphiinvu/(exp(-0.5*pow(phiinvu,2))*exp(-0.5*pow(phiinvu,2)));
+    double du = -exp(-0.5*(*response-mu)*(*response-mu))/pow(2*PI,0.5);
+    double ddu = -(*response-mu)*du;
+
+    nu += ((*worktransformlin[3])/oneminusrho2)*dphiinvu*du*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
+    *workingweight += ((*worktransformlin[3])/oneminusrho2)* ( ddphiinvu*ddu*du + dphiinvu*ddu - (*worktransformlin[3])*dphiinvu*dphiinvu*du*du );
     }
 
 
@@ -25585,18 +25591,14 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
   if (compute_like)
     {
-    if((optionsp->samplesel) && (*response <= 0))
-    {
-  //FIX SAMPLESEL and NOT case
-     like += -0.5 * pow(((*response)-mu),2) ;
-    }
-    else
-    {
-    like += -0.5 * pow(((*response)-mu),2)+(*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
-    }
+    like += -0.5 * pow(((*response)-mu),2) ;
+
+    if((optionsp->samplesel) && (*response > 0))
+      {
+      like += -0.5 * pow(((*response)-mu),2)+(*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
+      }
 
     }
-
   modify_worklin();
 
   }
@@ -25725,8 +25727,8 @@ double DISTR_gaussiancopula_binary_dagum_p::loglikelihood_weightsone(double * re
     }
 
     double p = exp((*linpred));
-    double bcurrent = (*worktransformlin[2]);
-    double acurrent = (*worktransformlin[4]);
+    double bcurrent = (*worktransformlin[0]);
+    double acurrent = (*worktransformlin[1]);
     double respdivb = (*response) / bcurrent;
     double hilfs = pow(respdivb,acurrent);
     double hilfs2 = pow(respdivb, -acurrent);
@@ -25737,10 +25739,10 @@ double DISTR_gaussiancopula_binary_dagum_p::loglikelihood_weightsone(double * re
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = randnumbers::invPhi2(v);
-    double orho = 1 - pow((*worktransformlin[0]), 2);
+    double orho = 1 - pow((*worktransformlin[3]), 2);
     double l;
 
-    l = (*worktransformlin[0]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[0]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho +
+    l = (*worktransformlin[3]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[3]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho +
                 log(p) + acurrent*p*log((*response)) - acurrent*p*log(bcurrent)-p*log(1+hilfs);
 
   modify_worklin();
