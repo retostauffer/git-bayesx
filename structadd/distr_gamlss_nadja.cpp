@@ -25512,19 +25512,18 @@ double DISTR_gaussiancopula_binary_dagum_latent::loglikelihood_weightsone(double
   double mu = (*linpred);
   double l;
 
-  if((optionsp->samplesel) && (*response <= 0))
-    {
-  //FIX SAMPLESEL and NOT case
-     l = -0.5 * pow(((*response)-mu),2) ;
-    }
-  else
+
+
+  l = -0.5 * pow(((*response)-mu),2) ;
+
+  if((optionsp->samplesel) && (*response > 0))
     {
     double rho2 = pow((*worktransformlin[3]),2);
     double oneminusrho2 = 1- rho2;
     double v = pow( ( 1 + pow( *response2p / *worktransformlin[1], - *worktransformlin[2] ) ), - *worktransformlin[0] );
     double u = randnumbers::Phi2(*response-mu);
 
-    l = (*worktransformlin[3])*(oneminusrho2)*randnumbers::invPhi2(u)*( randnumbers::invPhi2(v) - 0.5*(*worktransformlin[3])*randnumbers::invPhi2(u) );
+    l += ((*worktransformlin[3])/(oneminusrho2))*randnumbers::invPhi2(u)*( randnumbers::invPhi2(v) - 0.5*(*worktransformlin[3])*randnumbers::invPhi2(u) );
     }
   modify_worklin();
 
@@ -25562,12 +25561,12 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
   double phiinvu;
   double phiinvv;
   double nu;
-  if((optionsp->samplesel) && (*response <= 0))
-    {
-    nu = *response-mu ;
-    *workingweight = 1;
-    }
-    else
+
+
+  nu = *response-mu ;
+  *workingweight = 1;
+
+  if((optionsp->samplesel) && (*response > 0))
     {
     rho2 = pow((*worktransformlin[3]),2);
     oneminusrho2 = 1- rho2;
@@ -25575,9 +25574,9 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     u = randnumbers::Phi2(*response-mu);
     phiinvu = randnumbers::invPhi2(u);
     phiinvv = randnumbers::invPhi2(v);
-    nu = (*worktransformlin[3])*(oneminusrho2)*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2))*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu )
+    nu += ((*worktransformlin[3])/oneminusrho2)*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2))*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu )
                 + (*worktransformlin[3])*(oneminusrho2)*phiinvu*( - 0.5*(*worktransformlin[3])*pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2)) );
-    *workingweight = 0;
+    *workingweight += 0;
     }
 
 
@@ -25593,7 +25592,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     }
     else
     {
-    like += (*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
+    like += -0.5 * pow(((*response)-mu),2)+(*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
     }
 
     }
