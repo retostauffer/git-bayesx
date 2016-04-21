@@ -25606,7 +25606,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
 void DISTR_gaussiancopula_binary_dagum_latent::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = ((*linpred[predstart_mumult]));
+  *mu = randnumbers::Phi2((*linpred[predstart_mumult]));
   }
 
 
@@ -25660,7 +25660,6 @@ DISTR_gaussiancopula_binary_dagum_p::DISTR_gaussiancopula_binary_dagum_p(GENERAL
   linpredmaxlimit=15;
 
   }
-
 
 DISTR_gaussiancopula_binary_dagum_p::DISTR_gaussiancopula_binary_dagum_p(const DISTR_gaussiancopula_binary_dagum_p & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
@@ -25735,10 +25734,10 @@ double DISTR_gaussiancopula_binary_dagum_p::loglikelihood_weightsone(double * re
 
 
     double u = pow((1 + hilfs2), -p);
-    double v = pow((1 + pow(((*response2p) / (*worktransformlin[3])), -(*worktransformlin[5]))), -(*worktransformlin[1]));
+    double v = randnumbers::Phi2(*response-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
-    double phinvv = randnumbers::invPhi2(v);
+    double phinvv = *response-(*worklin[2]);
     double orho = 1 - pow((*worktransformlin[3]), 2);
     double l;
 
@@ -25769,8 +25768,8 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
     }
 
     double p = exp((*linpred));
-    double bcurrent = (*worktransformlin[2]);
-    double acurrent = (*worktransformlin[4]);
+    double bcurrent = (*worktransformlin[0]);
+    double acurrent = (*worktransformlin[1]);
     double respdivb = (*response) / bcurrent;
     double hilfs = pow(respdivb,acurrent);
     double hilfs2 = pow(respdivb, -acurrent);
@@ -25806,7 +25805,7 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
     if (compute_like)
       {
 
-        like +=  (*worktransformlin[0]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[0]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho +
+        like +=  (*worktransformlin[3]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[3]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho +
                 log(p) + acurrent*p*log((*response)) - acurrent*p*log(bcurrent)-p*log(1+hilfs);
 
       }
