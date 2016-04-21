@@ -8591,19 +8591,19 @@ void DISTR_binomialprobit_copula::compute_deviance_mult(vector<double *> respons
                              double * deviance,
                              vector<datamatrix*> aux)
   {
-  cout << weight.size() << endl;
+ /* cout << weight.size() << endl;
   cout << linpred.size() << endl;
-  cout << response.size() << endl;
+  cout << response.size() << endl;*/
 
-   if (*weight[copulaoffset + 0] == 0)
+   if (*weight[0] == 0)
      *deviance=0;
    else
      {
-     double pi = randnumbers::Phi2(*linpred[copulaoffset + 0]);
+     double pi = randnumbers::Phi2(*linpred[0]);
 
      double l;
 
-     if ((*response[copulaoffset + 0])<=0) {
+     if ((*response[0])<=0) {
         l = log(1-pi);
      } else {
         l = log(pi);
