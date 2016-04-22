@@ -25940,21 +25940,21 @@ double DISTR_gaussiancopula_binary_dagum_b::loglikelihood_weightsone(double * re
 
     double b = exp((*linpred));
     double respdivb = (*response) / b;
-    double acurrent = (*worktransformlin[4]);
+    double acurrent = (*worktransformlin[1]);
     double hilfs = pow(respdivb,acurrent);
     double hilfs2 = pow(respdivb, -acurrent);
-    double pcurrent = (*worktransformlin[2]);
+    double pcurrent = (*worktransformlin[0]);
 
     double u = pow((1 + pow((respdivb), -acurrent)), -pcurrent);
-    double v = pow((1 + pow(((*response2p) / (*worktransformlin[1])), -(*worktransformlin[5]))), -(*worktransformlin[3]));
+    double v = randnumbers::Phi2(*response-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
-    double phinvv = randnumbers::invPhi2(v);
-    double orho = 1 - pow((*worktransformlin[0]), 2);
+    double phinvv = *response-(*worklin[2]);
+    double orho = 1 - pow((*worktransformlin[3]), 2);
 
     double l;
 
-    l = (*worktransformlin[0]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[0]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho
+    l = (*worktransformlin[3]) * phinvu * phinvv / orho - 0.5 * pow((*worktransformlin[3]), 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho
                 - acurrent*pcurrent*log(b) - (pcurrent+1)*log(1+hilfs);
 
   modify_worklin();

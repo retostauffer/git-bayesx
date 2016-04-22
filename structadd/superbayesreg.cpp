@@ -7718,7 +7718,7 @@ bool superbayesreg::create_distribution(void)
 	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
-    distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+    distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
 
 	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
