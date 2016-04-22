@@ -26396,7 +26396,7 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_deviance_mult(vector<double 
    // *linpred[3] = eta_rho
    // *linpred[4] = eta_mu_1
 
-   if (*weight[4] == 0)
+   if ((*weight[0]==0))
      *deviance=0;
    else
      {
@@ -26407,15 +26407,20 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_deviance_mult(vector<double 
      double mu = (*linpred[0]);
      double hilfs1 = 1-pow(rho,2);
      double u = pow(1+pow(*response[1]/b,-a),-p);
-     double v = randnumbers::Phi2(*response[0]-mu);
      double phiinvu = randnumbers::invPhi2(u);
      double phiinv = *response[0]-mu;
      double orho = 1-rho*rho;
      double l;
 
+     if(*weight[4]==0)
+       l = -0.5*log(2*PI)-(*response[0]-mu)*(*response[0]-mu);
+     else
+       {
        l = log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response[1])-(p+1)*log(1+pow(*response[1]/b,a))
            -0.5*log(2*PI)-(*response[0]-mu)*(*response[0]-mu)
            -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
+       }
+
 
     *deviance = -2*l;
     }
@@ -26461,12 +26466,6 @@ double DISTR_gaussiancopula_binary_dagum_rho::loglikelihood_weightsone(double * 
                                                  double * linpred)
   {
 
-  // *worklin[0] = linear predictor of latent equation
-  // *worktransformlin[0] = latent;
-  // *worklin[1] = linear predictor of sigma equation
-  // *worktransformlin[1] = sigma;
-  // *worklin[2] = linear predictor of mu equation
-  // *worktransformlin[2] = mu;
   if (counter==0)
     {
     set_worklin();
@@ -26480,14 +26479,22 @@ double DISTR_gaussiancopula_binary_dagum_rho::loglikelihood_weightsone(double * 
   else
     rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
-  double rho2 = pow(rho,2);
-  double oneminusrho2 = 1- rho2;
+
+  double p = *worktransformlin[0];
+  double b = *worktransformlin[1];
+  double a = *worktransformlin[2];
+  double mu = *worklin[0];
+  double hilfs1 = 1-pow(rho,2);
+  double u = pow(1+pow(*response/b,-a),-p);
+  double phiinvu = randnumbers::invPhi2(u);
+  double phiinv = *response2p-mu;
+  double orho = 1-rho*rho;
   double l;
 
+  l = log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response)-(p+1)*log(1+pow(*response/b,a))
+           -0.5*log(2*PI)-(*response2p-mu)*(*response2p-mu)
+           -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
 
-     l = -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2) -
-                                 2*rho*(((*response)-(*worktransformlin[2]))/(*worktransformlin[1]))*(((*response2p)-(*worktransformlin[0])))
-                                +  pow((((*response2p))-(*worktransformlin[0])),2) );
 
 
   modify_worklin();
@@ -26532,28 +26539,28 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_iwls_wweightschange_weightso
     hilfs = pow((1+pow((*linpred),2)),0.5);
   }
 
+  double p = *worktransformlin[0];
+  double b = *worktransformlin[1];
+  double a = *worktransformlin[2];
+  double mu = *worklin[0];
+  double hilfs1 = 1-pow(rho,2);
+  double u = pow(1+pow(*response/b,-a),-p);
+  double phiinvu = randnumbers::invPhi2(u);
+  double phiinv = (*response2p)-mu;
+  double orho = 1-rho*rho;
 
-  double rho2 = pow(rho,2);
-  double oneminusrho2 = 1- rho2;
+  double nu = rho * pow(orho, 0.5) + (hilfs + rho * (*linpred)) * (phiinvu * phiinv) - (*linpred) * (pow(phiinvu, 2) + pow(phiinv, 2));
 
-
-  double nu = oneminusrho2*(*linpred) - (*linpred)*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2)
-                                                      +  pow((((*response2p))-(*worktransformlin[0])),2) )
-                +(hilfs+rho*(*linpred))*( (((*response)-(*worktransformlin[2]))/(*worktransformlin[1]))*(((*response2p)-(*worktransformlin[0]))) );
-
-  // cout << "rho equation y1: " << *response << endl;
-  // cout << "rho equation y2: " << *response2p << endl;
-
-  *workingweight = 1-pow(rho2,2);
+  *workingweight = 1 - pow(rho, 4);
 
   *workingresponse = *linpred + nu/(*workingweight);
 
   if (compute_like)
     {
 
-    like +=  -0.5*log(oneminusrho2) -(1/(2*oneminusrho2))*( pow((((*response))-(*worktransformlin[2])),2)/pow((*worktransformlin[1]),2) -
-                                 2*rho*(((*response)-(*worktransformlin[2]))/(*worktransformlin[1]))*(((*response2p)-(*worktransformlin[0])))
-                                +  pow((((*response2p))-(*worktransformlin[0])),2) );
+    like +=  log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response)-(p+1)*log(1+pow(*response/b,a))
+           -0.5*log(2*PI)-(*response2p-mu)*(*response2p-mu)
+           -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
 
     }
 
