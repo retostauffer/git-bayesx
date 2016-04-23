@@ -7740,7 +7740,7 @@ bool superbayesreg::create_distribution(void)
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
 
 	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
-  &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+    &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
     distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
@@ -7753,6 +7753,11 @@ bool superbayesreg::create_distribution(void)
 
 	  distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
+
+    if(setseed.getvalue() >= 0)
+        srand(setseed.getvalue());
+    distr_gaussiancopula_binary_dagum_latents[0].update();
+
     }
 //-------------------------- END: gaussiancopula_binary_dagum_rho ---------------------
 
