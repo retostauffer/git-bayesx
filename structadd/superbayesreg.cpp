@@ -7740,7 +7740,7 @@ bool superbayesreg::create_distribution(void)
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
 
 	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
-    &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
+  &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
     distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
@@ -8295,13 +8295,16 @@ bool superbayesreg::create_distribution(void)
       {
       if(equations[j].hlevel==1)
         {
-        datamatrix compareweight = equations[j].distrp->weight;
-        for(k=0; k<checkweight.rows(); k++)
+        if(!generaloptions.samplesel)
           {
-          if(checkweight(k,0)!=compareweight(k,0))
+          datamatrix compareweight = equations[j].distrp->weight;
+          for(k=0; k<checkweight.rows(); k++)
             {
-            outerror("ERROR: weights specified in the different equations are not equal!\n\n");
-            return true;
+            if(checkweight(k,0)!=compareweight(k,0))
+              {
+              outerror("ERROR: weights specified in the different equations are not equal!\n\n");
+              return true;
+              }
             }
           }
         }
