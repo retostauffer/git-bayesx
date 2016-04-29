@@ -7643,35 +7643,23 @@ bool superbayesreg::create_distribution(void)
     if(generaloptions.samplesel)
       {
       sampleselweight = distr_gaussiancopula_binary_dagum_latents[0].response;
-      double * wp = (distr_gaussiancopula_binary_dagum_as[0].weight).getV();
+      double * wpa = (distr_gaussiancopula_binary_dagum_as[0].weight).getV();
+      double * wpb = (distr_gaussiancopula_binary_dagum_bs[0].weight).getV();
+      double * wpp= (distr_gaussiancopula_binary_dagum_ps[0].weight).getV();
+      double * wprho = (distr_gaussiancopula_binary_dagum_rhos[0].weight).getV();
       double * sampleselwp = sampleselweight.getV();
-      for(i=0;i< (distr_gaussiancopula_binary_dagum_as[0].weight).rows(); i++,wp++,sampleselwp++)
+      for(i=0;i< (distr_gaussiancopula_binary_dagum_as[0].weight).rows(); i++,wpa++,wpb++,wpp++,wprho++,sampleselwp++)
         {
         if( ((*sampleselwp)==0) )
-          *wp = 0;
-        }
-
-      wp = (distr_gaussiancopula_binary_dagum_bs[0].weight).getV();
-      for(i=0;i< (distr_gaussiancopula_binary_dagum_bs[0].weight).rows(); i++,wp++,sampleselwp++)
-        {
-        if( ((*sampleselwp)==0) )
-          *wp = 0;
-        }
-
-      wp = (distr_gaussiancopula_binary_dagum_ps[0].weight).getV();
-      for(i=0;i< (distr_gaussiancopula_binary_dagum_ps[0].weight).rows(); i++,wp++,sampleselwp++)
-        {
-        if( ((*sampleselwp)==0) )
-          *wp = 0;
-        }
-
-      wp = (distr_gaussiancopula_binary_dagum_rhos[0].weight).getV();
-      for(i=0;i< (distr_gaussiancopula_binary_dagum_rhos[0].weight).rows(); i++,wp++,sampleselwp++)
-        {
-        if( ((*sampleselwp)==0) )
-          *wp = 0;
+          {
+          *wpa = 0;
+          *wpb = 0;
+          *wpp = 0;
+          *wprho = 0;
+          }
         }
       }
+
     equations[modnr].distrp = &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1];
     equations[modnr].pathd = "";
 
@@ -7688,52 +7676,52 @@ bool superbayesreg::create_distribution(void)
     predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
     predict_mult_distrs.push_back(&distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+    distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
 
     distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
     distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
     distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
     distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_ps[distr_gaussiancopula_binary_dagum_ps.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_latents[distr_gaussiancopula_binary_dagum_latents.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1]);
 
     distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
@@ -7745,7 +7733,7 @@ bool superbayesreg::create_distribution(void)
     distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_bs[distr_gaussiancopula_binary_dagum_bs.size()-1]);
 
-	  distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
+	distr_gaussiancopula_binary_dagum_rhos[distr_gaussiancopula_binary_dagum_rhos.size()-1].distrp.push_back(
     &distr_gaussiancopula_binary_dagum_as[distr_gaussiancopula_binary_dagum_as.size()-1]);
 
     if(setseed.getvalue() >= 0)
