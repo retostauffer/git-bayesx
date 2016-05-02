@@ -25776,11 +25776,11 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
 
     double u = pow((1 + hilfs2), -p);
-    double v = pow((1 + pow(((*response2p) / (*worktransformlin[3])), -(*worktransformlin[5]))), -(*worktransformlin[1]));
+    double v = randnumbers::Phi2(*response-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
-    double phinvv = randnumbers::invPhi2(v);
-    double orho = 1 - pow((*worktransformlin[0]), 2);
+    double phinvv = *response-(*worklin[2]);
+    double orho = 1 - pow((*worktransformlin[3]), 2);
 
     double dphiinvu = pow(2*PI, 0.5) / exp(-0.5*pow(phinvu, 2));
     double ddphiinvu = phinvu * 2 * PI / pow(exp(-0.5*pow(phinvu, 2)), 2);
@@ -25791,11 +25791,11 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
     double nu = 1 + acurrent*p*log((*response)) - acurrent*p*log(bcurrent)
                 -p*log(1+hilfs) +
-                ((*worktransformlin[0]) * d1 * dphiinvu / orho) * (phinvv - (*worktransformlin[0]) * phinvu);
+                ((*worktransformlin[3]) * d1 * dphiinvu / orho) * (phinvv - (*worktransformlin[3]) * phinvu);
 
     *workingweight = 1  -
-                    ((*worktransformlin[0]) * d1 * d1 * ddphiinvu / orho) * (phinvv - (*worktransformlin[0]) * phinvu) +
-                    (*worktransformlin[0]) * (*worktransformlin[0]) * pow(d1 * dphiinvu, 2) / orho;
+                    ((*worktransformlin[3]) * d1 * d1 * ddphiinvu / orho) * (phinvv - (*worktransformlin[3]) * phinvu) +
+                    (*worktransformlin[3]) * (*worktransformlin[3]) * pow(d1 * dphiinvu, 2) / orho;
 
     if((*workingweight) <= 0)
         *workingweight = 0.0001;
@@ -25979,27 +25979,27 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
     {
     set_worklin();
     }
-    cout << worktransformlin.size() << endl;
+  /*  cout << worktransformlin.size() << endl;
     for(unsigned i=0; i< worktransformlin.size(); i++)
       cout << *worktransformlin[i] << endl;
-    cout << *linpred << endl;
+    cout << *linpred << endl;*/
     double b = exp((*linpred));
-    cout << b << endl;
-    cout << *response << endl;
+   // cout << b << endl;
+   // cout << *response << endl;
     double respdivb = (*response) / b;
-    cout << respdivb << endl;
-    cout << *worktransformlin[4] << endl;
-    double acurrent = (*worktransformlin[4]);
+  //  cout << respdivb << endl;
+  //  cout << *worktransformlin[4] << endl;
+    double acurrent = (*worktransformlin[1]);
     double hilfs = pow(respdivb,acurrent);
     double hilfs2 = pow(respdivb, -acurrent);
-    double pcurrent = (*worktransformlin[2]);
+    double pcurrent = (*worktransformlin[0]);
 
     double u = pow((1 + pow((respdivb), -acurrent)), -pcurrent);
-    double v = pow((1 + pow(((*response2p) / (*worktransformlin[1])), -(*worktransformlin[5]))), -(*worktransformlin[3]));
+    double v = randnumbers::Phi2(*response-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
-    double phinvv = randnumbers::invPhi2(v);
-    double orho = 1 - pow((*worktransformlin[0]), 2);
+    double phinvv = *response-(*worklin[2]);
+    double orho = 1 - pow((*worktransformlin[3]), 2);
 
     double dphiinvu = pow(2*PI, 0.5) / exp(-0.5*pow(phinvu, 2));
     double ddphiinvu = phinvu * 2 * PI / pow(exp(-0.5*pow(phinvu, 2)), 2);
@@ -26249,7 +26249,7 @@ void DISTR_gaussiancopula_binary_dagum_a::compute_iwls_wweightschange_weightsone
 
     double nu = 1 + a*pcurrent*log(respdivb)
                 - ((pcurrent+1)*a*hilfs*log(respdivb))/(1+hilfs) +
-                ((*worktransformlin[0]) * d1 * dphiinvu / orho) * (phinvv - (*worktransformlin[0]) * phinvu);
+                ((*worktransformlin[3]) * d1 * dphiinvu / orho) * (phinvv - (*worktransformlin[3]) * phinvu);
 
     *workingweight = 1 + ((pcurrent+1)*pow(a,2)*hilfs*pow(log(respdivb),2))/pow((1+hilfs),2) -
                     ((*worktransformlin[3]) * d1 * d1 * ddphiinvu / orho) * (phinvv - (*worktransformlin[3]) * phinvu)
