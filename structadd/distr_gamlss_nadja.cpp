@@ -26506,9 +26506,8 @@ double DISTR_gaussiancopula_binary_dagum_rho::loglikelihood_weightsone(double * 
   double orho = 1-rho*rho;
   double l;
 
-  l = log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response)-(p+1)*log(1+pow(*response/b,a))
-           -0.5*log(2*PI)-(*response2p-mu)*(*response2p-mu)
-           -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
+  l = -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;//log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response)-(p+1)*log(1+pow(*response/b,a))
+        //   -0.5*log(2*PI)-(*response2p-mu)*(*response2p-mu)
 
 
 
@@ -26573,9 +26572,9 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_iwls_wweightschange_weightso
   if (compute_like)
     {
 
-    like +=  log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response)-(p+1)*log(1+pow(*response/b,a))
-           -0.5*log(2*PI)-(*response2p-mu)*(*response2p-mu)
-           -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
+    like += -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;// log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response)-(p+1)*log(1+pow(*response/b,a))
+          // -0.5*log(2*PI)-(*response2p-mu)*(*response2p-mu)
+
 
     }
 
