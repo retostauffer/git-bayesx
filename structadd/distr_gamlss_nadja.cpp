@@ -25979,9 +25979,16 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
     {
     set_worklin();
     }
-
+    cout << worktransformlin.size() << endl;
+    for(unsigned i=0; i< worktransformlin.size(); i++)
+      cout << *worktransformlin[i] << endl;
+    cout << *linpred << endl;
     double b = exp((*linpred));
+    cout << b << endl;
+    cout << *response << endl;
     double respdivb = (*response) / b;
+    cout << respdivb << endl;
+    cout << *worktransformlin[4] << endl;
     double acurrent = (*worktransformlin[4]);
     double hilfs = pow(respdivb,acurrent);
     double hilfs2 = pow(respdivb, -acurrent);
