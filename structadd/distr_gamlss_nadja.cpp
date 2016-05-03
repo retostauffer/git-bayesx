@@ -25582,7 +25582,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     double ddu = -(*response-mu)*du;
 
     nu += ((*worktransformlin[3])/oneminusrho2)*dphiinvu*du*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
-    *workingweight += ((*worktransformlin[3])/oneminusrho2)* ( ddphiinvu*ddu*du + dphiinvu*ddu - (*worktransformlin[3])*dphiinvu*dphiinvu*du*du );
+    *workingweight += ((*worktransformlin[3])/oneminusrho2)* ( ddphiinvu*du*du + dphiinvu*ddu - (*worktransformlin[3])*dphiinvu*dphiinvu*du*du );
     }
 
 
