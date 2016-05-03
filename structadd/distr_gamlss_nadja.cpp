@@ -25595,7 +25595,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
     if((optionsp->samplesel) && (*response > 0))
       {
-      like += -0.5 * pow(((*response)-mu),2)+(*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
+      like += (*worktransformlin[3])*(oneminusrho2)*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
       }
 
     }
@@ -26495,9 +26495,9 @@ double DISTR_gaussiancopula_binary_dagum_rho::loglikelihood_weightsone(double * 
     rho = (*linpred)/pow((1+pow((*linpred),2)),0.5);
 
 
-  double p = *worktransformlin[0];
-  double b = *worktransformlin[1];
-  double a = *worktransformlin[2];
+  double p = *worktransformlin[1];
+  double b = *worktransformlin[2];
+  double a = *worktransformlin[3];
   double mu = *worklin[0];
   double hilfs1 = 1-pow(rho,2);
   double u = pow(1+pow(*response/b,-a),-p);
@@ -26553,9 +26553,9 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_iwls_wweightschange_weightso
     hilfs = pow((1+pow((*linpred),2)),0.5);
   }
 
-  double p = *worktransformlin[0];
-  double b = *worktransformlin[1];
-  double a = *worktransformlin[2];
+  double p = *worktransformlin[1];
+  double b = *worktransformlin[2];
+  double a = *worktransformlin[3];
   double mu = *worklin[0];
   double hilfs1 = 1-pow(rho,2);
   double u = pow(1+pow(*response/b,-a),-p);
