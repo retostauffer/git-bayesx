@@ -25573,7 +25573,8 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
   nu = *response-mu ;
   *workingweight = 1;
-  if((!optionsp->samplesel) && (*response > 0))
+
+  if((!optionsp->samplesel) || (*response > 0))
     {
     rho2 = pow((*worktransformlin[3]),2);
     oneminusrho2 = 1- rho2;
@@ -25588,10 +25589,8 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
     nu += ((*worktransformlin[3])/oneminusrho2)*dphiinvu*du*( phiinvv - (*worktransformlin[3])*phiinvu );
     *workingweight += -((*worktransformlin[3])/oneminusrho2)*( phiinvv - (*worktransformlin[3])*phiinvu )*(ddphiinvu*du*du + dphiinvu*ddu) +
-                            ((*worktransformlin[3])/oneminusrho2)*(*worktransformlin[3])*dphiinvu*dphiinvu*du*du ;
+                            ((*worktransformlin[3])/oneminusrho2)*(*worktransformlin[3])*dphiinvu*dphiinvu*du*du;
     }
-
-
 
   *workingresponse = *linpred + nu/(*workingweight);
 
@@ -25599,7 +25598,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     {
     like += -0.5 * pow(((*response)-mu),2) ;
 
-    if((optionsp->samplesel) && (*response > 0))
+    if((!optionsp->samplesel) || (*response > 0))
       {
       like += ((*worktransformlin[3])/(oneminusrho2))*phiinvu*( phiinvv - 0.5*(*worktransformlin[3])*phiinvu );
       }
@@ -25742,7 +25741,7 @@ double DISTR_gaussiancopula_binary_dagum_p::loglikelihood_weightsone(double * re
 
 
     double u = pow((1 + hilfs2), -p);
-    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
+//    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = *response2p-(*worklin[2]);
@@ -25795,14 +25794,13 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
     double dphiinvu = pow(2*PI, 0.5) / exp(-0.5*pow(phinvu, 2));
     double ddphiinvu = phinvu * 2 * PI / pow(exp(-0.5*pow(phinvu, 2)), 2);
 
-    double ybpma = pow(*response/(*worktransformlin[0]),-(*worktransformlin[1]));
-    double ybpmap = pow(1+ybpma,-p);
+    double ybpma = hilfs2;//pow(*response/(*worktransformlin[0]),-(*worktransformlin[1]));
+    double ybpmap = u;//pow(1+ybpma,-p);
     double dF = -p*log(1+ybpma)*ybpmap;
     double ddF = p*log(1+ybpma)*ybpmap*(p*log(1+ybpma)-1);
 
-
-    double d1 =  -p * pow(1 +  hilfs2, -p) * log(1 +  hilfs2);
-    double d2 = d1 - +p * p * pow(1 +  hilfs2, -p) * pow(log(1 +  hilfs2), 2);
+//    double d1 =  -p * pow(1 +  hilfs2, -p) * log(1 +  hilfs2);
+//    double d2 = d1 + p * p * pow(1 +  hilfs2, -p) * pow(log(1 +  hilfs2), 2);
 
     double nu = 1 + acurrent*p*log((*response)) - acurrent*p*log(bcurrent)
                 -p*log(1+hilfs) +
@@ -25810,7 +25808,7 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
     *workingweight = 1  -
                     ((*worktransformlin[3]) * (dF * dF * ddphiinvu + dphiinvu*ddF) / orho) * (phinvv - (*worktransformlin[3]) * phinvu) +
-                    (*worktransformlin[3]) * (*worktransformlin[3]) * pow(d2 * dphiinvu, 2) / orho;
+                    (*worktransformlin[3]) * (*worktransformlin[3]) * pow(dF * dphiinvu, 2) / orho;
 
     if((*workingweight) <= 0)
         *workingweight = 0.0001;
@@ -26524,7 +26522,7 @@ double DISTR_gaussiancopula_binary_dagum_rho::loglikelihood_weightsone(double * 
   double b = *worktransformlin[2];
   double a = *worktransformlin[3];
   double mu = *worklin[0];
-  double hilfs1 = 1-pow(rho,2);
+//  double hilfs1 = 1-pow(rho,2);
   double u = pow(1+pow(*response/b,-a),-p);
   double phiinvu = randnumbers::invPhi2(u);
   double phiinv = *response2p-mu;
@@ -26582,7 +26580,7 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_iwls_wweightschange_weightso
   double b = *worktransformlin[2];
   double a = *worktransformlin[3];
   double mu = *worklin[0];
-  double hilfs1 = 1-pow(rho,2);
+//  double hilfs1 = 1-pow(rho,2);
   double u = pow(1+pow(*response/b,-a),-p);
   double phiinvu = randnumbers::invPhi2(u);
   double phiinv = (*response2p)-mu;
