@@ -25470,7 +25470,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
 
     if (*weightwork != 0)
       {
-      if(*workresporig == 0)
+      if(optionsp->samplesel && *workresporig == 0)
         {
         *workresp = trunc_normal2(-20,0,*worklin_current, 1);
         }
@@ -25483,11 +25483,15 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
 
         double help = randnumbers::Phi2( (- *worklin_current - (*worktransformlin[3])*help3) / (help2));
         double x = randnumbers::uniform();
-        double xstar = x*(1-help) + help;
+        double xstar;
+        if(*workresporig==0)
+          xstar = x*help;
+        else
+          xstar = x*(1-help) + help;
+
 
         *workresp = randnumbers::invPhi2(xstar)*help2 + (*worktransformlin[3])*help3 + *worklin_current;
         }
-
       }
 
     }
@@ -25566,10 +25570,10 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
   double du;
   double ddu;
 
+
   nu = *response-mu ;
   *workingweight = 1;
-
-  if((optionsp->samplesel) && (*response > 0))
+  if((!optionsp->samplesel) && (*response > 0))
     {
     rho2 = pow((*worktransformlin[3]),2);
     oneminusrho2 = 1- rho2;
@@ -25577,10 +25581,10 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
     u = randnumbers::Phi2(*response-mu);
     phiinvu = *response-mu;
     phiinvv = randnumbers::invPhi2(v);
-    dphiinvu = pow(2*PI,0.5)/exp(-0.5*pow(phiinvu,2));
-    ddphiinvu = 2*PI*dphiinvu/(exp(-0.5*pow(phiinvu,2))*exp(-0.5*pow(phiinvu,2)));
-    double du = -exp(-0.5*(*response-mu)*(*response-mu))/pow(2*PI,0.5);
-    double ddu = -(*response-mu)*du;
+    dphiinvu = pow(2*PI,0.5)*exp(0.5*pow(phiinvu,2));
+    ddphiinvu = 2*PI*phiinvu/(exp(-0.5*pow(phiinvu,2))*exp(-0.5*pow(phiinvu,2)));
+    du = -exp(-0.5*(*response-mu)*(*response-mu))/pow(2*PI,0.5);
+    ddu = (*response-mu)*du;
 
     nu += ((*worktransformlin[3])/oneminusrho2)*dphiinvu*du*( phiinvv - (*worktransformlin[3])*phiinvu );
     *workingweight += -((*worktransformlin[3])/oneminusrho2)*( phiinvv - (*worktransformlin[3])*phiinvu )*(ddphiinvu*du*du + dphiinvu*ddu) +
