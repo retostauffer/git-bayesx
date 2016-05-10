@@ -923,8 +923,47 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
 
 void FC_variance_pen_vector_ssvs::outoptions(void)
   {
+  FC::outoptions();
 
+  int maxvarnamelength = 0;
+  int len;
 
+  for(unsigned i=0;i<Cp->datanames.size();i++)
+    {
+    len = Cp->datanames[i].length();
+
+    if (len > maxvarnamelength)
+      maxvarnamelength = len;
+    }
+
+  unsigned nsp, nsp2;
+  if (maxvarnamelength  > 10)
+    nsp = 4 + maxvarnamelength - 8;
+  else
+    nsp = 4;
+  ST::string l(' ',nsp);
+
+  optionsp->out("  Hyperparameters for SSVS priors of linear effects:\n\n" );
+  optionsp->out("    Variable" + l +
+                "v1       " +
+                "v2    \n");
+
+  for(unsigned i=0; i< Cp->datanames.size(); i++)
+    {
+    if (maxvarnamelength  > 10)
+      nsp = 4 + maxvarnamelength - Cp->datanames[i].length();
+    else
+      nsp = 12-Cp->datanames[i].length();
+    ST::string ls(' ',nsp);
+
+    nsp2 = 9 - ST::doubletostring(atau2[i],6).length();
+    ST::string ls2(' ',nsp2);
+
+    optionsp->out("    " + Cp->datanames[i] + ls +
+                  ST::doubletostring(atau2[i],6) + ls2 +
+                  ST::doubletostring(btau2[i],6) + "\n");
+    }
+  optionsp->out("\n");
   }
 
 
