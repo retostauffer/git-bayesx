@@ -25493,7 +25493,6 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
         *workresp = randnumbers::invPhi2(xstar)*help2 + (*worktransformlin[3])*help3 + *worklin_current;
         }
       }
-
     }
   }
 
@@ -25996,6 +25995,7 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
     {
     set_worklin();
     }
+
   /*  cout << worktransformlin.size() << endl;
     for(unsigned i=0; i< worktransformlin.size(); i++)
       cout << *worktransformlin[i] << endl;
@@ -26508,8 +26508,8 @@ double DISTR_gaussiancopula_binary_dagum_rho::loglikelihood_weightsone(double * 
     {
     set_worklin();
     }
-  double rho;
 
+  double rho;
   if (*linpred <= -100)
     rho  = -0.99995;
   else if (*linpred >= 100)

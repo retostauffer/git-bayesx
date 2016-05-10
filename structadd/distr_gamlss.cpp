@@ -1041,10 +1041,16 @@ DISTR_gamlss::DISTR_gamlss(GENERAL_OPTIONS * o, const datamatrix & r,
   predict_mult = true;
 
   // FIX SAMPLESEL
-  if (check_weightsone() == true && !optionsp->copula)
+  if (check_weightsone() && !optionsp->copula  && !optionsp->samplesel)
+    {
     wtype = wweightschange_weightsone;
+    weightsone = true;
+    }
   else
+    {
     wtype = wweightschange_weightsneqone;
+    weightsone = false;
+    }
 
 
   helpmat1 = datamatrix(nrobs,1,1);

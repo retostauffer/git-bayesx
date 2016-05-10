@@ -7645,10 +7645,10 @@ bool superbayesreg::create_distribution(void)
       sampleselweight = distr_gaussiancopula_binary_dagum_latents[0].response;
       double * wpa = (distr_gaussiancopula_binary_dagum_as[0].weight).getV();
       double * wpb = (distr_gaussiancopula_binary_dagum_bs[0].weight).getV();
-      double * wpp= (distr_gaussiancopula_binary_dagum_ps[0].weight).getV();
+      double * wpp = (distr_gaussiancopula_binary_dagum_ps[0].weight).getV();
       double * wprho = (distr_gaussiancopula_binary_dagum_rhos[0].weight).getV();
       double * sampleselwp = sampleselweight.getV();
-      for(i=0;i< (distr_gaussiancopula_binary_dagum_as[0].weight).rows(); i++,wpa++,wpb++,wpp++,wprho++,sampleselwp++)
+      for(i=0; i<sampleselweight.rows(); i++,wpa++,wpb++,wpp++,wprho++,sampleselwp++)
         {
         if( ((*sampleselwp)==0) )
           {
