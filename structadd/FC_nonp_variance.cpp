@@ -1159,7 +1159,7 @@ void FC_nonp_variance_varselection::get_samples(
 
 void FC_nonp_variance_varselection::outoptions(void)
   {
-  FC_nonp_variance::outoptions();
+//  FC_nonp_variance::outoptions();
   optionsp->out("  IG prior for psi2 \n");
 
   optionsp->out("  Hyperparameter v1 for prior: " +
@@ -1176,10 +1176,10 @@ void FC_nonp_variance_varselection::outoptions(void)
     optionsp->out("\n");
     optionsp->out("  Prior inclusion probability omega\n");
     optionsp->out("  Parameter a_omega: " +
-                ST::doubletostring(a_omega) + "\n" );
+                ST::doubletostring(a_omega) + "\n\n" );
 
     optionsp->out("  Parameter b_omega: " +
-                ST::doubletostring(b_omega) + "\n" );
+                ST::doubletostring(b_omega) + "\n\n" );
 
     }
   }
