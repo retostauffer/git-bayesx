@@ -26455,8 +26455,7 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_deviance_mult(vector<double 
      else
        {
        l = log(a)+log(p)-a*p*log(b)+(a*p-1)*log(*response[1])-(p+1)*log(1+pow(*response[1]/b,a))
-           -0.5*log(2*PI)-0.4*(*response[0]-mu)*(*response[0]-mu)
-           -0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
+           -0.5*log(2*PI)-0.5*log(orho) + (rho*phiinvu*phiinv-0.5*rho*rho*(phiinv*phiinv+phiinvu*phiinvu))/orho;
        }
 
 
