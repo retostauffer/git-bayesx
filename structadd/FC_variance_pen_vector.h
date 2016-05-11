@@ -202,7 +202,7 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
 
   unsigned nrpen;
 
-  double nu0;
+  vector<double> r;
 
   public:
 

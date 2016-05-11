@@ -613,14 +613,17 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   {
 
   int f;
-  double a,b;
+  double a,b,rhelp;
   bool cpr;
 
   f = op[53].strtodouble(a);
   f = op[54].strtodouble(b);
+  f = op[41].strtodouble(rhelp);
+
   atau2.push_back(a);
   btau2_orig.push_back(b);
   btau2.push_back(masterp->level1_likep[equationnr]->trmult*b);
+  r.push_back(rhelp);
 
   if (op[61] == "true")
     {
@@ -664,8 +667,6 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
 
   nrpen = 0;
 
-  nu0 = 0.000025;
-
   theta = FC(optionsp,"",1,1,"");
   theta.setbeta(1,1,0.5);
 
@@ -694,7 +695,7 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_v
   atheta = t.atheta;
   btheta = t.btheta;
 
-  nu0 = t.nu0;
+  r = t.r;
 
   }
 
@@ -721,7 +722,7 @@ const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const
   atheta = t.atheta;
   btheta = t.btheta;
 
-  nu0 = t.nu0;
+  r = t.r;
 
   return *this;
   }
@@ -774,7 +775,7 @@ void FC_variance_pen_vector_ssvs::update(void)
       }
     else
       {
-      bnew_tau2 = btau2[j]+0.5*beta2/nu0;
+      bnew_tau2 = btau2[j]+0.5*beta2/r[j];
       }
     double tau2help = rand_invgamma(anew_tau2,bnew_tau2);
 
@@ -784,7 +785,7 @@ void FC_variance_pen_vector_ssvs::update(void)
       }
     else
       {
-      beta(j,0) = nu0*tau2help;
+      beta(j,0) = r[j]*tau2help;
       }
 
     Cp->tau2(j,0) = beta(j,0);
@@ -808,7 +809,7 @@ void FC_variance_pen_vector_ssvs::update(void)
 //    helpIG2 = nu0btau2_pow_atau2*exp(-nu0*btau2[j]/beta(j,0));
 
     double u = uniform();
-    double L = 1/sqrt(nu0)*exp(- beta2/(2*tau2help)*(1/nu0-1));
+    double L = 1/sqrt(r[j])*exp(- beta2/(2*tau2help)*(1/r[j]-1));
     double thetanew = 1/(1+ ((1-theta.beta(0,0))/theta.beta(0,0))*L);
   //  thetanew = (theta.beta(0,0) * helpIG1)/(theta.beta(0,0) * helpIG1 + (1-theta.beta(0,0))*helpIG2);
 
@@ -936,7 +937,7 @@ void FC_variance_pen_vector_ssvs::outoptions(void)
       maxvarnamelength = len;
     }
 
-  unsigned nsp, nsp2;
+  unsigned nsp, nsp2, nsp3;
   if (maxvarnamelength  > 10)
     nsp = 4 + maxvarnamelength - 8;
   else
@@ -946,7 +947,8 @@ void FC_variance_pen_vector_ssvs::outoptions(void)
   optionsp->out("  Hyperparameters for SSVS priors of linear effects:\n\n" );
   optionsp->out("    Variable" + l +
                 "v1       " +
-                "v2    \n");
+                "v2       " +
+                "r        \n");
 
   for(unsigned i=0; i< Cp->datanames.size(); i++)
     {
@@ -959,9 +961,13 @@ void FC_variance_pen_vector_ssvs::outoptions(void)
     nsp2 = 9 - ST::doubletostring(atau2[i],6).length();
     ST::string ls2(' ',nsp2);
 
+    nsp3 = 9 - ST::doubletostring(btau2[i],6).length();
+    ST::string ls3(' ',nsp3);
+
     optionsp->out("    " + Cp->datanames[i] + ls +
                   ST::doubletostring(atau2[i],6) + ls2 +
-                  ST::doubletostring(btau2[i],6) + "\n");
+                  ST::doubletostring(btau2[i],6) + ls3 +
+                  ST::doubletostring(r[i],10) + "\n");
     }
   optionsp->out("\n");
   }
