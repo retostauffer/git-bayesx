@@ -81,8 +81,8 @@ G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r= \exp(\eta_r)$ is
 the mean and $s_r = \nu/weightvar_r$ is the scale parameter.
 
 If estimation is based on latent utility representations, the
-specification of weights is not allowed. Similarly, for hazard 
-regression and multi-state models, weighted regression is not 
+specification of weights is not allowed. Similarly, for hazard
+regression and multi-state models, weighted regression is not
 implemented yet.
 
 \subsubsection{Syntax of possible model terms}
@@ -758,7 +758,7 @@ terms for bayesreg objects.}}
   the inverse Gamma prior for the variance $\tau^2$.
 & #a=0.001#, #b=0.001# \\
 
-& 2. The options #a# and #b# specify the hyperparameters of the inverse Gamma prior
+& 2. The options #a# and #b# specify the hyperparameters of the Gamma prior
   for the shrinkage parameter $\lambda$ if the lasso- or the ridge-prior is used (**).
 & #a=0.001#, #b=0.001# \\
 
@@ -1714,7 +1714,7 @@ information criterion $DIC$ of the model, see \citeasnoun{SpiBesCar02}.
 The computation of these quantities is based on the
 unstandardized deviance which is defined as $D(\theta) =
 -2\log(p(y|\theta))$ where $\theta = (\mu,\sigma^2)$ for Gaussian
-responses 
+responses
 and $\theta = \mu$ for non-Gaussian responses. The
 effective number of parameters is defined by $p_D =
 \overline{D(\theta)} - D(\bar{\theta})$ where $\overline{D(\theta)}$

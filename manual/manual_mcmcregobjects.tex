@@ -633,8 +633,7 @@ covariates #X1# and #X2#. \\
 \hline {\bf Option} & {\bf Description} & {\bf Default} \\
 \hline
 \hline
-#a#, #b# & The options #a# and #b# specify the hyperparameters of
-  the inverse Gamma prior for the variance $\tau^2$ of nonlinear effects (e.g. P-splines or Markov random fields).
+#a#, #b# & The options #a# and #b# specify the hyperparameters of the inverse Gamma prior for the variance $\tau^2$ of nonlinear effects (e.g. P-splines or Markov random fields) and the gamma prior for the shrinkage parameter if ridge or lasso priors are used for linear effects.
 & #a=0.001#, #b=0.001# \\
 \hline
 #a_re#, #b_re# & The options #a_re# and #b_re# specify the hyperparameters of
@@ -873,7 +872,7 @@ Hurdle Poisson &$p(y|\lambda,\pi)=\begin{cases}
 					\end{matrix}$\\\hline
 Hurdle negative binomial &$p(y|\mu,\delta,\pi)=\begin{cases}
 	\pi & y=0\\
-		\frac{(1-\pi)}{1-\left(\frac{\delta}{\delta+\mu}\right)^{\delta}}\frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y} & y>0\\
+		 \frac{(1-\pi)}{1-\left(\frac{\delta}{\delta+\mu}\right)^{\delta}}\frac{\Gamma(y+\delta)}{\Gamma(y+1)\Gamma(\delta)}\left(\frac{\delta}{\delta+\mu}\right)^{\delta}\left(\frac{\mu}{\delta+\mu}\right)^{y} & y>0\\
 			\end{cases}$&$\begin{matrix} \pi\in(0,1)\\\delta>0\\\mu>0
 					 	\end{matrix}$ &$\begin{matrix} \text{#hurdle#}\\\text{#hurdle#}\\\text{#hurdle#}
 					\end{matrix}$&$\begin{matrix} \text{#pi#}\\\text{#delta#}\\\text{#mu#}
