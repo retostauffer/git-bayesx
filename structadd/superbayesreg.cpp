@@ -6842,7 +6842,7 @@ bool superbayesreg::create_distribution(void)
 
 
  //-------------------------------- sfa0_sigma_v ---------------------------------
-  else if (family.getvalue() == "sfa0_sigma_v" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "sfa0_sigma_v" && equationtype.getvalue()=="sigma_v")
     {
 
     computemodeforstartingvalues = true;
@@ -6858,7 +6858,7 @@ bool superbayesreg::create_distribution(void)
 //---------------------------- END: sfa0_sigma_v -------------------------------
 
  //-------------------------------- sfa0_sigma_u ---------------------------------
-  else if (family.getvalue() == "sfa0_sigma_u" && equationtype.getvalue()=="scale")
+  else if (family.getvalue() == "sfa0_sigma_u" && equationtype.getvalue()=="sigma_u")
     {
 
     computemodeforstartingvalues = true;
