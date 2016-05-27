@@ -774,12 +774,12 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
   if(FCnonpp->IWLS)
     {
     diff = datamatrix(likep->nrobs, 1, 0);
-    onevec = datamatrix(likep->nrobs,1,0);
+    zerovec = datamatrix(likep->nrobs,1,0);
 
     tauold = sqrt(likep->get_scale()/FCnonpp->lambda);
     FCnonpp->tau2=1;
     FCnonpp->lambda=likep->get_scale();
-    FCnonpp->designp->set_intvar(onevec,tauold);
+    FCnonpp->designp->set_intvar(zerovec,tauold);
     FCnonpp->designp->changingdesign=true;
     }
   }
@@ -788,7 +788,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
 FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_variance_varselection & m)
     : FC_nonp_variance(FC_nonp_variance(m))
   {
-  onevec = m.onevec;
+  zerovec = m.zerovec;
   singleomega = m.singleomega;
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
@@ -816,7 +816,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   if (this==&m)
 	 return *this;
   FC::operator=(FC(m));
-  onevec = m.onevec;
+  zerovec = m.zerovec;
   singleomega = m.singleomega;
   FC_delta = m.FC_delta;
   FC_psi2 = m.FC_psi2;
@@ -937,7 +937,7 @@ void FC_nonp_variance_varselection::update_IWLS(void)
       tauold = tauprop;
       FCnonpp->ssvs_update(tauold,false);
 //      }
-    designp->set_intvar(onevec,tauold);
+    designp->set_intvar(zerovec,tauold);
 
     tau2 = tauold*tauold;
     beta(0,0) = tau2;

@@ -161,7 +161,7 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
   double ssvsvarlimit;
 
-  datamatrix onevec;
+  datamatrix zerovec;
   vector<ST::string> datanames;
 
   bool singleomega;
