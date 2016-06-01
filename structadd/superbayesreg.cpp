@@ -357,6 +357,8 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("delta");
   equationtypes.push_back("sigma2");
   equationtypes.push_back("sigma");
+  equationtypes.push_back("sigma_u");
+  equationtypes.push_back("sigma_v");
   equationtypes.push_back("scale");
   equationtypes.push_back("scale1");
   equationtypes.push_back("scale2");
