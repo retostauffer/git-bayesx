@@ -8294,7 +8294,7 @@ bool superbayesreg::create_distribution(void)
         if(!generaloptions.samplesel && family.getvalue()!="betainf" && family.getvalue()!="betainf0" &&
            family.getvalue()!="betainf1" && family.getvalue()!="za_gamma" && family.getvalue()!="za_lognormal" &&
            family.getvalue()!="za_invgaussian" && family.getvalue()!="za_binomial_logit" && family.getvalue()!="za_binomial_cloglog" &&
-           family.getvalue()!="za")
+           family.getvalue()!="za" && family.getvalue()!="hurdle")
           {
           datamatrix compareweight = equations[j].distrp->weight;
           for(k=0; k<checkweight.rows(); k++)
