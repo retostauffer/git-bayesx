@@ -5553,8 +5553,9 @@ bool superbayesreg::create_distribution(void)
     if(generaloptions.samplesel)
       {
       sampleselweight = distr_binomialprobit_copulas[0].response;
-      distr_normal_mus[0].weight = sampleselweight;
-      distr_normal_sigma2s[0].weight = sampleselweight;
+      distr_dagum_as[0].weight = sampleselweight;
+      distr_dagum_bs[0].weight = sampleselweight;
+      distr_dagum_ps[0].weight = sampleselweight;
       distr_gausscopulas[0].weight = sampleselweight;
 
 /*      sampleselweight = datamatrix(D.rows(),1,1);
@@ -5607,6 +5608,7 @@ bool superbayesreg::create_distribution(void)
       if(setseed.getvalue() >= 0)
         srand(setseed.getvalue());
 
+      distr_gausscopulas[0].update_end();
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
         {
@@ -8302,7 +8304,7 @@ bool superbayesreg::create_distribution(void)
             if(checkweight(k,0)!=compareweight(k,0))
               {
               outerror("ERROR: weights specified in the different equations are not equal!\n\n");
-              return true;
+//              return true;
               }
             }
           }

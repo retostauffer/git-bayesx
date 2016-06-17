@@ -490,7 +490,7 @@ void DISTR_gausscopula::outoptions(void)
 void DISTR_gausscopula::update_end(void)
   {
 
-/*  // helpmat1 stores rho
+  // helpmat1 stores rho
 
   double * worklin;
   if (linpred_current==1)
@@ -505,7 +505,6 @@ void DISTR_gausscopula::update_end(void)
     {
     *pmu = (*worklin) / pow(1 + pow((*worklin), 2), 0.5);
     }
-*/
   }
 
 vector<double> DISTR_gausscopula::derivative(double & F1, double & F2, double * linpred)
@@ -747,7 +746,7 @@ void DISTR_gausscopula2::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gausscopula2::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-	//Kendall tau	
+	//Kendall tau
   *mu = 2 * std::asin(tanh(*linpred[predstart_mumult+(linpred.size()-1)]) ) / PI ;
   }
 
