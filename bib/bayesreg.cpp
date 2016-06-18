@@ -3332,6 +3332,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   long h;
   unsigned min,max,degree,nrknots;
   double lambda,a1,b1,alpha,merrorvar;
+  datamatrix merrorvarmat;
   bool ub,diagtransform,derivative,bsplinebasis,discretize;
   int gridsize=0,contourprob=0,digits=0,nobs=0;
   int f=0;
@@ -3494,13 +3495,40 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
           gridsize = 500;              // evaluate the function on a grid
 
        f = (terms[i].options[32]).strtodouble(merrorvar);
+       if(terms[i].options[39] != "")
+         {
+         dataobject * datap;                           // pointer to datasetobject
+         int objpos = findstatobject(*statobj,terms[i].options[39],"dataset");
+         if (objpos >= 0)
+           {
+           statobject * s = statobj->at(objpos);
+           datap = dynamic_cast<dataobject*>(s);
+           if (datap->obs()==0 || datap->getVarnames().size()==0)
+             {
+             outerror("ERROR: dataset object " + terms[i].options[39] + " does not contain any data\n");
+             return true;
+             }
+           }
+         else
+           {
+           outerror("ERROR: dataset object " + terms[i].options[39] + " is not existing\n");
+           return true;
+           }
+         list<ST::string> varnames = datap->getVarnames();
+         ST::string expr = "";
+         datap->makematrix(varnames,merrorvarmat,expr);
+         }
+       else
+         {
+         merrorvarmat = datamatrix(D.rows(),1,merrorvar);
+         }
 
        if(lowerknot==upperknot)
          {
          double xmin = meandata.min(0);
          double xmax = meandata.max(0);
-         lowerknot = xmin - 3*sqrt(merrorvar);
-         upperknot = xmax + 3*sqrt(merrorvar);
+         lowerknot = xmin - 3*sqrt(merrorvarmat.max(0));
+         upperknot = xmax + 3*sqrt(merrorvarmat.max(0));
          }
        }
 
@@ -3677,7 +3705,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    pathnonp,
                                    pathres,
                                    lowerknot, upperknot,
-                                   merrorvar,
+                                   merrorvarmat,
                                    discretize, digits, nobs)
                          );
           fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
@@ -3755,7 +3783,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    pathnonp,
                                    pathres,
                                    lowerknot, upperknot,
-                                   merrorvar,
+                                   merrorvarmat,
                                    discretize, digits, nobs)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());
@@ -3898,7 +3926,7 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
                                    pathnonp,
                                    pathres,
                                    lowerknot, upperknot,
-                                   merrorvar,
+                                   merrorvarmat,
                                    discretize, digits, nobs)
                            );
             fcmerror[fcmerror.size()-1].set_fcnumber(fullcond.size());

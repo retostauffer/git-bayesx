@@ -753,6 +753,7 @@ class __EXPORT_TYPE term_pspline : public basic_termtype
   doubleoption lowerknot;
   doubleoption upperknot;
   doubleoption merrorvar;
+  stroption merrorvarvec;
   doubleoption lowergrid;
   doubleoption uppergrid;
   simpleoption discretize;

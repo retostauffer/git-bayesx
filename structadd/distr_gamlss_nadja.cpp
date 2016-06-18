@@ -8855,6 +8855,9 @@ void DISTR_binomialprobit_copula::update(void)
     *workresp = distrcopulap[0]->condfc(x, *worklin_current, *workresporig, copulapos);
     *responsecop = *workresp;
     }
+  ofstream out1("c://temp//samplesel3//response_generic.raw");
+  response.prettyPrint(out1);
+  out1.close();
   }
 
 //--------------------------------------------------------------------------------
@@ -25472,6 +25475,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
       {
       if(optionsp->samplesel && *workresporig == 0)
         {
+        double x = randnumbers::uniform();
         *workresp = trunc_normal2(-20,0,*worklin_current, 1);
         }
       else
@@ -25494,6 +25498,9 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
         }
       }
     }
+  ofstream out1("c://temp//samplesel3//response.raw");
+  response.prettyPrint(out1);
+  out1.close();
   }
 
 double DISTR_gaussiancopula_binary_dagum_latent::loglikelihood_weightsone(double * response,
