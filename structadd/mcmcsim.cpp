@@ -607,34 +607,38 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         if (equations[nrmodels-1-i].distrp->posteriormode() == false)
           allconverged = false;
 
-
         for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
           {
           if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
               allconverged = false;
 
-/* SAMPLESEL TESTS
-          cout << equations[nrmodels-1-i].distrp->family << "; " << equations[nrmodels-1-i].distrp->equationtype << "; FC " << equations[nrmodels-1-i].FCpointer[j]->title << endl;
+// SAMPLESEL TESTS
+/*          cout << equations[nrmodels-1-i].distrp->family << "; " << equations[nrmodels-1-i].distrp->equationtype << "; FC " << equations[nrmodels-1-i].FCpointer[j]->title << endl;
           cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
           cout << "j: " << j << endl;
 
-          ofstream out1("c://temp//sampleselection2//weight.raw");
+          ST::string s = "c://temp//samplesel3//weight" + equations[nrmodels-1-i].distrp->family + ".raw";
+          ofstream out1(s.strtochar());
           (equations[nrmodels-1-i].distrp->weight).prettyPrint(out1);
           out1.close();
 
-          ofstream out2("c://temp//sampleselection2//workingweight.raw");
+          s = "c://temp//samplesel3//workingweight" + equations[nrmodels-1-i].distrp->family + ".raw";
+          ofstream out2(s.strtochar());
           (equations[nrmodels-1-i].distrp->workingweight).prettyPrint(out2);
           out2.close();
 
-          ofstream out3("c://temp//sampleselection2//response.raw");
+          s = "c://temp//samplesel3//response" + equations[nrmodels-1-i].distrp->family + ".raw";
+          ofstream out3(s.strtochar());
           (equations[nrmodels-1-i].distrp->response).prettyPrint(out3);
           out3.close();
 
-          ofstream out4("c://temp//sampleselection2//workingresponse.raw");
+          s = "c://temp//samplesel3//workingresponse" + equations[nrmodels-1-i].distrp->family + ".raw";
+          ofstream out4(s.strtochar());
           (equations[nrmodels-1-i].distrp->workingresponse).prettyPrint(out4);
           out4.close();
 
-          ofstream out5("c://temp//sampleselection2//linpred.raw");
+          s = "c://temp//samplesel3//linpred" + equations[nrmodels-1-i].distrp->family + ".raw";
+          ofstream out5(s.strtochar());
           if (equations[nrmodels-1-i].distrp->linpred_current==1)
             (equations[nrmodels-1-i].distrp->linearpred1).prettyPrint(out5);
           else

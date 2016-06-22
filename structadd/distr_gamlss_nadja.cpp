@@ -2795,6 +2795,19 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
 
     *workingresponse = *linpred + nu/(*workingweight);
 
+  if(counter <= 3)
+    {
+    cout << "counter: " << counter << endl;
+    cout << "p: " << p << endl;
+    cout << "b: " << (*worktransformlin[1]) << endl;
+    cout << "a: " << (*worktransformlin[0]) << endl;
+    cout << "resp: " << *response << endl;
+    cout << "linpred: " << *linpred << endl;
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
+
     if (compute_like)
       {
 
@@ -25821,6 +25834,19 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
     *workingresponse = *linpred + nu/(*workingweight);
 
+  if(counter <= 3)
+    {
+    cout << "counter: " << counter << endl;
+    cout << "p: " << p << endl;
+    cout << "b: " << (*worktransformlin[1]) << endl;
+    cout << "a: " << (*worktransformlin[0]) << endl;
+    cout << "resp: " << *response << endl;
+    cout << "linpred: " << *linpred << endl;
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
+
     if (compute_like)
       {
 
@@ -26050,6 +26076,7 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
         *workingweight = 0.0001;
 
     *workingresponse = *linpred + nu/(*workingweight);
+
 
     if (compute_like)
       {
