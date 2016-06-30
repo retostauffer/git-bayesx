@@ -2789,24 +2789,34 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+
+  if(counter <= 0)
+    {
+    cout << "p: " << endl;
+    cout << "counter: " << counter << endl << endl;
+
+    cout << "p: " << p << endl;
+    cout << "b: " << (*worktransformlin[1]) << endl;
+    cout << "a: " << (*worktransformlin[0]) << endl;
+    cout << "rho: " << "hm, kriegt man hier nicht so einfach..." << endl << endl;
+
+    cout << "response: " << *response << endl;
+    cout << "linpred: " << *linpred << endl;
+
+    cout << "ybpma: " << ybpma << endl;
+    cout << "dF: " << dF << endl;
+    cout << "ddF: " << ddF << endl << endl;
+
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
+
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
 
     *workingresponse = *linpred + nu/(*workingweight);
-
-  if(counter <= 3)
-    {
-    cout << "counter: " << counter << endl;
-    cout << "p: " << p << endl;
-    cout << "b: " << (*worktransformlin[1]) << endl;
-    cout << "a: " << (*worktransformlin[0]) << endl;
-    cout << "resp: " << *response << endl;
-    cout << "linpred: " << *linpred << endl;
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
 
     if (compute_like)
       {
@@ -3024,6 +3034,28 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+
+  if(counter <= 0)
+    {
+    cout << "b: " << endl;
+    cout << "counter: " << counter << endl << endl;
+
+    cout << "p: " << (*worktransformlin[0]) << endl;
+    cout << "b: " << b << endl;
+    cout << "a: " << (*worktransformlin[1]) << endl;
+    cout << "rho: " << "hm, kriegt man hier nicht so einfach..." << endl << endl;
+
+    cout << "response: " << *response << endl;
+    cout << "linpred: " << *linpred << endl;
+
+    cout << "dF: " << dF << endl;
+    cout << "ddF: " << ddF << endl << endl;
+
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
+
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
@@ -3358,6 +3390,29 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+
+  if(counter <= 0)
+    {
+    cout << "a: " << endl;
+    cout << "counter: " << counter << endl << endl;
+
+    cout << "p: " << (*worktransformlin[0]) << endl;
+    cout << "b: " << (*worktransformlin[1]) << endl;
+    cout << "a: " << a << endl;
+    cout << "rho: " << "hm, kriegt man hier nicht so einfach..." << endl << endl;
+
+    cout << "response: " << *response << endl;
+    cout << "linpred: " << *linpred << endl;
+
+    cout << "ybpma: " << ybpma << endl;
+    cout << "dF: " << dF << endl;
+    cout << "ddF: " << ddF << endl << endl;
+
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
+
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
@@ -25834,14 +25889,24 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
     *workingresponse = *linpred + nu/(*workingweight);
 
-  if(counter <= 3)
+  if(counter <= 0)
     {
-    cout << "counter: " << counter << endl;
+    cout << "p: " << endl;
+    cout << "counter: " << counter << endl << endl;
+
     cout << "p: " << p << endl;
     cout << "b: " << (*worktransformlin[1]) << endl;
     cout << "a: " << (*worktransformlin[0]) << endl;
-    cout << "resp: " << *response << endl;
-    cout << "linpred: " << *linpred << endl;
+    cout << "rho: " << (*worktransformlin[3]) << endl << endl;
+
+    cout << "response: " << *response << endl;
+    cout << "response2: " << *response2p << endl;
+    cout << "linpred: " << *linpred << endl << endl;
+
+    cout << "ybpma: " << ybpma << endl;
+    cout << "dF: " << dF << endl;
+    cout << "ddF: " << ddF << endl << endl;
+
     cout << "nu: " << nu << endl;
     cout << "workingweight: " << *workingweight << endl;
     cout << "workingresponse: " << *workingresponse << endl << endl;
@@ -26077,6 +26142,27 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
 
     *workingresponse = *linpred + nu/(*workingweight);
 
+  if(counter <= 0)
+    {
+    cout << "b: " << endl;
+    cout << "counter: " << counter << endl << endl;
+
+    cout << "p: " << pcurrent << endl;
+    cout << "b: " << b << endl;
+    cout << "a: " << acurrent << endl;
+    cout << "rho: " << (*worktransformlin[3]) << endl << endl;
+
+    cout << "response: " << *response << endl;
+    cout << "response2: " << *response2p << endl;
+    cout << "linpred: " << *linpred << endl << endl;
+
+    cout << "dF: " << dF << endl;
+    cout << "ddF: " << ddF << endl << endl;
+
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
 
     if (compute_like)
       {
@@ -26319,6 +26405,29 @@ void DISTR_gaussiancopula_binary_dagum_a::compute_iwls_wweightschange_weightsone
     *workingweight = 1 + ((pcurrent+1)*pow(a,2)*hilfs*pow(log(respdivb),2))/pow((1+hilfs),2) -
                     ((*worktransformlin[3]) * (dF * dF * ddphiinvu + dphiinvu*d2) / orho) * (phinvv - (*worktransformlin[3]) * phinvu)
                     + (*worktransformlin[3]) * (*worktransformlin[3]) * pow(dF * dphiinvu, 2) / orho;
+
+  if(counter <= 0)
+    {
+    cout << "a: " << endl;
+    cout << "counter: " << counter << endl << endl;
+
+    cout << "p: " << pcurrent << endl;
+    cout << "b: " << (*worktransformlin[1]) << endl;
+    cout << "a: " << a << endl;
+    cout << "rho: " << (*worktransformlin[3]) << endl << endl;
+
+    cout << "response: " << *response << endl;
+    cout << "response2: " << *response2p << endl;
+    cout << "linpred: " << *linpred << endl << endl;
+
+    cout << "ybpma: " << ybpma << endl;
+    cout << "dF: " << dF << endl;
+    cout << "ddF: " << ddF << endl << endl;
+
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+    }
 
     if((*workingweight) <= 0)
         *workingweight = 0.0001;
