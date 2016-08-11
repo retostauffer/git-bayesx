@@ -172,6 +172,8 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   betastart = stroption("betastart");
 
+  mevar = stroption("mevar");
+  covdata = stroption("covdata");
   }
 
 void term_nonp::setdefault(void)
@@ -259,6 +261,9 @@ void term_nonp::setdefault(void)
   WAICoff.setdefault();
 
   betastart.setdefault();
+
+  mevar.setdefault();
+  covdata.setdefault();
   }
 
 
@@ -393,6 +398,9 @@ bool term_nonp::check(term & t)
 	optlist.push_back(&minaniso);
 
     optlist.push_back(&betastart);
+
+    optlist.push_back(&mevar);
+    optlist.push_back(&covdata);
 
     unsigned i;
     bool rec = true;
@@ -598,6 +606,9 @@ bool term_nonp::check(term & t)
     t.options[70] = ST::doubletostring(minaniso.getvalue());
 
     t.options[71] = betastart.getvalue();
+
+    t.options[72] = mevar.getvalue();
+    t.options[73] = covdata.getvalue();
 
     setdefault();
     return true;

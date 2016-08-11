@@ -63,6 +63,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"FC_hrandom_variance_vec.h"
 #include"FC_hrandom_variance_vec_nmig.h"
 #include"FC_cv.h"
+#include"FC_merror.h"
 
 #include"mcmcsim.h"
 
@@ -260,7 +261,7 @@ using MCMC::FC_nonp_variance_vec;
 using MCMC::FC_hrandom_variance_vec;
 using MCMC::FC_hrandom_variance_vec_nmig;
 using MCMC::FC_hrandom_variance_ssvs;
-
+using MCMC::FC_merror;
 
 using MCMC::MCMCsim;
 
@@ -688,12 +689,14 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DESIGN_mrf> design_mrfs;
   vector<DESIGN_kriging> design_krigings;
   vector<FC_nonp> FC_nonps;
+  vector<FC_merror> FC_merrors;
   vector<FC_nonp_variance> FC_nonp_variances;
   vector<FC_nonp_variance_varselection> FC_nonp_variance_varselections;
   vector<FC_varselection_omega> FC_varselection_omegas;
 
   bool create_nonp(void);
   void create_pspline(unsigned i);
+  bool create_merror(unsigned i);
   bool create_mrf(unsigned i);
   bool create_kriging(unsigned i);
   bool create_geokriging(unsigned i);

@@ -128,6 +128,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   stroption betastart;
 
+  stroption mevar;
+  stroption covdata;
 
   vector<ST::string> termnames;
 

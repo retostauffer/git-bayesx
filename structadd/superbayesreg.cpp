@@ -215,6 +215,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("offset");
   tnames.push_back("userdefined");
   tnames.push_back("tensor");
+  tnames.push_back("pspline_merror");
 
 
   tnonp = term_nonp(tnames);
@@ -1058,6 +1059,9 @@ void superbayesreg::clear(void)
   FC_nonps.erase(FC_nonps.begin(),FC_nonps.end());
   FC_nonps.reserve(400);
 
+  FC_merrors.erase(FC_merrors.begin(),FC_merrors.end());
+  FC_merrors.reserve(20);
+
   FC_hrandoms.erase(FC_hrandoms.begin(),FC_hrandoms.end());
   FC_hrandoms.reserve(200);
 
@@ -1344,6 +1348,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   design_userdefined_tensors = b.design_userdefined_tensors;
   FC_tensor_omegas = b.FC_tensor_omegas;
   FC_nonps = b.FC_nonps;
+  FC_merrors = b.FC_merrors;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
   FC_varselection_omegas = b.FC_varselection_omegas;
@@ -1566,6 +1571,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   design_userdefined_tensors = b.design_userdefined_tensors;
   FC_tensor_omegas = b.FC_tensor_omegas;
   FC_nonps = b.FC_nonps;
+  FC_merrors = b.FC_merrors;
   FC_nonp_variances = b.FC_nonp_variances;
   FC_nonp_variance_varselections = b.FC_nonp_variance_varselections;
   FC_varselection_omegas = b.FC_varselection_omegas;
@@ -8606,6 +8612,74 @@ bool superbayesreg::create_linear(void)
 
   }
 
+bool superbayesreg::create_merror(unsigned i)
+  {
+  create_pspline(i);
+
+  unsigned modnr = equations.size()-1;
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_merror.raw","merror"," Measurement Error Correction ");
+
+  datamatrix covdata, mevar;
+  if (terms[i].options[72] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[72],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[72] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[72] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,mevar,expr);
+    }
+
+  if (terms[i].options[73] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[73],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[73] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[73] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,covdata,expr);
+    }
+
+  datamatrix d,iv;
+  extract_data(i,d,iv,1);
+
+  FC_merrors.push_back(FC_merror(&generaloptions,title,pathnonp,
+                      terms[i].options,terms[i].varnames,covdata,mevar,d,
+                      &FC_nonps[FC_nonps.size()-1]));
+
+  equations[modnr].add_FC(&FC_merrors[FC_merrors.size()-1],pathres);
+
+  return false;
+  }
 
 void superbayesreg::create_pspline(unsigned i)
   {
@@ -10191,6 +10265,8 @@ bool superbayesreg::create_nonp(void)
         create_offset(i);
       if (terms[i].options[0] == "pspline")
         create_pspline(i);
+      if (terms[i].options[0] == "pspline_merror")
+        error = create_merror(i);
       if (terms[i].options[0] == "userdefined")
         error = create_userdefined(i);
       if (terms[i].options[0] == "tensor")
