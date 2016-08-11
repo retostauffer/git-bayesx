@@ -197,6 +197,15 @@ void DESIGN_userdefined::init_data(datamatrix & dm, datamatrix & iv)
 
     }
 
+/*    j=0;
+    ofstream out2("c:\\temp\\userdefined_spatial\\posend.res");
+    for (j=0;j<posend.size();j++)
+      out2 << posend[j] << endl;
+
+    ofstream out2a("c:\\temp\\userdefined_spatial\\posbeg.res");
+    for (j=0;j<posbeg.size();j++)
+      out2a << posbeg[j] << endl;*/
+
   // TEST
   // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
   // ind.prettyPrint(out);
@@ -604,12 +613,15 @@ void DESIGN_userdefined::compute_XtransposedWres(datamatrix & partres, double l,
     for(i=0;i<nrpar;i++,workXWres++,workmK++)
       {
       *workXWres=0;
-      wZoutT = ZoutT[i].begin();
-      wZoutT_index = index_ZoutT[i].begin();
       size = ZoutT[i].size();
-      for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
+      if(size>0)
         {
-        *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
+        wZoutT = ZoutT[i].begin();
+        wZoutT_index = index_ZoutT[i].begin();
+        for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
+          {
+          *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
+          }
         }
       *workXWres += *workmK/t2;
       }
@@ -621,16 +633,18 @@ void DESIGN_userdefined::compute_XtransposedWres(datamatrix & partres, double l,
     for(i=0;i<nrpar;i++,workXWres++,workmK++)
       {
       *workXWres=0;
-      wZoutT = ZoutT[i].begin();
       size = ZoutT[i].size();
-      wpartres = partres.getV()+index_ZoutT[i][0];
-      for (j=0;j<size;j++,++wZoutT,wpartres++)
+      if(size>0)
         {
-        *workXWres+= (*wZoutT)* (*wpartres);
+        wZoutT = ZoutT[i].begin();
+        wpartres = partres.getV()+index_ZoutT[i][0];
+        for (j=0;j<size;j++,++wZoutT,wpartres++)
+          {
+          *workXWres+= (*wZoutT)* (*wpartres);
+          }
         }
       *workXWres += *workmK/t2;
       }
-
     }
 
   XWres_p = &XWres;

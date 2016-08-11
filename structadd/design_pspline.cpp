@@ -370,27 +370,40 @@ void DESIGN_pspline::make_Bspline(void)
   bool t = check_Zout_consecutive();
 
 
-  ofstream out("c:\\temp\\Zout_pspline.res");
+  ofstream out("c:\\temp\\userdefined_zerocols\\Zout_pspline.res");
+  Zout.prettyPrint(out);
+  */
+
+  /*
+  ofstream out("c:\\temp\\userdefined_zerocols\\Zout.res");
   Zout.prettyPrint(out);
 
-
-  ofstream out("c:\\bayesx\\test\\results\\Zout.res");
-  Zout.prettyPrint(out);
-
-  ofstream out2("c:\\bayesx\\test\\results\\index_Zout.res");
+  ofstream out2("c:\\temp\\userdefined_zerocols\\index_Zout.res");
   index_Zout.prettyPrint(out2);
 
   datamatrix Zoutm(data.rows(),nrpar,0);
   for (i=0;i<posbeg.size();i++)
     {
+    cout << "i: " << i << "\n";
     for (j=posbeg[i];j<=posend[i];j++)
       {
+      cout << "j: " << j << "\n";
+      cout << "posbeg[i]: " << posbeg[i] << "\n";
+      cout << "posend[i]: " << posend[i] << "\n";
       for(k=0;k<Zout.cols();k++)
-        Zoutm(j,index_Zout(i,k)) = sqrt(likep->workingweight(index_data(j,0),0))*Zout(i,k)*intvar(j,0);
+        {
+        cout << "k: " << k << "\n";
+        cout << "index_Zout(i,k): " << index_Zout(i,k) << "\n";
+//        Zoutm(j,index_Zout(i,k)) = sqrt(likep->workingweight(index_data(j,0),0))*Zout(i,k)*intvar(j,0);
+        Zoutm(j,index_Zout(i,k)) = Zout(i,k);
+        }
       }
 
     }
+  ofstream out3("c:\\temp\\userdefined_zerocols\\Zoutm.res");
+  Zoutm.prettyPrint(out3);*/
 
+  /*
   datamatrix h(data.rows(),1,1);
   datamatrix Zteins =  Zoutm.transposed()*h;
 

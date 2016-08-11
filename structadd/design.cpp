@@ -858,13 +858,16 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l, double t2)
     for(i=0;i<nrpar;i++,workXWres++)
       {
       *workXWres=0;
-      wZoutT = ZoutT[i].begin();
-      wZoutT_index = index_ZoutT[i].begin();
       size = ZoutT[i].size();
-      for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
+      if(size>0)
         {
-//      *workXWres += ZoutT[i][j]* partres(index_ZoutT[i][j],0);
-        *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
+        wZoutT = ZoutT[i].begin();
+        wZoutT_index = index_ZoutT[i].begin();
+        for (j=0;j<size;j++,++wZoutT,++wZoutT_index)
+          {
+  //      *workXWres += ZoutT[i][j]* partres(index_ZoutT[i][j],0);
+          *workXWres+= (*wZoutT)* partres(*wZoutT_index,0);
+          }
         }
       }
     }
@@ -872,16 +875,22 @@ void DESIGN::compute_XtransposedWres(datamatrix & partres, double l, double t2)
     {
     double * wpartres;
 
+//    cout << "ZoutT.size():" << ZoutT.size() << "\n";
     for(i=0;i<nrpar;i++,workXWres++)
       {
+//      cout << "i: " << i << endl;
+//      cout << "size: " << ZoutT[i].size() << "\n";
       *workXWres=0;
-      wZoutT = ZoutT[i].begin();
       size = ZoutT[i].size();
-      wpartres = partres.getV()+index_ZoutT[i][0];
-      for (j=0;j<size;j++,++wZoutT,wpartres++)
+      if(size>0)
         {
-//      *workXWres += ZoutT[i][j]* partres(index_ZoutT[i][j],0);
-        *workXWres+= (*wZoutT)* (*wpartres);
+        wZoutT = ZoutT[i].begin();
+        wpartres = partres.getV()+index_ZoutT[i][0];
+        for (j=0;j<size;j++,++wZoutT,wpartres++)
+          {
+//        *workXWres += ZoutT[i][j]* partres(index_ZoutT[i][j],0);
+          *workXWres+= (*wZoutT)* (*wpartres);
+          }
         }
       }
 

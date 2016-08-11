@@ -8876,6 +8876,24 @@ if (terms[i].options[71] != "")
 
   cout << "test" << "\n";*/
 
+  int p = designmat.cols();
+
+  if(!(priormean.rows()==p &&
+       penmat.rows()==p &&
+       penmat.cols()==p &&
+       betastart.rows()==p &&
+       designmat.rows()==d.rows() &&
+       betastart.cols()==1 &&
+       priormean.cols()==1))
+    {
+    outerror("ERROR: dimensions in term userdefined do not match:\n\n");
+    outerror("       design matrix: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
+    outerror("       penalty matrix: (" + ST::inttostring(penmat.rows()) + " x " + ST::inttostring(penmat.cols()) + ")\n");
+    outerror("       prior mean: (" + ST::inttostring(priormean.rows()) + " x " + ST::inttostring(priormean.cols()) + ")\n");
+    outerror("       starting values: (" + ST::inttostring(betastart.rows()) + " x " + ST::inttostring(betastart.cols()) + ")\n\n");
+    return true;
+    }
+
   design_userdefineds.push_back(DESIGN_userdefined(d,iv,
                             designmat, penmat, priormean, constrmat,
                             &generaloptions,equations[modnr].distrp,
@@ -10174,9 +10192,9 @@ bool superbayesreg::create_nonp(void)
       if (terms[i].options[0] == "pspline")
         create_pspline(i);
       if (terms[i].options[0] == "userdefined")
-        create_userdefined(i);
+        error = create_userdefined(i);
       if (terms[i].options[0] == "tensor")
-        create_userdefined_tensor(i);
+        error = create_userdefined_tensor(i);
       if (terms[i].options[0] == "hrandom")
         error = create_hrandom(i);
       if (terms[i].options[0] == "random")
