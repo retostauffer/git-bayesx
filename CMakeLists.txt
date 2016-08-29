@@ -109,6 +109,7 @@ set(STRUCTADD_SRC
 	structadd/FC_hrandom_variance_vec.cpp
 	structadd/FC_hrandom_variance_vec_nmig.cpp
 	structadd/FC_linear.cpp
+	structadd/FC_merror.cpp
 	structadd/FC_mult.cpp
 	structadd/FC_nonp.cpp
 	structadd/FC_nonp_variance.cpp
