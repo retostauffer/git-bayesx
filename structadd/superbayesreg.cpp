@@ -5559,11 +5559,21 @@ bool superbayesreg::create_distribution(void)
     if(generaloptions.samplesel)
       {
       sampleselweight = distr_binomialprobit_copulas[0].response;
-      distr_dagum_as[0].weight = sampleselweight;
-      distr_dagum_bs[0].weight = sampleselweight;
-      distr_dagum_ps[0].weight = sampleselweight;
-      distr_gausscopulas[0].weight = sampleselweight;
-
+      if(distr_dagum_as.size()>0)
+        {
+        distr_dagum_as[0].weight = sampleselweight;
+        distr_dagum_bs[0].weight = sampleselweight;
+        distr_dagum_ps[0].weight = sampleselweight;
+        }
+      if(distr_weibull_lambdas.size()>0)
+        {
+        distr_weibull_lambdas[0].weight = sampleselweight;
+        distr_weibull_alphas[0].weight = sampleselweight;
+        }
+      if(distr_gausscopulas.size()>0)
+        {
+        distr_gausscopulas[0].weight = sampleselweight;
+        }
 /*      sampleselweight = datamatrix(D.rows(),1,1);
       if(distr_binomialprobit_copulas.size()>=1)
         {

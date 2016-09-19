@@ -26,8 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"../export_type.h"
 #include"../values.h"
 #include<fstream>
-#include"GENERAL_OPTIONS.h"
 #include"clstring.h"
+#include"GENERAL_OPTIONS.h"
+#include"FC.h"
 #include"FC_nonp.h"
 #include<cmath>
 
