@@ -296,6 +296,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("betainf");
   families.push_back("za");
   families.push_back("BCCG");
+  families.push_back("gumbel");
   families.push_back("gumbelcopula");
   families.push_back("gumbelcopula2_rho");
   families.push_back("gumbelcopula2_normal_rho");
@@ -778,6 +779,12 @@ void superbayesreg::clear(void)
 
   distr_bivt_mus.erase(distr_bivt_mus.begin(),distr_bivt_mus.end());
   distr_bivt_mus.reserve(20);
+
+  distr_gumbel_mus.erase(distr_gumbel_mus.begin(),distr_gumbel_mus.end());
+  distr_gumbel_mus.reserve(20);
+
+  distr_gumbel_sigmas.erase(distr_gumbel_sigmas.begin(),distr_gumbel_sigmas.end());
+  distr_gumbel_sigmas.reserve(20);
 
   distr_bivt_sigmas.erase(distr_bivt_sigmas.begin(),distr_bivt_sigmas.end());
   distr_bivt_sigmas.reserve(20);
@@ -1282,6 +1289,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_betainf_taus = b.distr_betainf_taus;
   distr_betainf0_nus = b.distr_betainf0_nus;
   distr_betainf1_taus = b.distr_betainf1_taus;
+  distr_gumbel_mus = b.distr_gumbel_mus;
+  distr_gumbel_sigmas = b.distr_gumbel_sigmas;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_gumbelcopula2_normal_mus = b.distr_gumbelcopula2_normal_mus;
@@ -1505,6 +1514,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_betainf_taus = b.distr_betainf_taus;
   distr_betainf0_nus = b.distr_betainf0_nus;
   distr_betainf1_taus = b.distr_betainf1_taus;
+  distr_gumbel_mus = b.distr_gumbel_mus;
+  distr_gumbel_sigmas = b.distr_gumbel_sigmas;
   distr_gumbelcopula_rhos = b.distr_gumbelcopula_rhos;
   distr_gumbelcopula2_rhos = b.distr_gumbelcopula2_rhos;
   distr_gumbelcopula2_normal_mus = b.distr_gumbelcopula2_normal_mus;
@@ -4034,6 +4045,86 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: weibull2_lambda -------------------------------
+
+
+ //-------------------------------- gumbel_sigma ---------------------------------
+  else if (family.getvalue() == "gumbel" && equationtype.getvalue()=="sigma")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_gumbel_sigmas.push_back(DISTR_gumbel_sigma(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1];
+    equations[modnr].pathd = "";
+
+    }
+//---------------------------- END: gumbel_sigma -------------------------------
+
+
+//------------------------------- gumbel_mu ------------------------------------
+  else if (family.getvalue() == "gumbel" && equationtype.getvalue()=="mu")
+    {
+    if(generaloptions.copula)
+      {
+      mainequation=false;
+      }
+    else
+      {
+      mainequation=true;
+      }
+
+
+    computemodeforstartingvalues = true;
+
+    distr_gumbel_mus.push_back(DISTR_gumbel_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gumbel_mus[distr_gumbel_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    if (distr_gumbel_sigmas.size() != distr_gumbel_mus.size())
+      {
+      outerror("ERROR: Equation for sigma is missing");
+      return true;
+      }
+    else
+      {
+      distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].distrp.push_back
+      (&distr_gumbel_mus[distr_gumbel_mus.size()-1]);
+
+      distr_gumbel_mus[distr_gumbel_mus.size()-1].distrp.push_back
+      (&distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1]);
+
+      countmarginal += 1;
+      }
+    if(generaloptions.copula){}
+    else
+      {
+      predict_mult_distrs.push_back(&distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1]);
+      predict_mult_distrs.push_back(&distr_gumbel_mus[distr_gumbel_mus.size()-1]);
+      }
+
+    if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {
+        distr_gumbel_mus[distr_gumbel_mus.size()-1].set_copulapos(0);
+     //   distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].set_copulapos(0);
+        }
+      else if(countmarginal == 2)
+        {
+        distr_gumbel_mus[distr_gumbel_mus.size()-1].set_copulapos(1);
+     //   distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].set_copulapos(1);
+        }
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
+      }
+
+    }
+//------------------------------- END: gumbel_mu -------------------------------
 
 
 //-------------------------------- gamma_sigma ---------------------------------

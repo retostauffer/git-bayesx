@@ -1376,6 +1376,150 @@ class __EXPORT_TYPE DISTR_weibull2_lambda : public DISTR_gamlss
   };
 
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gumbel_sigma ---------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gumbel_sigma : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gumbel_sigma(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gumbel_sigma(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gumbel_sigma(const DISTR_gumbel_sigma & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gumbel_sigma & operator=(const DISTR_gumbel_sigma & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gumbel_sigma() {}
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_gumbel_mu --------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_gumbel_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_gumbel_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_gumbel_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_gumbel_mu(const DISTR_gumbel_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_gumbel_mu & operator=(const DISTR_gumbel_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_gumbel_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, vector<double *>  linpred);
+
+ // double logpdf(const double & resp);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+
 
 
 //------------------------------------------------------------------------------
