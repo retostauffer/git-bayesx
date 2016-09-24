@@ -4787,11 +4787,11 @@ void DISTR_gumbel_mu::check_errors(void)
       if (*workweight > 0)
         {
 
-        if (*workresp < 0)
-          {
-          errors=true;
-          errormessages.push_back("ERROR: negative response values encountered\n");
-          }
+//        if (*workresp < 0)
+//          {
+//          errors=true;
+//          errormessages.push_back("ERROR: negative response values encountered\n");
+//          }
 
 
         }
