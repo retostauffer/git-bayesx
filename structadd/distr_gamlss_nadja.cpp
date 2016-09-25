@@ -4702,7 +4702,7 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
       }
     // compute and implement dF/deta, d^2 F/deta ^2
     double dF = exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
-    double ddF = dF*(1+exp(-hilfs)*hilfs-hilfs);
+    double ddF = -dF*(1+exp(-hilfs)*hilfs-hilfs);
 
     nu += logcandderivs[1]*dF;
 
@@ -4986,7 +4986,7 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
 
   double nu = 1/(*worktransformlin[0])-exp(-hilfs)/(*worktransformlin[0]);
 
-  *workingweight = exp(-hilfs)/(*worktransformlin[0]);
+  *workingweight = exp(-hilfs)/(*worktransformlin[0])^2;
 
   if(optionsp->copula)
     {
@@ -4999,11 +4999,6 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
     // compute and implement dF/deta, d^2 F/deta ^2
     double dF = exp(-exp(-hilfs))*exp(-hilfs)/(*worktransformlin[0]);
     double ddF = dF*(1-exp(-hilfs))/(*worktransformlin[0]);
-  /*  if(copularotate)
-      {
-      dF = -dF;
-      ddF = -ddF;
-      }*/
     nu += logcandderivs[1]*dF;
 
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
