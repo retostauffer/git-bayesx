@@ -4613,7 +4613,7 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const bool & ifcop)
   double res,mu,sigma;
   sigma = exp(*linpredp);
   mu = *worktransformlin[0];
-  res = 1 - exp(-pow(resp*mu,sigma));
+  res = 1 - exp(-exp(-(resp-mu)/sigma));
 
   if(ifcop)
     {
@@ -4627,8 +4627,8 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const double & linpred)
   {
   double res,mu,sigma;
   sigma = exp(linpred);
-  mu = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-pow(resp*mu,sigma));
+  mu = *worktransformlin[0];
+  res = 1 - exp(-exp(-(resp-mu)/sigma));
   return res;
   }
 
@@ -4640,25 +4640,23 @@ double DISTR_gumbel_sigma::get_intercept_start(void)
 void DISTR_gumbel_sigma::compute_param_mult(vector<double *>  linpred,double * param)
   {
   //weight, response and param has size>1 if copula model is specified!!
-  *param = exp(*linpred[copulaoffset+0]);
+  *param = exp(*linpred[copulaoffset+1]);
   }
 
 double DISTR_gumbel_sigma::loglikelihood_weightsone(double * response,
                                                  double * linpred)
   {
-  // *worklin[0] = linear predictor of mu equation
-  // *worktransformlin[0] = exp(eta_mu);
-
   if (counter==0)
     {
     set_worklin();
     }
 
   double sigma = exp((*linpred));
+  double hilfs = (*response-(*worktransformlin[0]))/sigma;
 
   double l;
 
-  l = (sigma-1)*log(*response) - pow((*response)*(*worktransformlin[0]),sigma) +sigma*log((*worktransformlin[0])) + log(sigma);
+  l = log(sigma)-hilfs-exp(-hilfs);
 
   if(optionsp->copula)
     {
@@ -4669,7 +4667,6 @@ double DISTR_gumbel_sigma::loglikelihood_weightsone(double * response,
   modify_worklin();
 
   return l;
-
   }
 
 void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
@@ -4680,10 +4677,8 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
                                               double & like,
                                               const bool & compute_like)
   {
-
-
   // *worklin[0] = linear predictor of mu equation
-  // *worktransformlin[0] = exp(eta_mu);
+  // *worktransformlin[0] = (eta_mu);
 
   if (counter==0)
     {
@@ -4691,12 +4686,11 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
     }
 
     double sigma = exp((*linpred));
-    double hilfs1 = pow((*response)*(*worktransformlin[0]),sigma);
+    double hilfs = (*response-(*worktransformlin[0]))/sigma;
 
-    double nu = 1 + sigma*log((*response)*(*worktransformlin[0]))*(1-hilfs1);
+    double nu = -1+hilfs-exp(-hilfs)*hilfs;
 
-  //  *workingweight = 1 + pow(sigma,2)*pow((log((*response)/(*worktransformlin[0]))),2)*hilfs1;
-    *workingweight =  1.823681;
+    *workingweight =  hilfs*(1-exp(-hilfs))+hilfs*hilfs*exp(-hilfs);
 
     if(optionsp->copula)
     {
@@ -4707,18 +4701,11 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = sigma*hilfs1*exp(-hilfs1)*log((*worktransformlin[0])*(*response));
-    double ddF = -dF*dF/exp(-hilfs1)+dF
-                +hilfs1*log((*worktransformlin[0])*(*response))*log((*worktransformlin[0])*(*response))*exp(-hilfs1)*sigma*sigma;
-  /*  if(copularotate)
-      {
-      dF = -dF;
-      ddF = -ddF;
-      }*/
+    double dF = exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
+    double ddF = dF*(1+exp(-hilfs)*hilfs-hilfs);
+
     nu += logcandderivs[1]*dF;
 
-  /*  *workingweight = -sigma*log((*response)*(*worktransformlin[0])) * (1-hilfs1-hilfs1*sigma*log((*response)*(*worktransformlin[0])))
-                        -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;*/
     *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
 
     if (*workingweight <=0)
@@ -4729,7 +4716,7 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
 
     if (compute_like)
       {
-        like +=  (sigma-1)*log(*response) - hilfs1 +sigma*log((*worktransformlin[0])) + log(sigma);
+        like +=  log(sigma)-hilfs-exp(-hilfs);
 
       }
 
