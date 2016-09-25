@@ -4986,7 +4986,7 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
 
   double nu = 1/(*worktransformlin[0])-exp(-hilfs)/(*worktransformlin[0]);
 
-  *workingweight = exp(-hilfs)/(*worktransformlin[0])^2;
+  *workingweight = exp(-hilfs)/pow((*worktransformlin[0]),2);
 
   if(optionsp->copula)
     {
