@@ -8877,6 +8877,9 @@ bool superbayesreg::create_userdefined(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
+  if (terms[i].options[35] == "ssvs")
+    iv = datamatrix(d.rows(),1,1);
+
   datamatrix designmat, penmat, priormean,constrmat,betastart;
   if (terms[i].options[60] != "")
     {
@@ -9090,13 +9093,48 @@ if (terms[i].options[71] != "")
   make_paths(pathnonp,pathres,title,terms[i].varnames,
   "_userdefined_var.raw","variance_of_nonlinear_userdefined_effect_of","Variance of nonlinear effect of ");
 
+  bool so = singleomega.getvalue();
 
-  FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
-                              title,pathnonp,&design_userdefineds[design_userdefineds.size()-1],
-                              &FC_nonps[FC_nonps.size()-1],terms[i].options,
-                              terms[i].varnames));
+  if (terms[i].options[35] == "iid")
+    {
+    FC_nonp_variances.push_back(FC_nonp_variance(&master,nrlevel1,&generaloptions,equations[modnr].distrp,
+                                  title,pathnonp,&design_userdefineds[design_userdefineds.size()-1],
+                                  &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                  terms[i].varnames));
 
-  equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+    equations[modnr].add_FC(&FC_nonp_variances[FC_nonp_variances.size()-1],pathres);
+    }
+  else if (terms[i].options[35] == "ssvs")
+    {
+
+    FC_nonp_variance_varselections.push_back(FC_nonp_variance_varselection(
+                                  &master,nrlevel1,&generaloptions,equations[modnr].distrp,so,
+                                  title,pathnonp,&design_userdefineds[design_userdefineds.size()-1],
+                                  &FC_nonps[FC_nonps.size()-1],terms[i].options,
+                                  terms[i].varnames,ssvsvarlimit.getvalue()));
+
+    equations[modnr].add_FC(&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1],pathres);
+
+    if (so==true)
+      {
+      if (firstvarselection==true)
+        {
+        vector<ST::string> help;
+        help.push_back("");
+        make_paths(pathnonp,pathres,title,help,
+        "_omega.raw","omega_of_nonlinear_effects","Prior inclusion probability for nonlinear terms");
+        FC_varselection_omegas.push_back(FC_varselection_omega(&master,nrlevel1,&generaloptions,
+                                         equations[modnr].distrp,title));
+        equations[modnr].add_FC(&FC_varselection_omegas[FC_varselection_omegas.size()-1],pathres);
+        firstvarselection=false;
+        }
+
+      FC_varselection_omegas[FC_varselection_omegas.size()-1].FC_tau2s.push_back
+      (&FC_nonp_variance_varselections[FC_nonp_variance_varselections.size()-1] );
+
+      }
+
+    }
 
 
   return false;
@@ -9597,6 +9635,9 @@ bool superbayesreg::create_mrf(unsigned i)
 
   datamatrix d,iv;
   extract_data(i,d,iv,1);
+
+  if (terms[i].options[35] == "ssvs")
+    iv = datamatrix(d.rows(),1,1);
 
   /*
   mapobject * mapp;                           // pointer to mapobject
