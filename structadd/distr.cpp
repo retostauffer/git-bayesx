@@ -96,6 +96,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   updateIWLS = false;
   copularotate = false;
   copulaoffset = 0;
+  copulapos = 0;
 
   response = r;
   workingresponse = r;
