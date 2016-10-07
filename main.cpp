@@ -155,6 +155,11 @@ int main(int argc, char *argv[])
 
       char *buf;
       buf = readline("BayesX>");
+      if (buf == NULL) { // EOF
+        std::cout << "exiting" << std::endl;
+        exit(0);
+      }
+
       ST::string* s=new ST::string(buf);
       run = a.parse(*s);
 
