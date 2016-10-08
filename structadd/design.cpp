@@ -581,7 +581,7 @@ void DESIGN::compute_XtransposedWX(void)
   // TEST
 
 
-  if (XWX.getBandwidth() == 0)
+  if (XWX.getBandwidth() == 0 && XWX.getDim()>1)
     {
     unsigned i;
 
