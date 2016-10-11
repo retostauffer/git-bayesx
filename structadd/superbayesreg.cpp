@@ -2054,12 +2054,12 @@ bool superbayesreg::create_distribution(void)
       if (countmarginal == 1)
         {
         distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(0);
-  //      distr_normal_sigma2s[distr_normal_sigma2s.size()-1].set_copulapos(0);
+        distr_normal_sigma2s[distr_normal_sigma2s.size()-1].set_copulapos(0);
         }
       else if(countmarginal == 2)
         {
         distr_normal_mus[distr_normal_mus.size()-1].set_copulapos(1);
-  //      distr_normal_sigma2s[distr_normal_sigma2s.size()-1].set_copulapos(1);
+        distr_normal_sigma2s[distr_normal_sigma2s.size()-1].set_copulapos(1);
         }
       else
         {
@@ -2785,14 +2785,14 @@ bool superbayesreg::create_distribution(void)
       if (countmarginal == 1)
         {
         distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(0);
-      //  distr_dagum_bs[distr_dagum_bs.size()-1].set_copulapos(0);
-      //  distr_dagum_ps[distr_dagum_ps.size()-1].set_copulapos(0);
+        distr_dagum_bs[distr_dagum_bs.size()-1].set_copulapos(0);
+        distr_dagum_ps[distr_dagum_ps.size()-1].set_copulapos(0);
         }
       else if(countmarginal == 2)
         {
         distr_dagum_as[distr_dagum_as.size()-1].set_copulapos(1);
-      //  distr_dagum_bs[distr_dagum_bs.size()-1].set_copulapos(1);
-      //  distr_dagum_ps[distr_dagum_ps.size()-1].set_copulapos(1);
+        distr_dagum_bs[distr_dagum_bs.size()-1].set_copulapos(1);
+        distr_dagum_ps[distr_dagum_ps.size()-1].set_copulapos(1);
         }
       else
         {
@@ -3949,12 +3949,12 @@ bool superbayesreg::create_distribution(void)
       if (countmarginal == 1)
         {
         distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(0);
-     //   distr_weibull_alphas[distr_weibull_alphas.size()-1].set_copulapos(0);
+        distr_weibull_alphas[distr_weibull_alphas.size()-1].set_copulapos(0);
         }
       else if(countmarginal == 2)
         {
         distr_weibull_lambdas[distr_weibull_lambdas.size()-1].set_copulapos(1);
-     //   distr_weibull_alphas[distr_weibull_alphas.size()-1].set_copulapos(1);
+        distr_weibull_alphas[distr_weibull_alphas.size()-1].set_copulapos(1);
         }
       else
         {
@@ -4029,12 +4029,12 @@ bool superbayesreg::create_distribution(void)
       if (countmarginal == 1)
         {
         distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(0);
-    //    distr_weibull2_alphas[distr_weibull2_alphas.size()-1].set_copulapos(0);
+        distr_weibull2_alphas[distr_weibull2_alphas.size()-1].set_copulapos(0);
         }
       else if(countmarginal == 2)
         {
         distr_weibull2_lambdas[distr_weibull2_lambdas.size()-1].set_copulapos(1);
-   //     distr_weibull2_alphas[distr_weibull2_alphas.size()-1].set_copulapos(1);
+        distr_weibull2_alphas[distr_weibull2_alphas.size()-1].set_copulapos(1);
         }
       else
         {
@@ -4109,12 +4109,12 @@ bool superbayesreg::create_distribution(void)
       if (countmarginal == 1)
         {
         distr_gumbel_mus[distr_gumbel_mus.size()-1].set_copulapos(0);
-     //   distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].set_copulapos(0);
+        distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].set_copulapos(0);
         }
       else if(countmarginal == 2)
         {
         distr_gumbel_mus[distr_gumbel_mus.size()-1].set_copulapos(1);
-     //   distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].set_copulapos(1);
+        distr_gumbel_sigmas[distr_gumbel_sigmas.size()-1].set_copulapos(1);
         }
       else
         {
