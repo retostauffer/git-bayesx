@@ -3498,8 +3498,8 @@ DISTR_weibull_alpha::DISTR_weibull_alpha(GENERAL_OPTIONS * o,
     outpredictor = true;
   outexpectation = false;
   predictor_name = "alpha";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+    linpredminlimit=-7;
+  linpredmaxlimit=7;
   }
 
 
@@ -3747,8 +3747,8 @@ DISTR_weibull_lambda::DISTR_weibull_lambda(GENERAL_OPTIONS * o,
     outpredictor = true;
   outexpectation = true;
   predictor_name = "lambda";
-    linpredminlimit=-10;
-  linpredmaxlimit=15;
+  linpredminlimit=-7;
+  linpredmaxlimit=7;
   check_errors();
   }
 
@@ -9117,8 +9117,8 @@ DISTR_binomialprobit_copula::DISTR_binomialprobit_copula(GENERAL_OPTIONS * o,
   outexpectation = true;
   predictor_name = "mu";
   responseorig = r;
-  linpredminlimit=-10;
-  linpredmaxlimit=10;
+  linpredminlimit=-7;
+  linpredmaxlimit=7;
   posteriormodemode=true;
   updateIWLS = true;
   check_errors();

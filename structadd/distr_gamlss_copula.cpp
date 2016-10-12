@@ -309,8 +309,8 @@ DISTR_gausscopula::DISTR_gausscopula(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "rho";
-  linpredminlimit=-15;
-  linpredmaxlimit=15;
+  linpredminlimit=-7;
+  linpredmaxlimit=7;
   check_errors();
   }
 
