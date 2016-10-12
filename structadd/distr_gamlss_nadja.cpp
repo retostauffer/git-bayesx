@@ -5020,7 +5020,7 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gumbel_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  *mu = (*linpred[copulaoffset+predstart_mumult+1])+exp(*linpred[copulaoffset+predstart_mumult+2])* 0,5772156649;
+  *mu = (*linpred[copulaoffset+predstart_mumult+1])+exp(*linpred[copulaoffset+predstart_mumult+2])* 0.5772156649;
   }
 
 
