@@ -9960,7 +9960,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     }
   else
     {
-    priormean = datamatrix(penmat.cols(),1,0);
+    priormean = datamatrix(penmat.cols()*penmat2.cols(),1,0);
     }
 
   if (terms[i].options[67] != "")
@@ -10014,7 +10014,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     }
   else
     {
-    betastart = datamatrix(penmat.cols(),1,0);
+    betastart = datamatrix(penmat.cols()*penmat2.cols(),1,0);
     }
 
 //  ST::string pathdesign = terms[i].options[60];
@@ -10065,14 +10065,14 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     int p1 = penmat.rows();
     int p2 = penmat2.rows();
     if(!(priormean.rows()==p &&
-         priormean.cols()==1) &&
+         priormean.cols()==1 &&
          betastart.rows()==p &&
          betastart.cols()==1 &&
          designmat.rows()==d.rows() &&
          penmat.cols()==p1 &&
          penmat2.cols()==p2 &&
          p1 == p2 &&
-         p1*p2 == p)
+         p1*p2 == p))
       {
       outerror("ERROR: dimensions in term userdefined (tensor) do not match:\n\n");
       outerror("       design matrix: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
@@ -10090,7 +10090,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     int p2 = penmat2.rows();
     int p3 = designmat2.cols();
     if(!(priormean.rows()==p*p3 &&
-         priormean.cols()==1) &&
+         priormean.cols()==1 &&
          betastart.rows()==p*p3 &&
          betastart.cols()==1 &&
          designmat.rows()==d.rows() &&
@@ -10098,7 +10098,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
          penmat.cols()==p1 &&
          penmat2.cols()==p2 &&
          p1 == p2 &&
-         p1*p2 == p*p3)
+         p1*p2 == p*p3))
       {
       outerror("ERROR: dimensions in term userdefined (tensor) do not match:\n\n");
       outerror("       design matrix 1: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
