@@ -928,12 +928,20 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
     basisNull = constrmat;
     }
 
-  datamatrix designmat(designmat1.rows(), nrpar, 0.0);
   unsigned i,j,k;
-  for(i=0; i<designmat1.rows(); i++)
-    for(j=0; j<designmat1.cols(); j++)
-       for(k=0; k<designmat2.cols(); k++)
-         designmat(i,j + k*designmat2.cols()) = designmat1(i,j)*designmat2(i,k);
+  datamatrix designmat;
+  if(designmat2.cols()==1 && designmat2.rows()==1)
+    {
+    designmat.assign(designmat1);
+    }
+  else
+    {
+    designmat= datamatrix(designmat1.rows(), nrpar, 0.0);
+    for(i=0; i<designmat1.rows(); i++)
+      for(j=0; j<designmat1.cols(); j++)
+         for(k=0; k<designmat2.cols(); k++)
+           designmat(i,j + k*designmat2.cols()) = designmat1(i,j)*designmat2(i,k);
+    }
 
   double rangeomega = 1.0-2.0*minomega;
   for(i=0; i<nromega; i++)

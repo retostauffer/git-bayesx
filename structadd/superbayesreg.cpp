@@ -8979,7 +8979,7 @@ if (terms[i].options[71] != "")
       }
     list<ST::string> varnames = datap->getVarnames();
     ST::string expr = "";
-    datap->makematrix(varnames,priormean,expr);
+    datap->makematrix(varnames,betastart,expr);
     }
   else
     {
@@ -9829,7 +9829,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
   datamatrix d,iv;
   extract_data(i,d,iv,2);
 
-  datamatrix designmat, designmat2, penmat, penmat2, priormean, constrmat;
+  datamatrix designmat, designmat2, penmat, penmat2, priormean, constrmat, betastart;
 
   if (terms[i].options[60] != "")
     {
@@ -9929,7 +9929,10 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     ST::string expr = "";
     datap->makematrix(varnames,designmat2,expr);
     }
-
+  else
+    {
+    designmat2=datamatrix(1,1,1);
+    }
 
 
   if (terms[i].options[63] != "")
@@ -9986,6 +9989,34 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     datap->makematrix(varnames,constrmat,expr);
     }
 
+  if (terms[i].options[71] != "")
+    {
+    dataobject * datap;                           // pointer to datasetobject
+    int objpos = findstatobject(*statobj,terms[i].options[71],"dataset");
+    if (objpos >= 0)
+      {
+      statobject * s = statobj->at(objpos);
+      datap = dynamic_cast<dataobject*>(s);
+      if (datap->obs()==0 || datap->getVarnames().size()==0)
+        {
+        outerror("ERROR: dataset object " + terms[i].options[71] + " does not contain any data\n");
+        return true;
+        }
+      }
+    else
+      {
+      outerror("ERROR: dataset object " + terms[i].options[71] + " is not existing\n");
+      return true;
+      }
+    list<ST::string> varnames = datap->getVarnames();
+    ST::string expr = "";
+    datap->makematrix(varnames,betastart,expr);
+    }
+  else
+    {
+    betastart = datamatrix(penmat.cols(),1,0);
+    }
+
 //  ST::string pathdesign = terms[i].options[60];
 //  ST::string pathpenmat = pathdesign + "_penmat.raw";
 //  ST::string pathdesignmat = pathdesign + "_designmat.raw";
@@ -10028,6 +10059,58 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
 
   cout << "test" << "\n";*/
 
+  if(designmat2.rows()==1 && designmat2.cols()==1)
+    {
+    int p = designmat.cols();
+    int p1 = penmat.rows();
+    int p2 = penmat2.rows();
+    if(!(priormean.rows()==p &&
+         priormean.cols()==1) &&
+         betastart.rows()==p &&
+         betastart.cols()==1 &&
+         designmat.rows()==d.rows() &&
+         penmat.cols()==p1 &&
+         penmat2.cols()==p2 &&
+         p1 == p2 &&
+         p1*p2 == p)
+      {
+      outerror("ERROR: dimensions in term userdefined (tensor) do not match:\n\n");
+      outerror("       design matrix: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
+      outerror("       penalty matrix 1: (" + ST::inttostring(penmat.rows()) + " x " + ST::inttostring(penmat.cols()) + ")\n");
+      outerror("       penalty matrix 2: (" + ST::inttostring(penmat2.rows()) + " x " + ST::inttostring(penmat2.cols()) + ")\n");
+      outerror("       prior mean: (" + ST::inttostring(priormean.rows()) + " x " + ST::inttostring(priormean.cols()) + ")\n");
+      outerror("       starting values: (" + ST::inttostring(betastart.rows()) + " x " + ST::inttostring(betastart.cols()) + ")\n\n");
+      return true;
+      }
+    }
+  else
+    {
+    int p = designmat.cols();
+    int p1 = penmat.rows();
+    int p2 = penmat2.rows();
+    int p3 = designmat2.cols();
+    if(!(priormean.rows()==p*p3 &&
+         priormean.cols()==1) &&
+         betastart.rows()==p*p3 &&
+         betastart.cols()==1 &&
+         designmat.rows()==d.rows() &&
+         designmat2.rows()==d.rows() &&
+         penmat.cols()==p1 &&
+         penmat2.cols()==p2 &&
+         p1 == p2 &&
+         p1*p2 == p*p3)
+      {
+      outerror("ERROR: dimensions in term userdefined (tensor) do not match:\n\n");
+      outerror("       design matrix 1: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
+      outerror("       design matrix 2: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
+      outerror("       penalty matrix 1: (" + ST::inttostring(penmat.rows()) + " x " + ST::inttostring(penmat.cols()) + ")\n");
+      outerror("       penalty matrix 2: (" + ST::inttostring(penmat2.rows()) + " x " + ST::inttostring(penmat2.cols()) + ")\n");
+      outerror("       prior mean: (" + ST::inttostring(priormean.rows()) + " x " + ST::inttostring(priormean.cols()) + ")\n");
+      outerror("       starting values: (" + ST::inttostring(betastart.rows()) + " x " + ST::inttostring(betastart.cols()) + ")\n\n");
+      return true;
+      }
+
+    }
   design_userdefined_tensors.push_back(DESIGN_userdefined_tensor(d,iv,
                             designmat, designmat2, penmat, penmat2, priormean, constrmat,
                             &generaloptions,equations[modnr].distrp,
@@ -10036,7 +10119,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
 
   FC_nonps.push_back(FC_nonp(&master,nrlevel1,&generaloptions,equations[modnr].distrp,title,
                      pathnonp,&design_userdefined_tensors[design_userdefined_tensors.size()-1],
-                     terms[i].options,terms[i].varnames));
+                     terms[i].options,terms[i].varnames,betastart));
 
   equations[modnr].add_FC(&FC_nonps[FC_nonps.size()-1],pathres);
 
