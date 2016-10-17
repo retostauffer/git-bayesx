@@ -765,122 +765,224 @@ void DESIGN_userdefined_tensor::init_data(datamatrix & dm, datamatrix & iv)
 
   unsigned j;
 
-  // 1. Indexsort of data
-  if (index_data.rows() <= 1)
+  if(dm.cols()==1)
     {
-    index_data = statmatrix<int>(dm.rows(),1);
-    index_data.indexinit();
-    dm.indexsort2d(index_data,0,dm.rows()-1,0,1,0);
+      // 1. Indexsort of data
+    if (index_data.rows() <= 1)
+      {
+      index_data = statmatrix<int>(dm.rows(),1);
+      index_data.indexinit();
+      dm.indexsort(index_data,0,dm.rows()-1,0,0);
+      }
+
+    double dm_mean = dm.mean(0);
+
+    //2. data = sorted observations, init intvar and intvar2
+    data = datamatrix(dm.rows(),1);
+    double * workdata = data.getV();
+    int * workindex = index_data.getV();
+    for (j=0;j<dm.rows();j++,workdata++,workindex++)
+      {
+      *workdata = dm(*workindex,0);
+      }
+
+    if (iv.rows() == dm.rows())
+      {
+      intvar = iv;
+      intvar2 = datamatrix(iv.rows(),1);
+      double * workintvar2 = intvar2.getV();
+      double * workintvar = intvar.getV();
+
+      for (j=0;j<iv.rows();j++,workintvar++,workintvar2++)
+        {
+        *workintvar2 = pow(*workintvar,2);
+        }
+      }
+
+    // 3. Creates posbeg, posend
+
+    posbeg.erase(posbeg.begin(),posbeg.end());
+    posend.erase(posend.begin(),posend.end());
+    posbeg.push_back(0);
+    workdata = data.getV()+1;
+    double help = data(0,0);
+    for(j=1;j<data.rows();j++,workdata++)
+      {
+      if (  *workdata != help)
+        {
+        posend.push_back(j-1);
+        if (j < data.rows())
+          posbeg.push_back(j);
+        }
+
+      help = *workdata;
+
+      }
+
+    if (posend.size() < posbeg.size())
+      posend.push_back(data.rows()-1);
+
+    // 4. initializes ind
+    int k;
+    workindex = index_data.getV();
+    ind = statmatrix<unsigned>(dm.rows(),1);
+    for (j=0;j<posend.size();j++)
+      {
+      for (k=posbeg[j];k<=posend[j];k++,workindex++)
+        ind(*workindex,0) = j;
+
+      }
+
+  /*    j=0;
+      ofstream out2("c:\\temp\\userdefined_spatial\\posend.res");
+      for (j=0;j<posend.size();j++)
+        out2 << posend[j] << endl;
+
+      ofstream out2a("c:\\temp\\userdefined_spatial\\posbeg.res");
+      for (j=0;j<posbeg.size();j++)
+        out2a << posbeg[j] << endl;*/
+
+    // TEST
+    // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
+    // ind.prettyPrint(out);
+    // TEST
+
+
+    // 5. Compute meaneffectnr, mclosest, effectvalues
+    effectvalues.erase(effectvalues.begin(),effectvalues.end());
+    double d;
+    meaneffectnr = 0;
+    double mclosest = data(posbeg[0],0);
+    for(j=0;j<posbeg.size();j++)
+      {
+      d = data(posbeg[j],0);
+      if ( fabs(d-dm_mean) < fabs(mclosest-dm_mean) )
+        {
+        meaneffectnr = j;
+        mclosest = d;
+        }
+
+      effectvalues.push_back(ST::doubletostring(d,0));
+      }
+
+    compute_meaneffectintvar();
     }
+  else if(dm.cols()==2)
+    {
 
-
+    // 1. Indexsort of data
+    if (index_data.rows() <= 1)
+      {
+      index_data = statmatrix<int>(dm.rows(),1);
+      index_data.indexinit();
+      dm.indexsort2d(index_data,0,dm.rows()-1,0,1,0);
+      }
 
 //  double dm_mean = dm.mean(0);
 
-  //2. data = sorted observations, init intvar and intvar2
+    //2. data = sorted observations, init intvar and intvar2
 
-  data = datamatrix(dm.rows(),2);
-  double * workdata = data.getV();
-  int * workindex = index_data.getV();
-  for (j=0;j<dm.rows();j++,workdata++,workindex++)
-    {
-    *workdata = dm(*workindex,0);
-    workdata++;
-    *workdata = dm(*workindex,1);
-    }
-
-  if (iv.rows() == dm.rows())
-    {
-    intvar = iv;
-    intvar2 = datamatrix(iv.rows(),1);
-    double * workintvar2 = intvar2.getV();
-    double * workintvar = intvar.getV();
-
-    for (j=0;j<iv.rows();j++,workintvar++,workintvar2++)
+    data = datamatrix(dm.rows(),2);
+    double * workdata = data.getV();
+    int * workindex = index_data.getV();
+    for (j=0;j<dm.rows();j++,workdata++,workindex++)
       {
-      *workintvar2 = pow(*workintvar,2);
-      }
-    }
-
-
-  // 3. Creates posbeg, posend
-
-  posbeg.erase(posbeg.begin(),posbeg.end());
-  posend.erase(posend.begin(),posend.end());
-  xvalues.erase(xvalues.begin(),xvalues.end());
-  yvalues.erase(yvalues.begin(),yvalues.end());
-  posbeg.push_back(0);
-  double help1 = data(0,0);
-  double help2 = data(0,1);
-  xvalues.push_back(help1);
-  yvalues.push_back(help2);
-  for(j=1;j<data.rows();j++)
-    {
-    if (  data(j,0) != help1 || data(j,1) != help2)
-      {
-      posend.push_back(j-1);
-      if (j < data.rows())
-        posbeg.push_back(j);
-      xvalues.push_back(data(j,0));
-      yvalues.push_back(data(j,1));
+      *workdata = dm(*workindex,0);
+      workdata++;
+      *workdata = dm(*workindex,1);
       }
 
-    help1 = data(j,0);
-    help2 = data(j,1);
-
-    }
-
-  if (posend.size() < posbeg.size())
-    posend.push_back(data.rows()-1);
-
-
-  // 4. initializes ind
-
-  int k;
-  workindex = index_data.getV();
-  ind = statmatrix<unsigned>(dm.rows(),1);
-  for (j=0;j<posend.size();j++)
-    {
-    for (k=posbeg[j];k<=posend[j];k++,workindex++)
-      ind(*workindex,0) = j;
-    }
-
-  // TEST
-  // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
-  // ind.prettyPrint(out);
-  // TEST
-
-
-  // 5. Compute meaneffectnr, mclosest, effectvalues
-
-  double dm_mean1 = dm.mean(0);
-  double dm_mean2 = dm.mean(1);
-  effectvalues.erase(effectvalues.begin(),effectvalues.end());
-  double d1,d2;
-  meaneffectnr = 0;
-  double distclosest,distcurrent;
-  distclosest = pow(data(posbeg[0],0)-dm_mean1,2)+
-                pow(data(posbeg[0],1)-dm_mean2,2);
-
-  for(j=0;j<posbeg.size();j++)
-    {
-    d1 = data(posbeg[j],0);
-    d2 = data(posbeg[j],1);
-    distcurrent = pow(d1-dm_mean1,2)+pow(d2-dm_mean2,2);
-    if ( distcurrent < distclosest)
+    if (iv.rows() == dm.rows())
       {
-      meaneffectnr = j;
-      distclosest = distcurrent;
+      intvar = iv;
+      intvar2 = datamatrix(iv.rows(),1);
+      double * workintvar2 = intvar2.getV();
+      double * workintvar = intvar.getV();
+
+      for (j=0;j<iv.rows();j++,workintvar++,workintvar2++)
+        {
+        *workintvar2 = pow(*workintvar,2);
+        }
       }
 
-    effectvalues.push_back(ST::doubletostring(d1,0) + "  "
-                           + ST::doubletostring(d2,0));
 
+    // 3. Creates posbeg, posend
+
+    posbeg.erase(posbeg.begin(),posbeg.end());
+    posend.erase(posend.begin(),posend.end());
+    xvalues.erase(xvalues.begin(),xvalues.end());
+    yvalues.erase(yvalues.begin(),yvalues.end());
+    posbeg.push_back(0);
+    double help1 = data(0,0);
+    double help2 = data(0,1);
+    xvalues.push_back(help1);
+    yvalues.push_back(help2);
+    for(j=1;j<data.rows();j++)
+      {
+      if (  data(j,0) != help1 || data(j,1) != help2)
+        {
+        posend.push_back(j-1);
+        if (j < data.rows())
+          posbeg.push_back(j);
+        xvalues.push_back(data(j,0));
+        yvalues.push_back(data(j,1));
+        }
+
+      help1 = data(j,0);
+      help2 = data(j,1);
+
+      }
+
+    if (posend.size() < posbeg.size())
+      posend.push_back(data.rows()-1);
+
+
+    // 4. initializes ind
+
+    int k;
+    workindex = index_data.getV();
+    ind = statmatrix<unsigned>(dm.rows(),1);
+    for (j=0;j<posend.size();j++)
+      {
+      for (k=posbeg[j];k<=posend[j];k++,workindex++)
+        ind(*workindex,0) = j;
+      }
+
+    // TEST
+    // ofstream out("c:\\bayesx\\testh\\results\\ind.res");
+    // ind.prettyPrint(out);
+    // TEST
+
+
+    // 5. Compute meaneffectnr, mclosest, effectvalues
+
+    double dm_mean1 = dm.mean(0);
+    double dm_mean2 = dm.mean(1);
+    effectvalues.erase(effectvalues.begin(),effectvalues.end());
+    double d1,d2;
+    meaneffectnr = 0;
+    double distclosest,distcurrent;
+    distclosest = pow(data(posbeg[0],0)-dm_mean1,2)+
+                  pow(data(posbeg[0],1)-dm_mean2,2);
+
+    for(j=0;j<posbeg.size();j++)
+      {
+      d1 = data(posbeg[j],0);
+      d2 = data(posbeg[j],1);
+      distcurrent = pow(d1-dm_mean1,2)+pow(d2-dm_mean2,2);
+      if ( distcurrent < distclosest)
+        {
+        meaneffectnr = j;
+        distclosest = distcurrent;
+        }
+
+      effectvalues.push_back(ST::doubletostring(d1,0) + "  "
+                             + ST::doubletostring(d2,0));
+
+      }
+
+    compute_meaneffectintvar();
     }
-
-
-  compute_meaneffectintvar();
-
   }
 
 

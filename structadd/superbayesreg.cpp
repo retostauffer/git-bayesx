@@ -9827,7 +9827,7 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
              "_tensor.raw","nonlinear_tensor_effect_of"," Nonlinear tensor effect of ");
 
   datamatrix d,iv;
-  extract_data(i,d,iv,2);
+  extract_data(i,d,iv,terms[i].varnames.size());
 
   datamatrix designmat, designmat2, penmat, penmat2, priormean, constrmat, betastart;
 
