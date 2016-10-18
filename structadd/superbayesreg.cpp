@@ -10097,12 +10097,13 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
          designmat2.rows()==d.rows() &&
          penmat.cols()==p1 &&
          penmat2.cols()==p2 &&
-         p1 == p2 &&
+         p1 == p &&
+         p2 == p3 &&
          p1*p2 == p*p3))
       {
       outerror("ERROR: dimensions in term userdefined (tensor) do not match:\n\n");
       outerror("       design matrix 1: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
-      outerror("       design matrix 2: (" + ST::inttostring(designmat.rows()) + " x " + ST::inttostring(designmat.cols()) + ")\n");
+      outerror("       design matrix 2: (" + ST::inttostring(designmat2.rows()) + " x " + ST::inttostring(designmat2.cols()) + ")\n");
       outerror("       penalty matrix 1: (" + ST::inttostring(penmat.rows()) + " x " + ST::inttostring(penmat.cols()) + ")\n");
       outerror("       penalty matrix 2: (" + ST::inttostring(penmat2.rows()) + " x " + ST::inttostring(penmat2.cols()) + ")\n");
       outerror("       prior mean: (" + ST::inttostring(priormean.rows()) + " x " + ST::inttostring(priormean.cols()) + ")\n");
