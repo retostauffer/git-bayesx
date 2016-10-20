@@ -1026,6 +1026,16 @@ bool FC_nonp::posteriormode(void)
 
     designp->compute_precision(lambda);
 
+/*    ofstream out("c:\\temp\\precision.raw");
+    designp->precision.print4(out);
+    out.close();
+    ofstream out2("c:\\temp\\XWX.raw");
+    designp->XWX.print4(out2);
+    out2.close();
+    ofstream out3("c:\\temp\\XWres.raw");
+    designp->XWres.prettyPrint(out3);
+    out3.close();*/
+
     designp->precision.solve(*(designp->XWres_p),param);
 
     if(designp->center)

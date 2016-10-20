@@ -1030,7 +1030,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
     basisNull = constrmat;
     }
 
-  unsigned i,j,k;
+  unsigned i,j,k,l;
   datamatrix designmat;
   if(designmat2.cols()==1 && designmat2.rows()==1)
     {
@@ -1040,10 +1040,14 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
     {
     designmat= datamatrix(designmat1.rows(), nrpar, 0.0);
     for(i=0; i<designmat1.rows(); i++)
-      for(j=0; j<designmat1.cols(); j++)
-         for(k=0; k<designmat2.cols(); k++)
-           designmat(i,j + k*designmat2.cols()) = designmat1(i,j)*designmat2(i,k);
+      for(j=0, l=0; j<designmat1.cols(); j++)
+         for(k=0; k<designmat2.cols(); k++, l++)
+           designmat(i,l) = designmat1(i,j)*designmat2(i,k);
     }
+
+/*  ofstream out("c:\\temp\\Z.raw");
+  designmat.prettyPrint(out);
+  out.close();*/
 
   double rangeomega = 1.0-2.0*minomega;
   for(i=0; i<nromega; i++)
