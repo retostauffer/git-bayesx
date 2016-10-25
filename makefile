@@ -2848,6 +2848,33 @@ structadd/FC_linear.cpp.s:
 	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/FC_linear.cpp.s
 .PHONY : structadd/FC_linear.cpp.s
 
+structadd/FC_merror.obj: structadd/FC_merror.cpp.obj
+
+.PHONY : structadd/FC_merror.obj
+
+# target to build an object file
+structadd/FC_merror.cpp.obj:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/FC_merror.cpp.obj
+.PHONY : structadd/FC_merror.cpp.obj
+
+structadd/FC_merror.i: structadd/FC_merror.cpp.i
+
+.PHONY : structadd/FC_merror.i
+
+# target to preprocess a source file
+structadd/FC_merror.cpp.i:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/FC_merror.cpp.i
+.PHONY : structadd/FC_merror.cpp.i
+
+structadd/FC_merror.s: structadd/FC_merror.cpp.s
+
+.PHONY : structadd/FC_merror.s
+
+# target to generate assembly for a file
+structadd/FC_merror.cpp.s:
+	$(MAKE) -f CMakeFiles\bayesx.dir\build.make CMakeFiles/bayesx.dir/structadd/FC_merror.cpp.s
+.PHONY : structadd/FC_merror.cpp.s
+
 structadd/FC_mult.obj: structadd/FC_mult.cpp.obj
 
 .PHONY : structadd/FC_mult.obj
@@ -3915,6 +3942,9 @@ help:
 	@echo ... structadd/FC_linear.obj
 	@echo ... structadd/FC_linear.i
 	@echo ... structadd/FC_linear.s
+	@echo ... structadd/FC_merror.obj
+	@echo ... structadd/FC_merror.i
+	@echo ... structadd/FC_merror.s
 	@echo ... structadd/FC_mult.obj
 	@echo ... structadd/FC_mult.i
 	@echo ... structadd/FC_mult.s
