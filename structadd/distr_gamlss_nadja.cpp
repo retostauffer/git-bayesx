@@ -4621,13 +4621,6 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const bool & ifcop)
     modify_worklin();
     }
   linpredp++;
-/*  if(isnan(res))
-    {
-    cout << "gumbel_sigma1: " << counter << endl;
-    cout << "mu: " << mu << endl;
-    cout << "sigma: " << sigma << endl;
-    cout << "resp: " << resp << endl;
-    }*/
   return res;
   }
 
@@ -4638,13 +4631,6 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const double & linpred)
   mu = *worktransformlin[0];
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
-/*  if(isnan(res))
-    {
-    cout << "gumbel_sigma2: " << counter << endl;
-    cout << "mu: " << mu << endl;
-    cout << "sigma: " << sigma << endl;
-    cout << "resp: " << resp << endl;
-    }*/
   return res;
   }
 
@@ -4875,13 +4861,6 @@ double DISTR_gumbel_mu::cdf(const double & resp, const bool & ifcop)
     modify_worklin();
     }
   linpredp++;
-/*  if(isnan(res))
-    {
-    cout << "gumbel_mu1: " << counter << endl;
-    cout << "mu: " << mu << endl;
-    cout << "sigma: " << sigma << endl;
-    cout << "resp: " << resp << endl;
-    }*/
   return res;
   }
 
@@ -4892,13 +4871,6 @@ double DISTR_gumbel_mu::cdf(const double & resp, const double & linpred)
   sigma = *worktransformlin[0];
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
-/*  if(isnan(res))
-    {
-    cout << "gumbel_mu2: " << counter << endl;
-    cout << "mu: " << mu << endl;
-    cout << "sigma: " << sigma << endl;
-    cout << "resp: " << resp << endl;
-    }*/
   return res;
   }
 
@@ -4910,13 +4882,6 @@ double DISTR_gumbel_mu::cdf(const double & resp, vector<double *>  linpred)
   sigma = exp(*linpred[1]);
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
-/*  if(isnan(res))
-    {
-    cout << "gumbel_mu3: " << counter << endl;
-    cout << "mu: " << mu << endl;
-    cout << "sigma: " << sigma << endl;
-    cout << "resp: " << resp << endl;
-    }*/
   return res;
   }
 
