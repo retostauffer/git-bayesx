@@ -4613,13 +4613,21 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const bool & ifcop)
   double res,mu,sigma;
   sigma = exp(*linpredp);
   mu = *worktransformlin[0];
-  res = 1 - exp(-exp(-(resp-mu)/sigma));
+//  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  res = exp(-exp(-(resp-mu)/sigma));
 
   if(ifcop)
     {
     modify_worklin();
     }
   linpredp++;
+/*  if(isnan(res))
+    {
+    cout << "gumbel_sigma1: " << counter << endl;
+    cout << "mu: " << mu << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "resp: " << resp << endl;
+    }*/
   return res;
   }
 
@@ -4628,13 +4636,21 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const double & linpred)
   double res,mu,sigma;
   sigma = exp(linpred);
   mu = *worktransformlin[0];
-  res = 1 - exp(-exp(-(resp-mu)/sigma));
+//  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  res = exp(-exp(-(resp-mu)/sigma));
+/*  if(isnan(res))
+    {
+    cout << "gumbel_sigma2: " << counter << endl;
+    cout << "mu: " << mu << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "resp: " << resp << endl;
+    }*/
   return res;
   }
 
 double DISTR_gumbel_sigma::get_intercept_start(void)
   {
-  return 0; // log(response.mean(0));
+  return 0;
   }
 
 void DISTR_gumbel_sigma::compute_param_mult(vector<double *>  linpred,double * param)
@@ -4701,8 +4717,10 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
-    double ddF = -dF*(1+exp(-hilfs)*hilfs-hilfs);
+//    double dF = exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
+    double dF = -exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
+//    double ddF = -dF*(1+exp(-hilfs)*hilfs-hilfs);
+    double ddF = -dF*(1+exp(-hilfs)*hilfs+hilfs);
 
     nu += logcandderivs[1]*dF;
 
@@ -4774,11 +4792,11 @@ void DISTR_gumbel_mu::check_errors(void)
       if (*workweight > 0)
         {
 
-//        if (*workresp < 0)
-//          {
-//          errors=true;
-//          errormessages.push_back("ERROR: negative response values encountered\n");
-//          }
+/*        if (*workresp < 0)
+          {
+          errors=true;
+          errormessages.push_back("ERROR: negative response values encountered\n");
+          }*/
 
 
         }
@@ -4845,18 +4863,25 @@ double DISTR_gumbel_mu::cdf(const double & resp, const bool & ifcop)
       linpredp = linearpred2.getV();
     }
 
- //  double test = *linpred;
-// compute cdf (might work more efficiently)
+ // compute cdf (might work more efficiently)
   double res,mu,sigma;
   mu = (*linpredp);
-  sigma = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  sigma = *worktransformlin[0];
+//  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  res = exp(-exp(-(resp-mu)/sigma));
 
   if(ifcop)
     {
     modify_worklin();
     }
   linpredp++;
+/*  if(isnan(res))
+    {
+    cout << "gumbel_mu1: " << counter << endl;
+    cout << "mu: " << mu << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "resp: " << resp << endl;
+    }*/
   return res;
   }
 
@@ -4864,8 +4889,16 @@ double DISTR_gumbel_mu::cdf(const double & resp, const double & linpred)
   {
   double res,mu,sigma;
   mu = (linpred);
-  sigma = *worktransformlin[0];//exp(*linpred[0]);
-  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  sigma = *worktransformlin[0];
+//  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  res = exp(-exp(-(resp-mu)/sigma));
+/*  if(isnan(res))
+    {
+    cout << "gumbel_mu2: " << counter << endl;
+    cout << "mu: " << mu << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "resp: " << resp << endl;
+    }*/
   return res;
   }
 
@@ -4874,8 +4907,16 @@ double DISTR_gumbel_mu::cdf(const double & resp, vector<double *>  linpred)
   //linpred has only size=2!
   double res,mu,sigma;
   mu = (*linpred[0]);
-  sigma = exp(*linpred[1]);//exp(*linpred[0]);
-  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  sigma = exp(*linpred[1]);
+//  res = 1 - exp(-exp(-(resp-mu)/sigma));
+  res = exp(-exp(-(resp-mu)/sigma));
+/*  if(isnan(res))
+    {
+    cout << "gumbel_mu3: " << counter << endl;
+    cout << "mu: " << mu << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "resp: " << resp << endl;
+    }*/
   return res;
   }
 
@@ -4910,7 +4951,7 @@ void DISTR_gumbel_mu::compute_deviance_mult(vector<double *> response,
 
 double DISTR_gumbel_mu::get_intercept_start(void)
   {
-  return 0; // log(response.mean(0));
+  return 0.0;
   }
 
 void DISTR_gumbel_mu::compute_param_mult(vector<double *>  linpred,double * param)
@@ -4997,7 +5038,8 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double dF = exp(-exp(-hilfs))*exp(-hilfs)/(*worktransformlin[0]);
+//    double dF = exp(-exp(-hilfs))*exp(-hilfs)/(*worktransformlin[0]);
+    double dF = -exp(-exp(-hilfs))*exp(-hilfs)/(*worktransformlin[0]);
     double ddF = dF*(1-exp(-hilfs))/(*worktransformlin[0]);
     nu += logcandderivs[1]*dF;
 
@@ -5027,7 +5069,7 @@ void DISTR_gumbel_mu::compute_mu_mult(vector<double *> linpred,vector<double *> 
 void DISTR_gumbel_mu::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Link function (mu): log\n");
+  optionsp->out("  Link function (mu): identity\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -5036,8 +5078,6 @@ void DISTR_gumbel_mu::outoptions(void)
 void DISTR_gumbel_mu::update_end(void)
   {
 
-
-  // helpmat1 stores exp(eta_sigma)
   double * worklin;
   if (linpred_current==1)
     worklin = linearpred1.getV();

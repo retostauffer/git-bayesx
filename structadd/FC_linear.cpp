@@ -442,6 +442,8 @@ void FC_linear::compute_XWX(datamatrix & r)
 
           for (k=0;k<nrobs;k++,Xt_ip++,Xt_jp++,workingweightp++)
             {
+            if(isnan(*workingweightp))
+              cout << k << " " << j << endl;
 //            cout << *workingweightp << endl;
             help += (*workingweightp) * (*Xt_ip)*(*Xt_jp);
             }
