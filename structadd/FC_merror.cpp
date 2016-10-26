@@ -114,7 +114,7 @@ void FC_merror::update(void)
     if (h >= binning)
       h -= 1.0;
 
-    countmat((unsigned)h,1)++;
+    countmat((unsigned)h,0)++;
     xmean(i,0) = u1+h*deltabin;
     }
 
