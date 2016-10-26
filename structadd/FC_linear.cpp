@@ -945,7 +945,8 @@ void FC_linear_pen::compute_XWX(datamatrix & r)
     FC_linear::compute_XWX(r);
     for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
       {
-      XWX(i,i) += (1/(*tau2p));
+//      XWX(i,i) += (1/(*tau2p));
+      r(i,i) += (1/(*tau2p));
       *tau2oldinvp =  1/(*tau2p);
       }
 
@@ -955,7 +956,8 @@ void FC_linear_pen::compute_XWX(datamatrix & r)
 
     for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
       {
-      XWX(i,i) += (1/(*tau2p) - *tau2oldinvp);
+//      XWX(i,i) += (1/(*tau2p) - *tau2oldinvp);
+      r(i,i) += (1/(*tau2p) - *tau2oldinvp);
       *tau2oldinvp =  1/(*tau2p);
       }
 
