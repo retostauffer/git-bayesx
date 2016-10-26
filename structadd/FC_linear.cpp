@@ -236,6 +236,20 @@ void FC_linear::update_IWLS(void)
 
     proposal.plus(mode);
 
+/*    ofstream out1("c://temp/XWX.raw");
+    XWX.prettyPrint(out1);
+    out1.close();
+    ofstream out2("c://temp/XWXold.raw");
+    XWXold.prettyPrint(out2);
+    out2.close();
+    ofstream out3("c://temp/XWXroot.raw");
+    XWXroot.prettyPrint(out3);
+    out3.close();
+    ofstream out4("c://temp/Xtresidual.raw");
+    Xtresidual.prettyPrint(out4);
+    out4.close();*/
+
+
     help.minus(proposal,mode);
 
     qnewbeta = -0.5*XWXold.compute_quadform(help);
