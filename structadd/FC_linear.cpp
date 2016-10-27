@@ -209,13 +209,15 @@ void FC_linear::update_IWLS(void)
     linold.mult(design,beta);
     mode.assign(beta);
     }
-  double logold = likep->loglikelihood(true);
+  double logold = 0.0;
   bool ok;
   double logprop = 0.0;
 
-  IWLSmode=false;
+  IWLSmode=true;
   if(IWLSmode)
     {
+    logold = likep->loglikelihood(true);
+
     linmode.mult(design,mode);
     diff.minus(linmode,*linoldp);
     add_linpred(diff);
@@ -263,9 +265,9 @@ void FC_linear::update_IWLS(void)
   else
     {
     // calcculate proposal based on current parameter
-    likep->compute_iwls(true,false);
-    compute_XWXroot(XWXold); // Assumption: Matrix::root calculates Cholesky decomposition such that A = L' L
-                               // second assumption: calling compute_XWXroot always updates this->XWXroot
+    logold = likep->compute_iwls(true,true);
+    compute_XWXroot(XWX); // Assumption: Matrix::root calculates Cholesky decomposition such that A = L' L
+                          // second assumption: calling compute_XWXroot always updates this->XWXroot
     compute_Wpartres(*linoldp);
     Xtresidual.mult(Xt,residual);
     XWXroot.solveroot(Xtresidual,help,mode);
@@ -281,9 +283,9 @@ void FC_linear::update_IWLS(void)
       *help_p = rand_normal();
       }
     XWXroot.solveroot_t(help,proposal);
-
-    qnewbeta = -0.5*XWXold.compute_quadform(proposal) - log_det_XWX_half; // log q(proposal | current)
     proposal.plus(mode);
+
+    qnewbeta = -0.5*XWX.compute_quadform(proposal) - log_det_XWX_half; // log q(proposal | current)
 
     // update lin pred to use proposed value
     linnewp->mult(design,proposal);
@@ -306,7 +308,7 @@ void FC_linear::update_IWLS(void)
       {
       logprop = likep->loglikelihood();
       likep->compute_iwls(true, false);
-      compute_XWXroot(XWXold);
+      compute_XWXroot(XWX);
       compute_Wpartres(*linnewp);
       Xtresidual.mult(Xt,residual);
       XWXroot.solveroot(Xtresidual,help,mode);
@@ -316,23 +318,7 @@ void FC_linear::update_IWLS(void)
         log_det_XWX_half += log(XWXroot(i,i));
         }
       help.minus(mode, beta);
-      qoldbeta = -0.5*XWXold.compute_quadform(help) - log_det_XWX_half;
-      }
-
-    double u = log(uniform());
-    if (ok && (u <= (logprop + qoldbeta - logold - qnewbeta)))
-      {
-      datamatrix * mp = linoldp;
-      linoldp = linnewp;
-      linnewp = mp;
-      beta.assign(proposal);
-
-      acceptance++;
-      }
-    else
-      {
-      diff.minus(*linoldp,*linnewp);
-      add_linpred(diff);
+      qoldbeta = -0.5*XWX.compute_quadform(help) - log_det_XWX_half;
       }
     }
   double u = log(uniform());
