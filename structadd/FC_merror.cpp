@@ -50,6 +50,7 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   read_options(op,vn);
 
   xobs = xo;
+  merror = xo.cols();
   FCp = fcn;
   mevar = mv;
   xmean = xd;
@@ -59,13 +60,17 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   minbin = xd.min(0);
   maxbin = xd.max(0);
   deltabin = (maxbin-minbin)/binning;
+
+  a_tau2_x = 0.001;
+  b_tau2_x = 0.001;
+  m_mu_x = 0.0;
+  s_mu_x = 1000.0*1000.0;
   }
 
 FC_merror::FC_merror(const FC_merror & m)
   : FC(FC(m))
   {
   xobs = m.xobs;
-  xvar = m.xvar;
   xmean = m.xmean;
   FCp = m.FCp;
   mevar = m.mevar;
@@ -73,6 +78,13 @@ FC_merror::FC_merror(const FC_merror & m)
   minbin = m.minbin;
   maxbin=m.maxbin;
   deltabin = m.deltabin;
+  merror = m.merror;
+  a_tau2_x = m.a_tau2_x;
+  b_tau2_x = m.b_tau2_x;
+  m_mu_x = m.m_mu_x;
+  s_mu_x = m.s_mu_x;
+  FC_mu_x = m.FC_mu_x;
+  FC_tau2_x = m.FC_tau2_x;
   }
 
 const FC_merror & FC_merror::operator=(const FC_merror & m)
@@ -81,7 +93,6 @@ const FC_merror & FC_merror::operator=(const FC_merror & m)
 	 return *this;
   FC::operator=(FC(m));
   xobs = m.xobs;
-  xvar = m.xvar;
   xmean = m.xmean;
   FCp = m.FCp;
   mevar = m.mevar;
@@ -89,6 +100,13 @@ const FC_merror & FC_merror::operator=(const FC_merror & m)
   minbin = m.minbin;
   maxbin=m.maxbin;
   deltabin = m.deltabin;
+  merror = m.merror;
+  a_tau2_x = m.a_tau2_x;
+  b_tau2_x = m.b_tau2_x;
+  m_mu_x = m.m_mu_x;
+  s_mu_x = m.s_mu_x;
+  FC_mu_x = m.FC_mu_x;
+  FC_tau2_x = m.FC_tau2_x;
   return *this;
   }
 
