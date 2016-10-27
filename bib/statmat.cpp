@@ -1022,7 +1022,7 @@ T statmatrix<T>::min (void) const
   unsigned i,j;
   for(i=0; i<this->rows(); i++)
     {
-    for(j=0; j<this.cols(); j++, work++)
+    for(j=0; j<this->cols(); j++, work++)
       {
       if ((*work) < minv)
         minv = *work;
@@ -1040,7 +1040,7 @@ T statmatrix<T>::max (void) const
   unsigned i,j;
   for(i=0; i<this->rows(); i++)
     {
-    for(j=0; j<this.cols(); j++, work++)
+    for(j=0; j<this->cols(); j++, work++)
       {
       if ((*work) > maxv)
         maxv = *work;
