@@ -213,7 +213,7 @@ void FC_linear::update_IWLS(void)
   bool ok;
   double logprop = 0.0;
 
-  IWLSmode=true;
+  IWLSmode=false;
   if(IWLSmode)
     {
     linmode.mult(design,mode);
