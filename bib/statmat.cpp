@@ -1014,6 +1014,41 @@ T statmatrix<T>::max (const unsigned & c) const
   return maxv;
   }
 
+template<class T>
+T statmatrix<T>::min (void) const
+  {
+  T* work = this->getV();
+  T minv = *work;
+  unsigned i,j;
+  for(i=0; i<this->rows(); i++)
+    {
+    for(j=0; j<this.cols(); j++, work++)
+      {
+      if ((*work) < minv)
+        minv = *work;
+      }
+    }
+  return minv;
+  }
+
+
+template<class T>
+T statmatrix<T>::max (void) const
+  {
+  T* work = this->getV();
+  T maxv = *work;
+  unsigned i,j;
+  for(i=0; i<this->rows(); i++)
+    {
+    for(j=0; j<this.cols(); j++, work++)
+      {
+      if ((*work) > maxv)
+        maxv = *work;
+      }
+    }
+  return maxv;
+  }
+
 
 template<class T>
 T statmatrix<T>::sumcomplete(void) const

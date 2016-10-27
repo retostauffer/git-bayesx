@@ -374,6 +374,17 @@ class adja;
   T max(const unsigned & col) const;
 
 
+  // FUNCTION: min
+  // TASK: returns the minimum of all elements of the calling matrix
+
+  T min(void) const;
+
+  // FUNCTION: max
+  // TASK: returns the maximum of all elements of the calling matrix
+
+  T max(void) const;
+
+
   // FUNCTION: quantile
   // TASK: returns the 'percent' (0 < percent < 100) percent quantile
   //       of the 'col' th column

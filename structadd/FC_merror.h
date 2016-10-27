@@ -47,7 +47,7 @@ class __EXPORT_TYPE FC_merror  : public FC
 
   datamatrix xobs;  // observed covariate values with measurement error (n x M)
   datamatrix xmean; // mean of the observed covariare values (n x 1)
-  int merror;       // number of replicates (M)
+  double merror;       // number of replicates (M)
 
   double minbin;    // smallest value of the binning grid
   double maxbin;    // largest value of the binning grid
@@ -55,12 +55,13 @@ class __EXPORT_TYPE FC_merror  : public FC
   double binning;   // number of binning intervals
 
   datamatrix mevar; // measurement error variances (n x 1)
+  datamatrix mesd;  // measurement error standard deviations (n x 1)
 
   FC_nonp * FCp;    // pointer to the P-spline full conditional
 
   FC mu_x;
-  m_mu_x;
-  s_mu_x;
+  double m_mu_x;
+  double s_mu_x;
 
   FC tau2_x;
   double a_tau2_x;
