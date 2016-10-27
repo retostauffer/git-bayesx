@@ -86,6 +86,7 @@ FC_linear::FC_linear(MASTER_OBJ * mp,unsigned & enr,GENERAL_OPTIONS * o,DISTR * 
     }
   initialize = false;
   IWLS = likep->updateIWLS;
+  IWLSmode = true;
 
   center = cent;
   rankXWX_ok = true;
@@ -128,6 +129,7 @@ FC_linear::FC_linear(const FC_linear & m)
   datanames = m.datanames;
   mean_designcols = m.mean_designcols;
   center = m.center;
+  IWLSmode = m.IWLSmode;
   }
 
 
@@ -169,6 +171,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
   mean_designcols = m.mean_designcols;
   datanames = m.datanames;
   center = m.center;
+  IWLSmode = m.IWLSmode;
   return *this;
   }
 
@@ -195,9 +198,8 @@ void FC_linear::update_IWLS(void)
       else
         likep->linearpred2.prettyPrint(out3);
 */
-
-  double qoldbeta;
-  double qnewbeta;
+  double qoldbeta = 0.0;
+  double qnewbeta = 0.0;
 
   if (!initialize)
     create_matrices();
@@ -207,9 +209,13 @@ void FC_linear::update_IWLS(void)
     linold.mult(design,beta);
     mode.assign(beta);
     }
+  double logold = likep->loglikelihood(true);
+  bool ok;
+  double logprop = 0.0;
 
-    double logold = likep->loglikelihood(true);
-
+  IWLSmode=true;
+  if(IWLSmode)
+    {
     linmode.mult(design,mode);
     diff.minus(linmode,*linoldp);
     add_linpred(diff);
@@ -220,12 +226,10 @@ void FC_linear::update_IWLS(void)
 
     compute_Wpartres(linmode);
     Xtresidual.mult(Xt,residual);
-
     XWXroot.solveroot(Xtresidual,help,mode);
 
     help.minus(beta,mode);
     qoldbeta = -0.5*XWXold.compute_quadform(help);
-
 
     unsigned i;
     double * workh = help.getV();
@@ -233,23 +237,7 @@ void FC_linear::update_IWLS(void)
       *workh = rand_normal();
 
     XWXroot.solveroot_t(help,proposal);
-
     proposal.plus(mode);
-
-/*    ofstream out1("c://temp/XWX.raw");
-    XWX.prettyPrint(out1);
-    out1.close();
-    ofstream out2("c://temp/XWXold.raw");
-    XWXold.prettyPrint(out2);
-    out2.close();
-    ofstream out3("c://temp/XWXroot.raw");
-    XWXroot.prettyPrint(out3);
-    out3.close();
-    ofstream out4("c://temp/Xtresidual.raw");
-    Xtresidual.prettyPrint(out4);
-    out4.close();*/
-
-
     help.minus(proposal,mode);
 
     qnewbeta = -0.5*XWXold.compute_quadform(help);
@@ -260,7 +248,6 @@ void FC_linear::update_IWLS(void)
 
     add_linpred(diff);                           // (mit proposed)
 
-    bool ok;
     if (optionsp->saveestimation)
       {
       ok = likep->check_linpred();
@@ -270,18 +257,74 @@ void FC_linear::update_IWLS(void)
     else
       ok = true;
 
-    double logprop=0;
     if (ok)
       logprop = likep->loglikelihood();     // mit proposed
+    }
+  else
+    {
+    // calcculate proposal based on current parameter
+    likep->compute_iwls(true,false);
+    compute_XWXroot(XWXold); // Assumption: Matrix::root calculates Cholesky decomposition such that A = L' L
+                               // second assumption: calling compute_XWXroot always updates this->XWXroot
+    compute_Wpartres(*linoldp);
+    Xtresidual.mult(Xt,residual);
+    XWXroot.solveroot(Xtresidual,help,mode);
+
+    double log_det_XWX_half = 0.0;
+    for (unsigned i = 0; i < XWXroot.rows(); i++)
+      {
+      log_det_XWX_half += log(XWXroot(i,i));
+      }
+    double* help_p = help.getV();
+    for (unsigned i = 0; i < help.rows(); i++, help_p++)
+      {
+      *help_p = rand_normal();
+      }
+    XWXroot.solveroot_t(help,proposal);
+
+    qnewbeta = -0.5*XWXold.compute_quadform(proposal) - log_det_XWX_half; // log q(proposal | current)
+    proposal.plus(mode);
+
+    // update lin pred to use proposed value
+    linnewp->mult(design,proposal);
+    diff.minus(*linnewp,*linoldp);
+    add_linpred(diff);
+
+    // check if proposed lin pred is within limits
+    bool ok = true;
+    if (optionsp->saveestimation)
+      {
+      ok = likep->check_linpred();
+      if (!ok)
+        {
+        outsidelinpredlimits++;
+        }
+      }
+
+    // calc log posterior and log q(current | proposal)
+    if (ok)
+      {
+      logprop = likep->loglikelihood();
+      likep->compute_iwls(true, false);
+      compute_XWXroot(XWXold);
+      compute_Wpartres(*linnewp);
+      Xtresidual.mult(Xt,residual);
+      XWXroot.solveroot(Xtresidual,help,mode);
+      log_det_XWX_half = 0.0;
+      for (unsigned i = 0; i < XWXroot.rows(); i++)
+        {
+        log_det_XWX_half += log(XWXroot(i,i));
+        }
+      help.minus(mode, beta);
+      qoldbeta = -0.5*XWXold.compute_quadform(help) - log_det_XWX_half;
+      }
 
     double u = log(uniform());
-
-    if (ok && (u <= (logprop + qoldbeta - logold - qnewbeta)) )
+    if (ok && (u <= (logprop + qoldbeta - logold - qnewbeta)))
       {
       datamatrix * mp = linoldp;
       linoldp = linnewp;
       linnewp = mp;
-
       beta.assign(proposal);
 
       acceptance++;
@@ -291,21 +334,24 @@ void FC_linear::update_IWLS(void)
       diff.minus(*linoldp,*linnewp);
       add_linpred(diff);
       }
+    }
+  double u = log(uniform());
+  if (ok && (u <= (logprop + qoldbeta - logold - qnewbeta)))
+    {
+    datamatrix * mp = linoldp;
+    linoldp = linnewp;
+    linnewp = mp;
+    beta.assign(proposal);
 
+    acceptance++;
+    }
+  else
+    {
+    diff.minus(*linoldp,*linnewp);
+    add_linpred(diff);
+    }
 
-/*
-      ofstream out4("c:\\bayesx\\testh\\results\\linprednew.res");
-      if (likep->linpred_current==1)
-        likep->linearpred1.prettyPrint(out4);
-      else
-        likep->linearpred2.prettyPrint(out4);
-*/
-
-    FC::update();
-
-//    }
-
-
+  FC::update();
   }
 
 void FC_linear::update(void)

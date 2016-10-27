@@ -57,6 +57,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   bool initialize;
   bool IWLS;
+  bool IWLSmode;
 
   DISTR * likep;                             // Pointer to DISTR obejct
   datamatrix design;                         // Designmatrix
