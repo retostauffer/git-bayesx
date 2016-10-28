@@ -70,7 +70,7 @@ int FC_linear::add_variable(const datamatrix & d,ST::string & name)
 FC_linear::FC_linear(MASTER_OBJ * mp,unsigned & enr,GENERAL_OPTIONS * o,DISTR * lp,
                     datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
-                 const ST::string & fp,bool cent)
+                 const ST::string & fp,bool cent, bool IWLSle)
      : FC(o,t,1,1,fp)
   {
 
@@ -86,7 +86,7 @@ FC_linear::FC_linear(MASTER_OBJ * mp,unsigned & enr,GENERAL_OPTIONS * o,DISTR * 
     }
   initialize = false;
   IWLS = likep->updateIWLS;
-  IWLSmode = true;
+  IWLSmode = !IWLSle;
 
   center = cent;
   rankXWX_ok = true;
@@ -210,10 +210,9 @@ void FC_linear::update_IWLS(void)
     mode.assign(beta);
     }
   double logold = 0.0;
-  bool ok;
+  bool ok = true;
   double logprop = 0.0;
 
-  IWLSmode=true;
   if(IWLSmode)
     {
     logold = likep->loglikelihood(true);
@@ -264,8 +263,9 @@ void FC_linear::update_IWLS(void)
     }
   else
     {
+    logold = logold = likep->loglikelihood(true);
     // calcculate proposal based on current parameter
-    logold = likep->compute_iwls(true,true);
+    likep->compute_iwls(true, false);
     compute_XWXroot(XWX); // Assumption: Matrix::root calculates Cholesky decomposition such that A = L' L
                           // second assumption: calling compute_XWXroot always updates this->XWXroot
     compute_Wpartres(*linoldp);
@@ -283,9 +283,8 @@ void FC_linear::update_IWLS(void)
       *help_p = rand_normal();
       }
     XWXroot.solveroot_t(help,proposal);
-    proposal.plus(mode);
-
     qnewbeta = -0.5*XWX.compute_quadform(proposal) - log_det_XWX_half; // log q(proposal | current)
+    proposal.plus(mode); // add location to proposal after calculating qnewbeta!
 
     // update lin pred to use proposed value
     linnewp->mult(design,proposal);
@@ -293,7 +292,7 @@ void FC_linear::update_IWLS(void)
     add_linpred(diff);
 
     // check if proposed lin pred is within limits
-    bool ok = true;
+    ok = true;
     if (optionsp->saveestimation)
       {
       ok = likep->check_linpred();
@@ -904,8 +903,8 @@ FC_linear_pen::FC_linear_pen(void)
 FC_linear_pen::FC_linear_pen(MASTER_OBJ * mp,unsigned & enr,
                             GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
                  vector<ST::string> & vn, const ST::string & t,
-                 const ST::string & fp,bool cent)
-     : FC_linear(mp,enr,o,lp,d,vn,t,fp,cent)
+                 const ST::string & fp,bool cent, bool IWLSle)
+     : FC_linear(mp,enr,o,lp,d,vn,t,fp,cent,IWLSle)
   {
 
 

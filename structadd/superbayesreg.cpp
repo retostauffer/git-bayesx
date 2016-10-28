@@ -462,6 +462,7 @@ void superbayesreg::create_hregress(void)
   rotation = intoption("rotation",0,0,270);
 
   ssvsvarlimit = doubleoption("ssvsvarlimit",0.0000000001,0,0.1);
+  IWLSlineff = simpleoption("IWLSlineff", false);
 
   regressoptions.reserve(200);
 
@@ -512,6 +513,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&sampleselval);
   regressoptions.push_back(&WAICoff);
   regressoptions.push_back(&ssvsvarlimit);
+  regressoptions.push_back(&IWLSlineff);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,
@@ -8791,7 +8793,7 @@ bool superbayesreg::create_linear(void)
 
   FC_linears.push_back(FC_linear(&master,nrlevel1,&generaloptions,equations[modnr].distrp,X,
                          varnames,title,pathconst,
-                         centerlinear.getvalue()));
+                         centerlinear.getvalue(),IWLSlineff.getvalue()));
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
 
@@ -10468,7 +10470,7 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
 
     FC_linear_pens.push_back(FC_linear_pen(&master,nrlevel1,&generaloptions,
                          equations[modnr].distrp,d,terms[i].varnames,title,
-                         pathpen, centerlinear.getvalue()));
+                         pathpen, centerlinear.getvalue(), IWLSlineff.getvalue()));
 
     equations[modnr].add_FC(&FC_linear_pens[FC_linear_pens.size()-1],pathpenres);
 

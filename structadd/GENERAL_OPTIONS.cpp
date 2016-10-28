@@ -54,6 +54,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   rotation = 0;
   samplesel = false;
   sampleselval = 0.0;
+  IWLSlineff=false;
   }
 
 
@@ -123,6 +124,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   rotation = o.rotation;
   samplesel = o.samplesel;
   sampleselval = o.sampleselval;
+  IWLSlineff = o.IWLSlineff;
   }
 
 
@@ -152,6 +154,7 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   rotation = o.rotation;
   samplesel = o.samplesel;
   sampleselval = o.sampleselval;
+  IWLSlineff = o.IWLSlineff;
   return *this;
   }
 

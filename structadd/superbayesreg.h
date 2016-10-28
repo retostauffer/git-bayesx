@@ -437,6 +437,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // restrict the range of variances for SSVS priors
   doubleoption ssvsvarlimit;
 
+  simpleoption IWLSlineff;
+
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------

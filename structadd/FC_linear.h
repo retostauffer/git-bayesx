@@ -118,7 +118,7 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   FC_linear(MASTER_OBJ * mp, unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
             datamatrix & d, vector<ST::string> & vn, const ST::string & t,
-           const ST::string & fp,bool cent);
+            const ST::string & fp,bool cent, bool IWLSle);
 
   // COPY CONSTRUCTOR
 
@@ -200,7 +200,7 @@ class __EXPORT_TYPE FC_linear_pen  : public FC_linear
   FC_linear_pen(MASTER_OBJ * mp,unsigned & enr,
                 GENERAL_OPTIONS * o,DISTR * lp, datamatrix & d,
                 vector<ST::string> & vn, const ST::string & t,
-                const ST::string & fp,bool cent);
+                const ST::string & fp,bool cent,bool IWLSle);
 
   // COPY CONSTRUCTOR
 
