@@ -59,11 +59,11 @@ class __EXPORT_TYPE FC_merror  : public FC
 
   FC_nonp * FCp;    // pointer to the P-spline full conditional
 
-  FC mu_x;
+  FC FC_mu_x;
   double m_mu_x;
   double s_mu_x;
 
-  FC tau2_x;
+  FC FC_tau2_x;
   double a_tau2_x;
   double b_tau2_x;
 

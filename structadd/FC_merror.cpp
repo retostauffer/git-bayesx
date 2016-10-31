@@ -66,8 +66,11 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   maxbin = xobs.max();
   deltabin = (maxbin-minbin)/binning;
 
+  FC_tau2_x = FC(optionsp,"",1,1,samplepath + "_merror_tau2");
   a_tau2_x = 0.001;
   b_tau2_x = 0.001;
+
+  FC_mu_x = FC(optionsp,"",1,1,samplepath + "_merror_mu");
   m_mu_x = 0.0;
   s_mu_x = 1000.0*1000.0;
   }
@@ -88,8 +91,8 @@ FC_merror::FC_merror(const FC_merror & m)
   b_tau2_x = m.b_tau2_x;
   m_mu_x = m.m_mu_x;
   s_mu_x = m.s_mu_x;
-  mu_x = m.mu_x;
-  tau2_x = m.tau2_x;
+  FC_mu_x = m.FC_mu_x;
+  FC_tau2_x = m.FC_tau2_x;
   }
 
 const FC_merror & FC_merror::operator=(const FC_merror & m)
@@ -110,8 +113,8 @@ const FC_merror & FC_merror::operator=(const FC_merror & m)
   b_tau2_x = m.b_tau2_x;
   m_mu_x = m.m_mu_x;
   s_mu_x = m.s_mu_x;
-  mu_x = m.mu_x;
-  tau2_x = m.tau2_x;
+  FC_mu_x = m.FC_mu_x;
+  FC_tau2_x = m.FC_tau2_x;
   return *this;
   }
 
@@ -121,6 +124,18 @@ void FC_merror::update(void)
   double u1 = minbin+deltabin/2;
   double h;
   double prop;
+
+  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
+  double sdhelp = sqrt((FC_tau2_x.beta(0,0)*s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0)));
+  FC_mu_x.beta(0,0) = meanhelp + sdhelp * randnumbers::rand_normal();
+  FC_mu_x.update();
+
+  double ahelp = a_tau2_x + 0.5*(double(beta.rows()));
+  double bhelp = b_tau2_x;
+  for(i=0; i<beta.rows(); i++)
+    bhelp += 0.5*(beta(i,0) - FC_mu_x.beta(0,0))*(beta(i,0) - FC_mu_x.beta(0,0));
+  FC_tau2_x.beta(0,0) = rand_invgamma(ahelp, bhelp);
+  FC_tau2_x.update();
 
   double sqrtM = sqrt(merror);
   double lognew, logold;
