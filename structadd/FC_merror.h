@@ -54,6 +54,11 @@ class __EXPORT_TYPE FC_merror  : public FC
   double deltabin;  // length of the binning intervals
   double binning;   // number of binning intervals
 
+  statmatrix<unsigned> indexold;
+  statmatrix<unsigned> indexprop;
+
+  statmatrix<int> countmat;
+
   datamatrix mevar; // measurement error variances (n x 1)
   datamatrix mesd;  // measurement error standard deviations (n x 1)
 

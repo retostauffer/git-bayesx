@@ -1065,11 +1065,11 @@ void superbayesreg::clear(void)
   design_hrandoms.erase(design_hrandoms.begin(),design_hrandoms.end());
   design_hrandoms.reserve(200);
 
-  FC_nonps.erase(FC_nonps.begin(),FC_nonps.end());
-  FC_nonps.reserve(400);
-
   FC_merrors.erase(FC_merrors.begin(),FC_merrors.end());
   FC_merrors.reserve(20);
+
+  FC_nonps.erase(FC_nonps.begin(),FC_nonps.end());
+  FC_nonps.reserve(400);
 
   FC_hrandoms.erase(FC_hrandoms.begin(),FC_hrandoms.end());
   FC_hrandoms.reserve(200);

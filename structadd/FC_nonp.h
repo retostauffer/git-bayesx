@@ -64,8 +64,6 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   sampletype stype;
 
-  DISTR * likep;                             // Pointer to DISTR obejct
-
   datamatrix betadiff;
 
   double s2;
@@ -82,6 +80,8 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
 
   public:
+
+  DISTR * likep;                             // Pointer to DISTR obejct
 
   bool multf;
   double multf_value;
