@@ -54,9 +54,16 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   FCp = fcn;
   mevar = mv;
   mesd = mv;
-  for(unsigned i=0; i< mesd.rows(); i++)
+  unsigned i,j;
+  for(i=0; i<mesd.rows(); i++)
     mesd(i,0) = sqrt(mesd(i,0));
-  xmean = xd;
+  xmean = datamatrix(xobs.rows(), 1, 0.0);
+  for(i=0; i<xmean.rows(); i++)
+    {
+    for(j=0; j<merror; j++)
+      xmean(i,0) += xobs(i,j);
+    xmean(i,0) /= merror;
+    }
 
   setbeta(xd);
 
@@ -78,6 +85,64 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   FC_mu_x = FC(optionsp,"",1,1,samplepath + "_merror_mu");
   m_mu_x = 0.0;
   s_mu_x = 1000.0*1000.0;
+
+/*  datamatrix help = xmean;
+  double h;
+  double u1 = minbin+deltabin/2;
+  for(unsigned i=0; i<help.rows(); i++)
+    {
+    if(help(i,0) < minbin)
+      help(i,0) = minbin;
+    if(help(i,0) > maxbin)
+      help(i,0) = maxbin;
+    h = floor((help(i,0) - minbin)/deltabin);
+    if (h >= binning)
+      {
+      h -= 1.0;
+      }
+    help(i,0) = u1+h*deltabin;
+
+    }
+  // 1. Indexsort of data
+  FCp->designp->index_data.indexinit();
+  help.indexsort(FCp->designp->index_data,0,help.rows()-1,0,0);
+
+  //2. data = sorted observations
+  double * workdata = FCp->designp->data.getV();
+  int * workindex = FCp->designp->index_data.getV();
+  for (j=0;j<help.rows();j++,workdata++,workindex++)
+    {
+    *workdata = help(*workindex,0);
+    }
+
+  // 3. Creates posbeg, posend
+  int countsum=0;
+  for(j=0; j<FCp->designp->posbeg.size(); j++)
+    {
+    if(countmat(j,0)!=0)
+      {
+      FCp->designp->posbeg[j] = countsum;
+      FCp->designp->posend[j] = countsum + countmat(j,0)-1;
+      countsum += countmat(j,0);
+      }
+    else
+      {
+      FCp->designp->posbeg[j] = -1;
+      FCp->designp->posend[j] = -1;
+      }
+    }
+
+  // 4. initializes ind
+  int k;
+  workindex = FCp->designp->index_data.getV();
+  for (j=0;j<FCp->designp->posend.size();j++)
+    {
+    if(FCp->designp->posbeg[j]!=-1)
+      {
+      for (k=FCp->designp->posbeg[j];k<=FCp->designp->posend[j];k++,workindex++)
+        FCp->designp->ind(*workindex,0) = j;
+      }
+    }*/
   }
 
 FC_merror::FC_merror(const FC_merror & m)
@@ -135,7 +200,6 @@ const FC_merror & FC_merror::operator=(const FC_merror & m)
 void FC_merror::update(void)
   {
   unsigned i,j;
-  double u1 = minbin+deltabin/2;
   double prop;
 
   double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
@@ -172,8 +236,8 @@ void FC_merror::update(void)
   for(i=0; i<countmat.rows(); i++)
     countmat(i,0)=0;
 
-  double test;
-  for(i=0; i<xmean.rows(); i++, linpredoldp++, resp++, wp++)
+  double u1 = minbin+deltabin/2;
+  for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++)
     {
 //    cout << "iter.: " << optionsp->nriter << endl;
 //    cout << "obs.: " << i << endl;
@@ -286,8 +350,6 @@ void FC_merror::update(void)
         FCp->designp->ind(*workindex,0) = j;
       }
     }
-
-//  FCp->designp->update_covs_merror(xmean);
   }
 
 bool FC_merror::posteriormode(void)
