@@ -4572,10 +4572,10 @@ DISTR_gumbel_sigma::DISTR_gumbel_sigma(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "gumbel Distribution - sigma";
-    outpredictor = true;
+  outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
-    linpredminlimit=-10;
+  linpredminlimit=-10;
   linpredmaxlimit=15;
   }
 
@@ -5630,7 +5630,7 @@ DISTR_gamma_sigma::DISTR_gamma_sigma(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
-    linpredminlimit=-10;
+  linpredminlimit=-10;
   linpredmaxlimit=15;
   }
 
@@ -5657,11 +5657,47 @@ double DISTR_gamma_sigma::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
-void DISTR_gamma_sigma::compute_param_mult(vector<double *>  linpred,double * param)
+double DISTR_gamma_sigma::cdf(const double & resp, const bool & ifcop)
   {
-  *param =  exp((*linpred[0]));
+  if(counter==0)
+    {
+    if(ifcop)
+      {
+      set_worklin();
+      }
+      if (linpred_current==1)
+        linpredp = linearpred1.getV();
+      else
+        linpredp = linearpred2.getV();
+    }
+  double res,mu,sigma;
+  sigma = exp(*linpredp);
+  mu = *worktransformlin[0];
+  //adjustPaul
+  res = exp(-exp(-(resp-mu)/sigma));
+
+  if(ifcop)
+    {
+    modify_worklin();
+    }
+  linpredp++;
+  return res;
   }
 
+double DISTR_gamma_sigma::cdf(const double & resp, const double & linpred)
+  {
+  double res,mu,sigma;
+  sigma = exp(linpred);
+  mu = *worktransformlin[0];
+  //adjustPaul
+  res = exp(-exp(-(resp-mu)/sigma));
+  return res;
+  }
+
+void DISTR_gamma_sigma::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param =  exp((*linpred[copulaoffset+0]));
+  }
 
 double DISTR_gamma_sigma::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -5678,14 +5714,16 @@ double DISTR_gamma_sigma::loglikelihood_weightsone(double * response,
   double sig = exp((*linpred));
 
   double l;
-
-     l = sig*log(sig) - sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response) - (sig/(*worktransformlin[0]))*(*response);
-
+  l = sig*log(sig) - sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response) - (sig/(*worktransformlin[0]))*(*response);
+  if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
 
   modify_worklin();
 
   return l;
-
   }
 
 void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
@@ -5705,27 +5743,41 @@ void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double sig = exp((*linpred));
+  double sig = exp((*linpred));
+  double nu = sig*log(sig) +  sig - sig*log((*worktransformlin[0])) - sig*(randnumbers::digamma_exact(sig)) +
+		sig*log((*response)) - (sig/(*worktransformlin[0]))*(*response);
 
+  *workingweight = sig*(sig*randnumbers::trigamma_exact(sig) - 1);
 
-    double nu = sig*log(sig) +  sig - sig*log((*worktransformlin[0])) - sig*(randnumbers::digamma_exact(sig)) +
-				sig*log((*response)) - (sig/(*worktransformlin[0]))*(*response);
-
-
-
-    *workingweight = sig*(sig*randnumbers::trigamma_exact(sig) - 1);
-
-    *workingresponse = *linpred + nu/(*workingweight);
-
+  if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
     if (compute_like)
       {
-
-        like += sig*log(sig) - sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response) - (sig/(*worktransformlin[0]))*(*response);
-
+      like += logcandderivs[0];
       }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    //adjustPaul
+    double dF = 0.0;
+    //adjustPaul
+    double ddF = 0.0;
 
+    nu += logcandderivs[1]*dF;
+
+    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+
+    if (*workingweight <=0)
+      *workingweight = 0.0001;
+    }
+
+  *workingresponse = *linpred + nu/(*workingweight);
+
+  if (compute_like)
+    {
+    like += sig*log(sig) - sig*log((*worktransformlin[0])) - randnumbers::lngamma_exact(sig) + (sig-1)*log(*response) - (sig/(*worktransformlin[0]))*(*response);
+    }
   modify_worklin();
-
   }
 
 
@@ -5871,11 +5923,59 @@ double DISTR_gamma_mu::get_intercept_start(void)
   return 0; // log(response.mean(0));
   }
 
+double DISTR_gamma_mu::cdf(const double & resp, const bool & ifcop)
+  {
+  if(counter==0)
+    {
+    if(ifcop)
+      {
+      set_worklin();
+      }
+    if (linpred_current==1)
+      linpredp = linearpred1.getV();
+    else
+      linpredp = linearpred2.getV();
+    }
+
+  double res,mu,sigma;
+  mu = exp(*linpredp);
+  sigma = *worktransformlin[0];
+  // adjustPaul
+  res = exp(-exp(-(resp-mu)/sigma));
+
+  if(ifcop)
+    {
+    modify_worklin();
+    }
+  linpredp++;
+  return res;
+  }
+
+double DISTR_gamma_mu::cdf(const double & resp, const double & linpred)
+  {
+  double res,mu,sigma;
+  mu = exp(linpred);
+  sigma = *worktransformlin[0];
+  // adjustPaul
+  res = exp(-exp(-(resp-mu)/sigma));
+  return res;
+  }
+
+double DISTR_gamma_mu::cdf(const double & resp, vector<double *>  linpred)
+  {
+  double res,mu,sigma;
+  mu = exp(*linpred[0]);
+  sigma = exp(*linpred[1]);
+  // adjustPaul
+  res = exp(-exp(-(resp-mu)/sigma));
+  return res;
+  }
+
 void DISTR_gamma_mu::compute_param_mult(vector<double *>  linpred,double * param)
   {
   //this was for Alex paper
   //*param = exp((*linpred[1])) / exp((*linpred[0]));
-  *param = exp((*linpred[1]));
+  *param = (*linpred[copulaoffset+0]);
   }
 
  double DISTR_gamma_mu::pdf_mult(vector<double *> response,
@@ -5912,8 +6012,14 @@ double DISTR_gamma_mu::loglikelihood_weightsone(double * response,
   double mu = exp(*linpred);
 
   double l;
+  l =  - (*worktransformlin[0])*log(mu) - ((*worktransformlin[0])/mu)*(*response);
+  if(optionsp->copula)
+    {
+    //implement loglik for copula models, i.e. add part logc
+    double F = cdf(*response,*linpred);
+    l += (distrcopulap[0]->logc(F,copulapos,false))[0];
+    }
 
-     l =  - (*worktransformlin[0])*log(mu) - ((*worktransformlin[0])/mu)*(*response);
   modify_worklin();
 
   return l;
@@ -5943,31 +6049,43 @@ void DISTR_gamma_mu::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double mu = exp(*linpred);
+  double mu = exp(*linpred);
+  double nu = -(*worktransformlin[0]) + ((*worktransformlin[0])/mu)*(*response);
+  *workingweight = (*worktransformlin[0]);
 
-    double nu = -(*worktransformlin[0]) + ((*worktransformlin[0])/mu)*(*response);
-
-    *workingweight = (*worktransformlin[0]);
-
-    *workingresponse = *linpred + nu/(*workingweight);
-
+  if(optionsp->copula)
+    {
+    double F = cdf(*response,*linpred);
+    vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
     if (compute_like)
       {
-
-        like +=  - (*worktransformlin[0])*log(mu) - ((*worktransformlin[0])/mu)*(*response);
-
+      like += logcandderivs[0];
       }
+    // compute and implement dF/deta, d^2 F/deta ^2
+    // adjustPaul
+    double dF = 0.0;
+    // adjustPaul
+    double ddF = 0.0;
+    nu += logcandderivs[1]*dF;
 
+   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+    if (*workingweight <=0)
+      *workingweight = 0.001;
+    }
 
+  *workingresponse = *linpred + nu/(*workingweight);
+  if (compute_like)
+    {
+    like +=  - (*worktransformlin[0])*log(mu) - ((*worktransformlin[0])/mu)*(*response);
+    }
   modify_worklin();
-
   }
 
 
 void DISTR_gamma_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
 
-  *mu = exp((*linpred[predstart_mumult+1]));
+  *mu = exp((*linpred[copulaoffset+predstart_mumult+1]));
 
   }
 

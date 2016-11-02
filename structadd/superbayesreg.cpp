@@ -329,6 +329,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gauss_copula");
   families.push_back("gauss_copula2");
   families.push_back("clayton_copula");
+  families.push_back("gumbel_copula");
   families.push_back("gaussiancopula");
   families.push_back("frankcopula");
   families.push_back("frankcopula_rho");
@@ -938,9 +939,6 @@ void superbayesreg::clear(void)
   distr_claytoncopula_rhos.erase(distr_claytoncopula_rhos.begin(),distr_claytoncopula_rhos.end());
   distr_claytoncopula_rhos.reserve(20);
 
-  distr_clayton_copulas.erase(distr_clayton_copulas.begin(),distr_clayton_copulas.end());
-  distr_clayton_copulas.reserve(20);
-
   distr_claytoncopula2_rhos.erase(distr_claytoncopula2_rhos.begin(),distr_claytoncopula2_rhos.end());
   distr_claytoncopula2_rhos.reserve(20);
 
@@ -1036,6 +1034,12 @@ void superbayesreg::clear(void)
 
   distr_gausscopula2s.erase(distr_gausscopula2s.begin(),distr_gausscopula2s.end());
   distr_gausscopula2s.reserve(20);
+
+  distr_clayton_copulas.erase(distr_clayton_copulas.begin(),distr_clayton_copulas.end());
+  distr_clayton_copulas.reserve(20);
+
+  distr_gumbel_copulas.erase(distr_gumbel_copulas.begin(),distr_gumbel_copulas.end());
+  distr_gumbel_copulas.reserve(20);
 
   distr_binomialprobit_copulas.erase(distr_binomialprobit_copulas.begin(),
                               distr_binomialprobit_copulas.end());
@@ -1313,7 +1317,6 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
   distr_gaussiancopula_dagum_ps = b.distr_gaussiancopula_dagum_ps;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
-  distr_clayton_copulas = b.distr_clayton_copulas;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
   distr_claytoncopula2_normal_sigma2s = b.distr_claytoncopula2_normal_sigma2s;
@@ -1346,6 +1349,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_sfa_alphas = b.distr_sfa_alphas;
   distr_gausscopulas = b.distr_gausscopulas;
   distr_gausscopula2s = b.distr_gausscopula2s;
+  distr_clayton_copulas = b.distr_clayton_copulas;
+  distr_gumbel_copulas = b.distr_gumbel_copulas;
   distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
 
   resultsyesno = b.resultsyesno;
@@ -1538,7 +1543,6 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_gaussiancopula_dagum_bs = b.distr_gaussiancopula_dagum_bs;
   distr_gaussiancopula_dagum_ps = b.distr_gaussiancopula_dagum_ps;
   distr_claytoncopula_rhos = b.distr_claytoncopula_rhos;
-  distr_clayton_copulas = b.distr_clayton_copulas;
   distr_claytoncopula2_rhos = b.distr_claytoncopula2_rhos;
   distr_claytoncopula2_normal_mus = b.distr_claytoncopula2_normal_mus;
   distr_claytoncopula2_normal_sigma2s = b.distr_claytoncopula2_normal_sigma2s;
@@ -1571,6 +1575,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_sfa_alphas = b.distr_sfa_alphas;
   distr_gausscopulas = b.distr_gausscopulas;
   distr_gausscopula2s = b.distr_gausscopula2s;
+  distr_clayton_copulas = b.distr_clayton_copulas;
+  distr_gumbel_copulas = b.distr_gumbel_copulas;
   distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
 
   resultsyesno = b.resultsyesno;
@@ -4167,24 +4173,32 @@ bool superbayesreg::create_distribution(void)
            && ((equationtype.getvalue()=="mu"))
           )
     {
-    datamatrix dnew= D.getCol(0);
-
-    if(family.getvalue() == "gamma")
-      mainequation=true;
-    else
+    datamatrix dnew = D.getCol(0);
+    if(generaloptions.copula)
       {
       mainequation=false;
-      if(w.rows()==1)
-        w = datamatrix(dnew.rows(),1,1);
-      for(unsigned i=0; i<dnew.rows(); i++)
+      }
+    else
+      {
+      if(family.getvalue() == "gamma")
+        mainequation=true;
+      else
         {
-        if(D(i,0)==0)
+        mainequation=false;
+        if(w.rows()==1)
+          w = datamatrix(dnew.rows(),1,1);
+        for(unsigned i=0; i<dnew.rows(); i++)
           {
-          w(i,0) = 0;
-          dnew(i,0) = 0.1;
+          if(D(i,0)==0)
+            {
+            w(i,0) = 0;
+            dnew(i,0) = 0.1;
+            }
           }
         }
       }
+
+
     computemodeforstartingvalues = true;
 
     distr_gamma_mus.push_back(DISTR_gamma_mu(&generaloptions,dnew,w));
@@ -4206,8 +4220,34 @@ bool superbayesreg::create_distribution(void)
 
       distr_gamma_mus[distr_gamma_mus.size()-1].distrp.push_back
       (&distr_gamma_sigmas[distr_gamma_sigmas.size()-1]);
+
+      countmarginal += 1;
+      }
+    if(generaloptions.copula){}
+    else
+      {
+      predict_mult_distrs.push_back(&distr_gamma_sigmas[distr_gumbel_sigmas.size()-1]);
+      predict_mult_distrs.push_back(&distr_gamma_mus[distr_gumbel_mus.size()-1]);
       }
 
+    if(generaloptions.copula)
+      {
+      if (countmarginal == 1)
+        {
+        distr_gamma_mus[distr_gamma_mus.size()-1].set_copulapos(0);
+        distr_gamma_sigmas[distr_gamma_sigmas.size()-1].set_copulapos(0);
+        }
+      else if(countmarginal == 2)
+        {
+        distr_gamma_mus[distr_gamma_mus.size()-1].set_copulapos(1);
+        distr_gamma_sigmas[distr_gamma_sigmas.size()-1].set_copulapos(1);
+        }
+      else
+        {
+        outerror("ERROR: currently only bivariate copula models implemented");
+        return true;
+        }
+      }
     }
 //------------------------------- END: gamma_mu -------------------------------
 
@@ -5613,6 +5653,34 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+    if(distr_gamma_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_gamma_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_gamma_mus[coi]);
+        predict_mult_distrs.push_back(&distr_gamma_sigmas[coi]);
+
+        distr_gamma_mus[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+        distr_gamma_sigmas[coi].distrcopulap.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
+
+        if(distr_gamma_mus[coi].get_copulapos()==0)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]= (&distr_gamma_mus[coi]);
+          distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_gamma_mus[coi].response;
+          }
+        else if(distr_gamma_mus[coi].get_copulapos()==1)
+          {
+          distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]= (&distr_gamma_mus[coi]);
+          distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_gamma_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
     if(distr_normal_mus.size()>0)
       {
       int coi;
@@ -5869,6 +5937,34 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+    if(distr_gamma_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_gamma_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_gamma_mus[coi]);
+        predict_mult_distrs.push_back(&distr_gamma_sigmas[coi]);
+
+        distr_gamma_mus[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+        distr_gamma_sigmas[coi].distrcopulap.push_back(&distr_gausscopula2s[distr_gausscopula2s.size()-1]);
+
+        if(distr_gamma_mus[coi].get_copulapos()==0)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[0]= (&distr_gamma_mus[coi]);
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response2 = distr_gamma_mus[coi].response;
+          }
+        else if(distr_gamma_mus[coi].get_copulapos()==1)
+          {
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].distrp[1]= (&distr_gamma_mus[coi]);
+          distr_gausscopula2s[distr_gausscopula2s.size()-1].response1 = distr_gamma_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
     if(distr_normal_mus.size()>0)
       {
       int coi;
@@ -6096,6 +6192,34 @@ bool superbayesreg::create_distribution(void)
           }
         }
       }
+    if(distr_gamma_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_gamma_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_gamma_mus[coi]);
+        predict_mult_distrs.push_back(&distr_gamma_sigmas[coi]);
+
+        distr_gamma_mus[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+        distr_gamma_sigmas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
+
+        if(distr_gamma_mus[coi].get_copulapos()==0)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[0]= (&distr_gamma_mus[coi]);
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response2 = distr_gamma_mus[coi].response;
+          }
+        else if(distr_gamma_mus[coi].get_copulapos()==1)
+          {
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp[1]= (&distr_gamma_mus[coi]);
+          distr_clayton_copulas[distr_clayton_copulas.size()-1].response1 = distr_gamma_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
     if(distr_normal_mus.size()>0)
       {
       int coi;
@@ -6307,6 +6431,34 @@ bool superbayesreg::create_distribution(void)
           {
           distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_gumbel_mus[coi]);
           distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_gumbel_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_gamma_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_gamma_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_gamma_mus[coi]);
+        predict_mult_distrs.push_back(&distr_gamma_sigmas[coi]);
+
+        distr_gamma_mus[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_gamma_sigmas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_gamma_mus[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_gamma_mus[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_gamma_mus[coi].response;
+          }
+        else if(distr_gamma_mus[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_gamma_mus[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_gamma_mus[coi].response;
           }
         else
           {

@@ -1751,6 +1751,10 @@ class __EXPORT_TYPE DISTR_gamma_sigma : public DISTR_gamlss
 
   ~DISTR_gamma_sigma() {}
 
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
   double get_intercept_start(void);
 
   void compute_param_mult(vector<double *>  linpred,double * param);
@@ -1823,6 +1827,12 @@ class __EXPORT_TYPE DISTR_gamma_mu : public DISTR_gamlss
                           vector<double *> param,
                           vector<double *> weight,
                           vector<datamatrix *> aux);
+
+  double cdf(const double & resp, const bool & ifcop);
+
+  double cdf(const double & resp, const double & linpred);
+
+  double cdf(const double & resp, vector<double *>  linpred);
 
   double cdf_mult(vector<double *> response,
                           vector<double *> param,
