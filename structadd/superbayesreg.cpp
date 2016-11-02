@@ -6208,6 +6208,220 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: clayton_copula---------------------------
 
 
+//----------------------------- clayton_copula --------------------------------
+  else if ((family.getvalue() == "gumbel_copula") && (equationtype.getvalue()=="rho"))
+    {
+
+    mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_gumbel_copulas.push_back(DISTR_gumbel_copula(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_gumbel_copulas[distr_gumbel_copulas.size()-1];
+    equations[modnr].pathd = "";
+
+    if ((countmarginal != 2))
+      {
+      outerror("ERROR: Two equations for marginal distributions required or family not implemented yet");
+      return true;
+      }
+
+    // Fill distrp of the copula with some starting values to make it a vector of length=2
+    distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp.push_back(equations[modnr-1].distrp);
+    distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp.push_back(equations[modnr-2].distrp);
+
+    if(distr_weibull_lambdas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_weibull_lambdas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_weibull_alphas[coi]);
+        predict_mult_distrs.push_back(&distr_weibull_lambdas[coi]);
+
+        distr_weibull_lambdas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_weibull_alphas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_weibull_lambdas[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_weibull_lambdas[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_weibull_lambdas[coi].response;
+          }
+        else if(distr_weibull_lambdas[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_weibull_lambdas[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_weibull_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_weibull2_lambdas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_weibull2_lambdas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_weibull2_alphas[coi]);
+        predict_mult_distrs.push_back(&distr_weibull2_lambdas[coi]);
+
+        distr_weibull2_lambdas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_weibull2_alphas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_weibull2_lambdas[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_weibull2_lambdas[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_weibull2_lambdas[coi].response;
+          }
+        else if(distr_weibull2_lambdas[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_weibull2_lambdas[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_weibull2_lambdas[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_gumbel_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_gumbel_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_gumbel_mus[coi]);
+        predict_mult_distrs.push_back(&distr_gumbel_sigmas[coi]);
+
+        distr_gumbel_mus[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_gumbel_sigmas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_gumbel_mus[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_gumbel_mus[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_gumbel_mus[coi].response;
+          }
+        else if(distr_gumbel_mus[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_gumbel_mus[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_gumbel_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_normal_mus.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_normal_mus.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_normal_sigma2s[coi]);
+        predict_mult_distrs.push_back(&distr_normal_mus[coi]);
+
+        distr_normal_mus[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_normal_sigma2s[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_normal_mus[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_normal_mus[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_normal_mus[coi].response;
+          }
+        else if(distr_normal_mus[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_normal_mus[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_normal_mus[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_dagum_as.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_dagum_as.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_dagum_ps[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_bs[coi]);
+        predict_mult_distrs.push_back(&distr_dagum_as[coi]);
+
+        distr_dagum_as[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_dagum_bs[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+        distr_dagum_ps[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_dagum_as[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_dagum_as[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_dagum_as[coi].response;
+          }
+        else if(distr_dagum_as[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_dagum_as[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_dagum_as[coi].response;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        predict_mult_distrs.push_back(&distr_binomialprobit_copulas[coi]);
+
+        distr_binomialprobit_copulas[coi].distrcopulap.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+        if(distr_binomialprobit_copulas[coi].get_copulapos()==0)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]= (&distr_binomialprobit_copulas[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response2;
+          }
+        else if(distr_binomialprobit_copulas[coi].get_copulapos()==1)
+          {
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]= (&distr_binomialprobit_copulas[coi]);
+          distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1 = distr_binomialprobit_copulas[coi].response;
+          distr_binomialprobit_copulas[coi].responsecopmat = &distr_gumbel_copulas[distr_gumbel_copulas.size()-1].response1;
+          }
+        else
+          {
+          outerror("ERROR: Two equations for marginal distributions required");
+          return true;
+          }
+        }
+      }
+    predict_mult_distrs.push_back(&distr_gumbel_copulas[distr_gumbel_copulas.size()-1]);
+
+    // initialize copulaoffset for the second marginal (required for marginal deviance etc.)
+    int off = distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[0]->distrp.size()+1;
+    distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]->copulaoffset = off;
+    for(unsigned k=0; k<distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]->distrp.size(); k++)
+      distr_gumbel_copulas[distr_gumbel_copulas.size()-1].distrp[1]->distrp[k]->copulaoffset = off;
+
+    if(distr_binomialprobit_copulas.size()>0)
+      {
+      int coi;
+      for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
+        {
+        distr_binomialprobit_copulas[coi].update();
+        }
+      }
+    }
+//-------------------------- END: clayton_copula---------------------------
+
+
+
 // ----------------------------------- tcopula_df ----------------------
    else if ((family.getvalue() == "tcopula") && (equationtype.getvalue()=="df"))
      {
