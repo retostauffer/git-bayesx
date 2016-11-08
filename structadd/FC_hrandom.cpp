@@ -384,6 +384,9 @@ void FC_hrandom::update_IWLS(void)
 void FC_hrandom::update(void)
   {
 
+//  cout << optionsp->nriter << endl;
+//  cout <<  designp->datanames[0] << endl;
+
   if (IWLS)
     {
     update_IWLS();

@@ -124,6 +124,7 @@ FC_predict::FC_predict(const FC_predict & m)
   }
 
 
+
 const FC_predict & FC_predict::operator=(const FC_predict & m)
   {
   if (this==&m)
@@ -148,6 +149,7 @@ const FC_predict & FC_predict::operator=(const FC_predict & m)
 void  FC_predict::update(void)
   {
 
+
   likep->FCpredict_betamean = &betamean;
 
   if(
@@ -160,6 +162,8 @@ void  FC_predict::update(void)
   acceptance++;
 
   FC::update();
+
+
 
   if (likep->maindistribution == true)
     {
@@ -208,6 +212,8 @@ void FC_predict::get_predictor(void)
 
   double logp;
 
+//  cout << beta.rows() << endl;
+//  cout << beta.cols() << endl;
 
   for(i=0;i<likep->nrobs;i++,worklinp++,workresponse++,workweight++,betap++)
     {

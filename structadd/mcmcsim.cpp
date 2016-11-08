@@ -240,8 +240,6 @@ const int & seed, const bool & computemode)
   for (it=1;it<=iterations;it++)
     {
 
-//    if (it==150)
-//      double t = 0;
 
     if ( (runtime ==false) && (iterations/it == 100) )
       {
@@ -287,6 +285,7 @@ const int & seed, const bool & computemode)
 
       for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
          {
+//         cout << j << endl;
          equations[nrmodels-1-i].FCpointer[j]->update();
 
 /* SAMPLESEL TESTS

@@ -3197,6 +3197,455 @@ void DISTR_zippi::update_end(void)
   }
 
 
+
+//------------------------------------------------------------------------------
+//------------------------- CLASS: DISTR_normal2_sigma -------------------------
+//------------------------------------------------------------------------------
+
+
+DISTR_cnormal_sigma::DISTR_cnormal_sigma(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Censored Normal Distribution - sigma";
+
+  outpredictor = true;
+  outexpectation = false;
+  predictor_name = "sigma";
+    linpredminlimit=-10;
+  linpredmaxlimit=15;
+
+  }
+
+
+DISTR_cnormal_sigma::DISTR_cnormal_sigma(const DISTR_cnormal_sigma & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_cnormal_sigma & DISTR_cnormal_sigma::operator=(
+                            const DISTR_cnormal_sigma & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+double DISTR_cnormal_sigma::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_cnormal_sigma::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param =  exp((*linpred[0]));
+  }
+
+double DISTR_cnormal_sigma::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = (eta_mu);
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double sigma = exp(*linpred);
+  double sigma_2 = pow(sigma,2);
+
+
+  double l;
+
+  if (*response <= 0)
+    {
+    l = log(randnumbers::Phi2(-*worklin[0]/sigma));
+    }
+  else
+    {
+    l = -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
+    }
+
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of mu equation
+  // *worktransformlin[0] = exp(eta_mu)/(1+exp(eta_mu));
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double sigma_2 = pow(exp(*linpred),2);
+
+
+    double nu = -1 + (pow(((*response)-(*worklin[0])),2))/(sigma_2);
+
+
+
+    *workingweight = 2;
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like +=  -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
+
+      }
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_cnormal_sigma::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Link function (sigma): log\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+void DISTR_cnormal_sigma::update_end(void)
+  {
+
+  // helpmat1 stores sigma
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = pow(exp(*worklin),2);
+    }
+
+  }
+
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: DISTR_cnormal_mu --------------------------
+//------------------------------------------------------------------------------
+void DISTR_cnormal_mu::check_errors(void)
+  {
+
+  if (errors==false)
+    {
+    unsigned i=0;
+    double * workresp = response.getV();
+    double * workweight = weight.getV();
+    while ( (i<nrobs) && (errors==false) )
+      {
+
+      if (*workweight > 0)
+        {
+
+
+        }
+      else if (*workweight == 0)
+        {
+        }
+      else
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative weights encountered\n");
+        }
+
+      i++;
+      workresp++;
+      workweight++;
+
+      }
+
+    }
+
+  }
+
+
+DISTR_cnormal_mu::DISTR_cnormal_mu(GENERAL_OPTIONS * o,
+                                           const datamatrix & r,
+                                           const datamatrix & w)
+  : DISTR_gamlss(o,r,1,w)
+  {
+  family = "Censored Normal Distribution - mu";
+  outpredictor = true;
+  outexpectation = true;
+  predictor_name = "mu";
+  updateIWLS =false;
+  check_errors();
+//    linpredminlimit=-10;
+ // linpredmaxlimit=15;
+  }
+
+
+DISTR_cnormal_mu::DISTR_cnormal_mu(const DISTR_cnormal_mu & nd)
+   : DISTR_gamlss(DISTR_gamlss(nd))
+  {
+
+  }
+
+
+const DISTR_cnormal_mu & DISTR_cnormal_mu::operator=(
+                            const DISTR_cnormal_mu & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR_gamlss::operator=(DISTR_gamlss(nd));
+  return *this;
+  }
+
+
+void DISTR_cnormal_mu::compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux)
+  {
+
+   // *response[0] = *response[1] = response
+   // *linpred[0] = eta_sigma2
+   // *linpred[1] = eta_mu
+
+   if (*weight[1] == 0)
+     *deviance=0;
+   else
+     {
+     double sigma_2 = pow(exp(*linpred[0]),2);
+     double mu = (*linpred[1]);
+
+     double l;
+
+       l = -0.5*log(2*PI)-0.5*log(sigma_2)-pow((((*response[0]))-mu),2)/(2*sigma_2);
+
+
+    *deviance = -2*l;
+    }
+
+  }
+
+
+double DISTR_cnormal_mu::get_intercept_start(void)
+  {
+  return 0; // log(response.mean(0));
+  }
+
+void DISTR_cnormal_mu::compute_param_mult(vector<double *>  linpred,double * param)
+  {
+  *param = (*linpred[1]);
+  }
+
+ double DISTR_cnormal_mu::pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+    {
+    return 0;
+    }
+
+double DISTR_cnormal_mu::cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux)
+
+
+    {
+    double arg = ((*response[1])-(*param[1]))/(*param[0]) ;
+
+    return (randnumbers::Phi2(arg));
+    }
+
+double DISTR_cnormal_mu::loglikelihood_weightsone(double * response,
+                                                 double * linpred)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+  double mu = (*linpred);
+
+  double l;
+
+     l = -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
+
+  modify_worklin();
+
+  return l;
+
+  }
+
+
+void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
+                                              double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like)
+  {
+
+  // *worklin[0] = linear predictor of sigma2 equation
+  // *worktransformlin[0] = sigma2;
+
+  // ofstream out("d:\\_sicher\\papzip\\results\\helpmat1.raw");
+  // helpmat1.prettyPrint(out);
+  // for (i=0;i<helpmat1.rows();i++)
+  //   out << helpmat1(i,0) << endl;
+
+  if (counter==0)
+    {
+    set_worklin();
+    }
+
+    double mu = (*linpred);
+
+    double nu = ((*response)-mu)/(*worktransformlin[0]);
+
+//    if(updateIWLS)
+      *workingweight = 1/(*worktransformlin[0]);
+//    else
+//      *workingweight = (*weightp)/(*worktransformlin[0]);
+
+    *workingresponse = *linpred + nu/(*workingweight);
+
+    if (compute_like)
+      {
+
+        like += -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
+
+      }
+
+
+  modify_worklin();
+
+  }
+
+
+void DISTR_cnormal_mu::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
+  {
+  *mu = ((*linpred[predstart_mumult+1]));
+  }
+
+
+void DISTR_cnormal_mu::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function (mu): identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+/*void DISTR_normal2_mu::update(void)
+  {
+
+  register unsigned i;
+
+  double help;
+
+  double * worktransformlinp;
+  double * workweight;
+
+  worktransformlinp = distrp[0]->helpmat1.getV();
+  workweight = workingweight.getV();
+
+  if(updateIWLS)
+    {
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
+    {
+      *workweight = 1/(*worktransformlinp);
+      }
+    }
+  else
+    {
+    weightp = weight.getV();
+    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
+      {
+      *workweight = (*weightp)/(*worktransformlinp);
+      }
+    }
+
+  }*/
+
+void DISTR_cnormal_mu::update_end(void)
+  {
+
+
+  // helpmat1 stores (eta_mu)
+
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = (*worklin);
+//    double t = 0;
+    }
+
+  }
+
+void DISTR_cnormal_mu::set_worklin(void)
+  {
+
+  DISTR_gamlss::set_worklin();
+
+  weightp = weight.getV();
+
+  }
+
+void DISTR_cnormal_mu::modify_worklin(void)
+  {
+
+  DISTR_gamlss::modify_worklin();
+
+  if (counter<nrobs)
+    {
+    weightp++;
+    }
+
+  }
+
+
+
+
+
 } // end: namespace MCMC
 
 

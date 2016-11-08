@@ -859,7 +859,147 @@ class __EXPORT_TYPE DISTR_zippi : public DISTR
   };
 
 
+
+//------------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_cnormal_sigma ---------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_cnormal_sigma : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_cnormal_sigma(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_cnormal_sigma(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_cnormal_sigma(const DISTR_cnormal_sigma & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_cnormal_sigma & operator=(const DISTR_cnormal_sigma & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_cnormal_sigma() {}
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+
+  void outoptions(void);
+
+  void update_end(void);
+
+  };
+
+//-----------------------------------------------------------------------------
+//----------------------- CLASS: DISTR_cnormal_mu -------------------------------
+//-------------------------------------------------------------------------------
+
+class __EXPORT_TYPE DISTR_cnormal_mu : public DISTR_gamlss
+  {
+
+  protected:
+
+
+  public:
+
+  double * weightp;
+
+  void set_worklin(void);
+  void modify_worklin(void);
+
+  void check_errors(void);
+
+   // DEFAULT CONSTRUCTOR
+
+  DISTR_cnormal_mu(void) : DISTR_gamlss()
+    {
+    }
+
+   // CONSTRUCTOR
+
+  DISTR_cnormal_mu(GENERAL_OPTIONS * o, const datamatrix & r,
+                       const datamatrix & w=datamatrix());
+
+   // COPY CONSTRUCTOR
+
+  DISTR_cnormal_mu(const DISTR_cnormal_mu & nd);
+
+   // OVERLOADED ASSIGNMENT OPERATOR
+
+  const DISTR_cnormal_mu & operator=(const DISTR_cnormal_mu & nd);
+
+   // DESTRUCTOR
+
+  ~DISTR_cnormal_mu() {}
+
+  void compute_deviance_mult(vector<double *> response,
+                             vector<double *> weight,
+                             vector<double *> linpred,
+                             double * deviance,
+                             vector<datamatrix*> aux);
+
+  double get_intercept_start(void);
+
+  void compute_param_mult(vector<double *>  linpred,double * param);
+
+  double cdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double pdf_mult(vector<double *> response,
+                          vector<double *> param,
+                          vector<double *> weight,
+                          vector<datamatrix *> aux);
+
+  double loglikelihood_weightsone(double * response, double * linpred);
+
+  void compute_iwls_wweightschange_weightsone(double * response,
+                                              double * linpred,
+                                              double * workingweight,
+                                              double * workingresponse,
+                                              double & like,
+                                              const bool & compute_like);
+
+  void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+
+  void outoptions(void);
+
+  void update_end(void);
+
+//  void update(void);
+
+  };
+
+
+
 } // end: namespace MCMC
+
 
 
 #endif

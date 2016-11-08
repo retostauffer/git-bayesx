@@ -8846,6 +8846,7 @@ bool superbayesreg::create_distribution(void)
   if (equations[modnr].hlevel==1)
     master.level1_likep.push_back(equations[modnr].distrp);
 
+/*
   if(mainequation)
     {
     datamatrix checkweight = equations[equations.size()-1].distrp->weight;
@@ -8872,6 +8873,7 @@ bool superbayesreg::create_distribution(void)
         }
       }
     }
+*/
 
   return false;
 
