@@ -49,6 +49,8 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   {
   read_options(op,vn);
 
+  binning = 100;
+
   xobs = xo;
   merror = (double)(xo.cols());
   FCp = fcn;
@@ -65,16 +67,13 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
     xmean(i,0) /= merror;
     }
 
-  setbeta(xd);
+  setbeta(xmean);
 
   FCp->designp->changingdesign=true;
 
   minbin = xobs.min();
   maxbin = xobs.max();
   deltabin = (maxbin-minbin)/binning;
-
-  indexold = FCp->designp->ind;
-  indexprop = indexold;
 
   countmat = statmatrix<int>((unsigned)binning,1,0);
 
@@ -86,7 +85,7 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   m_mu_x = 0.0;
   s_mu_x = 1000.0*1000.0;
 
-/*  datamatrix help = xmean;
+  datamatrix help = xmean;
   double h;
   double u1 = minbin+deltabin/2;
   for(unsigned i=0; i<help.rows(); i++)
@@ -101,8 +100,9 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
       h -= 1.0;
       }
     help(i,0) = u1+h*deltabin;
-
+    countmat((unsigned)h,0)++;
     }
+
   // 1. Indexsort of data
   FCp->designp->index_data.indexinit();
   help.indexsort(FCp->designp->index_data,0,help.rows()-1,0,0);
@@ -142,7 +142,10 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
       for (k=FCp->designp->posbeg[j];k<=FCp->designp->posend[j];k++,workindex++)
         FCp->designp->ind(*workindex,0) = j;
       }
-    }*/
+    }
+
+  indexold = FCp->designp->ind;
+  indexprop = indexold;
   }
 
 FC_merror::FC_merror(const FC_merror & m)
@@ -202,7 +205,7 @@ void FC_merror::update(void)
   unsigned i,j;
   double prop;
 
-  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
+/*  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
   double sdhelp = sqrt((FC_tau2_x.beta(0,0)*s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0)));
   FC_mu_x.beta(0,0) = meanhelp + sdhelp * randnumbers::rand_normal();
   FC_mu_x.update();
@@ -212,7 +215,9 @@ void FC_merror::update(void)
   for(i=0; i<beta.rows(); i++)
     bhelp += 0.5*(beta(i,0) - FC_mu_x.beta(0,0))*(beta(i,0) - FC_mu_x.beta(0,0));
   FC_tau2_x.beta(0,0) = rand_invgamma(ahelp, bhelp);
-  FC_tau2_x.update();
+  FC_tau2_x.update();*/
+  FC_mu_x.beta(0,0) = 0.0;
+  FC_tau2_x.beta(0,0) = 0.25;
 
   double sqrtM = sqrt(merror);
   double lognew, logold;
@@ -236,15 +241,16 @@ void FC_merror::update(void)
   for(i=0; i<countmat.rows(); i++)
     countmat(i,0)=0;
 
-  double u1 = minbin+deltabin/2;
+  double u1 = minbin+deltabin/2.0;
   for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++)
     {
-//    cout << "iter.: " << optionsp->nriter << endl;
-//    cout << "obs.: " << i << endl;
+    cout << "iter.: " << optionsp->nriter << endl;
+    cout << "obs.: " << i << endl;
     // generate proposal
-    prop = beta(i,0) + 2*mesd(i,0)*randnumbers::rand_normal()/sqrtM;
+    prop = beta(i,0) + 2.0*mesd(i,0)*randnumbers::rand_normal()/sqrtM;
 
-//    cout << prop << endl;
+    cout << "current: " << beta(i,0) << endl;
+    cout << "proposal: " << prop << endl;
 
     // start binning of proposal
     if(prop < minbin)
@@ -260,22 +266,36 @@ void FC_merror::update(void)
       }
     prop = u1+h*deltabin;
 
-/*    cout << "minbin: " << minbin << endl;
+    cout << "minbin: " << minbin << endl;
     cout << "maxbin: " << maxbin << endl;
     cout << "h: " << h << endl;
     cout << "prop: " << prop << endl;
-
-    cout << FCp->beta.rows() << " x " << FCp->beta.cols() << endl;*/
+    cout << "indexprop: " << indexprop(i,0) << endl;
+//    cout << FCp->beta.rows() << " x " << FCp->beta.cols() << endl;
     // end binning of proposal
 
     // calculate log-likelihood
     splinevalnew = FCp->beta(indexprop(i,0),0);
     splinevalold = FCp->beta(indexold(i,0),0);
 
+    ofstream out1("c://temp//spline.raw");
+    FCp->beta.prettyPrint(out1);
+    out1.close();
+    ofstream out2("c://temp//spline_x.raw");
+    FCp->designp->data.prettyPrint(out2);
+    out2.close();
+
     logold = FCp->likep->loglikelihood(resp, linpredoldp, wp);
     linpred = *linpredoldp + splinevalnew - splinevalold;
     linprednewp = &linpred;
-    lognew = FCp->likep->loglikelihood(resp, linprednewp, wp);;
+    lognew = FCp->likep->loglikelihood(resp, linprednewp, wp);
+
+    cout << "splinevalnew: " << splinevalnew << endl;
+    cout << "splinevalold: " << splinevalold << endl;
+    cout << "lognew: " << lognew << endl;
+    cout << "logold: " << logold << endl;
+    cout << "linprednew: " << linpred << endl;
+    cout << "linpredold: " << *linpredoldp << endl;
 
      // calculate prior
     priornew = -0.5*(prop-FC_mu_x.beta(0,0))*(prop-FC_mu_x.beta(0,0))/(FC_tau2_x.beta(0,0));
