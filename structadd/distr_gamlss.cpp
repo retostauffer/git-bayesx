@@ -3270,7 +3270,7 @@ double DISTR_cnormal_sigma::loglikelihood_weightsone(double * response,
     }
   else
     {
-    l = -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
+    l = -0.5*log(2*M_PI)-pow(*response-(*worklin[0]),2)/(2*sigma_2) - log(sigma);
     }
 
 
@@ -3297,21 +3297,46 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double sigma_2 = pow(exp(*linpred),2);
+    double sigma = exp(*linpred);
+    double sigma_2 = pow(sigma,2);
+    double p = pow(*response - *worklin[0],2);
+
+    double nu;
+    double ddist, pdist, mills;
+    double d1,d2;
 
 
-    double nu = -1 + (pow(((*response)-(*worklin[0])),2))/(sigma_2);
+     if (*response <= 0)
+       {
+       ddist = 1/sqrt(2*M_PI*sigma_2)*exp(-0.5*pow(*worklin[0],2)/sigma_2);
+       pdist = randnumbers::Phi2(-(*worklin[0])/sigma);
+       mills = sigma*ddist/pdist;
+       nu = -mills/sigma;
 
+       d1 = - *worklin[0]/sigma_2;
+       d2 = -d1*(*worklin[0]);
+       *workingweight = (*worklin[0]/sigma - (*worklin[0])*d2)*mills+p/sigma_2*pow(mills,2);
+       }
+     else
+       {
+       nu = p/sigma_2 -1;
+       *workingweight = 2/sigma_2*p;
+       }
 
-
-    *workingweight = 2;
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like +=  -0.5*log(sigma_2)-pow((((*response))-(*worklin[0])),2)/(2*sigma_2);
+      if (*response <= 0)
+        {
+        like += log(randnumbers::Phi2(-*worklin[0]/sigma));
+        }
+      else
+        {
+        like = -0.5*log(2*M_PI)-pow(*response-(*worklin[0]),2)/(2*sigma_2)- log(sigma);
+        }
 
       }
 
@@ -3398,9 +3423,8 @@ DISTR_cnormal_mu::DISTR_cnormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS =false;
   check_errors();
-//    linpredminlimit=-10;
+ // linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
 
@@ -3422,6 +3446,7 @@ const DISTR_cnormal_mu & DISTR_cnormal_mu::operator=(
   }
 
 
+// FEHLT NOCH - NICHT KORREKT
 void DISTR_cnormal_mu::compute_deviance_mult(vector<double *> response,
                              vector<double *> weight,
                              vector<double *> linpred,
@@ -3469,6 +3494,8 @@ void DISTR_cnormal_mu::compute_param_mult(vector<double *>  linpred,double * par
     return 0;
     }
 
+
+// FEHLT NOCH - NICHT KORREKT
 double DISTR_cnormal_mu::cdf_mult(vector<double *> response,
                           vector<double *> param,
                           vector<double *> weight,
@@ -3480,6 +3507,7 @@ double DISTR_cnormal_mu::cdf_mult(vector<double *> response,
 
     return (randnumbers::Phi2(arg));
     }
+
 
 double DISTR_cnormal_mu::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -3494,10 +3522,20 @@ double DISTR_cnormal_mu::loglikelihood_weightsone(double * response,
     }
 
   double mu = (*linpred);
+  double sigma = sqrt(*worktransformlin[0]);
 
   double l;
 
-     l = -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
+
+  if (*response <= 0)
+    {
+    l = log(randnumbers::Phi2(-mu/sigma));
+    }
+  else
+    {
+    l = -0.5*log(2*M_PI)-pow(*response-mu,2)/(2*(*worktransformlin[0])) - log(sigma);
+    }
+
 
   modify_worklin();
 
@@ -3528,21 +3566,44 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double mu = (*linpred);
+  double sigma = sqrt(*worktransformlin[0]);
+  double p = *response - (*linpred);
+  double nu;
+  double ddist, pdist, mills;
+  double d1;
 
-    double nu = ((*response)-mu)/(*worktransformlin[0]);
 
-//    if(updateIWLS)
-      *workingweight = 1/(*worktransformlin[0]);
-//    else
-//      *workingweight = (*weightp)/(*worktransformlin[0]);
+   if (*response <= 0)
+     {
+     ddist = 1/sqrt(2*M_PI* (*worktransformlin[0]))*exp(-0.5*pow(*linpred,2)/(*worktransformlin[0]));
+     pdist = randnumbers::Phi2(-(*linpred)/sigma);
+     mills = sigma*ddist/pdist;
+     nu = mills*(*linpred)/sigma;
+
+     d1 = - (*linpred)/(*worktransformlin[0]);
+     *workingweight =  d1/sigma * mills + pow(mills,2)/(*worktransformlin[0]);
+     }
+   else
+     {
+     nu = p/(*worktransformlin[0]);
+     *workingweight = 1/(*worktransformlin[0]);
+     }
+
 
     *workingresponse = *linpred + nu/(*workingweight);
 
     if (compute_like)
       {
 
-        like += -pow((((*response))-mu),2)/(2*(*worktransformlin[0]));
+
+      if (*response <= 0)
+        {
+        like += log(randnumbers::Phi2(-(*linpred)/sigma));
+        }
+      else
+        {
+        like += -0.5*log(2*M_PI)-pow(p,2)/(2*(*worktransformlin[0])) - log(sigma);
+        }
 
       }
 
