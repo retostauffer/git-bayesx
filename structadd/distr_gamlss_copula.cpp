@@ -762,7 +762,21 @@ void DISTR_gausscopula2::outoptions(void)
 
 void DISTR_gausscopula2::update_end(void)
   {
+  // helpmat1 stores rho
 
+  double * worklin;
+  if (linpred_current==1)
+    worklin = linearpred1.getV();
+  else
+    worklin = linearpred2.getV();
+
+  double * pmu = helpmat1.getV();
+
+  unsigned i;
+  for (i=0;i<nrobs;i++,pmu++,worklin++)
+    {
+    *pmu = tanh(*worklin);
+    }
   }
 
 vector<double> DISTR_gausscopula2::derivative(double & F1, double & F2, double * linpred)

@@ -9407,7 +9407,6 @@ double DISTR_binomialprobit_copula::loglikelihood_weightsone(double * response,
 
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,false);
 
-  // FIX SAMPLESEL
   if(optionsp->samplesel)
     {
     if(*response<=0)
@@ -9440,7 +9439,6 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
 
   vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
 
-  // FIX SAMPLESEL
   if(optionsp->samplesel)
     {
     if(*response<=0)
@@ -26156,7 +26154,6 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
         }
       else
         {
-        //SAMPLESEL
         double Fdagum = pow( ( 1 + pow( *response2p / *worktransformlin[1], - *worktransformlin[2] ) ), - *worktransformlin[0] );
         double help2 = sqrt(1-(*worktransformlin[3])*(*worktransformlin[3]));
         double help3 = randnumbers::invPhi2(Fdagum);
@@ -27544,21 +27541,7 @@ void DISTR_gaussiancopula_binary_normal_latent::update(void)
       else
         *workresp = trunc_normal2(-20,0,*worklin_current+(*worktransformlin[2])*((*response2p)-(*worklin[1]))/(*worktransformlin[0]),pow(1-pow(*worktransformlin[2],2),0.5));
       }
-/*
-    //BEGIN: SAMPLESELCASE
-    //ADD SAMPLESSEL CASE
-    else
-      {
-      if (*workresporig > 0)
-        *workresp = ;
-      else
-        *workresp = ;
-
-      }
-     //END: SAMPLESEL CASE
- */
     }
-
   }
 
 double DISTR_gaussiancopula_binary_normal_latent::loglikelihood_weightsone(double * response,

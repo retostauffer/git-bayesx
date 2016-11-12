@@ -5809,7 +5809,6 @@ bool superbayesreg::create_distribution(void)
 
     if(distr_binomialprobit_copulas.size()>0)
       {
-      // FIX SAMPLESEL
       if(setseed.getvalue() >= 0)
         srand(setseed.getvalue());
 
@@ -5820,7 +5819,6 @@ bool superbayesreg::create_distribution(void)
         distr_binomialprobit_copulas[coi].update();
         }
       }
-    //cout << "size predict mults: " << predict_mult_distrs.size() << endl;
     predict_mult_distrs.push_back(&distr_gausscopulas[distr_gausscopulas.size()-1]);
     }
 //-------------------------- END: gausscopula---------------------------
@@ -6066,6 +6064,11 @@ bool superbayesreg::create_distribution(void)
 
     if(distr_binomialprobit_copulas.size()>0)
       {
+      if(setseed.getvalue() >= 0)
+        srand(setseed.getvalue());
+
+      distr_gausscopula2s[0].update_end();
+
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
         {
@@ -6169,8 +6172,6 @@ bool superbayesreg::create_distribution(void)
         {
         predict_mult_distrs.push_back(&distr_gumbel_mus[coi]);
         predict_mult_distrs.push_back(&distr_gumbel_sigmas[coi]);
-
-        //distr_clayton_copulas[distr_clayton_copulas.size()-1].distrp.push_back(&distr_weibull_lambdas[coi]);
 
         distr_gumbel_mus[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_gumbel_sigmas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
@@ -6322,6 +6323,10 @@ bool superbayesreg::create_distribution(void)
 
     if(distr_binomialprobit_copulas.size()>0)
       {
+      if(setseed.getvalue() >= 0)
+        srand(setseed.getvalue());
+
+      distr_clayton_copulas[0].update_end();
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
         {
@@ -6563,6 +6568,11 @@ bool superbayesreg::create_distribution(void)
 
     if(distr_binomialprobit_copulas.size()>0)
       {
+      if(setseed.getvalue() >= 0)
+        srand(setseed.getvalue());
+
+      distr_gumbel_copulas[0].update_end();
+
       int coi;
       for(coi=0;coi<distr_binomialprobit_copulas.size();coi++)
         {
