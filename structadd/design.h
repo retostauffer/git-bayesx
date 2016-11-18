@@ -158,6 +158,8 @@ class __EXPORT_TYPE DESIGN
   bool identity;                             // true if Zout identity matrix
   bool full;                                 // true if Zout full matrix
 
+  void test(ST::string path);
+
   bool check_Zout_consecutive(void);
 
   // --------------------------- check intvar ----------------------------------

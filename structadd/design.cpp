@@ -1637,6 +1637,76 @@ void DESIGN::outbasis_R(ofstream & out)
 
   }
 
+void DESIGN::test(ST::string path)
+  {
+  ST::string pathposbeg = path + "_posbeg.res";
+  ofstream out(pathposbeg.strtochar());
+
+  unsigned i,j;
+  for(j=0;j<posbeg.size();j++)
+    out << posbeg[j] << "  " << posend[j] << endl;
+  out.close();
+
+  ST::string pathZoutT = path + "_ZoutT.res";
+  ofstream out2(pathZoutT.strtochar());
+  for (i=0;i<ZoutT.size();i++)
+    {
+    for(j=0;j<ZoutT[i].size();j++)
+      out2 <<  ZoutT[i][j] << "  ";
+    out2 << endl;
+    }
+  out2.close();
+
+  ST::string pathZoutT_index = path + "_ZoutT_index.res";
+  ofstream out3(pathZoutT_index.strtochar());
+  for (i=0;i<index_ZoutT.size();i++)
+    {
+    for(j=0;j<index_ZoutT[i].size();j++)
+      out3 <<  index_ZoutT[i][j] << "  ";
+    out3 << endl;
+    }
+  out3.close();
+
+  ST::string pathZout = path + "_Zout.res";
+  ofstream out4(pathZout.strtochar());
+  datamatrix Z(Zout.rows(),ZoutT.size(),0);
+  for (i=0;i<ZoutT.size();i++)
+    {
+    for(j=0;j<ZoutT[i].size();j++)
+      Z(index_ZoutT[i][j],i) = ZoutT[i][j];
+    }
+  Z.prettyPrint(out4);
+  out4.close();
+
+  ST::string pathind = path + "_ind.res";
+  ofstream out5(pathind.strtochar());
+  ind.prettyPrint(out5);
+  out5.close();
+
+  ST::string pathindex_data = path + "_index_data.res";
+  ofstream out6(pathindex_data.strtochar());
+  index_data.prettyPrint(out6);
+  out6.close();
+
+  datamatrix Zoutm(data.rows(),nrpar,0);
+  unsigned k;
+  for (i=0;i<posbeg.size();i++)
+    {
+    if(posbeg[i]!=-1)
+      {
+      for (j=posbeg[i];j<=posend[i];j++)
+        {
+        for(k=0;k<Zout.cols();k++)
+          Zoutm(j,index_Zout(i,k)) = Zout(i,k);
+        }
+      }
+    }
+  ST::string pathZ = path + "_Z.res";
+  ofstream out7(pathZ.strtochar());
+  Zoutm.prettyPrint(out7);
+  out7.close();
+
+  }
 
 } // end: namespace MCMC
 

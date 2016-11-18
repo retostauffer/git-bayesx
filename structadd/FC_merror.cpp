@@ -49,7 +49,7 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   {
   read_options(op,vn);
 
-  binning = 100;
+  binning = 15;
 
   xobs = xo;
   merror = (double)(xo.cols());
@@ -103,6 +103,9 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
     countmat((unsigned)h,0)++;
     }
 
+  ST::string help1 ="c://temp//merror0";
+  FCp->designp->test(help1);
+
   // 1. Indexsort of data
   FCp->designp->index_data.indexinit();
   help.indexsort(FCp->designp->index_data,0,help.rows()-1,0,0);
@@ -146,6 +149,10 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
 
   indexold = FCp->designp->ind;
   indexprop = indexold;
+
+  ST::string help2 ="c://temp//merror1";
+  FCp->designp->test(help2);
+
   }
 
 FC_merror::FC_merror(const FC_merror & m)
@@ -244,13 +251,13 @@ void FC_merror::update(void)
   double u1 = minbin+deltabin/2.0;
   for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++)
     {
-    cout << "iter.: " << optionsp->nriter << endl;
-    cout << "obs.: " << i << endl;
+//    cout << "iter.: " << optionsp->nriter << endl;
+//    cout << "obs.: " << i << endl;
     // generate proposal
     prop = beta(i,0) + 2.0*mesd(i,0)*randnumbers::rand_normal()/sqrtM;
 
-    cout << "current: " << beta(i,0) << endl;
-    cout << "proposal: " << prop << endl;
+//    cout << "current: " << beta(i,0) << endl;
+//    cout << "proposal: " << prop << endl;
 
     // start binning of proposal
     if(prop < minbin)
@@ -266,11 +273,11 @@ void FC_merror::update(void)
       }
     prop = u1+h*deltabin;
 
-    cout << "minbin: " << minbin << endl;
-    cout << "maxbin: " << maxbin << endl;
-    cout << "h: " << h << endl;
-    cout << "prop: " << prop << endl;
-    cout << "indexprop: " << indexprop(i,0) << endl;
+//    cout << "minbin: " << minbin << endl;
+//    cout << "maxbin: " << maxbin << endl;
+//    cout << "h: " << h << endl;
+//    cout << "prop: " << prop << endl;
+//    cout << "indexprop: " << indexprop(i,0) << endl;
 //    cout << FCp->beta.rows() << " x " << FCp->beta.cols() << endl;
     // end binning of proposal
 
@@ -278,24 +285,24 @@ void FC_merror::update(void)
     splinevalnew = FCp->beta(indexprop(i,0),0);
     splinevalold = FCp->beta(indexold(i,0),0);
 
-    ofstream out1("c://temp//spline.raw");
+/*    ofstream out1("c://temp//spline.raw");
     FCp->beta.prettyPrint(out1);
     out1.close();
     ofstream out2("c://temp//spline_x.raw");
     FCp->designp->data.prettyPrint(out2);
-    out2.close();
+    out2.close();*/
 
     logold = FCp->likep->loglikelihood(resp, linpredoldp, wp);
     linpred = *linpredoldp + splinevalnew - splinevalold;
     linprednewp = &linpred;
     lognew = FCp->likep->loglikelihood(resp, linprednewp, wp);
 
-    cout << "splinevalnew: " << splinevalnew << endl;
+/*    cout << "splinevalnew: " << splinevalnew << endl;
     cout << "splinevalold: " << splinevalold << endl;
     cout << "lognew: " << lognew << endl;
     cout << "logold: " << logold << endl;
     cout << "linprednew: " << linpred << endl;
-    cout << "linpredold: " << *linpredoldp << endl;
+    cout << "linpredold: " << *linpredoldp << endl;*/
 
      // calculate prior
     priornew = -0.5*(prop-FC_mu_x.beta(0,0))*(prop-FC_mu_x.beta(0,0))/(FC_tau2_x.beta(0,0));
