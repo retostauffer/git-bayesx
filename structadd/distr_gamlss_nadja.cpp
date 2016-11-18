@@ -4658,7 +4658,8 @@ double DISTR_gumbel_sigma::loglikelihood_weightsone(double * response,
 
   double l;
 
-  l = log(sigma)-hilfs-exp(-hilfs);
+//  l = log(sigma)-hilfs-exp(-hilfs);
+  l = -log(sigma)-hilfs-exp(-hilfs);
 
   if(optionsp->copula)
     {
@@ -4687,14 +4688,15 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-    double sigma = exp((*linpred));
-    double hilfs = (*response-(*worktransformlin[0]))/sigma;
+  double sigma = exp((*linpred));
+  double hilfs = (*response-(*worktransformlin[0]))/sigma;
 
-    double nu = -1+hilfs-exp(-hilfs)*hilfs;
+  double nu = -1+hilfs-exp(-hilfs)*hilfs;
 
-    *workingweight =  hilfs*(1-exp(-hilfs))+hilfs*hilfs*exp(-hilfs);
+//  *workingweight =  hilfs*(1-exp(-hilfs))+hilfs*hilfs*exp(-hilfs);
+  *workingweight =  hilfs - hilfs*exp(-hilfs) + hilfs*hilfs*exp(-hilfs);
 
-    if(optionsp->copula)
+  if(optionsp->copula)
     {
     double F = cdf(*response,*linpred);
     vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
@@ -4716,13 +4718,13 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
       *workingweight = 0.0001;
     }
 
-    *workingresponse = *linpred + nu/(*workingweight);
+  *workingresponse = *linpred + nu/(*workingweight);
 
-    if (compute_like)
-      {
-        like +=  log(sigma)-hilfs-exp(-hilfs);
-
-      }
+  if (compute_like)
+    {
+//    like +=  log(sigma)-hilfs-exp(-hilfs);
+    like += -log(sigma)-hilfs-exp(-hilfs);
+    }
 
   modify_worklin();
 
@@ -4812,7 +4814,7 @@ DISTR_gumbel_mu::DISTR_gumbel_mu(GENERAL_OPTIONS * o,
   : DISTR_gamlss(o,r,1,w)
   {
   family = "gumbel Distribution - mu";
-    outpredictor = true;
+  outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
   check_errors();
@@ -4906,7 +4908,8 @@ void DISTR_gumbel_mu::compute_deviance_mult(vector<double *> response,
 
      double l;
 
-      l =   -(*response[1]-mu)/sigma-exp(-(*response[1]-mu)/sigma);
+//     l =   -(*response[1]-mu)/sigma - exp(-(*response[1]-mu)/sigma);
+     l =  -log(sigma) -(*response[1]-mu)/sigma - exp(-(*response[1]-mu)/sigma);
 
     *deviance = -2*l;
     }
@@ -4956,7 +4959,8 @@ double DISTR_gumbel_mu::loglikelihood_weightsone(double * response,
   double mu = (*linpred);
 
   double l;
-  l = -(*response-mu)/(*worktransformlin[0])-exp(-(*response-mu)/(*worktransformlin[0]));
+//  l = -(*response-mu)/(*worktransformlin[0])-exp(-(*response-mu)/(*worktransformlin[0]));
+  l = -log(*worktransformlin[0]) - (*response-mu)/(*worktransformlin[0]) - exp(-(*response-mu)/(*worktransformlin[0]));
 
   if(optionsp->copula)
     {
@@ -4966,8 +4970,6 @@ double DISTR_gumbel_mu::loglikelihood_weightsone(double * response,
     }
 
   modify_worklin();
-
-
   return l;
 
   }
@@ -4992,7 +4994,8 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
 
   double nu = 1/(*worktransformlin[0])-exp(-hilfs)/(*worktransformlin[0]);
 
-  *workingweight = exp(-hilfs)/pow((*worktransformlin[0]),2);
+//  *workingweight = exp(-hilfs)/pow((*worktransformlin[0]),2);
+  *workingweight = exp(-hilfs)/((*worktransformlin[0])*(*worktransformlin[0]));
 
   if(optionsp->copula)
     {
@@ -5017,11 +5020,11 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
 
     if (compute_like)
       {
-      like += -(*response-mu)/(*workingweight)-exp(-(*response-mu)/(*workingweight));
+//      like += -(*response-mu)/(*workingweight)-exp(-(*response-mu)/(*workingweight));
+      like += -log(*worktransformlin[0]) - hilfs - exp(-hilfs);
       }
 
     modify_worklin();
-
   }
 
 
