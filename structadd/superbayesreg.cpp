@@ -4208,7 +4208,7 @@ bool superbayesreg::create_distribution(void)
 
     predict_mult_distrs.push_back(&distr_gamma_mus[distr_gamma_mus.size()-1]);
 
-    if (distr_gamma_sigmas.size() != 1)
+    if (distr_gamma_sigmas.size() != distr_gamma_mus.size())
       {
       outerror("ERROR: Equation for sigma is missing");
       return true;
