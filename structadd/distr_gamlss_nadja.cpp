@@ -4705,8 +4705,8 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
     // compute and implement dF/deta, d^2 F/deta ^2
 //    double dF = exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
     double dF = -exp(-exp(-hilfs))*exp(-hilfs)*hilfs;
-//    double ddF = -dF*(1+exp(-hilfs)*hilfs-hilfs);
-    double ddF = -dF*(1+exp(-hilfs)*hilfs+hilfs);
+    double ddF = -dF*(1+exp(-hilfs)*hilfs-hilfs);
+//    double ddF = -dF*(1+exp(-hilfs)*hilfs+hilfs);
 
     nu += logcandderivs[1]*dF;
 
