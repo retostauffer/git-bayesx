@@ -263,7 +263,7 @@ void FC_linear::update_IWLS(void)
     }
   else
     {
-    logold = logold = likep->loglikelihood(true);
+    logold = likep->loglikelihood(true);
     // calcculate proposal based on current parameter
     likep->compute_iwls(true, false);
     compute_XWXroot(XWX); // Assumption: Matrix::root calculates Cholesky decomposition such that A = L' L

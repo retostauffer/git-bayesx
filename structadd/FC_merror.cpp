@@ -381,6 +381,7 @@ void FC_merror::update(void)
 
 bool FC_merror::posteriormode(void)
   {
+  return true;
   }
 
 void FC_merror::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
