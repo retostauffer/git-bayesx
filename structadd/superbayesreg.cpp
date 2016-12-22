@@ -5744,63 +5744,6 @@ bool superbayesreg::create_distribution(void)
         }
       }
 
-    datamatrix sampleselweight;
-    if(generaloptions.samplesel)
-      {
-      sampleselweight = distr_binomialprobit_copulas[0].response;
-      if(distr_dagum_as.size()>0)
-        {
-        distr_dagum_as[0].weight = sampleselweight;
-        distr_dagum_bs[0].weight = sampleselweight;
-        distr_dagum_ps[0].weight = sampleselweight;
-        }
-      if(distr_weibull_lambdas.size()>0)
-        {
-        distr_weibull_lambdas[0].weight = sampleselweight;
-        distr_weibull_alphas[0].weight = sampleselweight;
-        }
-      if(distr_gausscopulas.size()>0)
-        {
-        distr_gausscopulas[0].weight = sampleselweight;
-        }
-/*      sampleselweight = datamatrix(D.rows(),1,1);
-      if(distr_binomialprobit_copulas.size()>=1)
-        {
-        double * respoutcomep = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]->response.getV();
-        double * respselectionp = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->response.getV();
-        double mean=0;
-        int nonsel=0;
-        for(unsigned i=0; i<D.rows(); i++, respoutcomep++, respselectionp++)
-          {
-          if(*respselectionp == 1)
-            {
-            mean += *respoutcomep;
-            nonsel++;
-            }
-          }
-        mean /= nonsel;
-
-        respoutcomep = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]->response.getV();
-        respselectionp = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->response.getV();
-        for(unsigned i=0; i<D.rows(); i++, respoutcomep++, respselectionp++)
-          {
-          sampleselweight(i,0) =*respselectionp;
-          if(*respselectionp == 0)
-            {
-            *respoutcomep = mean;
-            }
-          }
-
-        if(distr_binomialprobit_copulas.size()>1)
-          out("\nNOTE: The first equation is interpreted as the selection equation!\n\n");
-        }
-      else
-        {
-        outerror("ERROR: Selection equation required\n");
-        return true;
-        }*/
-      }
-
     // initialize copulaoffset for the second marginal (required for marginal deviance etc.)
     int off = distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]->distrp.size()+1;
     distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]->copulaoffset = off;
@@ -6337,7 +6280,7 @@ bool superbayesreg::create_distribution(void)
 //-------------------------- END: clayton_copula---------------------------
 
 
-//----------------------------- clayton_copula --------------------------------
+//----------------------------- gumbel_copula --------------------------------
   else if ((family.getvalue() == "gumbel_copula") && (equationtype.getvalue()=="rho"))
     {
 
@@ -8831,6 +8774,47 @@ bool superbayesreg::create_distribution(void)
     outerror("ERROR: Invalid distribution specification (check family and/or equationtype option)\n");
     return true;
     }
+
+  datamatrix sampleselweight;
+  if(generaloptions.samplesel)
+    {
+    sampleselweight = distr_binomialprobit_copulas[0].response;
+    if(distr_dagum_as.size()>0)
+      {
+      distr_dagum_as[0].weight = sampleselweight;
+      distr_dagum_bs[0].weight = sampleselweight;
+      distr_dagum_ps[0].weight = sampleselweight;
+      }
+    if(distr_normal_mus.size()>0)
+      {
+      distr_normal_mus[0].weight = sampleselweight;
+      distr_normal_sigma2s[0].weight = sampleselweight;
+      }
+    if(distr_gamma_mus.size()>0)
+      {
+      distr_gamma_mus[0].weight = sampleselweight;
+      distr_gamma_sigmas[0].weight = sampleselweight;
+      }
+    if(distr_weibull_lambdas.size()>0)
+      {
+      distr_weibull_lambdas[0].weight = sampleselweight;
+      distr_weibull_alphas[0].weight = sampleselweight;
+      }
+    if(distr_gausscopulas.size()>0)
+      {
+      distr_gausscopulas[0].weight = sampleselweight;
+      }
+    if(distr_clayton_copulas.size()>0)
+      {
+      distr_clayton_copulas[0].weight = sampleselweight;
+      }
+   if(distr_gumbel_copulas.size()>0)
+      {
+      distr_gumbel_copulas[0].weight = sampleselweight;
+      }
+    }
+
+
 
   equations[modnr].distrp->responsename=rname;
   equations[modnr].distrp->weightname=wn;
