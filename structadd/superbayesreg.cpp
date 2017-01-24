@@ -8778,7 +8778,7 @@ bool superbayesreg::create_distribution(void)
   datamatrix sampleselweight;
   if(generaloptions.samplesel)
     {
-    sampleselweight = distr_binomialprobit_copulas[0].response;
+    sampleselweight = distr_binomialprobit_copulas[0].responseorig;
     if(distr_dagum_as.size()>0)
       {
       distr_dagum_as[0].weight = sampleselweight;
@@ -11044,17 +11044,3 @@ void superbayesreg::describe(const optionlist & globaloptions)
 //------------------------------------------------------------------------------
 #pragma package(smart_init)
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-

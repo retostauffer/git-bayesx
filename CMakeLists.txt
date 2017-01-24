@@ -1,14 +1,14 @@
 project(BayesX)
 cmake_minimum_required(VERSION 2.8.9)
 set(CMAKE_MODULE_PATH ${BayesX_SOURCE_DIR}/share/cmake ${CMAKE_MODULE_PATH})
-set(ANDREA_SRC 
+set(ANDREA_SRC
 	andrea/baseline.cpp
 	andrea/cox.cpp
 	andrea/IWLS_baseline.cpp
 	andrea/multibaseline.cpp
 	andrea/multistate.cpp
 )
-set(BIB_SRC 
+set(BIB_SRC
 	bib/Random.cpp
 	bib/adminparse_gnu.cpp
 	bib/bandmat.cpp
@@ -54,11 +54,11 @@ set(DAG_SRC
 	dag/ia.cpp
 	dag/ia_mixed.cpp
 )
-set(LEYRE_SRC 
+set(LEYRE_SRC
 	leyre/nbinomial.cpp
 	leyre/zip.cpp
 )
-set(MCMC_SRC 
+set(MCMC_SRC
 	mcmc/baseline_reml.cpp
 	mcmc/distribution.cpp
 	mcmc/fullcond.cpp
@@ -90,7 +90,7 @@ set(MCMC_SRC
 	mcmc/variance_nonp_vector.cpp
 	mcmc/variance_nonp_vector_nigmix.cpp
 )
-set(PSPLINES_SRC 
+set(PSPLINES_SRC
 	psplines/IWLS_pspline.cpp
 	psplines/bsplinemat.cpp
 	psplines/fullcond_pspline_gaussian.cpp
@@ -102,7 +102,7 @@ set(PSPLINES_SRC
 	psplines/spline_basis.cpp
 	psplines/spline_basis_surf.cpp
 )
-set(STRUCTADD_SRC 
+set(STRUCTADD_SRC
 	structadd/FC.cpp
 	structadd/FC_hrandom.cpp
 	structadd/FC_hrandom_variance.cpp
@@ -140,7 +140,7 @@ set(STRUCTADD_SRC
 	structadd/FC_predictive_check.cpp
         structadd/FC_predict_predictor.cpp
 )
-set(SRC 
+set(SRC
 	${ANDREA_SRC}
 	${BIB_SRC}
 	${DAG_SRC}

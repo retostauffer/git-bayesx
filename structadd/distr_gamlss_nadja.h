@@ -2778,10 +2778,10 @@ class __EXPORT_TYPE DISTR_binomialprobit_copula : public DISTR_gamlss
 
   bool posteriormodemode;
 
-  datamatrix responseorig;
 
   public:
 
+  datamatrix responseorig;
   datamatrix * responsecopmat;
 
   void check_errors(void);
