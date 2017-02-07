@@ -49,7 +49,7 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   {
   read_options(op,vn);
 
-  binning = 15;
+  binning = fcn->beta.rows();
 
   xobs = xo;
   merror = (double)(xo.cols());
@@ -67,15 +67,11 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
     xmean(i,0) /= merror;
     }
 
-  setbeta(xmean);
+//  ofstream out1("c://temp//xmean.raw");
+//  xmean.prettyPrint(out1);
+//  out1.close();
 
   FCp->designp->changingdesign=true;
-
-  minbin = xobs.min();
-  maxbin = xobs.max();
-  deltabin = (maxbin-minbin)/binning;
-
-  countmat = statmatrix<int>((unsigned)binning,1,0);
 
   FC_tau2_x = FC(optionsp,"",1,1,samplepath + "_merror_tau2");
   a_tau2_x = 0.001;
@@ -84,6 +80,12 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   FC_mu_x = FC(optionsp,"",1,1,samplepath + "_merror_mu");
   m_mu_x = 0.0;
   s_mu_x = 1000.0*1000.0;
+
+  minbin = xobs.min();
+  maxbin = xobs.max();
+  deltabin = (maxbin-minbin)/binning;
+
+  countmat = statmatrix<int>((unsigned)binning,1,0);
 
   datamatrix help = xmean;
   double h;
@@ -103,8 +105,22 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
     countmat((unsigned)h,0)++;
     }
 
-  ST::string help1 ="c://temp//merror0";
-  FCp->designp->test(help1);
+  setbeta(help);
+
+//  ofstream out1("c://temp//beta.raw");
+//  beta.prettyPrint(out1);
+//  out1.close();
+
+//  ofstream out1("c://temp//countmat.raw");
+//  countmat.prettyPrint(out1);
+//  out1.close();
+
+//  ofstream out1("c://temp//help.raw");
+//  help.prettyPrint(out1);
+//  out1.close();
+
+//  ST::string help1 ="c://temp//merror0";
+//  FCp->designp->test(help1);
 
   // 1. Indexsort of data
   FCp->designp->index_data.indexinit();
@@ -150,8 +166,8 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   indexold = FCp->designp->ind;
   indexprop = indexold;
 
-  ST::string help2 ="c://temp//merror1";
-  FCp->designp->test(help2);
+//  ST::string help2 ="c://temp//merror1";
+//  FCp->designp->test(help2);
 
   }
 
@@ -212,7 +228,7 @@ void FC_merror::update(void)
   unsigned i,j;
   double prop;
 
-/*  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
+  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
   double sdhelp = sqrt((FC_tau2_x.beta(0,0)*s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0)));
   FC_mu_x.beta(0,0) = meanhelp + sdhelp * randnumbers::rand_normal();
   FC_mu_x.update();
@@ -222,9 +238,9 @@ void FC_merror::update(void)
   for(i=0; i<beta.rows(); i++)
     bhelp += 0.5*(beta(i,0) - FC_mu_x.beta(0,0))*(beta(i,0) - FC_mu_x.beta(0,0));
   FC_tau2_x.beta(0,0) = rand_invgamma(ahelp, bhelp);
-  FC_tau2_x.update();*/
+  FC_tau2_x.update();
   FC_mu_x.beta(0,0) = 0.0;
-  FC_tau2_x.beta(0,0) = 0.25;
+  FC_tau2_x.beta(0,0) = 0.2;
 
   double sqrtM = sqrt(merror);
   double lognew, logold;
@@ -248,7 +264,7 @@ void FC_merror::update(void)
   for(i=0; i<countmat.rows(); i++)
     countmat(i,0)=0;
 
-  double u1 = minbin+deltabin/2.0;
+  double u1 = minbin+0.5*deltabin;
   for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++)
     {
 //    cout << "iter.: " << optionsp->nriter << endl;
@@ -265,12 +281,9 @@ void FC_merror::update(void)
     if(prop > maxbin)
       prop = maxbin;
     h = floor((prop - minbin)/deltabin);
-    indexprop(i,0) = (unsigned)h;
     if (h >= binning)
-      {
-      indexprop(i,0)--;
       h -= 1.0;
-      }
+    indexprop(i,0) = (unsigned)h;
     prop = u1+h*deltabin;
 
 //    cout << "minbin: " << minbin << endl;
@@ -327,6 +340,7 @@ void FC_merror::update(void)
       acceptance++;
       beta(i,0) = prop;
       indexold(i,0) = indexprop(i,0);
+      *linpredoldp = linpred;
       }
     else
       {

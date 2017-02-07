@@ -9220,6 +9220,13 @@ bool superbayesreg::create_merror(unsigned i)
     datap->makematrix(varnames,covdata,expr);
     }
 
+/*  ofstream out1("c://temp//covdata.raw");
+  covdata.prettyPrint(out1);
+  out1.close();
+  ofstream out2("c://temp//mevar.raw");
+  mevar.prettyPrint(out2);
+  out2.close();*/
+
   datamatrix d,iv;
   extract_data(i,d,iv,1);
 
