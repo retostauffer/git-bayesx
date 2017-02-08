@@ -1152,7 +1152,12 @@ double DISTR_gamlss::loglikelihood(double * response, double * linpred,
     }
   else
     {
-    return (*weight)*loglikelihood_weightsone(response,linpred);
+    double ll = loglikelihood_weightsone(response, linpred);
+    if (*weight == 0.0)
+      {
+      return 0.0;
+      }
+    return (*weight) * ll;
     }
   }
 
@@ -1199,14 +1204,20 @@ double DISTR_gamlss::compute_iwls(double * response, double * linpred,
 
     modify_worklin();
 
-    return 0;
+    return 0.0;
     }
   else
     {
-    double l=0;
+    double l = 0.0;
     compute_iwls_wweightschange_weightsone(response,linpred, workingweight,
-                                           workingresponse, l,
-                                           like);
+                                           workingresponse, l, like);
+    if (*weight == 0.0)
+      {
+      *workingweight = 0.0;
+      *workingresponse = 1.0;
+      l = 0.0;
+      return l;
+      }
     *workingweight *= (*weight);
 
     return (*weight)*l;
@@ -3705,6 +3716,3 @@ void DISTR_cnormal_mu::modify_worklin(void)
 
 
 } // end: namespace MCMC
-
-
-

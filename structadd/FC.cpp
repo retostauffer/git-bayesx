@@ -42,6 +42,7 @@ void FC::read_options(vector<ST::string> & op,vector<ST::string> & vn)
 
 FC::FC(void)
   {
+  this->nosamples = false;
   }
 
 
@@ -1235,6 +1236,3 @@ void FC::reset(void)
 
 
 } // end: namespace MCMC
-
-
-

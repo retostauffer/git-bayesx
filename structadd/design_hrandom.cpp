@@ -171,6 +171,7 @@ DESIGN_hrandom::DESIGN_hrandom(const DESIGN_hrandom & m)
   {
   likep_RE = m.likep_RE;
   simplerandom = m.simplerandom;
+  simplerandom_linpred = m.simplerandom_linpred;
   }
 
 
@@ -181,8 +182,8 @@ const DESIGN_hrandom & DESIGN_hrandom::operator=(const DESIGN_hrandom & m)
   DESIGN::operator=(DESIGN(m));
   likep_RE = m.likep_RE;
   simplerandom = m.simplerandom;
+  simplerandom_linpred = m.simplerandom_linpred;
   return *this;
-
   }
 
 
@@ -265,9 +266,10 @@ void DESIGN_hrandom::compute_XtransposedWres(datamatrix & partres, double l, dou
   double * partresp = partres.getV();
 
   unsigned i;
-
   for(i=0;i<nrpar;i++,workXWres++,linpredREp++,partresp++)
+    {
     *workXWres =  l*(*linpredREp)+(*partresp);
+    }
 
   XWres_p = &XWres;
 
@@ -398,6 +400,3 @@ void DESIGN_hrandom::outoptions(GENERAL_OPTIONS * op)
 
 
 } // end: namespace MCMC
-
-
-
