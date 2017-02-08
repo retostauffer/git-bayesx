@@ -703,7 +703,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<FC_varselection_omega> FC_varselection_omegas;
 
   bool create_nonp(void);
-  void create_pspline(unsigned i);
+  void create_pspline(unsigned i, datamatrix & datam, ST::string t="");
   bool create_merror(unsigned i);
   bool create_mrf(unsigned i);
   bool create_kriging(unsigned i);

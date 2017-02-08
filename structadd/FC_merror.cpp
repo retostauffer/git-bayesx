@@ -39,6 +39,13 @@ void FC_merror::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   {
   int f;
   f = op[20].strtodouble(binning);
+
+  f = op[74].strtodouble(a_tau2_x);
+  f = op[75].strtodouble(b_tau2_x);
+  f = op[76].strtodouble(m_mu_x);
+  f = op[77].strtodouble(s_mu_x);
+  s2_mu_x = s_mu_x*s_mu_x;
+  f = op[78].strtodouble(mepropscale);
   }
 
 FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
@@ -74,12 +81,12 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   FCp->designp->changingdesign=true;
 
   FC_tau2_x = FC(optionsp,"",1,1,samplepath + "_merror_tau2");
-  a_tau2_x = 0.001;
-  b_tau2_x = 0.001;
+//  a_tau2_x = 0.001;
+//  b_tau2_x = 0.001;
 
   FC_mu_x = FC(optionsp,"",1,1,samplepath + "_merror_mu");
-  m_mu_x = 0.0;
-  s_mu_x = 1000.0*1000.0;
+//  m_mu_x = 0.0;
+//  s_mu_x = 1000.0*1000.0;
 
   minbin = xobs.min();
   maxbin = xobs.max();
@@ -188,11 +195,13 @@ FC_merror::FC_merror(const FC_merror & m)
   b_tau2_x = m.b_tau2_x;
   m_mu_x = m.m_mu_x;
   s_mu_x = m.s_mu_x;
+  s2_mu_x = m.s2_mu_x;
   FC_mu_x = m.FC_mu_x;
   FC_tau2_x = m.FC_tau2_x;
   indexold = m.indexold;
   indexprop = m.indexprop;
   countmat = m.countmat;
+  mepropscale = m.mepropscale;
   }
 
 
@@ -215,11 +224,13 @@ const FC_merror & FC_merror::operator=(const FC_merror & m)
   b_tau2_x = m.b_tau2_x;
   m_mu_x = m.m_mu_x;
   s_mu_x = m.s_mu_x;
+  s2_mu_x = m.s2_mu_x;
   FC_mu_x = m.FC_mu_x;
   FC_tau2_x = m.FC_tau2_x;
   indexold = m.indexold;
   indexprop = m.indexprop;
   countmat = m.countmat;
+  mepropscale = m.mepropscale;
   return *this;
   }
 
@@ -227,20 +238,21 @@ void FC_merror::update(void)
   {
   unsigned i,j;
   double prop;
-
-  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0));
-  double sdhelp = sqrt((FC_tau2_x.beta(0,0)*s_mu_x) / (((double)beta.rows())*s_mu_x + FC_tau2_x.beta(0,0)));
+  double denominator = ((double)beta.rows())*s2_mu_x + FC_tau2_x.beta(0,0);
+  double meanhelp = (((double)beta.rows()) * beta.mean(0) * s2_mu_x) / denominator;
+  double sdhelp = sqrt((FC_tau2_x.beta(0,0) *s2_mu_x) / denominator);
   FC_mu_x.beta(0,0) = meanhelp + sdhelp * randnumbers::rand_normal();
   FC_mu_x.update();
 
   double ahelp = a_tau2_x + 0.5*(double(beta.rows()));
   double bhelp = b_tau2_x;
-  for(i=0; i<beta.rows(); i++)
-    bhelp += 0.5*(beta(i,0) - FC_mu_x.beta(0,0))*(beta(i,0) - FC_mu_x.beta(0,0));
+  double * betap = beta.getV();
+  for(i=0; i<beta.rows(); i++, betap++)
+    bhelp += 0.5*(*betap - FC_mu_x.beta(0,0))*(*betap - FC_mu_x.beta(0,0));
   FC_tau2_x.beta(0,0) = rand_invgamma(ahelp, bhelp);
   FC_tau2_x.update();
-  FC_mu_x.beta(0,0) = 0.0;
-  FC_tau2_x.beta(0,0) = 0.2;
+//  FC_mu_x.beta(0,0) = 0.0;
+//  FC_tau2_x.beta(0,0) = 0.2;
 
   double sqrtM = sqrt(merror);
   double lognew, logold;
@@ -265,12 +277,19 @@ void FC_merror::update(void)
     countmat(i,0)=0;
 
   double u1 = minbin+0.5*deltabin;
-  for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++)
+  betap = beta.getV();
+  unsigned * indexpropp = indexprop.getV();
+  unsigned * indexoldp = indexold.getV();
+  double * mesdp = mesd.getV();
+  double * mevarp = mevar.getV();
+  double * xobsp = xobs.getV();
+
+  for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++, betap++, indexpropp++, indexoldp++, mesdp++)
     {
 //    cout << "iter.: " << optionsp->nriter << endl;
 //    cout << "obs.: " << i << endl;
     // generate proposal
-    prop = beta(i,0) + 2.0*mesd(i,0)*randnumbers::rand_normal()/sqrtM;
+    prop = *betap + mepropscale * *mesdp * randnumbers::rand_normal()/sqrtM;
 
 //    cout << "current: " << beta(i,0) << endl;
 //    cout << "proposal: " << prop << endl;
@@ -283,7 +302,7 @@ void FC_merror::update(void)
     h = floor((prop - minbin)/deltabin);
     if (h >= binning)
       h -= 1.0;
-    indexprop(i,0) = (unsigned)h;
+    *indexpropp = (unsigned)h;
     prop = u1+h*deltabin;
 
 //    cout << "minbin: " << minbin << endl;
@@ -295,8 +314,8 @@ void FC_merror::update(void)
     // end binning of proposal
 
     // calculate log-likelihood
-    splinevalnew = FCp->beta(indexprop(i,0),0);
-    splinevalold = FCp->beta(indexold(i,0),0);
+    splinevalnew = FCp->beta(*indexpropp,0);
+    splinevalold = FCp->beta(*indexoldp,0);
 
 /*    ofstream out1("c://temp//spline.raw");
     FCp->beta.prettyPrint(out1);
@@ -319,18 +338,18 @@ void FC_merror::update(void)
 
      // calculate prior
     priornew = -0.5*(prop-FC_mu_x.beta(0,0))*(prop-FC_mu_x.beta(0,0))/(FC_tau2_x.beta(0,0));
-    priorold = -0.5*(beta(i,0)-FC_mu_x.beta(0,0))*(beta(i,0)-FC_mu_x.beta(0,0))/(FC_tau2_x.beta(0,0));
+    priorold = -0.5*(*betap-FC_mu_x.beta(0,0))*(*betap-FC_mu_x.beta(0,0))/(FC_tau2_x.beta(0,0));
 
     // calculate measurement error likelihood
     melikeold = 0.0;
     melikenew = 0.0;
-    for(j=0; j < merror; j++)
+    for(j=0; j < merror; j++, xobsp++)
       {
-      melikeold += (xobs(i,j)-beta(i,0))*(xobs(i,j)-beta(i,0));
-      melikenew += (xobs(i,j)-prop)*(xobs(i,j)-prop);
+      melikeold += (*xobsp-*betap)*(*xobsp-*betap);
+      melikenew += (*xobsp-prop)*(*xobsp-prop);
       }
-    melikeold *= -0.5/mevar(i,0);
-    melikenew *= -0.5/mevar(i,0);
+    melikeold *= -0.5 / *mevarp;
+    melikenew *= -0.5 / *mevarp;
 
     double logu = log(randnumbers::uniform());
 
@@ -338,8 +357,8 @@ void FC_merror::update(void)
     if(logu <= lognew - logold + priornew - priorold + melikenew - melikeold)
       {
       acceptance++;
-      beta(i,0) = prop;
-      indexold(i,0) = indexprop(i,0);
+      *betap = prop;
+      *indexoldp = *indexpropp;
       *linpredoldp = linpred;
       }
     else
@@ -347,7 +366,7 @@ void FC_merror::update(void)
 
       }
 //    cout << indexold(i,0) << endl;
-    countmat(indexold(i,0),0)++;
+    countmat(*indexoldp,0)++;
     }
   FC::update();
 
@@ -398,9 +417,33 @@ bool FC_merror::posteriormode(void)
   return true;
   }
 
-void FC_merror::outresults(ofstream & out_stata,ofstream & out_R, ofstream & out_R2BayesX,
+void FC_merror::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                             const ST::string & pathresults)
   {
+  FC::outresults(out_stata, out_R, out_R2BayesX, pathresults);
+  FC::outresults_acceptance();
+  optionsp->out("    Results for the true covariate values are stored in file\n");
+  optionsp->out("    " +  pathresults + "\n");
+  optionsp->out("\n");
+
+  ST::string pathresults2 = pathresults.substr(0,pathresults.length()-4) +
+                                 "_expectation_true_covariate_values.res";
+  optionsp->out("    Expectation of true covariate values\n\n");
+  FC_mu_x.outresults(out_stata, out_R, out_R2BayesX, pathresults2);
+  FC_mu_x.outresults_singleparam(out_stata, out_R, pathresults2);
+  optionsp->out("    Results for the variance component are stored in file\n");
+  optionsp->out("    " +  pathresults2 + "\n");
+  optionsp->out("\n");
+
+  ST::string pathresults3 = pathresults.substr(0,pathresults.length()-4) +
+                                 "_variance_true_covariate_values.res";
+  optionsp->out("    Variance of true covariate values:\n\n");
+  FC_tau2_x.outresults(out_stata, out_R, out_R2BayesX, pathresults3);
+  FC_tau2_x.outresults_singleparam(out_stata, out_R, pathresults3);
+  optionsp->out("    Results for the variance component are stored in file\n");
+  optionsp->out("    " +  pathresults3 + "\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
   }
 
 } // end: namespace MCMC

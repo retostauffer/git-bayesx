@@ -9165,12 +9165,6 @@ bool superbayesreg::create_linear(void)
 
 bool superbayesreg::create_merror(unsigned i)
   {
-  create_pspline(i);
-
-  unsigned modnr = equations.size()-1;
-  make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_merror.raw","merror"," Measurement Error Correction ");
-
   datamatrix covdata, mevar;
   if (terms[i].options[72] != "")
     {
@@ -9220,6 +9214,31 @@ bool superbayesreg::create_merror(unsigned i)
     datap->makematrix(varnames,covdata,expr);
     }
 
+  double minx = covdata.min();
+  double maxx = covdata.max();
+  int f;
+  double nint;
+  f = (terms[i].options[20]).strtodouble(nint);
+  datamatrix datam = datamatrix(covdata.rows(), 1, 0.0);
+  double sw = (maxx-minx)/nint;
+  double h = minx + 0.5*sw;
+  for(unsigned j=0; j<covdata.rows(); j++)
+    {
+    datam(j,0) = h;
+    h += sw;
+    if(h>maxx)
+      h = minx + 0.5*sw;
+    }
+//  ofstream out1("c://temp//datam.raw");
+//  datam.prettyPrint(out1);
+//  out1.close();
+
+  create_pspline(i, datam," with measurement error");
+
+  unsigned modnr = equations.size()-1;
+  make_paths(pathnonp,pathres,title,terms[i].varnames,
+             "_merror.raw","merror"," Measurement Error Correction ");
+
 /*  ofstream out1("c://temp//covdata.raw");
   covdata.prettyPrint(out1);
   out1.close();
@@ -9239,16 +9258,19 @@ bool superbayesreg::create_merror(unsigned i)
   return false;
   }
 
-void superbayesreg::create_pspline(unsigned i)
+void superbayesreg::create_pspline(unsigned i, datamatrix & datam, ST::string t)
   {
 
   unsigned modnr = equations.size()-1;
 
   make_paths(pathnonp,pathres,title,terms[i].varnames,
-             "_pspline.raw","nonlinear_pspline_effect_of"," Nonlinear effect (P-spline) of ");
+             "_pspline.raw","nonlinear_pspline_effect_of"," Nonlinear effect (P-spline"+t+") of ");
 
   datamatrix d,iv;
   extract_data(i,d,iv,1);
+
+  if(datam.rows()>1)
+    d = datam;
 
   if (terms[i].options[35] == "ssvs")
     iv = datamatrix(d.rows(),1,1);
@@ -9838,7 +9860,8 @@ bool  superbayesreg::create_random_pspline(unsigned i)
     multexp=true;
     }
 
-  create_pspline(i);
+  datamatrix datadummy = datamatrix(1,1,0.0);
+  create_pspline(i, datadummy);
   FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
   MCMC::DESIGN * dp_pspline = &design_psplines[design_psplines.size()-1];
   dp_pspline->changingdesign=true;
@@ -9910,7 +9933,8 @@ bool  superbayesreg::create_mrf_pspline(unsigned i)
 
   terms[i].options[12] = "true";
 
-  create_pspline(i);
+  datamatrix datadummy = datamatrix(1,1,0.0);
+  create_pspline(i, datadummy);
   FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
   MCMC::DESIGN * dp_pspline = &design_psplines[design_psplines.size()-1];
   dp_pspline->changingdesign=true;
@@ -10940,6 +10964,8 @@ bool superbayesreg::create_nonp(void)
   ridge_linear = -1;
   ssvs_linear = -1;
 
+  datamatrix datadummy = datamatrix(1,1,0.0);
+
   for(i=0;i<terms.size();i++)
     {
     if (terms[i].options.size() > 0)
@@ -10947,7 +10973,7 @@ bool superbayesreg::create_nonp(void)
       if (terms[i].options[0] == "offset")
         create_offset(i);
       if (terms[i].options[0] == "pspline")
-        create_pspline(i);
+        create_pspline(i, datadummy);
       if (terms[i].options[0] == "pspline_merror")
         error = create_merror(i);
       if (terms[i].options[0] == "userdefined")

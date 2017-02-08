@@ -131,6 +131,12 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   stroption mevar;
   stroption covdata;
 
+  doubleoption a_tau2_x;
+  doubleoption b_tau2_x;
+  doubleoption m_mu_x;
+  doubleoption s_mu_x;
+  doubleoption mepropscale;
+
   vector<ST::string> termnames;
 
   void setdefault(void);

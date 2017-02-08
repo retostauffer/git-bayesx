@@ -174,6 +174,12 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   mevar = stroption("mevar");
   covdata = stroption("covdata");
+
+  a_tau2_x = doubleoption("a_tau2_x", 0.001, -1, 500);
+  b_tau2_x = doubleoption("b_tau2_x", 0.001, 0, 500);
+  m_mu_x = doubleoption("m_mu_x", 0.0, -1000, 1000);
+  s_mu_x = doubleoption("s_mu_x", 1000.0, 0.000000000001, 10000000000.0);
+  mepropscale = doubleoption("mepropscale", 2.0, 0.000001, 1000000.0);
   }
 
 void term_nonp::setdefault(void)
@@ -264,6 +270,12 @@ void term_nonp::setdefault(void)
 
   mevar.setdefault();
   covdata.setdefault();
+
+  a_tau2_x.setdefault();
+  b_tau2_x.setdefault();
+  m_mu_x.setdefault();
+  s_mu_x.setdefault();
+  mepropscale.setdefault();
   }
 
 
@@ -401,6 +413,12 @@ bool term_nonp::check(term & t)
 
     optlist.push_back(&mevar);
     optlist.push_back(&covdata);
+
+    optlist.push_back(&a_tau2_x);
+    optlist.push_back(&b_tau2_x);
+    optlist.push_back(&m_mu_x);
+    optlist.push_back(&s_mu_x);
+    optlist.push_back(&mepropscale);
 
     unsigned i;
     bool rec = true;
@@ -609,6 +627,12 @@ bool term_nonp::check(term & t)
 
     t.options[72] = mevar.getvalue();
     t.options[73] = covdata.getvalue();
+
+    t.options[74] = ST::doubletostring(a_tau2_x.getvalue());
+    t.options[75] = ST::doubletostring(b_tau2_x.getvalue());
+    t.options[76] = ST::doubletostring(m_mu_x.getvalue());
+    t.options[77] = ST::doubletostring(s_mu_x.getvalue());
+    t.options[78] = ST::doubletostring(mepropscale.getvalue());
 
     setdefault();
     return true;
