@@ -3221,9 +3221,8 @@ DISTR_cnormal_sigma::DISTR_cnormal_sigma(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = false;
   predictor_name = "sigma";
-    linpredminlimit=-10;
+  linpredminlimit=-10;
   linpredmaxlimit=15;
-
   }
 
 
@@ -3268,7 +3267,6 @@ double DISTR_cnormal_sigma::loglikelihood_weightsone(double * response,
 
   double sigma = exp(*linpred);
   double sigma_2 = pow(sigma,2);
-
 
   double l;
 
@@ -3322,17 +3320,44 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
 
        nu = mu_sigma*mills;
 
-       *workingweight = -mu_sigma*mills+pow(mu_sigma,3)*mills+pow(mu_sigma,2) * pow(mills,2);
+       *workingweight = mu_sigma*mills - pow(mu_sigma,2)* *worklin[0] * mills + pow(mu_sigma,2) * pow(mills,2);
+
+    cout << "response: " << *response << endl;
+    cout << "linpred: " << *worklin[0] << endl;
+    cout << "p: " << p << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "sigma_2: " << sigma_2 << endl;
+    cout << "ddist: " << ddist << endl;
+    cout << "pdist: " << pdist << endl;
+    cout << "mills: " << mills << endl;
+    cout << "mu_sigma: " << mu_sigma << endl;
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
 
        }
      else
        {
        nu = p/sigma_2 -1;
        *workingweight = 2/sigma_2*p;
+
+    cout << "response: " << *response << endl;
+    cout << "linpred: " << *worklin[0] << endl;
+    cout << "p: " << p << endl;
+    cout << "sigma: " << sigma << endl;
+    cout << "sigma_2: " << sigma_2 << endl;
+    cout << "nu: " << nu << endl;
+    cout << "workingweight: " << *workingweight << endl;
+
        }
 
-
     *workingresponse = *linpred + nu/(*workingweight);
+
+    cout << "workingresponse: " << *workingresponse << endl << endl;
+
+    if(isnan(*workingresponse))
+      cout << "arg (workingresponse, sigma)";
+    if(isnan(*workingweight))
+      cout << "arg (workingweight, sigma)";
 
     if (compute_like)
       {
@@ -3343,7 +3368,7 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
         }
       else
         {
-        like = -0.5*log(2*M_PI)-p/(2*sigma_2)- log(sigma);
+        like += -0.5*log(2*M_PI)-p/(2*sigma_2)- log(sigma);
         }
 
       }
@@ -3365,7 +3390,7 @@ void DISTR_cnormal_sigma::outoptions(void)
 void DISTR_cnormal_sigma::update_end(void)
   {
 
-  // helpmat1 stores sigma
+  // helpmat1 stores sigma^2
 
   double * worklin;
   if (linpred_current==1)
@@ -3380,7 +3405,6 @@ void DISTR_cnormal_sigma::update_end(void)
     {
     *pmu = pow(exp(*worklin),2);
     }
-
   }
 
 //------------------------------------------------------------------------------
@@ -3396,11 +3420,13 @@ void DISTR_cnormal_mu::check_errors(void)
     double * workweight = weight.getV();
     while ( (i<nrobs) && (errors==false) )
       {
-
+      if(*workresp < 0)
+        {
+        errors=true;
+        errormessages.push_back("ERROR: negative responses encountered\n");
+        }
       if (*workweight > 0)
         {
-
-
         }
       else if (*workweight == 0)
         {
@@ -3414,11 +3440,8 @@ void DISTR_cnormal_mu::check_errors(void)
       i++;
       workresp++;
       workweight++;
-
       }
-
     }
-
   }
 
 
@@ -3440,7 +3463,6 @@ DISTR_cnormal_mu::DISTR_cnormal_mu(GENERAL_OPTIONS * o,
 DISTR_cnormal_mu::DISTR_cnormal_mu(const DISTR_cnormal_mu & nd)
    : DISTR_gamlss(DISTR_gamlss(nd))
   {
-
   }
 
 
@@ -3580,12 +3602,16 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
   double ddist, pdist, mills;
   double d1;
 
+  cout << *worklin[0] << endl;
+  cout << *worktransformlin[0] << endl;
+  cout << distrp[0]->helpmat1(0,0) << endl;
+  cout << sigma << endl;
 
    if (*response <= 0)
      {
-     ddist = 1/sqrt(2*M_PI* (*worktransformlin[0]))*exp(-0.5*pow(*linpred,2)/(*worktransformlin[0]));
+     ddist = 1/sqrt(2*M_PI)*exp(-0.5*pow(*linpred,2)/(*worktransformlin[0]));
      pdist = randnumbers::Phi2(-(*linpred)/sigma);
-     mills = sigma*ddist/pdist;
+     mills = ddist/pdist;
      nu = mills*(*linpred)/sigma;
 
      d1 = - (*linpred)/(*worktransformlin[0]);
@@ -3599,6 +3625,27 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
 
 
     *workingresponse = *linpred + nu/(*workingweight);
+
+    if(isnan(*workingresponse))
+      {
+      cout << counter << endl;
+      cout << "arg (workingresponse, mu)" << endl;
+      cout << "sigma: " << sigma << endl;
+      cout << "mu: " << *linpred << endl;
+      cout << "pdist:" << pdist << endl;
+      cout << "ddist:" << ddist << endl;
+      cout << "mills:" << mills << endl;
+      }
+    if(isnan(*workingweight))
+      {
+      cout << counter << endl;
+      cout << "arg (workingweight, mu)" << endl;
+      cout << "sigma: " << sigma << endl;
+      cout << "mu: " << *linpred << endl;
+      cout << "pdist:" << pdist << endl;
+      cout << "ddist:" << ddist << endl;
+      cout << "mills:" << mills << endl;
+      }
 
     if (compute_like)
       {
@@ -3635,42 +3682,8 @@ void DISTR_cnormal_mu::outoptions(void)
   optionsp->out("\n");
   }
 
-
-/*void DISTR_normal2_mu::update(void)
-  {
-
-  register unsigned i;
-
-  double help;
-
-  double * worktransformlinp;
-  double * workweight;
-
-  worktransformlinp = distrp[0]->helpmat1.getV();
-  workweight = workingweight.getV();
-
-  if(updateIWLS)
-    {
-    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++)
-    {
-      *workweight = 1/(*worktransformlinp);
-      }
-    }
-  else
-    {
-    weightp = weight.getV();
-    for (i=0;i<nrobs;i++,worktransformlinp++,workweight++,weightp++)
-      {
-      *workweight = (*weightp)/(*worktransformlinp);
-      }
-    }
-
-  }*/
-
 void DISTR_cnormal_mu::update_end(void)
   {
-
-
   // helpmat1 stores (eta_mu)
 
   double * worklin;
@@ -3689,30 +3702,4 @@ void DISTR_cnormal_mu::update_end(void)
     }
 
   }
-
-void DISTR_cnormal_mu::set_worklin(void)
-  {
-
-  DISTR_gamlss::set_worklin();
-
-  weightp = weight.getV();
-
-  }
-
-void DISTR_cnormal_mu::modify_worklin(void)
-  {
-
-  DISTR_gamlss::modify_worklin();
-
-  if (counter<nrobs)
-    {
-    weightp++;
-    }
-
-  }
-
-
-
-
-
 } // end: namespace MCMC

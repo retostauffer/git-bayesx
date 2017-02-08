@@ -446,6 +446,11 @@ void FC_merror::outresults(ofstream & out_stata, ofstream & out_R, ofstream & ou
   optionsp->out("\n");
   }
 
+void FC_merror::get_samples(const ST::string & filename, ofstream & outg) const
+  {
+
+  }
+
 } // end: namespace MCMC
 
 
