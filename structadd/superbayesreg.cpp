@@ -271,6 +271,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("lognormal2");
   families.push_back("normal");
   families.push_back("normal2");
+  families.push_back("cnormal");
   families.push_back("truncnormal");
   families.push_back("truncnormal2");
   families.push_back("gamma");
@@ -719,6 +720,9 @@ void superbayesreg::clear(void)
 
   distr_normal_mus.erase(distr_normal_mus.begin(),distr_normal_mus.end());
   distr_normal_mus.reserve(20);
+
+  distr_cnormal_mus.erase(distr_cnormal_mus.begin(),distr_cnormal_mus.end());
+  distr_cnormal_mus.reserve(20);
 
   distr_normal_sigma2s.erase(distr_normal_sigma2s.begin(),distr_normal_sigma2s.end());
   distr_normal_sigma2s.reserve(20);
@@ -1245,6 +1249,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_lognormal2_sigmas = b.distr_lognormal2_sigmas;
   distr_normal_mus = b.distr_normal_mus;
   distr_normal_sigma2s = b.distr_normal_sigma2s;
+  distr_cnormal_mus = b.distr_cnormal_mus;
+  distr_cnormal_sigmas = b.distr_cnormal_sigmas;
   distr_normal2_mus = b.distr_normal2_mus;
   distr_normal2_sigmas = b.distr_normal2_sigmas;
   distr_truncnormal2_mus = b.distr_truncnormal2_mus;
@@ -1471,6 +1477,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_lognormal2_sigmas = b.distr_lognormal2_sigmas;
   distr_normal_mus = b.distr_normal_mus;
   distr_normal_sigma2s = b.distr_normal_sigma2s;
+  distr_cnormal_mus = b.distr_cnormal_mus;
+  distr_cnormal_sigmas = b.distr_cnormal_sigmas;
   distr_normal2_mus = b.distr_normal2_mus;
   distr_truncnormal2_mus = b.distr_truncnormal2_mus;
   distr_truncnormal2_sigmas = b.distr_truncnormal2_sigmas;
@@ -2254,6 +2262,57 @@ bool superbayesreg::create_distribution(void)
 
     }
 //------------------------------- END: lognormal2 mu -------------------------------
+
+
+//-------------------------------- cnormal sigma ---------------------------------
+  else if (family.getvalue() == "cnormal" && equationtype.getvalue()=="sigma")
+    {
+
+    computemodeforstartingvalues = true;
+
+    distr_cnormal_sigmas.push_back(DISTR_cnormal_sigma(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_cnormal_sigmas[distr_cnormal_sigmas.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_cnormal_sigmas[distr_cnormal_sigmas.size()-1]);
+
+    }
+//---------------------------- END: cnormal sigma -------------------------------
+
+//------------------------------- cnormal mu ------------------------------------
+  else if ((family.getvalue() == "cnormal") && (equationtype.getvalue()=="mu"))
+
+    {
+
+     mainequation=true;
+
+    computemodeforstartingvalues = true;
+
+    distr_cnormal_mus.push_back(DISTR_cnormal_mu(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_cnormal_mus[distr_cnormal_mus.size()-1];
+    equations[modnr].pathd = "";
+
+    predict_mult_distrs.push_back(&distr_cnormal_mus[distr_cnormal_mus.size()-1]);
+
+    if (distr_cnormal_sigmas.size() != 1)
+      {
+      outerror("ERROR: Equation for sigma is missing");
+      return true;
+      }
+    else
+      {
+      distr_cnormal_sigmas[distr_cnormal_sigmas.size()-1].distrp.push_back
+      (&distr_cnormal_mus[distr_cnormal_mus.size()-1]);
+
+      distr_cnormal_mus[distr_cnormal_mus.size()-1].distrp.push_back
+      (&distr_cnormal_sigmas[distr_cnormal_sigmas.size()-1]);
+      }
+
+    }
+//------------------------------- END: cnormal mu -------------------------------
+
 
 
 //---------------------------------- ZINB pi -----------------------------------

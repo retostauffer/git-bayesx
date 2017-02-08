@@ -119,6 +119,8 @@ using MCMC::DISTR_normal_mu;
 using MCMC::DISTR_normal_sigma2;
 using MCMC::DISTR_normal2_mu;
 using MCMC::DISTR_normal2_sigma;
+using MCMC::DISTR_cnormal_mu;
+using MCMC::DISTR_cnormal_sigma;
 using MCMC::DISTR_truncnormal2_mu;
 using MCMC::DISTR_truncnormal2_sigma;
 using MCMC::DISTR_gamma_mu;
@@ -490,6 +492,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_lognormal2_sigma> distr_lognormal2_sigmas;
   vector<DISTR_normal_mu> distr_normal_mus;
   vector<DISTR_normal_sigma2> distr_normal_sigma2s;
+  vector<DISTR_cnormal_mu> distr_cnormal_mus;
+  vector<DISTR_cnormal_sigma> distr_cnormal_sigmas;
   vector<DISTR_normal2_mu> distr_normal2_mus;
   vector<DISTR_normal2_sigma> distr_normal2_sigmas;
   vector<DISTR_truncnormal2_mu> distr_truncnormal2_mus;
