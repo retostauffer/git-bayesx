@@ -84,7 +84,7 @@ JNIEXPORT jboolean JNICALL Java_BayesX_parse
   return stop;
 
   }
-
+
 
 JNIEXPORT void JNICALL Java_BayesX_parsecommand2
   (JNIEnv *env, jobject obj, jobject oA, jstring str)
@@ -176,7 +176,7 @@ JNIEXPORT void JNICALL Java_BayesX_setObjectTypeList
 
   return;
   }
-
+
 // -------------------- Zugang zu 'dataset' ---------------------------------
 
 JNIEXPORT void JNICALL Java_BayesX_setVarnames
@@ -262,7 +262,7 @@ JNIEXPORT jdouble JNICALL Java_BayesX_getMin
   jdouble min = (*(admin.adminp).get_Dp()).min(col);
   return min;
   }
-
+
 // ------------------------------------------------------------------
 
 JNIEXPORT jstring JNICALL Java_BayesX_getVarname
@@ -301,7 +301,7 @@ JNIEXPORT void JNICALL Java_BayesX_setStop
   {
   admin.adminb.set_suppressoutput(suppressoutput);
   }
-
+
 
 // ---------------------- Zugang zu 'map' -----------------------------------
 
@@ -316,7 +316,7 @@ JNIEXPORT void JNICALL Java_BayesX_getline
   env->ReleaseDoubleArrayElements(line, help, 0);
   return;
   }
-
+
 JNIEXPORT void JNICALL Java_BayesX_getboundaries
   (JNIEnv *env, jobject obj, jdoubleArray bnd)
   {
@@ -375,7 +375,7 @@ JNIEXPORT void JNICALL Java_BayesX_getcentroid
   if(env->GetArrayLength(centroid)!=2)
     return;  if(i<admin.adminp.get_mapinfo()->get_nrregions())    {
     jdouble *help = env->GetDoubleArrayElements(centroid, 0);    help[0] = admin.adminp.get_mapinfo()->get_region(i).get_xcenter();    help[1] = admin.adminp.get_mapinfo()->get_region(i).get_ycenter();    env->ReleaseDoubleArrayElements(centroid, help, 0);    }  return;  }
-
+
 JNIEXPORT jdouble JNICALL Java_BayesX_getname
   (JNIEnv *, jobject, jint i)
   {
