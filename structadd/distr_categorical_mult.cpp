@@ -131,8 +131,10 @@ void DISTR_multgaussian::compute_mu_mult(vector<double *> linpred,double * mu)
   *mu = *linpred[catnr];
   }
 
-datamatrix * DISTR_multgaussian::get_auxiliary_parameter(auxiliarytype t)
-  {
+
+datamatrix * DISTR_multgaussian::get_auxiliary_parameter(auxiliarytype t)
+
+  {
 
    return &helpmat2;
 
@@ -147,7 +149,9 @@ void DISTR_multgaussian::compute_mu_mult(vector<double *> linpred,double * mu)
     }
   else
     return &helpmat1;
-  */  }
+  */
+
+  }
 
 
 void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
@@ -160,8 +164,10 @@ void DISTR_multgaussian::compute_deviance_mult(vector<double *> response,
   if (*weight[nrcat-1] != 0)
     {
 
-    unsigned j,k;
-    double qf=0;
+
+    unsigned j,k;
+
+    double qf=0;
     double diffj;
     for (j=0;j<nrcat;j++)
       {

@@ -154,7 +154,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
 
 
 
-class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
+
+class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
   {
 
   protected:
