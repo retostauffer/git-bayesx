@@ -123,6 +123,8 @@ class __EXPORT_TYPE FC_merror  : public FC
 
   void get_samples(const ST::string & filename, ofstream & outg) const;
 
+  void outoptions(void);
+
   };
 
 } // end: namespace MCMC

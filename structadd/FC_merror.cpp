@@ -448,7 +448,28 @@ void FC_merror::outresults(ofstream & out_stata, ofstream & out_R, ofstream & ou
 
 void FC_merror::get_samples(const ST::string & filename, ofstream & outg) const
   {
+  FC::get_samples(filename,outg);
+  ST::string filed = filename.substr(0,filename.length()-11) +
+                                 "_expectation_true_covariate_values_samples.raw";
+  FC_mu_x.get_samples(filed, outg);
+  filed = filename.substr(0,filename.length()-11) +
+                                 "_variance_true_covariate_values_samples.raw";
+  FC_tau2_x.get_samples(filed, outg);
+  }
 
+void FC_merror::outoptions(void)
+  {
+  optionsp->out("  " + title + "\n",true);
+  optionsp->out("\n");
+  optionsp->out("  Prior for true covariate values:\n");
+  optionsp->out("    Normal distribution with mean mu and variance tau2\n");
+  optionsp->out("  Hyperprior for mu:\n");
+  optionsp->out("    Normal distribution with mean " + ST::doubletostring(m_mu_x,2) + " and variance " + ST::doubletostring(s2_mu_x,2) + "\n");
+  optionsp->out("  Hyperprior for tau2:\n");
+  optionsp->out("    Inverse gamma distribution with hyperparameters a=" + ST::doubletostring(a_tau2_x,4) + " and b=" + ST::doubletostring(b_tau2_x,4) + "\n");
+  optionsp->out("  Scale parameter for the random walk proposal: "+ ST::doubletostring(mepropscale, 2) +"\n");
+  optionsp->out("  Number of binning intervals: "+ ST::doubletostring(binning, 0) +"\n");
+  optionsp->out("\n");
   }
 
 } // end: namespace MCMC
