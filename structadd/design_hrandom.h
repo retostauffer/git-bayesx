@@ -80,6 +80,7 @@ class __EXPORT_TYPE DESIGN_hrandom : public DESIGN
 
   DESIGN_hrandom(const datamatrix & dm, const datamatrix & iv,
                                  GENERAL_OPTIONS * o,DISTR * dp, FC_linear * fcl,
+                                 vector<ST::string> & op,
                                  vector<ST::string> & vn);
 
 

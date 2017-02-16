@@ -9850,7 +9850,7 @@ bool superbayesreg::create_random(unsigned i)
 
   design_hrandoms.push_back(DESIGN_hrandom(d,iv,&generaloptions,
                             equations[modnr].distrp,
-                            &FC_linears[FC_linears.size()-1],terms[i].varnames));
+                            &FC_linears[FC_linears.size()-1],terms[i].options, terms[i].varnames));
 
   if(terms[i].options[35] == "nn")
     {

@@ -308,7 +308,7 @@ DESIGN::DESIGN(void)
 
 DESIGN::DESIGN(GENERAL_OPTIONS * o,DISTR * lp,FC_linear * fcp)
   {
-  // FIXME check implementation of derived classes for valid center value.
+
   center = true;
 
   changingdesign = false;
