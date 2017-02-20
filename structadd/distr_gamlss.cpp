@@ -3617,7 +3617,7 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
      mills = ddist/pdist;
      nu = -mills/sigma;
 
-     *workingweight = -(*linpred)/pow(sigma, 3.0)*mills + pow(mills,2.0)/sigma;
+     *workingweight = (*linpred)/pow(sigma, 3.0)*mills - pow(mills,2.0)/sigma;
      }
    else
      {
