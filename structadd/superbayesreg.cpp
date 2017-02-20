@@ -2309,7 +2309,6 @@ bool superbayesreg::create_distribution(void)
       distr_cnormal_mus[distr_cnormal_mus.size()-1].distrp.push_back
       (&distr_cnormal_sigmas[distr_cnormal_sigmas.size()-1]);
       }
-
     }
 //------------------------------- END: cnormal mu -------------------------------
 

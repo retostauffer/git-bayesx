@@ -477,6 +477,9 @@ void FC_linear::compute_XWX(datamatrix & r)
       }
     else
       {
+/*      ofstream out1("c://temp//weights.raw");
+      (likep->workingweight).prettyPrint(out1);
+      out1.close();*/
       for (i=0;i<nrconst;i++)
         for (j=i;j<nrconst;j++)
           {

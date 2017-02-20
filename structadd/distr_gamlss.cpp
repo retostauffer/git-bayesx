@@ -3310,17 +3310,14 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
     double nu;
     double ddist, pdist, mills, mu_sigma;
 
-
      if (*response <= 0)
        {
-       ddist = 1/sqrt(2*M_PI)*exp(-0.5*pow(*worklin[0],2)/sigma_2);
+       ddist = randnumbers::phi(-(*worklin[0])/sigma);
        pdist = randnumbers::Phi2(-(*worklin[0])/sigma);
        mills = ddist/pdist;
-//       mu_sigma = (*worklin[0])/sigma;
+       nu = *worklin[0]/sigma*mills;
 
-       nu = mu_sigma*mills;
-
-       *workingweight = (*worklin[0])*mills - pow(*worklin[0],3) * mills/sigma + pow(*worklin[0],2) * pow(mills,2);
+       *workingweight = ((*worklin[0])/sigma-pow(*worklin[0],3.0)/sigma_2)*mills + pow(*worklin[0],2.0)/sigma_2*pow(mills,2.0);
 
 /*
     cout << "response: " << *response << endl;
@@ -3615,13 +3612,12 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
 
    if (*response <= 0)
      {
-     ddist = 1/sqrt(2*M_PI)*exp(-0.5*pow(*linpred,2)/(*worktransformlin[0]));
+     ddist = randnumbers::phi(-(*linpred)/sigma);
      pdist = randnumbers::Phi2(-(*linpred)/sigma);
      mills = ddist/pdist;
-     nu = mills*(*linpred)/sigma;
+     nu = -mills/sigma;
 
-//     d1 = - (*linpred)/(*worktransformlin[0]);
-     *workingweight =  -(*linpred)/(*worktransformlin[0]) * mills + pow(mills,2);
+     *workingweight = -(*linpred)/pow(sigma, 3.0)*mills + pow(mills,2.0)/sigma;
      }
    else
      {
