@@ -3316,12 +3316,13 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
        ddist = 1/sqrt(2*M_PI)*exp(-0.5*pow(*worklin[0],2)/sigma_2);
        pdist = randnumbers::Phi2(-(*worklin[0])/sigma);
        mills = ddist/pdist;
-       mu_sigma = (*worklin[0])/sigma;
+//       mu_sigma = (*worklin[0])/sigma;
 
        nu = mu_sigma*mills;
 
-       *workingweight = mu_sigma*mills - pow(mu_sigma,2)* *worklin[0] * mills + pow(mu_sigma,2) * pow(mills,2);
+       *workingweight = (*worklin[0])*mills - pow(*worklin[0],3) * mills/sigma + pow(*worklin[0],2) * pow(mills,2);
 
+/*
     cout << "response: " << *response << endl;
     cout << "linpred: " << *worklin[0] << endl;
     cout << "p: " << p << endl;
@@ -3333,13 +3334,14 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
     cout << "mu_sigma: " << mu_sigma << endl;
     cout << "nu: " << nu << endl;
     cout << "workingweight: " << *workingweight << endl;
-
+*/
        }
      else
        {
        nu = p/sigma_2 -1;
        *workingweight = 2/sigma_2*p;
 
+/*
     cout << "response: " << *response << endl;
     cout << "linpred: " << *worklin[0] << endl;
     cout << "p: " << p << endl;
@@ -3347,17 +3349,19 @@ void DISTR_cnormal_sigma::compute_iwls_wweightschange_weightsone(
     cout << "sigma_2: " << sigma_2 << endl;
     cout << "nu: " << nu << endl;
     cout << "workingweight: " << *workingweight << endl;
-
+*/
        }
 
     *workingresponse = *linpred + nu/(*workingweight);
 
+/*
     cout << "workingresponse: " << *workingresponse << endl << endl;
 
     if(isnan(*workingresponse))
       cout << "arg (workingresponse, sigma)";
     if(isnan(*workingweight))
       cout << "arg (workingweight, sigma)";
+*/
 
     if (compute_like)
       {
@@ -3602,10 +3606,12 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
   double ddist, pdist, mills;
   double d1;
 
+/*
   cout << *worklin[0] << endl;
   cout << *worktransformlin[0] << endl;
   cout << distrp[0]->helpmat1(0,0) << endl;
   cout << sigma << endl;
+*/
 
    if (*response <= 0)
      {
@@ -3614,8 +3620,8 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
      mills = ddist/pdist;
      nu = mills*(*linpred)/sigma;
 
-     d1 = - (*linpred)/(*worktransformlin[0]);
-     *workingweight =  d1/sigma * mills + pow(mills,2)/(*worktransformlin[0]);
+//     d1 = - (*linpred)/(*worktransformlin[0]);
+     *workingweight =  -(*linpred)/(*worktransformlin[0]) * mills + pow(mills,2);
      }
    else
      {
@@ -3626,6 +3632,7 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
 
     *workingresponse = *linpred + nu/(*workingweight);
 
+/*
     if(isnan(*workingresponse))
       {
       cout << counter << endl;
@@ -3646,6 +3653,7 @@ void DISTR_cnormal_mu::compute_iwls_wweightschange_weightsone(
       cout << "ddist:" << ddist << endl;
       cout << "mills:" << mills << endl;
       }
+*/
 
     if (compute_like)
       {
