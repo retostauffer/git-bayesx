@@ -17,10 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
-#include <gsl/gsl_sf_gamma.h>
-#include <gsl/gsl_cdf.h>
 #include "distr_gamlss_nadja.h"
-//#include "gsl/gsl_randist.h"
+#include "random.h"
 
 namespace MCMC
 {
@@ -5676,7 +5674,7 @@ double DISTR_gamma_sigma::cdf(const double & resp, const bool & ifcop)
     }
   double const sigma = exp(*linpredp); 
   double const mu = *worktransformlin[0]; 
-  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  double const res = randnumbers::gamma_cdf(resp, mu, sigma);;
 
   if(ifcop)
     {
@@ -5690,7 +5688,7 @@ double DISTR_gamma_sigma::cdf(const double & resp, const double & linpred)
   {
   double const sigma = exp(linpred); 
   double const mu = *worktransformlin[0]; 
-  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  double const res = randnumbers::gamma_cdf(resp, mu, sigma);;
   return res; 
   }
 
@@ -5940,7 +5938,7 @@ double DISTR_gamma_mu::cdf(const double & resp, const bool & ifcop)
 
   double const mu = exp(*linpredp);
   double const sigma = *worktransformlin[0];
-  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  double const res = randnumbers::gamma_cdf(resp, mu, sigma);;
 
   if(ifcop)
     {
@@ -5954,7 +5952,7 @@ double DISTR_gamma_mu::cdf(const double & resp, const double & linpred)
   {
   double const mu = exp(*linpredp);
   double const sigma = *worktransformlin[0];
-  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  double const res = randnumbers::gamma_cdf(resp, mu, sigma);;
   return res; 
   }
 
@@ -5962,7 +5960,7 @@ double DISTR_gamma_mu::cdf(const double & resp, vector<double *>  linpred)
   {
   double const mu = exp(*linpred[0]);
   double const sigma = exp(*linpred[1]);
-  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  double const res = randnumbers::gamma_cdf(resp, mu, sigma);;
   return res; 
   }
 

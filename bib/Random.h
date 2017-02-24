@@ -123,9 +123,9 @@ inline double __EXPORT_TYPE rand_expo(double lambda)
 
 
 // Erzeugen einer gammaverteilten Zufallszahl mit Parametern a und b
-// Für a > 1 Best's Rejection Algorithmus (vgl. Devroye (1986) S.410)
-// Für a = 1 Exponentialverteilung
-// Für a < 1 Stuart's Theorem (vgl. Devroye (1986) S.182)
+// Fï¿½r a > 1 Best's Rejection Algorithmus (vgl. Devroye (1986) S.410)
+// Fï¿½r a = 1 Exponentialverteilung
+// Fï¿½r a < 1 Stuart's Theorem (vgl. Devroye (1986) S.182)
 // Dichte der Gammaverteilung:
 // f(x) = b^a * Gamma(a)^-1 * x^a-1 * exp(-bx)
 // E(X) = a/b     Var(X) = a/b^2
@@ -134,7 +134,7 @@ double __EXPORT_TYPE rand_gamma(double a,double b);
 
 
 // erzeugen einer invers gammaverteilten Zufallszahl mit Parametern a,b
-// E(X) = b/(a-1) für a > 1
+// E(X) = b/(a-1) fï¿½r a > 1
 // Var(X) = b^2/((a-1)^2 * (a-2))
 
 inline double __EXPORT_TYPE rand_invgamma(double a,double b)
@@ -284,8 +284,12 @@ double __EXPORT_TYPE sgn(double x);
 // returns incomplete gamma function
 double __EXPORT_TYPE incomplete_gamma(double a, double x);
 
+// returns cdf of the gamma distribution with density
+// p(y| mu, sigma) = (sigma / mu)^sigma * y^(sigma - 1) / Gamma(sigma) * exp(-sigma * y / mu)
+// function is very slow
+// TODO implement a faster but less accurate approximation and use it where appropriate
+double __EXPORT_TYPE gamma_cdf(double y, double mu, double sigma);
 }
-
 
 
 #endif
