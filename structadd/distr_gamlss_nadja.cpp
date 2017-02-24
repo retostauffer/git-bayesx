@@ -17,9 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
+#include <gsl/gsl_sf_gamma.h>
+#include <gsl/gsl_cdf.h>
 #include "distr_gamlss_nadja.h"
 //#include "gsl/gsl_randist.h"
-//#include "gsl/gsl_cdf.h"
 
 namespace MCMC
 {
@@ -5673,11 +5674,9 @@ double DISTR_gamma_sigma::cdf(const double & resp, const bool & ifcop)
       else
         linpredp = linearpred2.getV();
     }
-  double res,mu,sigma;
-  sigma = exp(*linpredp);
-  mu = *worktransformlin[0];
-  //adjustPaul
-  res = exp(-exp(-(resp-mu)/sigma));
+  double const sigma = exp(*linpredp); 
+  double const mu = *worktransformlin[0]; 
+  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
 
   if(ifcop)
     {
@@ -5689,12 +5688,10 @@ double DISTR_gamma_sigma::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_gamma_sigma::cdf(const double & resp, const double & linpred)
   {
-  double res,mu,sigma;
-  sigma = exp(linpred);
-  mu = *worktransformlin[0];
-  //adjustPaul
-  res = exp(-exp(-(resp-mu)/sigma));
-  return res;
+  double const sigma = exp(linpred); 
+  double const mu = *worktransformlin[0]; 
+  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  return res; 
   }
 
 void DISTR_gamma_sigma::compute_param_mult(vector<double *>  linpred,double * param)
@@ -5760,11 +5757,12 @@ void DISTR_gamma_sigma::compute_iwls_wweightschange_weightsone(
       {
       like += logcandderivs[0];
       }
-    // compute and implement dF/deta, d^2 F/deta ^2
-    //adjustPaul
-    double dF = 0.0;
-    //adjustPaul
-    double ddF = 0.0;
+    // compute dF/deta, d^2 F/deta ^2 
+    // TODO better implementation 
+    // numerical derivatives 
+    double eps = 1e-06; 
+    double dF = (cdf(*response, *linpred + 0.5*eps) - cdf(*response, *linpred - 0.5*eps))/eps; 
+    double ddF = (cdf(*response, *linpred + eps) + cdf(*response, *linpred - eps) - 2.0 * F)/(eps*eps);
 
     nu += logcandderivs[1]*dF;
 
@@ -5940,11 +5938,9 @@ double DISTR_gamma_mu::cdf(const double & resp, const bool & ifcop)
       linpredp = linearpred2.getV();
     }
 
-  double res,mu,sigma;
-  mu = exp(*linpredp);
-  sigma = *worktransformlin[0];
-  // adjustPaul
-  res = exp(-exp(-(resp-mu)/sigma));
+  double const mu = exp(*linpredp);
+  double const sigma = *worktransformlin[0];
+  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
 
   if(ifcop)
     {
@@ -5956,22 +5952,18 @@ double DISTR_gamma_mu::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_gamma_mu::cdf(const double & resp, const double & linpred)
   {
-  double res,mu,sigma;
-  mu = exp(linpred);
-  sigma = *worktransformlin[0];
-  // adjustPaul
-  res = exp(-exp(-(resp-mu)/sigma));
-  return res;
+  double const mu = exp(*linpredp);
+  double const sigma = *worktransformlin[0];
+  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  return res; 
   }
 
 double DISTR_gamma_mu::cdf(const double & resp, vector<double *>  linpred)
   {
-  double res,mu,sigma;
-  mu = exp(*linpred[0]);
-  sigma = exp(*linpred[1]);
-  // adjustPaul
-  res = exp(-exp(-(resp-mu)/sigma));
-  return res;
+  double const mu = exp(*linpred[0]);
+  double const sigma = exp(*linpred[1]);
+  double const res = gsl_cdf_gamma_P(resp, sigma, mu/sigma);
+  return res; 
   }
 
 void DISTR_gamma_mu::compute_param_mult(vector<double *>  linpred,double * param)
@@ -6064,12 +6056,13 @@ void DISTR_gamma_mu::compute_iwls_wweightschange_weightsone(
       {
       like += logcandderivs[0];
       }
-    // compute and implement dF/deta, d^2 F/deta ^2
-    // adjustPaul
-    double dF = 0.0;
-    // adjustPaul
-    double ddF = 0.0;
-    nu += logcandderivs[1]*dF;
+    // compute dF/deta, d^2 F/deta ^2 
+    // TODO better implementation 
+    // numerical derivatives 
+    double eps = 1e-06; 
+    double dF = (cdf(*response, *linpred + 0.5*eps) - cdf(*response, *linpred - 0.5*eps))/eps; 
+    double ddF = (cdf(*response, *linpred + eps) + cdf(*response, *linpred - eps) - 2.0 * F)/(eps*eps); 
+    nu += logcandderivs[1]*dF; 
 
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
     if (*workingweight <=0)
