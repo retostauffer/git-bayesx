@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
+#include <gsl/gsl_sf_lambert.h>
+#include <gsl/gsl_cdf.h>
 #include "distr_gamlss_copula.h"
-//#include "gsl/gsl_randist.h"
-//#include "gsl/gsl_cdf.h"
 
 namespace MCMC
 {
@@ -1178,12 +1178,12 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
 //------------------------------------------------------------------------------
 void DISTR_gumbel_copula::check_errors(void)
   {
-  if (errors==false)
+  // FIXME this is a no-op
+  if (!errors)
     {
-    errors=false;
+    errors = false;
     }
   }
-
 
 DISTR_gumbel_copula::DISTR_gumbel_copula(GENERAL_OPTIONS * o,
                                            const datamatrix & r,
@@ -1195,7 +1195,7 @@ DISTR_gumbel_copula::DISTR_gumbel_copula(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "rho";
-  linpredminlimit=-10;
+  linpredminlimit=-30;
   linpredmaxlimit=15;
   check_errors();
   }
@@ -1219,12 +1219,12 @@ const DISTR_gumbel_copula & DISTR_gumbel_copula::operator=(
 
 double DISTR_gumbel_copula::get_intercept_start(void)
   {
-  return 0; // log(response.mean(0));
+  return 0;
   }
 
 void DISTR_gumbel_copula::compute_param_mult(vector<double *>  linpred,double * param)
   {
-  *param = exp((*linpred[(linpred.size()-1)]));
+  *param = exp((*linpred[(linpred.size()-1)])) + 1;
   }
 
 void DISTR_gumbel_copula::compute_deviance_mult(vector<double *> response,
@@ -1237,7 +1237,7 @@ void DISTR_gumbel_copula::compute_deviance_mult(vector<double *> response,
      *deviance=0;
    else
      {
-     double rho = exp((*linpred[(linpred.size()-1)]));
+     double const p = exp((*linpred[(linpred.size()-1)])) + 1;
 
      int s1 = dynamic_cast<DISTR_gamlss *>(distrp[1])->distrp.size();
      int s2 = dynamic_cast<DISTR_gamlss *>(distrp[0])->distrp.size();
@@ -1272,30 +1272,34 @@ void DISTR_gumbel_copula::compute_deviance_mult(vector<double *> response,
      if(optionsp->rotation==90)
        {
        u = 1-u;
-       //rho=-rho;
        }
      else if(optionsp->rotation==270)
        {
        v = 1-v;
-       //rho=-rho;
        }
      else if(optionsp->rotation==180)
        {
        u = 1-u;
        v = 1-v;
        }
-     double logu = log(u);
-     double logv = log(v);
-     double urho = pow(u, -rho);
-     double vrho = pow(v, -rho);
-     double arg = urho + vrho - 1;
-     double l;
 
-     l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
-         //+distrp[0]->logpdf(*response[0])+distrp[1]->logpdf(*response[response.size()-2]);
+     const double q = 1/p;
+     const double mlu = -log(u);
+     const double mlv = -log(v);
+     const double mlup = pow(mlu, p);
+     const double mlvp = pow(mlv, p);
+     const double s = mlvp + mlup;
 
-    *deviance = -2*l+d1+d2;
-    }
+     const double a1 = -pow(s, q);
+     const double a2 = (p-1)*(log(mlu) + log(mlv));
+     const double a3 = (q-2) * log(s);
+     const double a4 = mlu + mlv;
+     const double a5 = log(p - 1 - a1);
+
+     const double l = a1 + a2 + a3 + a4 + a5;
+
+     *deviance = -2*l+d1+d2;
+     }
 
   }
 
@@ -1306,7 +1310,7 @@ double DISTR_gumbel_copula::loglikelihood_weightsone(double * response,
     {
     set_worklin();
     }
-  double rho = exp((*linpred));
+  double const p = exp((*linpred)) + 1;
   double u = distrp[1]->cdf(*response1p,true);
   double v = distrp[0]->cdf(*response2p,true);
   if(optionsp->rotation==90)
@@ -1322,14 +1326,23 @@ double DISTR_gumbel_copula::loglikelihood_weightsone(double * response,
     u = 1-u;
     v = 1-v;
     }
-  double logu = log(u);
-  double logv = log(v);
-  double urho = pow(u, -rho);
-  double vrho = pow(v, -rho);
-  double arg = urho + vrho - 1;
-  double l;
 
-  l = log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+
+  const double q = 1/p;
+  const double mlu = -log(u);
+  const double mlv = -log(v);
+  const double mlup = pow(mlu, p);
+  const double mlvp = pow(mlv, p);
+  const double s = mlvp + mlup;
+
+  const double a1 = -pow(s, q);
+  const double a2 = (p-1)*(log(mlu) + log(mlv));
+  const double a3 = (q-2) * log(s);
+  const double a4 = mlu + mlv;
+  const double a5 = log(p - 1 - a1);
+
+  const double l = a1 + a2 + a3 + a4 + a5;
+
 
   modify_worklin();
 
@@ -1349,7 +1362,7 @@ void DISTR_gumbel_copula::compute_iwls_wweightschange_weightsone(
     {
     set_worklin();
     }
-  double rho = exp((*linpred));
+    double const p = exp(*linpred) + 1;
   double u = distrp[1]->cdf(*response1p,true);
   double v = distrp[0]->cdf(*response2p,true);
   if(optionsp->rotation==90)
@@ -1365,16 +1378,46 @@ void DISTR_gumbel_copula::compute_iwls_wweightschange_weightsone(
     u = 1-u;
     v = 1-v;
     }
-  double logu = log(u);
-  double logv = log(v);
-  double urho = pow(u, -rho);
-  double vrho = pow(v, -rho);
-  double arg = urho + vrho - 1;
 
-  double nu = rho / (rho + 1) - rho * (logu + logv) + log(arg) / rho + (2 * rho + 1) * (logu * urho + logv * vrho) / arg;
-  *workingweight = -rho / pow(rho + 1, 2) + rho * (logu + logv) + log(arg) / rho + (1 - 2 * rho) * (logu * urho + logv * vrho) / arg
-                        - ((pow(rho, 2) * (2 + 1 / rho)) / (arg)) * (pow((logu * urho + logv * vrho), 2) / arg - pow(logu, 2) * urho - pow(logv, 2) * vrho );
+  // berechne dl und ddl
+  double const q = 1.0 / p;
+  double const  mlu = -log(u);
+  double const mlv = -log(v);
+  double const mlup = pow(mlu, p);
+  double const mlvp = pow(mlv, p);
+  double const s = mlup + mlvp;
+  double const s_wslog = mlup * log(mlu) + mlvp * log(mlv);
 
+  double const b1 = s_wslog / s;
+  double const d_b1 = ((mlup * log(mlu)*log(mlu) + mlvp * log(mlv)* log(mlv))*s - s_wslog*s_wslog) / (s*s);
+
+  double const a1 = -pow(s, q);
+  double const d_a1 = q * pow(s, q) * (q*log(s) - b1);
+
+  double const d_a2 = log(mlu) + log(mlv);
+
+  double const a31 = -q*q * log(s);
+  double const a32 = (q-2) * b1;
+  double const d_a3 = a31 + a32;
+  double const d_a31 = pow(q, 3) * (2*log(s) - p * b1);
+  double const d_a32 = (q - 2)*d_b1 - q*q * b1;
+  double const dd_a3 = d_a31 + d_a32;
+
+  double const d_a5 = (1 - d_a1)/(p - 1 + pow(s, q));
+
+  double const b2 = -a1 * q;
+  double const b3 = log(s)*q - b1;
+  double const d_b2 = q*q*(a1 - p*d_a1);
+  double const d_b3 = q*q*(p*b1 - log(s)) - d_b1;
+
+  double const dd_a1 = d_b2*b3 + b2*d_b3;
+  double const dd_a5 = (-dd_a1*(p - 1 - a1) - (1 - d_a1)*(1 - d_a1))/((p - 1 - a1)*(p - 1 - a1));
+  double const pm1 = p - 1;
+
+  double const nu = (d_a1 + d_a2 + d_a3 + d_a5) * pm1; // dl/deta
+  *workingweight = -(pm1 * (d_a1 + d_a2 + d_a3 + d_a5) + pm1*pm1 * (dd_a1 + dd_a3 + dd_a5)); //-d^2l/deta^2
+
+  // compute working response
   if((*workingweight) <= 0)
     *workingweight = 0.0001;
 
@@ -1383,7 +1426,12 @@ void DISTR_gumbel_copula::compute_iwls_wweightschange_weightsone(
 
   if (compute_like)
     {
-    like += log(rho + 1) - (1 + rho) * (logu + logv) - (2 + 1 / rho) * log(arg);
+    // a1 was calculated above;
+    double const a2 = (p-1) * (log(mlu) + log(mlv));
+    double const a3 = (q - 2) * log(s);
+    double const a4 = mlu + mlv;
+    double const a5 = log(p - 1 - a1);
+    like += a1 + a2 + a3 + a4 + a5;
     }
 
   modify_worklin();
@@ -1392,15 +1440,16 @@ void DISTR_gumbel_copula::compute_iwls_wweightschange_weightsone(
 
 void DISTR_gumbel_copula::compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu)
   {
-  double arg = exp((*linpred[predstart_mumult+(linpred.size()-1)]));
-  *mu = arg / (arg + 2);
+  // compute estimates for rho
+  double rho = exp((*linpred[predstart_mumult+(linpred.size()-1)])) + 1;
+  *mu = rho;
   }
 
 
 void DISTR_gumbel_copula::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function (rho): exp(eta)\n");
+  optionsp->out("\tResponse function (rho): exp(eta) + 1\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -1422,7 +1471,7 @@ void DISTR_gumbel_copula::update_end(void)
   unsigned i;
   for (i=0;i<nrobs;i++,pmu++,worklin++)
     {
-    *pmu = exp(*worklin);
+    *pmu = exp(*worklin) + 1;
     }
 
   }
@@ -1430,20 +1479,44 @@ void DISTR_gumbel_copula::update_end(void)
 vector<double> DISTR_gumbel_copula::derivative(double & F1, double & F2, double * linpred)
   {
   vector<double> res;
+  // 1st and 2nd derivate of log c with respect to eta_F1
 
-  double rho = exp(*linpred);
+  double const p = exp(*linpred) + 1;
+  double const q = 1.0/p;
+  double const u = F1;
+  double const v = F2;
+  double const mlu = -log(u);
+  double const mlv = -log(v);
+  double const mlup = pow(mlu, p);
+  double const mlvp = pow(mlv, p);
+  double const s = mlup + mlvp;
 
-  double logu = log(F1);
-  double logv = log(F2);
+  double const a1 = -pow(s, q);
+//  double const a2 = (p-1) * (log(mlu) + log(mlv));
+//  double const a3 = (q - 2) * log(s);
+//  double const a4 = mlu + mlv;
+//  double const a5 = log(p - 1 - a1);
 
-  double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
-  // first derivative
-  double dlc = -(1+rho)/F1+(2+1/rho)*rho*pow(F1,(-rho-1))/arg;
-  // second derivative
-  double ddlc = (1+rho)/(F1*F1)+(2+1/rho)*pow(rho*pow(F1,(-rho-1))/arg,2)-(2+1/rho)*rho*(rho+1)*pow(F1,(-rho-2))/arg;
+  double const d_a1 = pow(s, q - 1) * pow(mlu, p-1) / u;
+  double const d_a2 = (1-p)/(mlu*u);
+  double const d_a3 = (2-q)*p*pow(mlu, p-1) / (u*s);
+  double const d_a4 = -1/u;
+  double const d_a5 = d_a1/(a1 + 1 - p);
+  double const dlc = d_a1 + d_a2 + d_a3 + d_a4 + d_a5;
+
+  double const b1 = pow(s, q-1) * pow(mlu, p-1);
+  double const d_b1 = pow(s, q-2) * pow(mlu, p-1) / u * ((p-1)*pow(mlu, p-1) + (1-p) * s / mlu);
+
+  double const dd_a1 = (d_b1*u - b1)/(u*u);
+  double const dd_a2 = (p - 1)*(mlu - 1)/(mlu*mlu*u*u);
+  double const dd_a3 = (1 - 2*p)*pow(mlu, p-2)/(u*u * s*s) * (
+      (p-1)*s + mlu * (mlup - p*pow(mlu, p-1) + mlvp)
+  );
+  double const dd_a4 = 1.0 / (u*u);
+  double const dd_a5 = (dd_a1*(a1 + 1 - p) - d_a1*d_a1)/((p - 1 - a1) * (p - 1 - a1));
+  double const ddlc = dd_a1 + dd_a2 + dd_a3 + dd_a4 + dd_a5;
 
 
-  // return first and second derivative.
   res.push_back(dlc);
   res.push_back(ddlc);
   return res;
@@ -1451,69 +1524,77 @@ vector<double> DISTR_gumbel_copula::derivative(double & F1, double & F2, double 
 
 double DISTR_gumbel_copula::logc(double & F1, double & F2, double * linpred)
   {
-  double rho = exp((*linpred));
+  double const p = exp(*linpred) + 1;
+  double const q = 1.0/p;
+  double const u = F1;
+  double const v = F2;
+  double const mlu = -log(u);
+  double const mlv = -log(v);
+  double const mlup = pow(mlu, p);
+  double const mlvp = pow(mlv, p);
+  double const s = mlup + mlvp;
 
-  double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
-
-
-  double lc = log(rho + 1) - (1 + rho) * (log(F1) + log(F2)) - (2 + 1 / rho) * log(arg);
-  return lc;
+  double const a1 = -pow(s, q);
+  double const a2 = (p-1) * (log(mlu) + log(mlv));
+  double const a3 = (q - 2) * log(s);
+  double const a4 = mlu + mlv;
+  double const a5 = log(p - 1 - a1);
+  return a1 + a2 + a3 + a4 + a5;
   }
 
 double DISTR_gumbel_copula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
-  // ToDo
-  double rho = exp(*linpred);
-  double help1 = 0;
-
-  double xstar = x;
-  double argPhi=0;
-
-  if(optionsp->rotation==90)
+  if (this->optionsp->rotation != 0)
     {
-    help1 = 1-pow(F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(F2,-rho)-1),-1/rho-1);
-
-    if(y>0)
-      xstar = x*(1-help1) + help1;
-    else
-      xstar = x*help1;
-
-    argPhi = 1-pow(pow(((1-xstar)/pow(F2,-rho-1)),-rho/(rho+1)) + 1 - pow(F2,-rho),-1/rho);
+    std::cerr << "Roatations are not implemented for Gumbel Copula" << std::endl;
+    exit(1);
     }
-  else if(optionsp->rotation==270)
-    {
-    help1 = pow(1-F2,-rho-1)*pow((pow(randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
-    if(y>0)
-      xstar = x*(1-help1) + help1;
-    else
-      xstar = x*help1;
+  int gsl_status;
 
-    argPhi = pow(pow((xstar/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho),-1/rho);
+  double const p = exp(*linpred) + 1;
+  double const q = 1.0/p;
+  double const v = F2;
+  double const mlv = -log(v);
+  double const mlvp = pow(mlv, p);
+
+  double split_point;
+    {
+    double const u = gsl_cdf_ugaussian_P(-linpred_F);
+    double const mlu = -log(u);
+    double const mlup = pow(mlu, p);
+    double const s = mlup + mlvp;
+
+    split_point = exp(-pow(s, q)) * pow(s, q - 1) * pow(mlv, p - 1) / v;
     }
-  else if(optionsp->rotation==180)
-    {
-    help1 = 1-pow(1-F2,-rho-1)*pow((pow(1-randnumbers::Phi2(-linpred_F),-rho)+pow(1-F2,-rho)-1),-1/rho-1);
-    if(y>0)
-      xstar = x*(1-help1) + help1;
-    else
-      xstar = x*help1;
 
-    argPhi = 1-pow(pow(((1-xstar)/pow(1-F2,-rho-1)),-rho/(rho+1)) + 1 - pow(1-F2,-rho),-1/rho);
+
+  double x_prime;
+  if (y>0)
+    {
+    x_prime = x * (1 - split_point) + split_point;
     }
   else
     {
-    help1 = pow(F2,-rho-1)*pow((pow(randnumbers::Phi2(-linpred_F),-rho)+pow(F2,-rho)-1),-1/rho-1);
-    if(y>0)
-      xstar = x*(1-help1) + help1;
-    else
-      xstar = x*help1;
-
-    argPhi = pow( ( pow( (xstar/pow(F2,-rho-1)) ,-rho/(rho+1) ) + 1 - pow(F2,-rho)) ,-1/rho);
+    x_prime = x * split_point;
     }
 
 
-  double res = randnumbers::invPhi2(argPhi)  + linpred_F;
+  double const z = pow(mlv, p-1) / (v * x_prime);
+  double const r =  (1 - p);
+  // gsl_sf_result gsl_res;
+  double zz;
+//  gsl_status = -gsl_sf_lambert_Wm1_e(-1.0 / (pow(z, 1.0/r)*r), &gsl_res); // == glog_pos(pow(z, 1.0/r)*r)
+//  if (gsl_status) {
+//    printf ("gsl error: %s\n", gsl_strerror (gsl_status));
+//    abort();
+//  }
+//  zz = gsl_res.val;
+  zz = -gsl_sf_lambert_Wm1(-1.0 / (pow(z, 1.0/r)*r)); // == glog_pos(pow(z, 1.0/r)*r)
+  double const zzz = pow(zz*r, p) - mlvp;
+  double const u_prime = exp(-pow(zzz, q));
+
+  double const res = gsl_cdf_ugaussian_Pinv(u_prime)  + linpred_F;
   return res;
   }
 
-} // end: namespace MCMC
+}
