@@ -61,11 +61,38 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
   xobs = xo;
   merror = (double)(xo.cols());
   FCp = fcn;
+
+  unsigned i,j,k,l;
   mevar = mv;
-  mesd = mv;
-  unsigned i,j;
-  for(i=0; i<mesd.rows(); i++)
-    mesd(i,0) = sqrt(mesd(i,0));
+  if(mevar.cols()==1)
+    {
+    mesd = mv;
+    for(i=0; i<mesd.rows(); i++)
+      mesd(i,0) = sqrt(mesd(i,0));
+    }
+  else
+    {
+    datamatrix help(xo.cols(),xo.cols(),0);
+    mesd = datamatrix(xobs.rows(), 1, 0.0);
+    for(i=0; i<mesd.rows(); i++)
+      {
+      l = xo.cols();
+      for(j=0; j<xo.cols(); j++)
+        {
+        mesd(i,0) += mevar(i,j);
+        help(j,j) = mevar(i,j);
+        for(k=j+1; k<xo.cols(); k++)
+          {
+          help(j,k) = help(k,j) = mevar(i,l);
+          l++;
+          }
+        }
+      help = help.inverse();
+      mecovinv.push_back(help);
+      mesd(i,0) /= merror;
+      mesd(i,0) = sqrt(mesd(i,0));
+      }
+    }
   xmean = datamatrix(xobs.rows(), 1, 0.0);
   for(i=0; i<xmean.rows(); i++)
     {
@@ -159,7 +186,7 @@ FC_merror::FC_merror(GENERAL_OPTIONS * o, const ST::string & t,
     }
 
   // 4. initializes ind
-  int k;
+//  int k;
   workindex = FCp->designp->index_data.getV();
   for (j=0;j<FCp->designp->posend.size();j++)
     {
@@ -186,6 +213,7 @@ FC_merror::FC_merror(const FC_merror & m)
   FCp = m.FCp;
   mevar = m.mevar;
   mesd = m.mesd;
+  mecovinv = m.mecovinv;
   binning = m.binning;
   minbin = m.minbin;
   maxbin=m.maxbin;
@@ -215,6 +243,7 @@ const FC_merror & FC_merror::operator=(const FC_merror & m)
   FCp = m.FCp;
   mevar = m.mevar;
   mesd = m.mesd;
+  mecovinv = m.mecovinv;
   binning = m.binning;
   minbin = m.minbin;
   maxbin=m.maxbin;
@@ -283,8 +312,10 @@ void FC_merror::update(void)
   double * mesdp = mesd.getV();
   double * mevarp = mevar.getV();
   double * xobsp = xobs.getV();
+  datamatrix help1(xobs.cols(), 1, 0.0);
+  datamatrix help2(xobs.cols(), 1, 0.0);
 
-  for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++, betap++, indexpropp++, indexoldp++, mesdp++)
+  for(i=0; i<beta.rows(); i++, linpredoldp++, resp++, wp++, betap++, indexpropp++, indexoldp++, mesdp++, mevarp++)
     {
 //    cout << "iter.: " << optionsp->nriter << endl;
 //    cout << "obs.: " << i << endl;
@@ -324,10 +355,18 @@ void FC_merror::update(void)
     FCp->designp->data.prettyPrint(out2);
     out2.close();*/
 
-    logold = FCp->likep->loglikelihood(resp, linpredoldp, wp);
+    if(*wp != 0.0)
+      {
+      logold = FCp->likep->loglikelihood(resp, linpredoldp, wp);
+      lognew = FCp->likep->loglikelihood(resp, linprednewp, wp);
+      }
+    else
+      {
+      logold = lognew = 0.0;
+      }
+
     linpred = *linpredoldp + splinevalnew - splinevalold;
     linprednewp = &linpred;
-    lognew = FCp->likep->loglikelihood(resp, linprednewp, wp);
 
 /*    cout << "splinevalnew: " << splinevalnew << endl;
     cout << "splinevalold: " << splinevalold << endl;
@@ -343,13 +382,27 @@ void FC_merror::update(void)
     // calculate measurement error likelihood
     melikeold = 0.0;
     melikenew = 0.0;
-    for(j=0; j < merror; j++, xobsp++)
+
+    if(mevar.cols()==1)
       {
-      melikeold += (*xobsp-*betap)*(*xobsp-*betap);
-      melikenew += (*xobsp-prop)*(*xobsp-prop);
+      for(j=0; j < merror; j++, xobsp++)
+        {
+        melikeold += (*xobsp-*betap)*(*xobsp-*betap);
+        melikenew += (*xobsp-prop)*(*xobsp-prop);
+        }
+      melikeold *= -0.5 / *mevarp;
+      melikenew *= -0.5 / *mevarp;
       }
-    melikeold *= -0.5 / *mevarp;
-    melikenew *= -0.5 / *mevarp;
+    else
+      {
+      for(j=0; j<merror; j++, xobsp++)
+        {
+        help1(j,0) = *xobsp - *betap;
+        help2(j,0) = *xobsp - prop;
+        }
+      melikeold = -0.5*(help1.transposed() * mecovinv[i] * help1)(0,0);
+      melikenew = -0.5*(help2.transposed() * mecovinv[i] * help2)(0,0);
+      }
 
     double logu = log(randnumbers::uniform());
 

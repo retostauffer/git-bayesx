@@ -60,7 +60,11 @@ class __EXPORT_TYPE FC_merror  : public FC
   statmatrix<int> countmat;
 
   datamatrix mevar; // measurement error variances (n x 1)
-  datamatrix mesd;  // measurement error standard deviations (n x 1)
+  vector<datamatrix> mecovinv; // vector of inverse covariance matrices
+                              // length n, individual elements of dim (M x M)
+  datamatrix mesd;  // measurement error standard deviations or trace of the
+                    // measurement error covariance matrices (n x 1)
+
 
   FC_nonp * FCp;    // pointer to the P-spline full conditional
 
