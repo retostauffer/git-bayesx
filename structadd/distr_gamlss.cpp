@@ -18,9 +18,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 #include "distr_gamlss.h"
-//#include "gsl/gsl_randist.h"
-//#include "gsl/gsl_cdf.h"
-//#include "gsl/gsl_rng.h"
+
+#if defined(BayesX_gsl_included)
+#include "gsl/gsl_randist.h"
+#include "gsl/gsl_cdf.h"
+#include "gsl/gsl_rng.h"
+#endif
 
 namespace MCMC
 {

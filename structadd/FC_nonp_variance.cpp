@@ -17,11 +17,12 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
-
-
 #include "FC_nonp_variance.h"
-//#include "gsl_randist.h"
-//#include "gsl_cdf.h"
+
+#if defined(BayesX_gsl_included)
+#include "gsl_randist.h"
+#include "gsl_cdf.h"
+#endif
 
 namespace MCMC
 {

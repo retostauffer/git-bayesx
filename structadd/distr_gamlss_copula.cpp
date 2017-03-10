@@ -17,8 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
+#if defined(BayesX_gsl_included)
 #include <gsl/gsl_sf_lambert.h>
 #include <gsl/gsl_cdf.h>
+#endif
+
 #include "distr_gamlss_copula.h"
 
 namespace MCMC
@@ -1544,6 +1547,7 @@ double DISTR_gumbel_copula::logc(double & F1, double & F2, double * linpred)
 
 double DISTR_gumbel_copula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
+  #if defined(BayesX_gsl_included)
   if (this->optionsp->rotation != 0)
     {
     std::cerr << "Roatations are not implemented for Gumbel Copula" << std::endl;
@@ -1595,6 +1599,12 @@ double DISTR_gumbel_copula::condfc(double & x, double & linpred_F, double & y, d
 
   double const res = gsl_cdf_ugaussian_Pinv(u_prime)  + linpred_F;
   return res;
+
+  #else
+  std::cerr << "Gumbel Copula requires GSL" << std::endl;
+  exit(1);
+  #endif
+
   }
 
 }
