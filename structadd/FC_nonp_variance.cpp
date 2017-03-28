@@ -1386,6 +1386,8 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
   void FC_tensor_omega::get_samples(const ST::string & filename,ofstream & outg) const
     {
+    if(nromega>1)
+      {
     ST::string filename_omega = filename.substr(0,filename.length()-11) + "_omega_sample.raw";
         //FC::get_samples(filename_omega,outg);
     if ((nosamples == false) && (nosamplessave == false))
@@ -1433,6 +1435,7 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
     outg << endl;
 
     } // end: if (nosamples == false)
+      }
     }
 
   // FUNCTION: update
@@ -1441,6 +1444,8 @@ FC_varselection_omega::FC_varselection_omega(const FC_varselection_omega & m)
 
   void FC_tensor_omega::update(void)
     {
+    if(nromega>1)
+      {
     datamatrix logprobs(nromega,1,0.0);
     datamatrix probs(nromega,1,0.0);
     double probsum=0;
@@ -1493,6 +1498,7 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
     beta(0,0) = omegaindex;
     acceptance++;
     FC::update();
+      }
     }
 
   // FUNCTION: outoptions
@@ -1508,6 +1514,8 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
   void FC_tensor_omega::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,
                const ST::string & pathresults)
     {
+    if(nromega>1)
+      {
     FC::outresults(out_stata, out_R, out_R2BayesX, "");
     datamatrix omegafreq(nromega,1,0.0);
     unsigned i;
@@ -1538,6 +1546,7 @@ cout << "-0.5/(fcn->tau2)*(dut->penalty_compute_quadform(fcn->param)): " << -0.5
     optionsp->out("    " +  pathresults_omega + "\n");
     optionsp->out("\n");
     optionsp->out("\n");
+      }
     }
 
   void FC_tensor_omega::read_options(vector<ST::string> & op,vector<ST::string> & vn)

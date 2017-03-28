@@ -1049,11 +1049,19 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
   designmat.prettyPrint(out);
   out.close();*/
 
-  double rangeomega = 1.0-2.0*minomega;
-  for(i=0; i<nromega; i++)
+  if(nromega>1)
     {
-    omegas.push_back(minomega + ((double)i)/((double)(nromega-1)) * rangeomega);
+    double rangeomega = 1.0-2.0*minomega;
+    for(i=0; i<nromega; i++)
+      {
+      omegas.push_back(minomega + ((double)i)/((double)(nromega-1)) * rangeomega);
+      }
     }
+  else
+    {
+    omegas.push_back(0.5);
+    }
+
 
   FC_omegas = FC(o,"",1,1,"");
   FC_omegas.setbeta(1,1,omegas[(int)((nromega-1)/2)]);

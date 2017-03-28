@@ -165,7 +165,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   constrmatdata = stroption("constrmatdata");
 
-  nraniso = intoption("nraniso", 11, 2, 101);
+  nraniso = intoption("nraniso", 11, 1, 101);
   minaniso = doubleoption("minaniso", 0.05, 0.0000000001, 0.49);
 
   WAICoff = simpleoption("WAICoff",false);
