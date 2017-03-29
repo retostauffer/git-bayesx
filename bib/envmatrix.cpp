@@ -2065,7 +2065,7 @@ void envmatrix<T>::solveU(datamatrix &b)
     VEC_ITER_TYPE vector<T>::iterator lel;
 
 //    for(i=dim-1; i>=0; i--)
-    for(i=dim-1; i>=0; i--, bi--, --ldi)
+    for(i=dim-1; i>=0; i--, bi--, --ldi, --xei)
       {
 //      if(b(i,0)!=0)
       if(*bi!=0)
@@ -2074,14 +2074,13 @@ void envmatrix<T>::solveU(datamatrix &b)
         s = *bi/ *ldi;
 //        b(i,0) = s;
         *bi = s;
-//      iband = xenv[i+1]-xenv[i];
-        h=*xei;
-        --xei;
-        iband=h-*xei;
+//        iband = xenv[i+1]-xenv[i];
+        h = *xei;
+        iband = h - *(xei-1);
         if(iband>0)
           {
 //          l = xenv[i+1]-iband;
-          l = h-iband;
+          l = *(xei-1);
 //          for(k=i-iband; k<i; k++, l++)
           for(k=i-iband, bk = b.getV()+i-iband, lel = lenv.begin()+h-iband;
                          k<i; k++, l++, bk++, ++lel)
@@ -2233,7 +2232,7 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
     VEC_ITER_TYPE vector<T>::iterator lel;
 
 //    for(i=dim-1; i>=0; i--)
-    for(i=dim-1; i>=0; i--, bi--, bhelpi--, --ldi)
+    for(i=dim-1; i>=0; i--, bi--, bhelpi--, --ldi, --xei)
       {
 //      if(b(i,0)!=0)
       if(*bi!=0)
@@ -2244,9 +2243,8 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
 //        *bi = s + bhelp(i,0);
         *bi = s + *bhelpi;
 //      iband = xenv[i+1]-xenv[i];
-        h=*xei;
-        --xei;
-        iband=h-*xei;
+        h = *xei;
+        iband=h - *(xei-1);
         if(iband>0)
           {
 //          l = xenv[i+1]-iband;

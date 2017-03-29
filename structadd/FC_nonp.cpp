@@ -710,7 +710,15 @@ void FC_nonp::update_gaussian(void)
 
     designp->precision.solve(*(designp->XWres_p),paramhelp,param);
 
+/*    ofstream out1("c:/temp/beta1.raw");
+    param.prettyPrint(out1);
+    out1.close();*/
+
     perform_centering();
+
+/*    ofstream out2("c:/temp/beta2.raw");
+    param.prettyPrint(out2);
+    out2.close();*/
 
     designp->compute_f(param,paramlin,beta,fsample.beta);
 
@@ -2019,6 +2027,60 @@ void FC_nonp::centerparam_sample(void)
 
     designp->precision.solve(designp->basisNullt[i],helpcenter);
 
+/*    datamatrix helpcenter2(nrpar,1,0.0);
+    datamatrix helpcenter3(nrpar,1,0.0);
+    designp->precision.solveL(designp->basisNullt[i],helpcenter2);
+
+    ofstream out0("c:/temp/lhs.res");
+    helpcenter2.prettyPrint(out0);
+    out0.close();
+
+    vector<double> help;
+    for(j=0; j<helpcenter2.rows(); j++)
+      help.push_back(helpcenter2(j,0));
+    designp->precision.solveU(helpcenter2);
+    designp->precision.solveU(help);
+
+    for(j=0; j<helpcenter2.rows(); j++)
+      helpcenter3(j,0) = help[j];
+
+    ofstream out1("c:/temp/res1.res");
+    helpcenter2.prettyPrint(out1);
+    out1.close();
+
+    ofstream out2("c:/temp/res2.res");
+    helpcenter3.prettyPrint(out2);
+    out2.close();
+
+   ofstream out10("c:/temp/precisionL.res");
+   (designp->precision).print4L(out10);
+   out10.close();*/
+
+/*   datamatrix helpcenter2(nrpar,1,0.0);
+   designp->precision.solveL(designp->basisNullt[i],helpcenter2);
+
+   ofstream out8("c:\\temp\\helpcenter.res");
+   helpcenter.prettyPrint(out8);
+   out8.close();
+   ofstream out9("c:\\temp\\basisnull1.res");
+   (designp->basisNullt[i]).prettyPrint(out9);
+   out9.close();
+   ofstream out10("c:\\temp\\precision.res");
+   (designp->precision).print4(out10);
+   out10.close();
+   ofstream out11("c:\\temp\\precisionL.res");
+   (designp->precision).print4L(out11);
+   out11.close();
+   ofstream out12("c:\\temp\\helpcenter2.res");
+   helpcenter2.prettyPrint(out12);
+   out12.close();
+
+   designp->precision.solveU(helpcenter2);
+
+   ofstream out13("c:\\temp\\helpcenter3.res");
+   helpcenter2.prettyPrint(out13);
+   out13.close();*/
+
     helpcenterp = helpcenter.getV();
 
     for (j=0;j<nrpar;j++,helpcenterp++,Vcentertp++,Vcenterp+=nrrest)
@@ -2029,16 +2091,28 @@ void FC_nonp::centerparam_sample(void)
     }
 
   // TEST
-   /*
-   ofstream out0("c:\\bayesx\\testh\\results\\basisnull.res");
+
+/*   ofstream out0("c:\\temp\\basisnull1.res");
    (designp->basisNullt[0]).prettyPrint(out0);
+   out0.close();
+   if(designp->basisNullt.size()>1)
+     {
+     ofstream out01("c:\\temp\\basisnull2.res");
+     (designp->basisNullt[1]).prettyPrint(out01);
+     out01.close();
+     ofstream out02("c:\\temp\\basisnull3.res");
+     (designp->basisNullt[2]).prettyPrint(out02);
+     out02.close();
+     }
 
-   ofstream out("c:\\bayesx\\testh\\results\\Vcenter.res");
+   ofstream out("c:\\temp\\Vcenter.res");
    Vcenter.prettyPrint(out);
+   out.close();
 
-   ofstream out2("c:\\bayesx\\testh\\results\\praecision.res");
+   ofstream out2("c:\\temp\\praecision.res");
    designp->precision.print4(out2);
-   */
+   out2.close();*/
+
   // TEST
 
   Wcenter.mult(designp->basisNull,Vcenter);
@@ -2048,19 +2122,22 @@ void FC_nonp::centerparam_sample(void)
 
   //  TEST
 
-  // ofstream out4("c:\\bayesx\\testh\\results\\param.res");
-  // param.prettyPrint(out4);
+/*   ofstream out4("c:\\temp\\param.res");
+   param.prettyPrint(out4);
+   out4.close();*/
 
   //  TEST
 
   param.minus(param,Utc);
 
   //  TEST
-  // ofstream out5("c:\\bayesx\\testh\\results\\paramneu.res");
-  // param.prettyPrint(out5);
+/*   ofstream out5("c:\\temp\\paramneu.res");
+   param.prettyPrint(out5);
+   out5.close();
 
-  // ofstream out6("c:\\bayesx\\testh\\results\\Utc.res");
-  // Utc.prettyPrint(out6);
+   ofstream out6("c:\\temp\\Utc.res");
+   Utc.prettyPrint(out6);
+   out6.close();*/
   //  TEST
 
 
