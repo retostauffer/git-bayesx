@@ -445,9 +445,6 @@ void DISTR_gausscopula::compute_iwls_wweightschange_weightsone(
     set_worklin();
     }
 
-//  if(counter>=997)
-//    cout << "counter: " << counter << "\n";
-
   double hilfs = pow(1 + pow((*linpred), 2), 0.5);
   double rho = (*linpred) / hilfs;
   if (*linpred <= -100)
@@ -1037,8 +1034,20 @@ void DISTR_clayton_copula::compute_iwls_wweightschange_weightsone(
   if((*workingweight) <= 0)
     *workingweight = 0.0001;
 
+/*  if(isnan(*workingweight) || *workingweight > 100)
+    {
+    *workingweight = 1.0;
+    cout << "Clayton *workingweight NAN" << endl;
+    }*/
+
   *workingresponse = *linpred + nu/(*workingweight);
 
+/*  if(isnan(*workingresponse) || *workingresponse > 100 || *workingresponse < -100)
+    {
+    *workingresponse = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton *workingresponse NAN" << endl;
+    }*/
 
   if (compute_like)
     {
@@ -1089,7 +1098,6 @@ void DISTR_clayton_copula::update_end(void)
 vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double * linpred)
   {
   vector<double> res;
-//////////////////////////////////////////////////////////
 
   double rho = exp(*linpred);
 
@@ -1102,6 +1110,18 @@ vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double
   // second derivative
   double ddlc = (1+rho)/(F1*F1)+(2+1/rho)*pow(rho*pow(F1,(-rho-1))/arg,2)-(2+1/rho)*rho*(rho+1)*pow(F1,(-rho-2))/arg;
 
+/*  if(isnan(dlc))
+    {
+    dlc = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton derivative dlc NAN" << endl;
+    }
+  if(isnan(ddlc))
+    {
+    ddlc = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton derivative ddlc NAN" << endl;
+    }*/
 
   // return first and second derivative.
   res.push_back(dlc);
@@ -1117,6 +1137,14 @@ double DISTR_clayton_copula::logc(double & F1, double & F2, double * linpred)
 
 
   double lc = log(rho + 1) - (1 + rho) * (log(F1) + log(F2)) - (2 + 1 / rho) * log(arg);
+
+/*  if(isnan(lc))
+    {
+    lc = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton logc NAN" << endl;
+    }*/
+
   return lc;
   }
 
@@ -1171,8 +1199,27 @@ double DISTR_clayton_copula::condfc(double & x, double & linpred_F, double & y, 
     argPhi = pow( ( pow( (xstar/pow(F2,-rho-1)) ,-rho/(rho+1) ) + 1 - pow(F2,-rho)) ,-1/rho);
     }
 
+/*  if(argPhi>0.999)
+    {
+    argPhi = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton condfc argPhi > 0.999" << endl;
+    }
+  if(argPhi<0.001)
+    {
+    argPhi = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton condfc argPhi < 0.001" << endl;
+    }*/
 
   double res = randnumbers::invPhi2(argPhi)  + linpred_F;
+
+/*  if(isnan(res))
+    {
+    res = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Clayton condfc res NAN" << endl;
+    }*/
   return res;
   }
 

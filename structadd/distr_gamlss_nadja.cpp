@@ -2789,28 +2789,6 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
 
-  if(counter <= 0)
-    {
-    cout << "p: " << endl;
-    cout << "counter: " << counter << endl << endl;
-
-    cout << "p: " << p << endl;
-    cout << "b: " << (*worktransformlin[1]) << endl;
-    cout << "a: " << (*worktransformlin[0]) << endl;
-    cout << "rho: " << "hm, kriegt man hier nicht so einfach..." << endl << endl;
-
-    cout << "response: " << *response << endl;
-    cout << "linpred: " << *linpred << endl;
-
-    cout << "ybpma: " << ybpma << endl;
-    cout << "dF: " << dF << endl;
-    cout << "ddF: " << ddF << endl << endl;
-
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
-
     if (*workingweight <=0)
       *workingweight = 0.001;
     }
@@ -3033,27 +3011,6 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
-
-  if(counter <= 0)
-    {
-    cout << "b: " << endl;
-    cout << "counter: " << counter << endl << endl;
-
-    cout << "p: " << (*worktransformlin[0]) << endl;
-    cout << "b: " << b << endl;
-    cout << "a: " << (*worktransformlin[1]) << endl;
-    cout << "rho: " << "hm, kriegt man hier nicht so einfach..." << endl << endl;
-
-    cout << "response: " << *response << endl;
-    cout << "linpred: " << *linpred << endl;
-
-    cout << "dF: " << dF << endl;
-    cout << "ddF: " << ddF << endl << endl;
-
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
 
     if (*workingweight <=0)
       *workingweight = 0.001;
@@ -3389,28 +3346,6 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
 
    // *workingweight = (*worktransformlin[0])*(*worktransformlin[0])*hilfs1-logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
-
-  if(counter <= 0)
-    {
-    cout << "a: " << endl;
-    cout << "counter: " << counter << endl << endl;
-
-    cout << "p: " << (*worktransformlin[0]) << endl;
-    cout << "b: " << (*worktransformlin[1]) << endl;
-    cout << "a: " << a << endl;
-    cout << "rho: " << "hm, kriegt man hier nicht so einfach..." << endl << endl;
-
-    cout << "response: " << *response << endl;
-    cout << "linpred: " << *linpred << endl;
-
-    cout << "ybpma: " << ybpma << endl;
-    cout << "dF: " << dF << endl;
-    cout << "ddF: " << ddF << endl << endl;
-
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
 
     if (*workingweight <=0)
       *workingweight = 0.001;
@@ -4615,6 +4550,19 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const bool & ifcop)
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
 
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF < 0.001" << endl;
+    }*/
+
   if(ifcop)
     {
     modify_worklin();
@@ -4630,6 +4578,20 @@ double DISTR_gumbel_sigma::cdf(const double & resp, const double & linpred)
   mu = *worktransformlin[0];
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
+
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF < 0.001" << endl;
+    }*/
+
   return res;
   }
 
@@ -4717,7 +4679,21 @@ void DISTR_gumbel_sigma::compute_iwls_wweightschange_weightsone(
       *workingweight = 0.0001;
     }
 
+/*  if(isnan(*workingweight) || *workingweight > 100)
+    {
+    *workingweight = 1.0;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel sigma *workingweight NAN" << endl;
+    }*/
+
   *workingresponse = *linpred + nu/(*workingweight);
+
+/*  if(isnan(*workingresponse) || *workingresponse > 100 || *workingresponse < -100)
+    {
+    *workingresponse = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel sigma *workingresponse NAN" << endl;
+    }*/
 
   if (compute_like)
     {
@@ -4857,6 +4833,19 @@ double DISTR_gumbel_mu::cdf(const double & resp, const bool & ifcop)
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
 
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF < 0.001" << endl;
+    }*/
+
   if(ifcop)
     {
     modify_worklin();
@@ -4872,6 +4861,20 @@ double DISTR_gumbel_mu::cdf(const double & resp, const double & linpred)
   sigma = *worktransformlin[0];
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
+
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF < 0.001" << endl;
+    }*/
+
   return res;
   }
 
@@ -4883,6 +4886,20 @@ double DISTR_gumbel_mu::cdf(const double & resp, vector<double *>  linpred)
   sigma = exp(*linpred[1]);
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
   res = exp(-exp(-(resp-mu)/sigma));
+
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel CDF < 0.001" << endl;
+    }*/
+
   return res;
   }
 
@@ -5015,13 +5032,27 @@ void DISTR_gumbel_mu::compute_iwls_wweightschange_weightsone(
       *workingweight = 0.001;
     }
 
-    *workingresponse = *linpred + nu/(*workingweight);
+/*  if(isnan(*workingweight) || *workingweight > 100)
+    {
+    *workingweight = 1.0;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel mu *workingweight NAN" << endl;
+    }*/
 
-    if (compute_like)
-      {
+  *workingresponse = *linpred + nu/(*workingweight);
+
+/*  if(isnan(*workingresponse) || *workingresponse > 100 || *workingresponse < -100)
+    {
+    *workingresponse = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Gumbel mu *workingresponse NAN" << endl;
+    }*/
+
+  if (compute_like)
+    {
 //      like += -(*response-mu)/(*workingweight)-exp(-(*response-mu)/(*workingweight));
-      like += -log(*worktransformlin[0]) - hilfs - exp(-hilfs);
-      }
+    like += -log(*worktransformlin[0]) - hilfs - exp(-hilfs);
+    }
 
     modify_worklin();
   }
@@ -9366,6 +9397,19 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, const bool & ifcop)
   double res;
   res = randnumbers::Phi2(resp-*linpredp);
 
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Probit CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Probit CDF < 0.001" << endl;
+    }*/
+
   if(ifcop)
     {
     modify_worklin();
@@ -9378,6 +9422,19 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, const double & linp
   {
   double res = randnumbers::Phi2(resp-linpred);
 
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Probit CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Probit CDF < 0.001" << endl;
+    }*/
+
   return res;
   }
 
@@ -9385,6 +9442,19 @@ double DISTR_binomialprobit_copula::cdf(const double & resp, vector<double *> li
   {
   //linpred has only size=1!
   double res = randnumbers::Phi2(resp-*linpred[0]);
+
+/*  if(res>0.999)
+    {
+    res = 0.999;
+    cout << "counter: " << counter << endl;
+    cout << "Probit CDF > 0.999" << endl;
+    }
+  if(res<0.001)
+    {
+    res = 0.001;
+    cout << "counter: " << counter << endl;
+    cout << "Probit CDF < 0.001" << endl;
+    }*/
 
   return res;
   }
@@ -9456,7 +9526,21 @@ void DISTR_binomialprobit_copula::compute_iwls_wweightschange_weightsone(
   if (*workingweight <=0)
     *workingweight = 0.0001;
 
+/*  if(isnan(*workingweight) || *workingweight > 100)
+    {
+    *workingweight = 1.0;
+    cout << "counter: " << counter << endl;
+    cout << "Probit *workingweight NAN" << endl;
+    }*/
+
   *workingresponse = *linpred + nu/(*workingweight);
+
+/*  if(isnan(*workingresponse) || *workingresponse > 100 || *workingresponse < -100)
+    {
+    *workingresponse = 0.0;
+    cout << "counter: " << counter << endl;
+    cout << "Probit *workingresponse NAN" << endl;
+    }*/
 
   if (compute_like)
     {
@@ -26488,29 +26572,6 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
     *workingresponse = *linpred + nu/(*workingweight);
 
-  if(counter <= 0)
-    {
-    cout << "p: " << endl;
-    cout << "counter: " << counter << endl << endl;
-
-    cout << "p: " << p << endl;
-    cout << "b: " << (*worktransformlin[1]) << endl;
-    cout << "a: " << (*worktransformlin[0]) << endl;
-    cout << "rho: " << (*worktransformlin[3]) << endl << endl;
-
-    cout << "response: " << *response << endl;
-    cout << "response2: " << *response2p << endl;
-    cout << "linpred: " << *linpred << endl << endl;
-
-    cout << "ybpma: " << ybpma << endl;
-    cout << "dF: " << dF << endl;
-    cout << "ddF: " << ddF << endl << endl;
-
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
-
     if (compute_like)
       {
 
@@ -26740,28 +26801,6 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
         *workingweight = 0.0001;
 
     *workingresponse = *linpred + nu/(*workingweight);
-
-  if(counter <= 0)
-    {
-    cout << "b: " << endl;
-    cout << "counter: " << counter << endl << endl;
-
-    cout << "p: " << pcurrent << endl;
-    cout << "b: " << b << endl;
-    cout << "a: " << acurrent << endl;
-    cout << "rho: " << (*worktransformlin[3]) << endl << endl;
-
-    cout << "response: " << *response << endl;
-    cout << "response2: " << *response2p << endl;
-    cout << "linpred: " << *linpred << endl << endl;
-
-    cout << "dF: " << dF << endl;
-    cout << "ddF: " << ddF << endl << endl;
-
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
 
     if (compute_like)
       {
@@ -27004,29 +27043,6 @@ void DISTR_gaussiancopula_binary_dagum_a::compute_iwls_wweightschange_weightsone
     *workingweight = 1 + ((pcurrent+1)*pow(a,2)*hilfs*pow(log(respdivb),2))/pow((1+hilfs),2) -
                     ((*worktransformlin[3]) * (dF * dF * ddphiinvu + dphiinvu*d2) / orho) * (phinvv - (*worktransformlin[3]) * phinvu)
                     + (*worktransformlin[3]) * (*worktransformlin[3]) * pow(dF * dphiinvu, 2) / orho;
-
-  if(counter <= 0)
-    {
-    cout << "a: " << endl;
-    cout << "counter: " << counter << endl << endl;
-
-    cout << "p: " << pcurrent << endl;
-    cout << "b: " << (*worktransformlin[1]) << endl;
-    cout << "a: " << a << endl;
-    cout << "rho: " << (*worktransformlin[3]) << endl << endl;
-
-    cout << "response: " << *response << endl;
-    cout << "response2: " << *response2p << endl;
-    cout << "linpred: " << *linpred << endl << endl;
-
-    cout << "ybpma: " << ybpma << endl;
-    cout << "dF: " << dF << endl;
-    cout << "ddF: " << ddF << endl << endl;
-
-    cout << "nu: " << nu << endl;
-    cout << "workingweight: " << *workingweight << endl;
-    cout << "workingresponse: " << *workingresponse << endl << endl;
-    }
 
     if((*workingweight) <= 0)
         *workingweight = 0.0001;
