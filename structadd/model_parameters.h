@@ -137,6 +137,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
   doubleoption s_mu_x;
   doubleoption mepropscale;
 
+  simpleoption reduceddesign;
+
   vector<ST::string> termnames;
 
   void setdefault(void);

@@ -180,6 +180,9 @@ term_nonp::term_nonp(vector<ST::string> & na)
   m_mu_x = doubleoption("m_mu_x", 0.0, -1000, 1000);
   s_mu_x = doubleoption("s_mu_x", 1000.0, 0.000000000001, 10000000000.0);
   mepropscale = doubleoption("mepropscale", 2.0, 0.000001, 1000000.0);
+
+  reduceddesign = simpleoption("reduceddesign",false);
+
   }
 
 void term_nonp::setdefault(void)
@@ -276,6 +279,8 @@ void term_nonp::setdefault(void)
   m_mu_x.setdefault();
   s_mu_x.setdefault();
   mepropscale.setdefault();
+
+  reduceddesign.setdefault();
   }
 
 
@@ -419,6 +424,8 @@ bool term_nonp::check(term & t)
     optlist.push_back(&m_mu_x);
     optlist.push_back(&s_mu_x);
     optlist.push_back(&mepropscale);
+
+    optlist.push_back(&reduceddesign);
 
     unsigned i;
     bool rec = true;
@@ -633,6 +640,11 @@ bool term_nonp::check(term & t)
     t.options[76] = ST::doubletostring(m_mu_x.getvalue());
     t.options[77] = ST::doubletostring(s_mu_x.getvalue());
     t.options[78] = ST::doubletostring(mepropscale.getvalue());
+
+    if (reduceddesign.getvalue() == false)
+      t.options[79] = "false";
+    else
+      t.options[79] = "true";
 
     setdefault();
     return true;

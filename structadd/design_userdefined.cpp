@@ -363,16 +363,35 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
   {
   unsigned i,j;
 
-  for(i=0; i<posbeg.size() ; i++)
+  if(Z.rows()<data.rows())
     {
-    Zout2.push_back(vector<double>());
-    index_Zout2.push_back(vector<int>());
-    for(j=0; j<Z.cols(); j++)
+    for(i=0; i<posbeg.size() ; i++)
       {
-      if(Z(index_data(posbeg[i],0),j)!=0)
+      Zout2.push_back(vector<double>());
+      index_Zout2.push_back(vector<int>());
+      for(j=0; j<Z.cols(); j++)
         {
-        Zout2[i].push_back(Z(index_data(posbeg[i],0),j));
-        index_Zout2[i].push_back(j);
+        if(Z(i,j)!=0)
+          {
+          Zout2[i].push_back(Z(i,j));
+          index_Zout2[i].push_back(j);
+          }
+        }
+      }
+    }
+  else
+    {
+    for(i=0; i<posbeg.size() ; i++)
+      {
+      Zout2.push_back(vector<double>());
+      index_Zout2.push_back(vector<int>());
+      for(j=0; j<Z.cols(); j++)
+        {
+        if(Z(index_data(posbeg[i],0),j)!=0)
+          {
+          Zout2[i].push_back(Z(index_data(posbeg[i],0),j));
+          index_Zout2[i].push_back(j);
+          }
         }
       }
     }
@@ -409,7 +428,7 @@ void DESIGN_userdefined::compute_Zout(datamatrix & Z)
   }
 
 
-void DESIGN_userdefined::compute_Zout_transposed(datamatrix & Z)
+void DESIGN_userdefined::compute_Zout_transposed_vector(void)
   {
 
   vector<double> h;
@@ -490,7 +509,7 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
     }
 
   compute_Zout(designmat);
-  compute_Zout_transposed(designmat);
+  compute_Zout_transposed_vector();
   K = envmatdouble(penmat, 0.0);
   if(rankK==-1)
     {
@@ -1097,7 +1116,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(datamatrix & dm,datamatrix 
     }
 
   compute_Zout(designmat);
-  compute_Zout_transposed(designmat);
+  compute_Zout_transposed_vector();
 
   K = envmatdouble(omegas[omegaindex]*K1help+(1-omegas[omegaindex])*K2help, 0.00000001);
 //  K = envmatdouble(K1help+K2help, 0.00000001);

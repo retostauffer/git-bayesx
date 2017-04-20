@@ -57,7 +57,7 @@ class __EXPORT_TYPE DESIGN_userdefined : public DESIGN
                        datamatrix & f, datamatrix & ftot);
 
   void compute_Zout(datamatrix & Z);
-  void compute_Zout_transposed(datamatrix & Z);
+  void compute_Zout_transposed_vector(void);
 
   void init_data(datamatrix & dm, datamatrix & iv);
 

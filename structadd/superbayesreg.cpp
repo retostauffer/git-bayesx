@@ -9592,12 +9592,15 @@ if (terms[i].options[71] != "")
   cout << "test" << "\n";*/
 
   int p = designmat.cols();
+  bool reduced = true;
+  if (terms[i].options[79] == "false")
+    reduced = false;
 
   if(!(priormean.rows()==p &&
        penmat.rows()==p &&
        penmat.cols()==p &&
        betastart.rows()==p &&
-       designmat.rows()==d.rows() &&
+       (designmat.rows()==d.rows() || reduced) &&
        betastart.cols()==1 &&
        priormean.cols()==1))
     {
@@ -10603,11 +10606,15 @@ bool superbayesreg::create_userdefined_tensor(unsigned i)
     int p = designmat.cols();
     int p1 = penmat.rows();
     int p2 = penmat2.rows();
+    bool reduced = true;
+    if (terms[i].options[79] == "false")
+      reduced = false;
+
     if(!(priormean.rows()==p &&
          priormean.cols()==1 &&
          betastart.rows()==p &&
          betastart.cols()==1 &&
-         designmat.rows()==d.rows() &&
+         (designmat.rows()==d.rows() || reduced) &&
          penmat.cols()==p1 &&
          penmat2.cols()==p2 &&
          p1 == p2 &&
