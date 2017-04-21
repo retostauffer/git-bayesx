@@ -343,6 +343,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussiancopula_binary_normal");
   families.push_back("gaussiancopula_binary_dagum");
   families.push_back("dirichlet");
+  families.push_back("gaussian_shared");
   family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -388,6 +389,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("shape2");
   equationtypes.push_back("shape1");
   equationtypes.push_back("latent");
+  equationtypes.push_back("mu_shared");
 
   equationtype = stroption("equationtype",equationtypes,"mu");
 
@@ -562,11 +564,6 @@ void superbayesreg::create_getsample(void)
 
 void superbayesreg::create(void)
   {
-
-  generaloptions_yes = false;
-  run_yes=false;
-  mainequation=false;
-
 #if defined(__BUILDING_LINUX)
   ST::string h = defaultpath+"/output/"+name;
 #else
@@ -578,11 +575,8 @@ void superbayesreg::create(void)
   globaloptions.push_back(&outfile);
 
   create_hregress();
-
   create_autocorr();
-
   create_getsample();
-
   }
 
 
@@ -1049,6 +1043,9 @@ void superbayesreg::clear(void)
                               distr_binomialprobit_copulas.end());
   distr_binomialprobit_copulas.reserve(20);
 
+  distr_JMs.erase(distr_JMs.begin(),distr_JMs.end());
+  distr_JMs.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(200);
 
@@ -1084,6 +1081,9 @@ void superbayesreg::clear(void)
 
   FC_mults.erase(FC_mults.begin(),FC_mults.end());
   FC_mults.reserve(200);
+
+  FC_shareds.erase(FC_shareds.begin(),FC_shareds.end());
+  FC_shareds.reserve(200);
 
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
   FC_nonp_variances.reserve(400);
@@ -1171,6 +1171,7 @@ superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
   resultsyesno = false;
   run_yes = false;
   mainequation=false;
+  shared=false;
   posteriormode = false;
   computemodeforstartingvalues = true;
   firstvarselection = true;
@@ -1203,6 +1204,8 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   countmarginal=b.countmarginal;
   nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
+
+  shared = b.shared;
 
   master = b.master;
 
@@ -1358,6 +1361,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   distr_clayton_copulas = b.distr_clayton_copulas;
   distr_gumbel_copulas = b.distr_gumbel_copulas;
   distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
+  distr_JMs = b.distr_JMs;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1432,6 +1436,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   nrlevel1 = b.nrlevel1;
   simobj = b.simobj;
 
+  shared = b.shared;
   master = b.master;
 
   generaloptions = b.generaloptions;
@@ -1586,6 +1591,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   distr_clayton_copulas = b.distr_clayton_copulas;
   distr_gumbel_copulas = b.distr_gumbel_copulas;
   distr_binomialprobit_copulas = b.distr_binomialprobit_copulas;
+  distr_JMs = b.distr_JMs;
 
   resultsyesno = b.resultsyesno;
   run_yes = b.run_yes;
@@ -1978,17 +1984,6 @@ bool superbayesreg::create_distribution(void)
     {
     computemodeforstartingvalues = true;
 
-
-/*    double test = randnumbers::pbivn(-DBL_MAX,  0.1,-DBL_MAX, 0.5, 0.6);
-    cout << "p11=" << test << endl;
-    double test2 = randnumbers::pbivn(-DBL_MAX, 0.1, -DBL_MAX,-0.5, -0.6);
-    cout << "p10=" << test2 << endl;
-    double test4 = randnumbers::Phi2(0.1);
-    cout << "p1=" << test4 << endl;
-    double test5 = randnumbers::Phi2(0.5);
-    cout << "p2=" << test5 << endl;
-    cout << "p10=" << test4-test << endl;
-*/
     mainequation=true;
 
 #if defined(__BUILDING_LINUX)
@@ -2002,7 +1997,12 @@ bool superbayesreg::create_distribution(void)
 
     equations[modnr].distrp = &distr_gaussians[distr_gaussians.size()-1];
     equations[modnr].pathd = outfile.getvalue() + "_scale.res";
-    mainequation=true;
+
+    if(shared)
+      {
+      mainequation=false;
+      distr_JMs[distr_JMs.size()-1].dgaus = &distr_gaussians[distr_gaussians.size()-1];
+      }
     }
 //-------------------------- END: Gaussian response ----------------------------
 
@@ -8522,7 +8522,6 @@ bool superbayesreg::create_distribution(void)
 //----------------------------- Poisson response -------------------------------
   else if (family.getvalue() == "poisson")
     {
-
     mainequation=true;
 
     computemodeforstartingvalues = true;
@@ -8534,8 +8533,30 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_poissons[distr_poissons.size()-1];
     equations[modnr].pathd = "";
 
+    if(shared)
+      {
+      for(unsigned j=0; j<distr_JMs.size(); j++)
+        distr_JMs[j].dpois = &distr_poissons[distr_poissons.size()-1];
+      }
     }
 //-------------------------- END: poisson response -----------------------------
+
+//------------------------------- JM responses ---------------------------------
+  else if (family.getvalue() == "gaussian_shared")
+    {
+    mainequation=false;
+    shared=true;
+
+    computemodeforstartingvalues = true;
+
+    equations[modnr].equationtype="mu_shared";
+
+    distr_JMs.push_back(DISTR_JM(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_JMs[distr_JMs.size()-1];
+    equations[modnr].pathd = "";
+    }
+//---------------------------- END: JM responses -------------------------------
 
 //-------------- Poisson response with extended response function---------------
   else if (family.getvalue() == "poisson_ext")

@@ -56,6 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"FC_linear.h"
 #include"FC_hrandom.h"
 #include"FC_mult.h"
+#include"FC_shared.h"
 #include"FC_nonp_variance.h"
 #include"FC_nonp_variance_vec.h"
 #include"FC_variance_pen_vector.h"
@@ -235,6 +236,8 @@ using MCMC::DISTR_sncp_gamma;
 using MCMC::DISTR_sncp_sigma;
 using MCMC::DISTR_sncp_mu;
 
+using MCMC::DISTR_JM;
+
 using MCMC::DESIGN_pspline;
 using MCMC::DESIGN_hrandom;
 using MCMC::DESIGN_mrf;
@@ -254,6 +257,7 @@ using MCMC::FC_nonp;
 using MCMC::FC_linear;
 using MCMC::FC_linear_pen;
 using MCMC::FC_mult;
+using MCMC::FC_shared;
 using MCMC::FC_hrandom;
 using MCMC::FC_hrandom_distributional;
 using MCMC::FC_nonp_variance;
@@ -607,6 +611,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
   vector<DISTR_clayton_copula> distr_clayton_copulas;
   vector<DISTR_gumbel_copula> distr_gumbel_copulas;
   vector<DISTR_binomialprobit_copula> distr_binomialprobit_copulas;
+  vector<DISTR_JM> distr_JMs;
 
   bool create_distribution(void);
 
@@ -750,6 +755,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------- multiplicative random effects -------------------------
 
   vector<FC_mult> FC_mults;
+  vector<FC_shared> FC_shareds;
 
   bool create_random_pspline(unsigned i);
   bool create_random_mrf(unsigned i);
@@ -804,6 +810,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
 
   bool mainequation;
+
+  bool shared;
 
   int countmarginal;
 

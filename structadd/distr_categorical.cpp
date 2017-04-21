@@ -1909,6 +1909,216 @@ void DISTR_poisson_extlin::compute_iwls_wweightschange_weightsone(
   }
 
 
+//------------------------------------------------------------------------------
+//----------------------- CLASS DISTRIBUTION_JM ---------------------------
+//------------------------------------------------------------------------------
+
+void DISTR_JM::check_errors(void)
+  {
+  }
+
+DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
+                    const datamatrix & w)
+  : DISTR(o,r,w)
+
+  {
+  predictor_name = "mu_shared";
+  outexpectation = true;
+
+  if (check_weightsone() == true)
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+
+  family = "Gaussian (shared)";
+  updateIWLS = true;
+
+  linpredminlimit=-10;
+  linpredmaxlimit= 10;
+
+  check_errors();
+  }
+
+
+const DISTR_JM & DISTR_JM::operator=(const DISTR_JM & nd)
+  {
+  if (this==&nd)
+    return *this;
+  DISTR::operator=(DISTR(nd));
+  dpois = nd.dpois;
+  dgaus = nd.dgaus;
+  return *this;
+  }
+
+DISTR_JM::DISTR_JM(const DISTR_JM & nd)
+   : DISTR(DISTR(nd))
+  {
+  dpois = nd.dpois;
+  dgaus = nd.dgaus;
+  }
+
+void DISTR_JM::outoptions(void)
+  {
+  DISTR::outoptions();
+  optionsp->out("  Response function: identity\n");
+  optionsp->out("\n");
+  optionsp->out("\n");
+  }
+
+
+double DISTR_JM::get_intercept_start(void)
+  {
+  return 0;
+  }
+
+double DISTR_JM::cdf(double * res,double * param,double * weight,double * scale)
+    {
+    return 0;
+    }
+
+double DISTR_JM::pdf(double * res,double * param,double * weight,double * scale)
+    {
+    return 0;
+    }
+
+double DISTR_JM::loglikelihood(double * response, double * linpred,
+                                     double * weight)
+  {
+/*  double lambda;
+  if (*linpred <= linpredminlimit)
+    lambda = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    lambda = exp(linpredmaxlimit);
+  else
+    lambda = exp(*linpred);
+
+  if (*response==0)
+    return -(*weight)* lambda;
+  else
+    return *weight * ((*response) * (*linpred) - lambda);*/
+  }
+
+
+double DISTR_JM::loglikelihood_weightsone(
+                                  double * response, double * linpred)
+  {
+
+/*  double lambda;
+  if (*linpred <= linpredminlimit)
+    lambda = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    lambda = exp(linpredmaxlimit);
+  else
+    lambda = exp(*linpred);
+
+  if (*response==0)
+    return  -  lambda;
+  else
+    return  (*response) * (*linpred) - lambda;
+  */
+  }
+
+
+void DISTR_JM::compute_mu(const double * linpred,double * mu)
+  {
+
+/*  if (*linpred <= linpredminlimit)
+    *mu = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    *mu = exp(linpredmaxlimit);
+  else
+    *mu = exp(*linpred);*/
+  }
+
+void DISTR_JM::compute_deviance(const double * response,
+                   const double * weight,const double * mu,double * deviance,
+                   double * scale) const
+  {
+/*  if (*weight==0)
+    *deviance = 0;
+  else
+    {
+    if (*response==0)
+      {
+      *deviance = 2* *weight * *mu;
+      }
+    else
+      {
+      double rplusone = *response+1;
+      *deviance = -2* *weight*(*response*log(*mu)-*mu-
+                      randnumbers::lngamma_exact(rplusone));
+      }
+    }*/
+  }
+
+double DISTR_JM::compute_iwls(double * response, double * linpred,
+                           double * weight, double * workingweight,
+                           double * workingresponse, const bool & like)
+  {
+
+/*  double mu;
+  if (*linpred <= linpredminlimit)
+    mu = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    mu = exp(linpredmaxlimit);
+  else
+    mu = exp(*linpred);
+
+  *workingweight = *weight * mu;
+
+  if (*response==0)
+    {
+    *workingresponse = *linpred -1;
+
+    if (like)
+       return -(*weight) *mu;
+     else
+       return 0;
+    }
+  else
+    {
+    *workingresponse = *linpred + (*response - mu)/mu;
+
+    if (like)
+       return *weight * (*response * (*linpred) - mu);
+     else
+       return 0;
+    }*/
+
+  return 0;
+  }
+
+
+void DISTR_JM::compute_iwls_wweightschange_weightsone(
+                                         double * response, double * linpred,
+                                         double * workingweight,
+                                         double * workingresponse,double & like,
+                                         const bool & compute_like)
+  {
+/*
+  if (*linpred <= linpredminlimit)
+    *workingweight = exp(linpredminlimit);
+  else if (*linpred >= linpredmaxlimit)
+    *workingweight = exp(linpredmaxlimit);
+  else
+    *workingweight = exp(*linpred);
+
+  if (*response==0)
+    {
+    *workingresponse = *linpred - 1;
+
+     if (compute_like)
+       like -=   (*workingweight);
+    }
+  else
+    {
+    *workingresponse = *linpred + (*response - (*workingweight))/(*workingweight);
+
+     if (compute_like)
+       like+=  *response * (*linpred) - (*workingweight);
+    }
+*/
+  }
 
 } // end: namespace MCMC
 

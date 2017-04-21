@@ -114,6 +114,7 @@ set(STRUCTADD_SRC
 	../structadd/FC_linear.cpp
 	../structadd/FC_merror.cpp
 	../structadd/FC_mult.cpp
+	../structadd/FC_shared.cpp
 	../structadd/FC_nonp.cpp
 	../structadd/FC_nonp_variance.cpp
 	../structadd/FC_predict.cpp
