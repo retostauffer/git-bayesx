@@ -1412,7 +1412,6 @@ double DISTR_poisson::loglikelihood(double * response, double * linpred,
 double DISTR_poisson::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
-
   double lambda;
   if (*linpred <= linpredminlimit)
     lambda = exp(linpredminlimit);
@@ -1425,9 +1424,7 @@ double DISTR_poisson::loglikelihood_weightsone(
     return  -  lambda;
   else
     return  (*response) * (*linpred) - lambda;
-
   }
-
 
 void DISTR_poisson::compute_mu(const double * linpred,double * mu)
   {
@@ -1922,6 +1919,8 @@ DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
   : DISTR(o,r,w)
 
   {
+  counter=0;
+
   predictor_name = "mu_shared";
   outexpectation = true;
 
@@ -1946,7 +1945,15 @@ const DISTR_JM & DISTR_JM::operator=(const DISTR_JM & nd)
     return *this;
   DISTR::operator=(DISTR(nd));
   dpois = nd.dpois;
-  dgaus = nd.dgaus;
+  dist2 = nd.dist2;
+  resppoisp = nd.resppoisp;
+  respd2p = nd.respd2p;
+  predpoisp = nd.predpoisp;
+  predd2p = nd.predd2p;
+  weightpoisp = nd.weightpoisp;
+  weightd2p = nd.weightd2p;
+  counter = nd.counter;
+
   return *this;
   }
 
@@ -1954,7 +1961,14 @@ DISTR_JM::DISTR_JM(const DISTR_JM & nd)
    : DISTR(DISTR(nd))
   {
   dpois = nd.dpois;
-  dgaus = nd.dgaus;
+  dist2 = nd.dist2;
+  resppoisp = nd.resppoisp;
+  respd2p = nd.respd2p;
+  predpoisp = nd.predpoisp;
+  predd2p = nd.predd2p;
+  weightpoisp = nd.weightpoisp;
+  weightd2p = nd.weightd2p;
+  counter = nd.counter;
   }
 
 void DISTR_JM::outoptions(void)
@@ -1984,38 +1998,32 @@ double DISTR_JM::pdf(double * res,double * param,double * weight,double * scale)
 double DISTR_JM::loglikelihood(double * response, double * linpred,
                                      double * weight)
   {
-/*  double lambda;
-  if (*linpred <= linpredminlimit)
-    lambda = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    lambda = exp(linpredmaxlimit);
-  else
-    lambda = exp(*linpred);
+  if(counter==0)
+    {
+    set_pointer();
+    }
+  double res = 0;
+  res = dpois->loglikelihood(resppoisp, predpoisp, weightpoisp) +
+        dist2->loglikelihood(respd2p, predd2p, weightd2p);
 
-  if (*response==0)
-    return -(*weight)* lambda;
-  else
-    return *weight * ((*response) * (*linpred) - lambda);*/
+  update_pointer();
+  return res;
   }
 
 
 double DISTR_JM::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
+  if(counter==0)
+    {
+    set_pointer();
+    }
+  double res = 0;
+  res = dpois->loglikelihood_weightsone(resppoisp, predpoisp) +
+        dist2->loglikelihood_weightsone(respd2p, predd2p);
 
-/*  double lambda;
-  if (*linpred <= linpredminlimit)
-    lambda = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    lambda = exp(linpredmaxlimit);
-  else
-    lambda = exp(*linpred);
-
-  if (*response==0)
-    return  -  lambda;
-  else
-    return  (*response) * (*linpred) - lambda;
-  */
+  update_pointer();
+  return res;
   }
 
 
@@ -2055,37 +2063,28 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
                            double * weight, double * workingweight,
                            double * workingresponse, const bool & like)
   {
-
-/*  double mu;
-  if (*linpred <= linpredminlimit)
-    mu = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    mu = exp(linpredmaxlimit);
-  else
-    mu = exp(*linpred);
-
-  *workingweight = *weight * mu;
-
-  if (*response==0)
+  if(counter==0)
     {
-    *workingresponse = *linpred -1;
-
-    if (like)
-       return -(*weight) *mu;
-     else
-       return 0;
+    set_pointer();
     }
-  else
-    {
-    *workingresponse = *linpred + (*response - mu)/mu;
+  double res = 0;
 
-    if (like)
-       return *weight * (*response * (*linpred) - mu);
-     else
-       return 0;
-    }*/
+  double ww1, ww2, wr1, wr2;
+  double * ww1p = &ww1;
+  double * ww2p = &ww2;
+  double * wr1p = &wr1;
+  double * wr2p = &wr2;
 
-  return 0;
+  res = dpois->compute_iwls(resppoisp, predpoisp, weightpoisp, ww1p, wr1p, like);
+  res += dist2->compute_iwls(respd2p, predd2p, weightd2p, ww2p, wr2p, like);
+
+  double alpha=1;
+
+  *workingweight = alpha*alpha*ww1 + ww2;
+  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
+
+  update_pointer();
+  return res;
   }
 
 
@@ -2095,29 +2094,80 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
                                          double * workingresponse,double & like,
                                          const bool & compute_like)
   {
-/*
-  if (*linpred <= linpredminlimit)
-    *workingweight = exp(linpredminlimit);
-  else if (*linpred >= linpredmaxlimit)
-    *workingweight = exp(linpredmaxlimit);
-  else
-    *workingweight = exp(*linpred);
-
-  if (*response==0)
+  if(counter==0)
     {
-    *workingresponse = *linpred - 1;
+    set_pointer();
+    }
+  double like1 = 0;
+  double like2 = 0;
 
-     if (compute_like)
-       like -=   (*workingweight);
+  double ww1, ww2, wr1, wr2;
+  double * ww1p = &ww1;
+  double * ww2p = &ww2;
+  double * wr1p = &wr1;
+  double * wr2p = &wr2;
+
+  dpois->compute_iwls_wweightschange_weightsone(resppoisp, predpoisp, ww1p, wr1p, like1, compute_like);
+  dist2->compute_iwls_wweightschange_weightsone(respd2p, predd2p, ww2p, wr2p, like2, compute_like);
+
+  if(compute_like)
+    like = like1+like2;
+
+  double alpha=1;
+
+  *workingweight = alpha*alpha*ww1 + ww2;
+  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
+
+  if(counter<=10)
+  {
+  cout << "like1: " << like1 << endl;
+  cout << "like2: " << like2 << endl;
+  cout << "ww1: " << ww1 << endl;
+  cout << "ww2: " << ww2 << endl;
+  cout << "wr1: " << wr1 << endl;
+  cout << "wr2: " << wr2 << endl;
+  cout << "response: " << *workingresponse << endl;
+  cout << "weight: " << *workingweight << endl << endl;
+  }
+
+  update_pointer();
+  }
+
+  void DISTR_JM::set_pointer(void)
+    {
+    resppoisp = dpois->response.getV();
+    respd2p = dist2->response.getV();
+
+    if(dpois->linpred_current==1)
+      predpoisp = dpois->linearpred1.getV();
+    else
+      predpoisp = dpois->linearpred2.getV();
+
+    if(dist2->linpred_current==1)
+      predd2p = dist2->linearpred1.getV();
+    else
+      predd2p = dist2->linearpred2.getV();
+
+    weightpoisp = dpois->weight.getV();
+    weightd2p = dist2->weight.getV();
+    }
+
+void DISTR_JM::update_pointer(void)
+  {
+  if (counter<nrobs-1)
+    {
+    resppoisp++;
+    respd2p++;
+    predpoisp++;
+    predd2p++;
+    weightpoisp++;
+    weightd2p++;
+    counter++;
     }
   else
     {
-    *workingresponse = *linpred + (*response - (*workingweight))/(*workingweight);
-
-     if (compute_like)
-       like+=  *response * (*linpred) - (*workingweight);
+    counter=0;
     }
-*/
   }
 
 } // end: namespace MCMC

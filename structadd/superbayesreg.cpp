@@ -2001,7 +2001,7 @@ bool superbayesreg::create_distribution(void)
     if(shared)
       {
       mainequation=false;
-      distr_JMs[distr_JMs.size()-1].dgaus = &distr_gaussians[distr_gaussians.size()-1];
+      distr_JMs[distr_JMs.size()-1].dist2 = &distr_gaussians[distr_gaussians.size()-1];
       }
     }
 //-------------------------- END: Gaussian response ----------------------------

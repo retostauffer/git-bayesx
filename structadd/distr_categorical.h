@@ -605,8 +605,17 @@ class __EXPORT_TYPE DISTR_JM : public DISTR
 
   public:
 
-  DISTR_poisson * dpois;
-  DISTR_gaussian * dgaus;
+  DISTR * dpois;
+  DISTR * dist2;
+
+  double * resppoisp;
+  double * respd2p;
+  double * predpoisp;
+  double * predd2p;
+  double * weightpoisp;
+  double * weightd2p;
+
+  unsigned counter;
 
   void check_errors(void);
 
@@ -661,6 +670,10 @@ class __EXPORT_TYPE DISTR_JM : public DISTR
                                          const bool & compute_like);
 
   void outoptions(void);
+
+  void set_pointer(void);
+
+  void update_pointer(void);
   };
 
 } // end: namespace MCMC
