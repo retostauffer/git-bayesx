@@ -121,6 +121,11 @@ class adja;
 
   void plus(const statmatrix & A);
 
+  // FUNCTION: plus
+  // TASK: adds b*A to the calling matrix
+
+  void plus_mult(const statmatrix & A, const T & b);
+
   // FUNCTION: minus
   // TASK: assigns A-B to the calling matrix
   //       faster than C = A-B

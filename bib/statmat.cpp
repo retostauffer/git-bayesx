@@ -183,6 +183,19 @@ void statmatrix<T>::plus(const statmatrix & A)
         *workR += *workA;
   }
 
+template<class T>
+void statmatrix<T>::plus_mult(const statmatrix & A, const T & b)
+  {
+
+  unsigned size = this->rows( ) * this->cols( );
+
+  T *workA = A.getV( );
+  T *workR = this->getV( );
+  register unsigned i;
+
+  for ( i = 0;i < size;i++, workA++, workR++ )
+        *workR += b * *workA;
+  }
 
 template<class T>
 void statmatrix<T>::minus(const statmatrix & A,const statmatrix & B)

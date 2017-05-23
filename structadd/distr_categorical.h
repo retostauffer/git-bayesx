@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"GENERAL_OPTIONS.h"
 #include"FC.h"
 #include"distr.h"
+#include"FC_linear.h"
 
 
 namespace MCMC
@@ -615,6 +616,11 @@ class __EXPORT_TYPE DISTR_JM : public DISTR
   double * weightpoisp;
   double * weightd2p;
 
+  FC_linear * FClinp;
+  unsigned FClincol;
+
+  double alpha;
+
   unsigned counter;
 
   void check_errors(void);
@@ -674,6 +680,10 @@ class __EXPORT_TYPE DISTR_JM : public DISTR
   void set_pointer(void);
 
   void update_pointer(void);
+
+  void update_end(void);
+
+//  void posteriormode_end(void);
 
   void addmult(datamatrix & design, datamatrix & betadiff);
 

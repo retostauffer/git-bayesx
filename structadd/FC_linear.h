@@ -55,7 +55,6 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   void compute_meaneffect_design(void);
 
-  bool initialize;
   bool IWLS;
   bool IWLSmode;
 
@@ -105,6 +104,8 @@ class __EXPORT_TYPE FC_linear  : public FC
   void add_linpred(datamatrix & l);
 
   public:
+
+  bool initialize;
 
   vector<ST::string> datanames;              // names of covariates
 
@@ -170,6 +171,8 @@ class __EXPORT_TYPE FC_linear  : public FC
   // FUNCTION: add_variable
 
   int add_variable(const datamatrix & d,ST::string & name);
+
+  void change_variable(datamatrix & x, unsigned & col);
 
   };
 

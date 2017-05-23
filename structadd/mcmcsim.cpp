@@ -602,52 +602,26 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
       for (i=0;i<nrmodels;i++)
         {
-
-        if (equations[nrmodels-1-i].distrp->posteriormode() == false)
-          allconverged = false;
-
-        for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
+/*JM
+        if((i==0) && (it==1))
           {
-          if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
-              allconverged = false;
+          cout << i << endl;
+          }
+        else
+          {
+          cout << i << endl;*/
+          if (equations[nrmodels-1-i].distrp->posteriormode() == false)
+            allconverged = false;
 
-// SAMPLESEL TESTS
-/*          cout << equations[nrmodels-1-i].distrp->family << "; " << equations[nrmodels-1-i].distrp->equationtype << "; FC " << equations[nrmodels-1-i].FCpointer[j]->title << endl;
-          cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
-          cout << "j: " << j << endl;
+          for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
+            {
+            if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
+                allconverged = false;
+            } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
-          ST::string s = "c://temp//samplesel3//weight" + equations[nrmodels-1-i].distrp->family + ".raw";
-          ofstream out1(s.strtochar());
-          (equations[nrmodels-1-i].distrp->weight).prettyPrint(out1);
-          out1.close();
-
-          s = "c://temp//samplesel3//workingweight" + equations[nrmodels-1-i].distrp->family + ".raw";
-          ofstream out2(s.strtochar());
-          (equations[nrmodels-1-i].distrp->workingweight).prettyPrint(out2);
-          out2.close();
-
-          s = "c://temp//samplesel3//response" + equations[nrmodels-1-i].distrp->family + ".raw";
-          ofstream out3(s.strtochar());
-          (equations[nrmodels-1-i].distrp->response).prettyPrint(out3);
-          out3.close();
-
-          s = "c://temp//samplesel3//workingresponse" + equations[nrmodels-1-i].distrp->family + ".raw";
-          ofstream out4(s.strtochar());
-          (equations[nrmodels-1-i].distrp->workingresponse).prettyPrint(out4);
-          out4.close();
-
-          s = "c://temp//samplesel3//linpred" + equations[nrmodels-1-i].distrp->family + ".raw";
-          ofstream out5(s.strtochar());
-          if (equations[nrmodels-1-i].distrp->linpred_current==1)
-            (equations[nrmodels-1-i].distrp->linearpred1).prettyPrint(out5);
-          else
-            (equations[nrmodels-1-i].distrp->linearpred2).prettyPrint(out5);
-          out5.close();*/
-
-          } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-
-
-        equations[nrmodels-1-i].distrp->posteriormode_end();
+         equations[nrmodels-1-i].distrp->posteriormode_end();
+//JM
+//          }
 
         }
 
@@ -655,65 +629,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
         converged = true;
       else
         it++;
-
-      #if defined(BORLAND_OUTPUT_WINDOW)
-
-      Application->ProcessMessages();
-
-      if (Frame->stop)
-        {
-        break;
-        }
-
-      if (Frame->pause)
-        {
-        genoptions->out("\n");
-        genoptions->out("SIMULATION PAUSED\n");
-        genoptions->out("Click CONTINUE to proceed\n");
-        genoptions->out("\n");
-
-      while (Frame->pause)
-        {
-        Application->ProcessMessages();
-        }
-
-      genoptions->out("SIMULATION CONTINUED\n");
-      genoptions->out("\n");
-      }
-      #elif defined(JAVA_OUTPUT_WINDOW)
-      bool stop = genoptions->adminb_p->breakcommand();
-      if(stop)
-        break;
-      #endif
-
       } // end: while ((!converged) && (it <= maxiterations))
-
-
-/* SAMPLESEL TESTS*/
-/*      cout << "rows: " << equations[3].FCpointer[0]->beta.rows() << endl;
-      cout << "cols: " << equations[3].FCpointer[0]->beta.cols() << endl << endl;
-
-      cout << "rows: " << equations[2].FCpointer[0]->beta.rows() << endl;
-      cout << "cols: " << equations[2].FCpointer[0]->beta.cols() << endl << endl;
-
-      cout << "rows: " << equations[1].FCpointer[0]->beta.rows() << endl;
-      cout << "cols: " << equations[1].FCpointer[0]->beta.cols() << endl << endl;
-
-      cout << "rows: " << equations[0].FCpointer[0]->beta.rows() << endl;
-      cout << "cols: " << equations[0].FCpointer[0]->beta.cols() << endl << endl;
-
-
-      equations[3].FCpointer[0]->beta(0,0) = 0.5;
-
-      equations[2].FCpointer[0]->beta(0,0) = 0.0;
-      equations[2].FCpointer[0]->beta(1,0) = 2.0;
-      equations[2].FCpointer[0]->beta(2,0) = 1.0;
-
-      equations[1].FCpointer[0]->beta(0,0) = -0.75;
-      equations[1].FCpointer[0]->beta(1,0) = 0.5;
-      equations[1].FCpointer[0]->beta(2,0) = 0.75;
-
-      equations[0].FCpointer[0]->beta(0,0) = -1.0;*/
 
     if (!presim)
       {

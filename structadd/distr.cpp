@@ -1106,6 +1106,14 @@ void DISTR::add_linpred(datamatrix & l)
     linearpred2.plus(l);
   }
 
+void DISTR::add_linpred(datamatrix & l, const double & b)
+  {
+  if (linpred_current==1)
+    linearpred1.plus_mult(l, b);
+  else
+    linearpred2.plus_mult(l, b);
+  }
+
 void DISTR::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
   {
   double * worklinp;

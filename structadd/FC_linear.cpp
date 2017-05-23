@@ -878,6 +878,12 @@ void FC_linear::reset(void)
 
   }
 
+void FC_linear::change_variable(datamatrix & x, unsigned & col)
+  {
+  design.putCol(col, x);
+  Xt.putRow(col, x.transposed());
+  }
+
 
 //------------------------------------------------------------------------------
 //------------------------------- FC_linear_pen --------------------------------

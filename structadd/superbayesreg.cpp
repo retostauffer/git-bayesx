@@ -1082,9 +1082,6 @@ void superbayesreg::clear(void)
   FC_mults.erase(FC_mults.begin(),FC_mults.end());
   FC_mults.reserve(200);
 
-  FC_shareds.erase(FC_shareds.begin(),FC_shareds.end());
-  FC_shareds.reserve(200);
-
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
   FC_nonp_variances.reserve(400);
 
@@ -9237,6 +9234,26 @@ bool superbayesreg::create_linear(void)
                          centerlinear.getvalue(),IWLSlineff.getvalue()));
 
   equations[modnr].add_FC(&FC_linears[FC_linears.size()-1],pathconstres);
+
+  if(shared && mainequation)
+    {
+/*    ofstream out("c:/temp/help.raw");
+    help.prettyPrint(out);
+    out.close();*/
+    datamatrix help(X.rows(), 1, 0);
+    for(j=0; j<distr_JMs.size(); j++)
+      {
+      for(i=0; i<help.rows(); i++)
+        {
+        help(i,0) = 0.00001*uniform();
+        }
+
+      ST::string helpname ="alpha" + ST::inttostring(j);
+      FC_linears[FC_linears.size()-1].add_variable(help, helpname);
+      distr_JMs[j].FClinp = &FC_linears[FC_linears.size()-1];
+      distr_JMs[j].FClincol = X.cols()+j;
+      }
+    }
 
   return false;
 

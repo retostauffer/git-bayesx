@@ -638,6 +638,11 @@ class __EXPORT_TYPE DISTR
   // FUNCTION: update_linpred
   // TASK: updates linpred
 
+  virtual void add_linpred(datamatrix & l, const double & b);
+
+  // FUNCTION: update_linpred
+  // TASK: updates linpred
+
   virtual void update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind);
 
   // FUNCTION: update_linpred_save

@@ -1919,7 +1919,8 @@ DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
   : DISTR(o,r,w)
 
   {
-  counter=0;
+  counter = 0;
+  alpha = 0;
 
   predictor_name = "mu_shared";
   outexpectation = true;
@@ -1953,6 +1954,9 @@ const DISTR_JM & DISTR_JM::operator=(const DISTR_JM & nd)
   weightpoisp = nd.weightpoisp;
   weightd2p = nd.weightd2p;
   counter = nd.counter;
+  FClinp = nd.FClinp;
+  FClincol = nd.FClincol;
+  alpha = nd.alpha;
 
   return *this;
   }
@@ -1969,12 +1973,15 @@ DISTR_JM::DISTR_JM(const DISTR_JM & nd)
   weightpoisp = nd.weightpoisp;
   weightd2p = nd.weightd2p;
   counter = nd.counter;
+  FClinp = nd.FClinp;
+  FClincol = nd. FClincol;
+  alpha = nd.alpha;
   }
 
 void DISTR_JM::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function: identity\n");
+  optionsp->out("  Response function: ??\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
@@ -2065,6 +2072,10 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
   {
   if(counter==0)
     {
+    if(FClinp->initialize)
+      alpha = FClinp->beta(FClincol,0);
+    else
+      alpha = 0;
     set_pointer();
     }
   double res = 0;
@@ -2077,8 +2088,6 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
 
   res = dpois->compute_iwls(resppoisp, predpoisp, weightpoisp, ww1p, wr1p, like);
   res += dist2->compute_iwls(respd2p, predd2p, weightd2p, ww2p, wr2p, like);
-
-  double alpha=1;
 
   *workingweight = alpha*alpha*ww1 + ww2;
   *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
@@ -2096,6 +2105,10 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   {
   if(counter==0)
     {
+    if(FClinp->initialize)
+      alpha = FClinp->beta(FClincol,0);
+    else
+      alpha = 0;
     set_pointer();
     }
   double like1 = 0;
@@ -2111,9 +2124,7 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   dist2->compute_iwls_wweightschange_weightsone(respd2p, predd2p, ww2p, wr2p, like2, compute_like);
 
   if(compute_like)
-    like = like1+like2;
-
-  double alpha=1;
+    like += like1+like2;
 
   *workingweight = alpha*alpha*ww1 + ww2;
   *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
@@ -2172,15 +2183,16 @@ void DISTR_JM::update_pointer(void)
 
 void DISTR_JM::addmult(datamatrix & design, datamatrix & betadiff)
   {
+  datamatrix betadiffhelp = alpha*betadiff;
   DISTR::addmult(design, betadiff);
-  dpois->addmult(design, betadiff);
+  dpois->addmult(design, betadiffhelp);
   dist2->addmult(design, betadiff);
   }
 
 void DISTR_JM::add_linpred(datamatrix & l)
   {
   DISTR::add_linpred(l);
-  dpois->add_linpred(l);
+  dpois->add_linpred(l, alpha);
   dist2->add_linpred(l);
   }
 
@@ -2215,7 +2227,7 @@ void DISTR_JM::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<un
       {
       help = (*workintvar) *  f(*indp,0);
       *worklinp += help;
-      *worklinpois += help;
+      *worklinpois += alpha*help;
       *worklindist2 += help;
       }
     }
@@ -2225,7 +2237,7 @@ void DISTR_JM::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<un
       {
       help = f(*indp,0);
       *worklinp += help;
-      *worklinpois += help;
+      *worklinpois += alpha*help;
       *worklindist2 += help;
       }
     }
@@ -2271,7 +2283,7 @@ bool DISTR_JM::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatr
       {
       help = (*workintvar) *  f(*indp,0);
       *worklinp += help;
-      *worklinpois += help;
+      *worklinpois += alpha*help;
       *worklindist2 += help;
       if ((*worklinp) > max)
         ok = false;
@@ -2293,7 +2305,7 @@ bool DISTR_JM::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatr
       {
       help = f(*indp,0);
       *worklinp += help;
-      *worklinpois += help;
+      *worklinpois += alpha*help;
       *worklindist2 += help;
       if ((*worklinp) > max)
         ok = false;
@@ -2311,6 +2323,19 @@ bool DISTR_JM::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatr
     }
   return ok;
   }
+
+void DISTR_JM::update_end(void)
+  {
+  if(linpred_current==1)
+    FClinp->change_variable(linearpred1, FClincol);
+  else
+    FClinp->change_variable(linearpred2, FClincol);
+  }
+
+/*void DISTR_JM::posteriormode_end(void)
+  {
+  update_end();
+  }*/
 
 } // end: namespace MCMC
 
