@@ -178,11 +178,7 @@ const FC_linear & FC_linear::operator=(const FC_linear & m)
 
 void FC_linear::add_linpred(datamatrix & l)
   {
-
-  if (likep->linpred_current==1)
-    likep->linearpred1.plus(l);
-  else
-    likep->linearpred2.plus(l);
+  likep->add_linpred(l);
   }
 
 
@@ -760,11 +756,7 @@ bool FC_linear::posteriormode(void)
 
       betadiff.minus(beta,betaold);
 
-      if (likep->linpred_current==1)
-        likep->linearpred1.addmult(design,betadiff);
-      else
-        likep->linearpred2.addmult(design,betadiff);
-
+     likep->addmult(design, betadiff);
 
       bool ok;
       if (optionsp->saveestimation)
@@ -783,11 +775,7 @@ bool FC_linear::posteriormode(void)
       else
         {
         betadiff.minus(betaold,beta);
-
-        if (likep->linpred_current==1)
-          likep->linearpred1.addmult(design,betadiff);
-        else
-          likep->linearpred2.addmult(design,betadiff);
+        likep->addmult(design, betadiff);
 
         beta.assign(betaold);
         }

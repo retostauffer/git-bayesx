@@ -1090,6 +1090,91 @@ void DISTR::outresults_predictive_check(datamatrix & D,datamatrix & sr)
   optionsp->out("\n");
   }
 
+void DISTR::addmult(datamatrix & design, datamatrix & betadiff)
+  {
+  if (linpred_current==1)
+    linearpred1.addmult(design,betadiff);
+  else
+    linearpred2.addmult(design,betadiff);
+  }
+
+void DISTR::add_linpred(datamatrix & l)
+  {
+  if (linpred_current==1)
+    linearpred1.plus(l);
+  else
+    linearpred2.plus(l);
+  }
+
+void DISTR::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
+  {
+  double * worklinp;
+  if (linpred_current==1)
+    worklinp = linearpred1.getV();
+  else
+    worklinp = linearpred2.getV();
+
+  double * workintvar = intvar.getV();
+
+  unsigned * indp = ind.getV();
+  unsigned i;
+
+  if (intvar.rows()==nrobs)   // varying coefficient
+    {
+    for (i=0;i<nrobs;i++,worklinp++,workintvar++,indp++)
+      {
+      *worklinp += (*workintvar) *  f(*indp,0);
+      }
+    }
+  else                              // additive
+    {
+    for (i=0;i<nrobs;i++,worklinp++,indp++)
+      {
+      *worklinp += f(*indp,0);
+      }
+    }
+  }
+
+bool DISTR::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
+  {
+  bool ok = true;
+  double max = linpredmaxlimit;
+  double min = linpredminlimit;
+
+  double * worklinp;
+  if (linpred_current==1)
+    worklinp = linearpred1.getV();
+  else
+    worklinp = linearpred2.getV();
+
+  double * workintvar = intvar.getV();
+  unsigned * indp = ind.getV();
+  unsigned i;
+
+  if (intvar.rows()==nrobs)   // varying coefficient
+    {
+    for (i=0;i<nrobs;i++,worklinp++,workintvar++,indp++)
+      {
+      *worklinp += (*workintvar) *  f(*indp,0);
+      if ((*worklinp) > max)
+        ok = false;
+      if ((*worklinp) < min)
+        ok = false;
+      }
+    }
+  else                              // additive
+    {
+    for (i=0;i<nrobs;i++,worklinp++,indp++)
+      {
+      *worklinp += f(*indp,0);
+      if ((*worklinp) > max)
+        ok = false;
+      if ((*worklinp) < min)
+        ok = false;
+      }
+    }
+  return ok;
+  }
 
 //------------------------------------------------------------------------------
 //----------------------- CLASS DISTRIBUTION_gaussian --------------------------

@@ -1522,89 +1522,12 @@ void DESIGN::compute_meaneffect(DISTR * level1_likep,double & meaneffect,
 
 void DESIGN::update_linpred(datamatrix & f)
   {
-
-  double * worklinp;
-  if (likep->linpred_current==1)
-    worklinp = likep->linearpred1.getV();
-  else
-    worklinp = likep->linearpred2.getV();
-
-  double * workintvar = intvar.getV();
-
-  unsigned * indp = ind.getV();
-
-  unsigned i;
-
-  if (intvar.rows()==data.rows())   // varying coefficient
-    {
-
-    for (i=0;i<data.rows();i++,worklinp++,workintvar++,indp++)
-      {
-      *worklinp += (*workintvar) *  f(*indp,0);
-      }
-
-    }
-  else                              // additive
-    {
-
-    for (i=0;i<data.rows();i++,worklinp++,indp++)
-      {
-      *worklinp += f(*indp,0);
-      }
-
-    }
-
+  likep->update_linpred(f, intvar, ind);
   }
-
 
 bool DESIGN::update_linpred_save(datamatrix & f)
   {
-
-  bool ok = true;
-  double max = likep->linpredmaxlimit;
-  double min = likep->linpredminlimit;
-
-  double * worklinp;
-  if (likep->linpred_current==1)
-    worklinp = likep->linearpred1.getV();
-  else
-    worklinp = likep->linearpred2.getV();
-
-  double * workintvar = intvar.getV();
-
-  unsigned * indp = ind.getV();
-
-  unsigned i;
-
-  if (intvar.rows()==data.rows())   // varying coefficient
-    {
-
-    for (i=0;i<data.rows();i++,worklinp++,workintvar++,indp++)
-      {
-      *worklinp += (*workintvar) *  f(*indp,0);
-      if ((*worklinp) > max)
-        ok = false;
-      if ((*worklinp) < min)
-        ok = false;
-      }
-
-    }
-  else                              // additive
-    {
-
-    for (i=0;i<data.rows();i++,worklinp++,indp++)
-      {
-      *worklinp += f(*indp,0);
-      if ((*worklinp) > max)
-        ok = false;
-      if ((*worklinp) < min)
-        ok = false;
-      }
-
-    }
-
-  return ok;
-
+  return likep->update_linpred_save(f, intvar, ind);
   }
 
 

@@ -674,6 +674,14 @@ class __EXPORT_TYPE DISTR_JM : public DISTR
   void set_pointer(void);
 
   void update_pointer(void);
+
+  void addmult(datamatrix & design, datamatrix & betadiff);
+
+  void add_linpred(datamatrix & l);
+
+  void update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind);
+
+  bool update_linpred_save(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind);
   };
 
 } // end: namespace MCMC

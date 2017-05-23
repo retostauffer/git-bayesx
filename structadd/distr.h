@@ -625,11 +625,30 @@ class __EXPORT_TYPE DISTR
 
   virtual void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,ST::string pathresults="");
 
+  // FUNCTION: addmult
+  // TASK: addmults design*betadiff to linpred
+
+  virtual void addmult(datamatrix & design, datamatrix & betadiff);
+
+  // FUNCTION: add_linpred
+  // TASK: adds l to linpred
+
+  virtual void add_linpred(datamatrix & l);
+
+  // FUNCTION: update_linpred
+  // TASK: updates linpred
+
+  virtual void update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind);
+
+  // FUNCTION: update_linpred_save
+  // TASK: updates linpred (safely)
+
+  virtual bool update_linpred_save(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind);
+
   // FUNCTION: reset
   // TASK: resets linpred (all values to 0)
 
   void reset(void);
-
 
   }; // end: class DISTR
 

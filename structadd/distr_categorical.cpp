@@ -2118,7 +2118,7 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   *workingweight = alpha*alpha*ww1 + ww2;
   *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
 
-  if(counter<=10)
+/*  if(counter<=10)
   {
   cout << "like1: " << like1 << endl;
   cout << "like2: " << like2 << endl;
@@ -2128,7 +2128,7 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   cout << "wr2: " << wr2 << endl;
   cout << "response: " << *workingresponse << endl;
   cout << "weight: " << *workingweight << endl << endl;
-  }
+  }*/
 
   update_pointer();
   }
@@ -2168,6 +2168,148 @@ void DISTR_JM::update_pointer(void)
     {
     counter=0;
     }
+  }
+
+void DISTR_JM::addmult(datamatrix & design, datamatrix & betadiff)
+  {
+  DISTR::addmult(design, betadiff);
+  dpois->addmult(design, betadiff);
+  dist2->addmult(design, betadiff);
+  }
+
+void DISTR_JM::add_linpred(datamatrix & l)
+  {
+  DISTR::add_linpred(l);
+  dpois->add_linpred(l);
+  dist2->add_linpred(l);
+  }
+
+void DISTR_JM::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
+  {
+  double * worklinp;
+  double * worklinpois;
+  double * worklindist2;
+  if (linpred_current==1)
+    worklinp = linearpred1.getV();
+  else
+    worklinp = linearpred2.getV();
+
+  if (dpois->linpred_current==1)
+    worklinpois = dpois->linearpred1.getV();
+  else
+    worklinpois = dpois->linearpred2.getV();
+
+  if (dist2->linpred_current==1)
+    worklindist2 = dist2->linearpred1.getV();
+  else
+    worklindist2 = dist2->linearpred2.getV();
+
+  double * workintvar = intvar.getV();
+  unsigned * indp = ind.getV();
+  unsigned i;
+  double help;
+
+  if (intvar.rows()==nrobs)   // varying coefficient
+    {
+    for (i=0;i<nrobs;i++,worklinp++,workintvar++,indp++)
+      {
+      help = (*workintvar) *  f(*indp,0);
+      *worklinp += help;
+      *worklinpois += help;
+      *worklindist2 += help;
+      }
+    }
+  else                              // additive
+    {
+    for (i=0;i<nrobs;i++,worklinp++,indp++)
+      {
+      help = f(*indp,0);
+      *worklinp += help;
+      *worklinpois += help;
+      *worklindist2 += help;
+      }
+    }
+  }
+
+bool DISTR_JM::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
+  {
+  bool ok = true;
+  double max = linpredmaxlimit;
+  double min = linpredminlimit;
+  double maxpois = dpois->linpredmaxlimit;
+  double minpois = dpois->linpredminlimit;
+  double maxdist2 = dist2->linpredmaxlimit;
+  double mindist2 = dist2->linpredminlimit;
+
+
+  double * worklinp;
+  double * worklinpois;
+  double * worklindist2;
+  if (linpred_current==1)
+    worklinp = linearpred1.getV();
+  else
+    worklinp = linearpred2.getV();
+
+  if (dpois->linpred_current==1)
+    worklinpois = dpois->linearpred1.getV();
+  else
+    worklinpois = dpois->linearpred2.getV();
+
+  if (dist2->linpred_current==1)
+    worklindist2 = dist2->linearpred1.getV();
+  else
+    worklindist2 = dist2->linearpred2.getV();
+
+  double * workintvar = intvar.getV();
+  unsigned * indp = ind.getV();
+  unsigned i;
+  double help;
+
+  if (intvar.rows()==nrobs)   // varying coefficient
+    {
+    for (i=0;i<nrobs;i++,worklinp++,workintvar++,indp++)
+      {
+      help = (*workintvar) *  f(*indp,0);
+      *worklinp += help;
+      *worklinpois += help;
+      *worklindist2 += help;
+      if ((*worklinp) > max)
+        ok = false;
+      if ((*worklinp) < min)
+        ok = false;
+      if ((*worklinpois) > maxpois)
+        ok = false;
+      if ((*worklinpois) < minpois)
+        ok = false;
+      if ((*worklindist2) > maxdist2)
+        ok = false;
+      if ((*worklindist2) < mindist2)
+        ok = false;
+      }
+    }
+  else                              // additive
+    {
+    for (i=0;i<nrobs;i++,worklinp++,indp++)
+      {
+      help = f(*indp,0);
+      *worklinp += help;
+      *worklinpois += help;
+      *worklindist2 += help;
+      if ((*worklinp) > max)
+        ok = false;
+      if ((*worklinp) < min)
+        ok = false;
+      if ((*worklinpois) > maxpois)
+        ok = false;
+      if ((*worklinpois) < minpois)
+        ok = false;
+      if ((*worklindist2) > maxdist2)
+        ok = false;
+      if ((*worklindist2) < mindist2)
+        ok = false;
+      }
+    }
+  return ok;
   }
 
 } // end: namespace MCMC
