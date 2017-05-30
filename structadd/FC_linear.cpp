@@ -880,6 +880,8 @@ void FC_linear::reset(void)
 
 void FC_linear::change_variable(datamatrix & x, unsigned & col)
   {
+  if (!initialize)
+    create_matrices();
   design.putCol(col, x);
   Xt.putRow(col, x.transposed());
   }

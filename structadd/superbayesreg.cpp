@@ -9243,10 +9243,10 @@ bool superbayesreg::create_linear(void)
     datamatrix help(X.rows(), 1, 0);
     for(j=0; j<distr_JMs.size(); j++)
       {
-      for(i=0; i<help.rows(); i++)
+/*      for(i=0; i<help.rows(); i++)
         {
-        help(i,0) = 0.00001*uniform();
-        }
+        help(i,0) = uniform();
+      }*/
 
       ST::string helpname ="alpha" + ST::inttostring(j);
       FC_linears[FC_linears.size()-1].add_variable(help, helpname);

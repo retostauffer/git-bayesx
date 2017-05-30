@@ -1920,7 +1920,7 @@ DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
 
   {
   counter = 0;
-  alpha = 0;
+  alpha = 0.75;
 
   predictor_name = "mu_shared";
   outexpectation = true;
@@ -2072,10 +2072,10 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
   {
   if(counter==0)
     {
-    if(FClinp->initialize)
+/*    if(FClinp->initialize)
       alpha = FClinp->beta(FClincol,0);
     else
-      alpha = 0;
+      alpha = 0;*/
     set_pointer();
     }
   double res = 0;
@@ -2105,10 +2105,10 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   {
   if(counter==0)
     {
-    if(FClinp->initialize)
+/*    if(FClinp->initialize)
       alpha = FClinp->beta(FClincol,0);
     else
-      alpha = 0;
+      alpha = 0;*/
     set_pointer();
     }
   double like1 = 0;
@@ -2332,10 +2332,10 @@ void DISTR_JM::update_end(void)
     FClinp->change_variable(linearpred2, FClincol);
   }
 
-/*void DISTR_JM::posteriormode_end(void)
+void DISTR_JM::posteriormode_end(void)
   {
   update_end();
-  }*/
+  }
 
 } // end: namespace MCMC
 

@@ -683,7 +683,7 @@ class __EXPORT_TYPE DISTR_JM : public DISTR
 
   void update_end(void);
 
-//  void posteriormode_end(void);
+  void posteriormode_end(void);
 
   void addmult(datamatrix & design, datamatrix & betadiff);
 
