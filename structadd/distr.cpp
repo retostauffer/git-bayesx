@@ -18,8 +18,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 
-
-
+#include <math.h>
 #include "distr.h"
 
 namespace MCMC
@@ -344,6 +343,13 @@ bool DISTR::check_linpred(bool current)
   unsigned i=0;
   while (ok && (i<nrobs))
     {
+    // cmp with nan value is always false, thus check for nan first
+    if (isnan(*worklin))
+      {
+      cerr << "linear predictor is NaN in equation " << this->equationtype
+           << ".\ncan not recover.\nterminating bayesx.\n";
+      abort(); // FIXME unify error handling (exit/abort/exceptions/retval)
+      }
     if (*worklin > linpredmaxlimit)
       ok = false;
     if (*worklin < linpredminlimit)
