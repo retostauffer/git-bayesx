@@ -349,18 +349,13 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
                              vector<double *> linpred,
                              double * deviance,
                              vector<datamatrix*> aux)
-  {
-   if ((*weight[0] == 0) || (*weight[weight.size()-2] == 0))
-     *deviance=0;
-   else
-     {
-     double rho = (*linpred[(linpred.size()-1)]) / pow(1 + pow((*linpred[(linpred.size()-1)]), 2), 0.5);
-     if (*linpred[(linpred.size()-1)] <= -100)
+    {
+    double rho = (*linpred[(linpred.size()-1)]) / pow(1 + pow((*linpred[(linpred.size()-1)]), 2), 0.5);if (*linpred[(linpred.size()-1)] <= -100)
         rho  = -0.99995;
-     else if (*linpred[(linpred.size()-1)] >= 100)
+    else if (*linpred[(linpred.size()-1)] >= 100)
         rho  = 0.99995;
 
-     double orho = 1 - pow(rho, 2);
+    double orho = 1 - pow(rho, 2);
 
     int s1 = distrp[1]->distrp.size();
     int s2 = distrp[0]->distrp.size();
@@ -371,6 +366,7 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
     vector<double*> linpredvec2;
     vector<double*> responsevec2;
     vector<double*> weightvec2;
+    const double copula_weight = *weight.back();
 
 
     int j;
@@ -388,22 +384,38 @@ void DISTR_gausscopula::compute_deviance_mult(vector<double *> response,
       responsevec1.push_back(response[s2+1+k]);
       }
 
-    double d1;
-    double d2;
-    distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
-    distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
 
-    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
-    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+    double d1 = 0;
+    double d2 = 0;
+    double l = 0;
 
-    double l;
+    if (*weightvec2.front() > 0.0)
+       {
+       distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
+       }
 
-    l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+    if (*weightvec1.front() > 0.0)
+        {
+        distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
+        }
 
-    *deviance = -2*l+d1+d2;
+
+    if (*weightvec1.front() > 0.0 && *weightvec2.front() > 0.0)
+        {
+        assert(copula_weight > 0.0);
+        double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
+        double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+        l = -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+        l *= copula_weight;
+        }
+    else
+        {
+        assert(copula_weight == 0.0);
+        }
+
+    *deviance = -2*l + d1 + d2;
+
     }
-
-  }
 
 double DISTR_gausscopula::loglikelihood_weightsone(double * response,
                                                  double * linpred)
@@ -620,18 +632,13 @@ void DISTR_gausscopula2::compute_deviance_mult(vector<double *> response,
                              vector<double *> linpred,
                              double * deviance,
                              vector<datamatrix*> aux)
-  {
-   if ((*weight[0] == 0) || (*weight[weight.size()-2] == 0))
-     *deviance=0;
-   else
-     {
-     double rho = tanh((*linpred[(linpred.size()-1)]));
-     if (*linpred[(linpred.size()-1)] <= -100)
+    {
+    double rho = (*linpred[(linpred.size()-1)]) / pow(1 + pow((*linpred[(linpred.size()-1)]), 2), 0.5);if (*linpred[(linpred.size()-1)] <= -100)
         rho  = -0.99995;
-     else if (*linpred[(linpred.size()-1)] >= 100)
+    else if (*linpred[(linpred.size()-1)] >= 100)
         rho  = 0.99995;
 
-     double orho = 1 - pow(rho, 2);
+    double orho = 1 - pow(rho, 2);
 
     int s1 = distrp[1]->distrp.size();
     int s2 = distrp[0]->distrp.size();
@@ -642,6 +649,7 @@ void DISTR_gausscopula2::compute_deviance_mult(vector<double *> response,
     vector<double*> linpredvec2;
     vector<double*> responsevec2;
     vector<double*> weightvec2;
+    const double copula_weight = *weight.back();
 
 
     int j;
@@ -659,22 +667,38 @@ void DISTR_gausscopula2::compute_deviance_mult(vector<double *> response,
       responsevec1.push_back(response[s2+1+k]);
       }
 
-    double d1;
-    double d2;
-    distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
-    distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
 
-    double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
-    double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+    double d1 = 0;
+    double d2 = 0;
+    double l = 0;
 
-    double l;
+    if (*weightvec2.front() > 0.0)
+       {
+       distrp[0]->compute_deviance_mult(responsevec2,weightvec2,linpredvec2,&d2,aux);
+       }
 
-     l =  -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+    if (*weightvec1.front() > 0.0)
+        {
+        distrp[1]->compute_deviance_mult(responsevec1,weightvec1,linpredvec1,&d1,aux);
+        }
 
-    *deviance = -2*l+d1+d2;
+
+    if (*weightvec1.front() > 0.0 && *weightvec2.front() > 0.0)
+        {
+        assert(copula_weight > 0.0);
+        double phinvu = randnumbers::invPhi2(distrp[1]->cdf(*response[response.size()-2],linpredvec1));
+        double phinvv = randnumbers::invPhi2(distrp[0]->cdf(*response[0],linpredvec2));
+        l = -0.5 * log(orho) + rho * phinvu * phinvv / orho - 0.5 * pow(rho, 2) * (pow(phinvu, 2) + pow(phinvv, 2)) / orho;
+        l *= copula_weight;
+        }
+    else
+        {
+        assert(copula_weight == 0.0);
+        }
+
+    *deviance = -2*l + d1 + d2;
+
     }
-
-  }
 
 double DISTR_gausscopula2::loglikelihood_weightsone(double * response,
                                                  double * linpred)
