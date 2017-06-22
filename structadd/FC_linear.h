@@ -174,6 +174,8 @@ class __EXPORT_TYPE FC_linear  : public FC
 
   void change_variable(datamatrix & x, unsigned & col);
 
+  void compute_linold(void);
+
   };
 
 

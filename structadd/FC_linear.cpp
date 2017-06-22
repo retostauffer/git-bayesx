@@ -256,6 +256,20 @@ void FC_linear::update_IWLS(void)
 
     if (ok)
       logprop = likep->loglikelihood();     // mit proposed
+
+/*    ofstream out1("c://temp//XWX.raw");
+    XWX.prettyPrint(out1);
+    out1.close();
+
+    ofstream out2("c://temp//design.raw");
+    design.prettyPrint(out2);
+    out2.close();
+
+    ofstream out3("c://temp//Xtresidual.raw");
+    Xtresidual.prettyPrint(out3);
+    out3.close();*/
+
+
     }
   else
     {
@@ -286,6 +300,18 @@ void FC_linear::update_IWLS(void)
     linnewp->mult(design,proposal);
     diff.minus(*linnewp,*linoldp);
     add_linpred(diff);
+
+/*    ofstream out1("c://temp//XWX.raw");
+    XWX.prettyPrint(out1);
+    out1.close();
+
+    ofstream out2("c://temp//design.raw");
+    design.prettyPrint(out2);
+    out2.close();
+
+    ofstream out3("c://temp//Xtresidual.raw");
+    Xtresidual.prettyPrint(out3);
+    out3.close();*/
 
     // check if proposed lin pred is within limits
     ok = true;
@@ -884,6 +910,11 @@ void FC_linear::change_variable(datamatrix & x, unsigned & col)
     create_matrices();
   design.putCol(col, x);
   Xt.putRow(col, x.transposed());
+  }
+
+void FC_linear::compute_linold(void)
+  {
+  linold.mult(design,beta);
   }
 
 

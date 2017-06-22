@@ -1981,11 +1981,10 @@ DISTR_JM::DISTR_JM(const DISTR_JM & nd)
 void DISTR_JM::outoptions(void)
   {
   DISTR::outoptions();
-  optionsp->out("  Response function: ??\n");
+  optionsp->out("  Response function: shared\n");
   optionsp->out("\n");
   optionsp->out("\n");
   }
-
 
 double DISTR_JM::get_intercept_start(void)
   {
@@ -2330,6 +2329,7 @@ void DISTR_JM::update_end(void)
     FClinp->change_variable(linearpred1, FClincol);
   else
     FClinp->change_variable(linearpred2, FClincol);
+  FClinp->compute_linold();
   }
 
 void DISTR_JM::posteriormode_end(void)

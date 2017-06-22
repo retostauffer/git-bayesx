@@ -5593,7 +5593,7 @@ bool superbayesreg::create_distribution(void)
     // Fill distrp of the copula with some starting values to make it a vector of length=2
     distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(equations[modnr-1].distrp);
     distr_gausscopulas[distr_gausscopulas.size()-1].distrp.push_back(equations[modnr-2].distrp);
-	
+
 		vector<DISTR*> pred_mult_margin1;
 		vector<DISTR*> pred_mult_margin0;
 
@@ -5610,16 +5610,16 @@ bool superbayesreg::create_distribution(void)
           distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]= (&distr_binomialprobit_copulas[coi]);
           distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_binomialprobit_copulas[coi].response;
           distr_binomialprobit_copulas[coi].responsecopmat = &distr_gausscopulas[distr_gausscopulas.size()-1].response2;
-					
+
 					pred_mult_margin0.push_back(&distr_binomialprobit_copulas[coi]);
 					}
-					
+
         else if(distr_binomialprobit_copulas[coi].get_copulapos()==1)
           {
           distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]= (&distr_binomialprobit_copulas[coi]);
           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_binomialprobit_copulas[coi].response;
           distr_binomialprobit_copulas[coi].responsecopmat = &distr_gausscopulas[distr_gausscopulas.size()-1].response1;
-					
+
 					pred_mult_margin1.push_back(&distr_binomialprobit_copulas[coi]);
           }
         else
@@ -5646,7 +5646,7 @@ bool superbayesreg::create_distribution(void)
           {
           distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]= (&distr_weibull_lambdas[coi]);
           distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_weibull_lambdas[coi].response;
-					
+
 					pred_mult_margin0.push_back(&distr_weibull_alphas[coi]);
 					pred_mult_margin0.push_back(&distr_weibull_lambdas[coi]);
 
@@ -5655,7 +5655,7 @@ bool superbayesreg::create_distribution(void)
           {
           distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]= (&distr_weibull_lambdas[coi]);
           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_weibull_lambdas[coi].response;
-					
+
 					pred_mult_margin1.push_back(&distr_weibull_alphas[coi]);
 					pred_mult_margin1.push_back(&distr_weibull_lambdas[coi]);
           }
@@ -5768,7 +5768,7 @@ bool superbayesreg::create_distribution(void)
           {
           distr_gausscopulas[distr_gausscopulas.size()-1].distrp[0]= (&distr_normal_mus[coi]);
           distr_gausscopulas[distr_gausscopulas.size()-1].response2 = distr_normal_mus[coi].response;
-					
+
 					pred_mult_margin0.push_back(&distr_normal_sigma2s[coi]);
 					pred_mult_margin0.push_back(&distr_normal_mus[coi]);
           }
@@ -5776,7 +5776,7 @@ bool superbayesreg::create_distribution(void)
           {
           distr_gausscopulas[distr_gausscopulas.size()-1].distrp[1]= (&distr_normal_mus[coi]);
           distr_gausscopulas[distr_gausscopulas.size()-1].response1 = distr_normal_mus[coi].response;
-					
+
 					pred_mult_margin1.push_back(&distr_normal_sigma2s[coi]);
 					pred_mult_margin1.push_back(&distr_normal_mus[coi]);
           }
@@ -5838,9 +5838,9 @@ bool superbayesreg::create_distribution(void)
         distr_binomialprobit_copulas[coi].update();
         }
       }
-		
-		cerr  << "pred_mult_margin0.size " << pred_mult_margin0.size() << "\n\n";		
-		cerr  << "pred_mult_margin1.size " << pred_mult_margin1.size() << "\n\n";		
+
+		cerr  << "pred_mult_margin0.size " << pred_mult_margin0.size() << "\n\n";
+		cerr  << "pred_mult_margin1.size " << pred_mult_margin1.size() << "\n\n";
          // abort();
 		int lengi;
 		for(lengi=0;lengi<pred_mult_margin0.size();lengi++)
@@ -9271,16 +9271,9 @@ bool superbayesreg::create_linear(void)
 
   if(shared && mainequation)
     {
-/*    ofstream out("c:/temp/help.raw");
-    help.prettyPrint(out);
-    out.close();*/
     datamatrix help(X.rows(), 1, 0);
     for(j=0; j<distr_JMs.size(); j++)
       {
-/*      for(i=0; i<help.rows(); i++)
-        {
-        help(i,0) = uniform();
-      }*/
 
       ST::string helpname ="alpha" + ST::inttostring(j);
       FC_linears[FC_linears.size()-1].add_variable(help, helpname);
