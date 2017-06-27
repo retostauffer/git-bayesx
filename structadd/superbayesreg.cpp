@@ -6202,8 +6202,9 @@ bool superbayesreg::create_distribution(void)
       int coi;
       for(coi=0;coi<distr_gumbel_mus.size();coi++)
         {
-        predict_mult_distrs.push_back(&distr_gumbel_mus[coi]);
+
         predict_mult_distrs.push_back(&distr_gumbel_sigmas[coi]);
+        predict_mult_distrs.push_back(&distr_gumbel_mus[coi]);
 
         distr_gumbel_mus[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
         distr_gumbel_sigmas[coi].distrcopulap.push_back(&distr_clayton_copulas[distr_clayton_copulas.size()-1]);
