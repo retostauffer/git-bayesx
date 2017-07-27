@@ -603,13 +603,12 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
       for (i=0;i<nrmodels;i++)
         {
 /*JM*/
+/*Note: has to be changed such that it only applies for JM since otherwise gaussian is broken
         if((i==0) && (it==1))
           {
-//          cout << i << endl;
           }
         else
-          {
-//          cout << i << endl;
+          {*/
           if (equations[nrmodels-1-i].distrp->posteriormode() == false)
             allconverged = false;
 
@@ -621,7 +620,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
          equations[nrmodels-1-i].distrp->posteriormode_end();
 //JM
-          }
+//          }
 
         }
 
