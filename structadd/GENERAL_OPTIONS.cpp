@@ -55,6 +55,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   samplesel = false;
   sampleselval = 0.0;
   IWLSlineff=false;
+  forceIWLS=false;
   }
 
 
@@ -125,6 +126,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   samplesel = o.samplesel;
   sampleselval = o.sampleselval;
   IWLSlineff = o.IWLSlineff;
+  forceIWLS = o.forceIWLS;
   }
 
 
@@ -155,6 +157,7 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   samplesel = o.samplesel;
   sampleselval = o.sampleselval;
   IWLSlineff = o.IWLSlineff;
+  forceIWLS = o.forceIWLS;
   return *this;
   }
 

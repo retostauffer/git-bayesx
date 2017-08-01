@@ -6793,7 +6793,14 @@ DISTR_lognormal_mu::DISTR_lognormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS = false;
+  if(o->forceIWLS)
+    {
+    updateIWLS = true;
+    }
+  else
+    {
+    updateIWLS = false;
+    }
   check_errors();
   }
 
@@ -7616,7 +7623,14 @@ DISTR_normal2_mu::DISTR_normal2_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS =false;
+  if(o->copula || o->forceIWLS)
+    {
+    updateIWLS = true;
+    }
+  else
+    {
+    updateIWLS = false;
+    }
   check_errors();
 //    linpredminlimit=-10;
  // linpredmaxlimit=15;
@@ -8097,7 +8111,7 @@ DISTR_normal_mu::DISTR_normal_mu(GENERAL_OPTIONS * o,
   outexpectation = true;
   predictor_name = "mu";
   check_errors();
-  if(o->copula)
+  if(o->copula || o->forceIWLS)
     {
     updateIWLS = true;
     }
@@ -11244,7 +11258,14 @@ DISTR_gumbelcopula2_normal_mu_2::DISTR_gumbelcopula2_normal_mu_2(GENERAL_OPTIONS
   outexpectation = true;
   predictor_name = "mu";
 
-  updateIWLS = false;
+  if(o->forceIWLS)
+    {
+    updateIWLS = true;
+    }
+  else
+    {
+    updateIWLS = false;
+    }
  //   linpredminlimit=-10;
  // linpredmaxlimit=15;
   }
@@ -17086,7 +17107,14 @@ DISTR_bivnormal_mufz::DISTR_bivnormal_mufz(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS = false;
+  if(o->forceIWLS)
+    {
+    updateIWLS = true;
+    }
+  else
+    {
+    updateIWLS = false;
+    }
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
   check_errors();
@@ -17812,7 +17840,14 @@ DISTR_bivnormal_mu::DISTR_bivnormal_mu(GENERAL_OPTIONS * o,
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS = false;
+  if(o->forceIWLS)
+    {
+    updateIWLS = true;
+    }
+  else
+    {
+    updateIWLS = false;
+    }
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
   check_errors();
@@ -27866,7 +27901,14 @@ DISTR_gaussiancopula_binary_normal_mu::DISTR_gaussiancopula_binary_normal_mu(GEN
   outpredictor = true;
   outexpectation = true;
   predictor_name = "mu";
-  updateIWLS = false;
+  if(o->forceIWLS)
+    {
+    updateIWLS = true;
+    }
+  else
+    {
+    updateIWLS = false;
+    }
 //    linpredminlimit=-10;
 //  linpredmaxlimit=15;
   }

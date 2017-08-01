@@ -95,6 +95,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   unsigned rotation;             // possible rotation of the copula
 
   bool IWLSlineff;
+  bool forceIWLS;
 
   // DEFAULT CONSTRUCTOR
   // Defines:
