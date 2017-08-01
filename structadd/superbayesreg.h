@@ -444,6 +444,7 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   simpleoption IWLSlineff;
 
+  simpleoption forceIWLS;
   // end: OPTIONS for method regress
 
  // ------------------------------- MASTER_OBJ ---------------------------------
