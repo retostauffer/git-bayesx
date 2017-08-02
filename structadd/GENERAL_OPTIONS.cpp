@@ -66,7 +66,7 @@ administrator_basic * abp,
 const unsigned & it,const unsigned & bu,
                          const unsigned & st, const bool & sa,
                          const bool & cop, const unsigned & rot,
-                         const bool & samsel, const double & samselval,
+                         const bool & samsel, const double & samselval, const bool & fiwls,
                          ostream * lo,
                          const double & l1,const double & l2)
   {
@@ -88,6 +88,7 @@ const unsigned & it,const unsigned & bu,
   rotation = rot;
   samplesel = samsel;
   sampleselval = samselval;
+  forceIWLS = fiwls;
 
   (*logout) << flush;
 #if defined(BORLAND_OUTPUT_WINDOW)

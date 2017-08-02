@@ -1676,6 +1676,7 @@ bool superbayesreg::create_generaloptions(void)
                                 step.getvalue(),saveestimation.getvalue(),
                                 copula.getvalue(),rotation.getvalue(),
                                 samplesel.getvalue(), sampleselval.getvalue(),
+                                forceIWLS.getvalue(),
                                 logout,
                                 level1.getvalue(),level2.getvalue());
 

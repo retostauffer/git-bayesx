@@ -603,8 +603,8 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
       for (i=0;i<nrmodels;i++)
         {
 /*JM*/
-/*Note: has to be changed such that it only applies for JM since otherwise gaussian is broken
-        if((i==0) && (it==1))
+/*Note: has to be changed such that it only applies for JM since otherwise gaussian is broken*/
+/*        if((i==0) && (it==1))
           {
           }
         else

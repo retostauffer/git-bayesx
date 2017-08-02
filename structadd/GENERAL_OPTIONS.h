@@ -131,7 +131,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   #endif
                   const unsigned & it,const unsigned & bu,const unsigned & st,
                   const bool & sa,const bool & cop, const unsigned & rot,
-                  const bool & samsel, const double & samselval,
+                  const bool & samsel, const double & samselval, const bool & fiwls,
                   ostream * lo=&cout,const double & l1=95,
                   const double & l2=80);
 
