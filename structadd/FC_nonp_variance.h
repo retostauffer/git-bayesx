@@ -184,9 +184,10 @@ class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
   double r;
 
   datamatrix X;
+  datamatrix Xscaled;
   datamatrix diff;
 
-  double tauold;
+//  double tauold;
 
   public:
 

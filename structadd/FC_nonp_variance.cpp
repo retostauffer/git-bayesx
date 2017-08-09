@@ -775,13 +775,14 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
   if(FCnonpp->IWLS)
     {
     diff = datamatrix(likep->nrobs, 1, 0);
-    zerovec = datamatrix(likep->nrobs,1,0);
+    Xscaled = datamatrix(likep->nrobs, 1, 0);
 
-    tauold = sqrt(likep->get_scale()/FCnonpp->lambda);
-    FCnonpp->tau2=1;
-    FCnonpp->lambda=likep->get_scale();
-    FCnonpp->designp->set_intvar(zerovec,tauold);
-    FCnonpp->designp->changingdesign=true;
+//    zerovec = datamatrix(likep->nrobs,1,0);
+//    tauold = sqrt(likep->get_scale()/FCnonpp->lambda);
+//    FCnonpp->tau2=1;
+//    FCnonpp->lambda=likep->get_scale();
+//    FCnonpp->designp->set_intvar(zerovec,tauold);
+//    FCnonpp->designp->changingdesign=true;
     }
   }
 
@@ -797,12 +798,13 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omega = m.omega;
-  tauold = m.tauold;
+//  tauold = m.tauold;
   v1 = m.v1;
   v2 = m.v2;
   v2_orig = m.v2_orig;
   r = m.r;
   X = m.X;
+  Xscaled = m.Xscaled;
   diff = m.diff;
   gig = m.gig;
   r_delta = m.r_delta;
@@ -825,12 +827,13 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omega = m.omega;
-  tauold = m.tauold;
+//  tauold = m.tauold;
   v1 = m.v1;
   v2 = m.v2;
   v2_orig = m.v2_orig;
   r = m.r;
   X = m.X;
+  Xscaled = m.Xscaled;
   diff = m.diff;
   gig = m.gig;
   r_delta = m.r_delta;
@@ -858,8 +861,17 @@ void FC_nonp_variance_varselection::update_IWLS(void)
   double mutauprop=0.0;
   double mutaucurr=0.0;
 
-  // compute X = design matrix * scaled regression coefficients (Z * tilde gamma)
+  // compute X = design matrix * regression coefficients (Z * gamma)
   FCnonpp->designp->compute_effect(X,FCnonpp->beta);
+
+//  ofstream out1("c:/temp/X.raw");
+//  X.prettyPrint(out1);
+//  out1.close();
+//  cout << FCnonpp->param(0,0) << endl;
+
+  double tauold = sqrt(beta(0,0));
+  double tauoldinv = 1 / tauold;
+  Xscaled.mult_scalar(X, tauoldinv);
 
   double * worklin;
   if (likep->linpred_current==1)
@@ -870,31 +882,40 @@ void FC_nonp_variance_varselection::update_IWLS(void)
   double logold = likep->compute_iwls(true, true);
 
   double * Xp = X.getV();
+  double * Xsp = Xscaled.getV();
   double * responsep = likep->workingresponse.getV();
   double * weightp = likep->workingweight.getV();
   double xtx=0.0;
-  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,weightp++)
+  for (i=0;i<X.rows();i++,Xp++,Xsp++,responsep++,worklin++,weightp++)
     {
-    xtx += (*weightp) * pow(*Xp,2);
-    mutaucurr += (*weightp) * (*Xp) * ((*responsep) - (*worklin) + tauold*(*Xp));
+    xtx += (*weightp) * pow(*Xsp,2);
+    mutaucurr += (*weightp) * (*Xsp) * ((*responsep) - (*worklin) + (*Xp));
     }
   Sigmataucurr = 1/(xtx + 1/(FC_psi2.beta(0,0)*r_delta));
 
   mutaucurr *= Sigmataucurr;
 
   double tauprop = mutaucurr + sqrt(Sigmataucurr) * rand_normal();
+  double tauratio = tauprop/tauold;
 
   double * diffp = diff.getV();
   Xp = X.getV();
   for(i=0; i<X.rows(); i++, Xp++, diffp++)
     {
-    *diffp = (tauprop - tauold) * (*Xp);
+    *diffp = (tauratio - 1) * (*Xp);
     }
   add_linpred(diff);
+
+//  cout << "tauprop: " << tauprop << endl;
+//  cout << "tauold: " << tauold << endl;
+//  cout << "tauratio: " << tauratio << endl;
+//  cout << "beta: " << FCnonpp->param(0,0) << endl;
+//  cout << "acceptance: " << acceptance << endl;
 
   double logprop = likep->compute_iwls(true, true);
 
   Xp = X.getV();
+  Xsp = Xscaled.getV();
   responsep = likep->workingresponse.getV();
   weightp = likep->workingweight.getV();
   if (likep->linpred_current==1)
@@ -903,10 +924,10 @@ void FC_nonp_variance_varselection::update_IWLS(void)
     worklin = likep->linearpred2.getV();
 
   xtx=0;
-  for (i=0;i<X.rows();i++,Xp++,responsep++,worklin++,weightp++)
+  for (i=0;i<X.rows();i++,Xp++,Xsp++,responsep++,worklin++,weightp++)
     {
-    xtx += (*weightp) * pow(*Xp,2);
-    mutauprop += (*weightp) * (*Xp) * ((*responsep) - (*worklin) + tauprop*(*Xp));
+    xtx += (*weightp) * pow(*Xsp,2);
+    mutauprop += (*weightp) * (*Xsp) * ((*responsep) - (*worklin) + tauratio*(*Xp));
     }
   Sigmatauprop = 1/(xtx + 1/(FC_psi2.beta(0,0)*r_delta));
   mutauprop *= Sigmatauprop;
@@ -922,31 +943,19 @@ void FC_nonp_variance_varselection::update_IWLS(void)
   if(u <= logprop - logold - qnew + qold)
     {
     acceptance++;
-    double tau2 = tauprop*tauprop;
 
-    // random sign switch
-/*    double z = uniform();
-    if(z<=0.5)
-      {
-      tauold = -tauprop;
-      FCnonpp->ssvs_update(tauprop,true,false);
-      }
-    else
-      {*/
-      if(tauprop<=ssvsvarlimit)
-        tauprop=tauold;
-      tauold = tauprop;
-      FCnonpp->ssvs_update(tauold,false);
-//      }
-    designp->set_intvar(zerovec,tauold);
+    if(tauprop<=ssvsvarlimit)
+      tauprop=tauold;
 
-    tau2 = tauold*tauold;
-    beta(0,0) = tau2;
+    FCnonpp->ssvs_update(tauratio,false);
+
+    beta(0,0) = tauprop*tauprop;
     beta(0,1) = 1/beta(0,0);
+
+    FCnonpp->tau2 = beta(0,0);
     }
   else
     {
-    FCnonpp->ssvs_update(tauold,false);
     diffp = diff.getV();
     for(i=0; i<diff.rows(); i++, diffp++)
       *diffp = -(*diffp);

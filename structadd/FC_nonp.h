@@ -168,7 +168,7 @@ class __EXPORT_TYPE FC_nonp  : public FC
   void update_IWLS(void);
   void update_isotonic(void);
 
-  void ssvs_update(double & tau, bool signswitch);
+  void ssvs_update(double & tauratio, bool signswitch);
 
   // FUNCTION: posteriormode
   // TASK: computes the posterior mode
