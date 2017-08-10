@@ -161,7 +161,7 @@ const MCMCsim & MCMCsim::operator=(const MCMCsim & s)
   //       returns true, if simulation error or user break occured
 
 bool MCMCsim::simulate(ST::string & pathgraphs,
-const int & seed, const bool & computemode)
+const int & seed, const bool & computemode, const bool & skipfirst)
   {
   unsigned i,j;
 
@@ -219,7 +219,7 @@ const int & seed, const bool & computemode)
     genoptions->out("  COMPUTING STARTING VALUES (MAY TAKE SOME TIME)");
     genoptions->out("\n");
     ST::string h = "";
-    bool c = posteriormode(h,true);
+    bool c = posteriormode(h,skipfirst,true);
     }
 
   //-------------- end: Compute posterior mode as starting value ---------------
@@ -540,7 +540,7 @@ const int & seed, const bool & computemode)
   }
 
 
-bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
+bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & skipfirst, const bool & presim)
   {
 
   unsigned i,j;
@@ -602,13 +602,11 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
 
       for (i=0;i<nrmodels;i++)
         {
-/*JM*/
-/*Note: has to be changed such that it only applies for JM since otherwise gaussian is broken*/
-/*        if((i==0) && (it==1))
+        if((i==0) && (it==1) && skipfirst) // => JM
           {
           }
         else
-          {*/
+          {
           if (equations[nrmodels-1-i].distrp->posteriormode() == false)
             allconverged = false;
 
@@ -618,9 +616,8 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & presim)
                 allconverged = false;
             } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
-         equations[nrmodels-1-i].distrp->posteriormode_end();
-//JM
-//          }
+          equations[nrmodels-1-i].distrp->posteriormode_end();
+          }
 
         }
 

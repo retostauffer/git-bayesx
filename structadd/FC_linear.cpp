@@ -910,11 +910,25 @@ void FC_linear::change_variable(datamatrix & x, unsigned & col)
     create_matrices();
   design.putCol(col, x);
   Xt.putRow(col, x.transposed());
+
+/*  if((optionsp->nriter % 500) == 0)
+  {
+  ofstream out1("c:\\temp\\design.raw");
+  design.prettyPrint(out1);
+  out1.close();
+  ofstream out2("c:\\temp\\eta.raw");
+  x.prettyPrint(out2);
+  out2.close();
+  ofstream out3("c:\\temp\\Xt.raw");
+  Xt.prettyPrint(out3);
+  out3.close();
+  }*/
+
   }
 
 void FC_linear::compute_linold(void)
   {
-  linold.mult(design,beta);
+  linoldp->mult(design,beta);
   }
 
 

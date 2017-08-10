@@ -35,7 +35,7 @@ namespace MCMC
 class __EXPORT_TYPE equation
   {
 
-  
+
   protected:
 
   public:
@@ -125,9 +125,9 @@ class __EXPORT_TYPE MCMCsim
   //       returns true, if simulation error or user break occured
 
   bool simulate(ST::string & pathgraphs, const int & seed,
-                const bool & computemode=true);
+                const bool & computemode, const bool & skipfirst);
 
-  bool posteriormode(ST::string & pathgraphs,const bool & presim=false);
+  bool posteriormode(ST::string & pathgraphs, const bool & skipfirst, const bool & presim);
 
   void out_effects(const vector<ST::string> & paths);
 

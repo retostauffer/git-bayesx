@@ -1807,11 +1807,11 @@ void hregressrun(superbayesreg & b)
 
         if (b.modeonly.getvalue())
           {
-          failure = b.simobj.posteriormode(pathgraphs,false);
+          failure = b.simobj.posteriormode(pathgraphs,b.shared,false);
           }
         else
           failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),
-          b.computemodeforstartingvalues);
+          b.computemodeforstartingvalues, b.shared);
         }
 
       if (!failure)

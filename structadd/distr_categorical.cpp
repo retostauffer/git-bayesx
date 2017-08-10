@@ -2088,8 +2088,10 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
   res = dpois->compute_iwls(resppoisp, predpoisp, weightpoisp, ww1p, wr1p, like);
   res += dist2->compute_iwls(respd2p, predd2p, weightd2p, ww2p, wr2p, like);
 
-  *workingweight = alpha*alpha*ww1 + ww2;
-  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
+  *workingweight = alpha*alpha*ww1 + 1/dist2->sigma2 * ww2;
+  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + 1/dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
+//  *workingweight = ww2;
+//  *workingresponse = wr2;
 
   update_pointer();
   return res;
@@ -2125,8 +2127,10 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   if(compute_like)
     like += like1+like2;
 
-  *workingweight = alpha*alpha*ww1 + ww2;
-  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + ww2 * (wr2-*predd2p)) / *workingweight;
+  *workingweight = alpha*alpha*ww1 + 1/dist2->sigma2 * ww2;
+  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + 1/dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
+//  *workingweight = ww2;
+//  *workingresponse = wr2;
 
 /*  if(counter<=10)
   {
@@ -2222,7 +2226,7 @@ void DISTR_JM::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<un
 
   if (intvar.rows()==nrobs)   // varying coefficient
     {
-    for (i=0;i<nrobs;i++,worklinp++,workintvar++,indp++)
+    for (i=0;i<nrobs;i++,worklinp++,worklinpois++,worklindist2++,workintvar++,indp++)
       {
       help = (*workintvar) *  f(*indp,0);
       *worklinp += help;
@@ -2232,7 +2236,7 @@ void DISTR_JM::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<un
     }
   else                              // additive
     {
-    for (i=0;i<nrobs;i++,worklinp++,indp++)
+    for (i=0;i<nrobs;i++,worklinp++,worklinpois++,worklindist2++,indp++)
       {
       help = f(*indp,0);
       *worklinp += help;
@@ -2278,7 +2282,7 @@ bool DISTR_JM::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatr
 
   if (intvar.rows()==nrobs)   // varying coefficient
     {
-    for (i=0;i<nrobs;i++,worklinp++,workintvar++,indp++)
+    for (i=0;i<nrobs;i++,worklinp++,worklinpois++,worklindist2++,workintvar++,indp++)
       {
       help = (*workintvar) *  f(*indp,0);
       *worklinp += help;
@@ -2300,7 +2304,7 @@ bool DISTR_JM::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatr
     }
   else                              // additive
     {
-    for (i=0;i<nrobs;i++,worklinp++,indp++)
+    for (i=0;i<nrobs;i++,worklinp++,worklinpois++,worklindist2++,indp++)
       {
       help = f(*indp,0);
       *worklinp += help;
