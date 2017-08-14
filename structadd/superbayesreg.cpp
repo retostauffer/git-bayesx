@@ -469,6 +469,9 @@ void superbayesreg::create_hregress(void)
   IWLSlineff = simpleoption("IWLSlineff", false);
   forceIWLS = simpleoption("forceIWLS", false);
 
+  importance = simpleoption("importance", false);
+
+
   regressoptions.reserve(200);
 
   regressoptions.push_back(&modeonly);
@@ -520,6 +523,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&ssvsvarlimit);
   regressoptions.push_back(&IWLSlineff);
   regressoptions.push_back(&forceIWLS);
+  regressoptions.push_back(&importance);
 
   // methods 0
   methods.push_back(command("hregress",&modreg,&regressoptions,&udata,required,

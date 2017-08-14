@@ -193,6 +193,9 @@ class __EXPORT_TYPE FC_nonp  : public FC
   double compute_importancemeasure(bool absolute);
   double compute_importancemeasure_discrete(bool absolute);
 
+  double compute_importance(void);
+
+
   // FUNCTION: outresults
   // TASK: writes estimation results to logout or into a file
 

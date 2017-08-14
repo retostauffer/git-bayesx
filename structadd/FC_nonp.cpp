@@ -1609,7 +1609,18 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_
       optionsp->out("    Importance measures\n");
       optionsp->out("      based on absolute function values: " + ST::doubletostring(im_absolute,6) + "\n");
       optionsp->out("      based on squared function values:  " + ST::doubletostring(im_var,6) + "\n");
+
+      // NEW
+      double imeasurenew = compute_importance();
+
+      optionsp->out("      NEW:  " + ST::doubletostring(imeasurenew,6) + "\n");
+      // NEW
+
       optionsp->out("\n");
+
+
+
+
       }
 
     // ---------------------------- end: compute importancemeasures -----------------------------------------
@@ -1970,6 +1981,35 @@ void FC_nonp::outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_
 
     }
 
+  }
+
+
+double FC_nonp::compute_importance(void)
+  {
+
+  double n = designp->data.rows();
+
+  datamatrix meaneffect;
+  datamatrix meaneffectm(n,1,0);
+
+  designp->compute_effect(meaneffect,betamean);
+
+  unsigned i;
+  double help;
+  double diff = 0;
+  for (i=0;i<n;i++)
+    {
+    help = (*likep->FCpredict_betamean)(i,0);
+
+    meaneffectm(i,0) =  help-meaneffect(i,0);
+
+    diff+= abs(help-meaneffectm(i,0));
+
+    }
+
+  diff /= n;
+
+  return diff;
   }
 
 
