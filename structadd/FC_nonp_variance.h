@@ -49,6 +49,8 @@ vector<ST::string> hyperpriors;
 enum hyperpr {invgamma,scaledep,hcauchy,hnormal,
               aunif};
 
+enum ssvsupdates {regcoeff, sdev};
+
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: FC_nonp_variance --------------------------
 //------------------------------------------------------------------------------
@@ -83,6 +85,8 @@ class __EXPORT_TYPE FC_nonp_variance  : public FC
   int proposal;
 
   hyperpr hyperprior;
+
+  ssvsupdates ssvsupdate;
 
   public:
 
@@ -187,7 +191,7 @@ class __EXPORT_TYPE FC_nonp_variance_varselection  : public FC_nonp_variance
   datamatrix Xscaled;
   datamatrix diff;
 
-//  double tauold;
+  double tauold;
 
   public:
 

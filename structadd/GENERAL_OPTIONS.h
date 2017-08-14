@@ -97,6 +97,8 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   bool IWLSlineff;
   bool forceIWLS;
 
+
+
   // DEFAULT CONSTRUCTOR
   // Defines:
   // iterations = 22000

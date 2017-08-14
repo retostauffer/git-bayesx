@@ -183,6 +183,11 @@ term_nonp::term_nonp(vector<ST::string> & na)
 
   reduceddesign = simpleoption("reduceddesign",false);
 
+  vector<ST::string> ssvsupdates;
+  ssvsupdates.push_back("regcoeff"); // IWLS update for tau based on interpretation as a regression coefficient
+  ssvsupdates.push_back("sdev"); // IWLS update for tau based on interpretation as a standard deviation for beta
+  ssvsupdate = stroption("ssvsupdate",ssvsupdates,"regcoeff");
+
   }
 
 void term_nonp::setdefault(void)
@@ -281,6 +286,8 @@ void term_nonp::setdefault(void)
   mepropscale.setdefault();
 
   reduceddesign.setdefault();
+
+  ssvsupdate.setdefault();
   }
 
 
@@ -426,6 +433,8 @@ bool term_nonp::check(term & t)
     optlist.push_back(&mepropscale);
 
     optlist.push_back(&reduceddesign);
+
+	optlist.push_back(&ssvsupdate);
 
     unsigned i;
     bool rec = true;
@@ -645,6 +654,8 @@ bool term_nonp::check(term & t)
       t.options[79] = "false";
     else
       t.options[79] = "true";
+
+    t.options[80] = ssvsupdate.getvalue();
 
     setdefault();
     return true;

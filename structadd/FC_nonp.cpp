@@ -505,31 +505,40 @@ void FC_nonp::update_IWLS(void)
     }
   }
 
-void FC_nonp::ssvs_update(double & tauratio, bool signswitch)
+void FC_nonp::ssvs_update(double & tauratio, bool signswitch, bool onlyupdate)
   {
-  if(signswitch)
+  if(onlyupdate)
     {
-    param.assign(-param);
-    paramold.assign(-paramold);
-    }
-
-  // computes effect
-  beta.mult_scalar(beta,tauratio);
-  betaold.assign(beta);
-
-  if (derivative)
-    {
-    (derivativesample.beta).mult_scalar(derivativesample.beta,tauratio);
     derivativesample.update();
+    paramsample.update();
+    FC::update();
     }
+  else
+    {
+    if(signswitch)
+      {
+      param.assign(-param);
+      paramold.assign(-paramold);
+      }
 
-  param.mult_scalar(param,tauratio);
-  paramsample.beta.assign(param);
-  paramsample.update();
-  paramold.assign(param);
-  paramKparam=designp->penalty_compute_quadform(param);
+    // computes effect
+    beta.mult_scalar(beta,tauratio);
+    betaold.assign(beta);
 
-  FC::update();
+    if (derivative)
+      {
+      (derivativesample.beta).mult_scalar(derivativesample.beta,tauratio);
+      derivativesample.update();
+      }
+
+    param.mult_scalar(param,tauratio);
+    paramsample.beta.assign(param);
+    paramsample.update();
+    paramold.assign(param);
+    paramKparam=designp->penalty_compute_quadform(param);
+
+    FC::update();
+    }
   }
 
 void FC_nonp::update(void)

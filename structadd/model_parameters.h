@@ -139,6 +139,8 @@ class __EXPORT_TYPE term_nonp : public basic_termtype
 
   simpleoption reduceddesign;
 
+  stroption ssvsupdate;
+
   vector<ST::string> termnames;
 
   void setdefault(void);

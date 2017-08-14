@@ -734,6 +734,12 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
     gig = true;
   else
     gig = false;
+
+  if (op[80]=="regcoeff")
+    ssvsupdate = regcoeff;
+  else if (op[80] == "sdev")
+    ssvsupdate = sdev;
+
   }
 
 
@@ -772,6 +778,8 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(MASTER_OBJ * mp,
     FC_omega.setbeta(1,1,omega);
     }
 
+  tauold = sqrt(beta(0,0));
+
   if(FCnonpp->IWLS)
     {
     diff = datamatrix(likep->nrobs, 1, 0);
@@ -798,7 +806,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omega = m.omega;
-//  tauold = m.tauold;
+  tauold = m.tauold;
   v1 = m.v1;
   v2 = m.v2;
   v2_orig = m.v2_orig;
@@ -810,6 +818,7 @@ FC_nonp_variance_varselection::FC_nonp_variance_varselection(const FC_nonp_varia
   r_delta = m.r_delta;
   datanames = m.datanames;
   ssvsvarlimit = m.ssvsvarlimit;
+  ssvsupdate = m.ssvsupdate;
   }
 
 
@@ -827,7 +836,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   a_omega = m.a_omega;
   b_omega = m.b_omega;
   omega = m.omega;
-//  tauold = m.tauold;
+  tauold = m.tauold;
   v1 = m.v1;
   v2 = m.v2;
   v2_orig = m.v2_orig;
@@ -839,6 +848,7 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
   r_delta = m.r_delta;
   datanames = m.datanames;
   ssvsvarlimit = m.ssvsvarlimit;
+  ssvsupdate = m.ssvsupdate;
   return *this;
   }
 
@@ -869,7 +879,7 @@ void FC_nonp_variance_varselection::update_IWLS(void)
 //  out1.close();
 //  cout << FCnonpp->param(0,0) << endl;
 
-  double tauold = sqrt(beta(0,0));
+  tauold = sqrt(beta(0,0));
   double tauoldinv = 1 / tauold;
   Xscaled.mult_scalar(X, tauoldinv);
 
@@ -944,10 +954,10 @@ void FC_nonp_variance_varselection::update_IWLS(void)
     {
     acceptance++;
 
-    if(tauprop<=ssvsvarlimit)
+    if(fabs(tauprop)<=ssvsvarlimit)
       tauprop=tauold;
 
-    FCnonpp->ssvs_update(tauratio,false);
+    FCnonpp->ssvs_update(tauratio,false,false);
 
     beta(0,0) = tauprop*tauprop;
     beta(0,1) = 1/beta(0,0);
@@ -960,6 +970,8 @@ void FC_nonp_variance_varselection::update_IWLS(void)
     for(i=0; i<diff.rows(); i++, diffp++)
       *diffp = -(*diffp);
     add_linpred(diff);
+    tauratio=1.0;
+    FCnonpp->ssvs_update(tauratio,false,true);
     }
   }
 
@@ -1055,13 +1067,75 @@ void FC_nonp_variance_varselection::update(void)
     }
   // end: updating w
 
-  if (FCnonpp->IWLS)
+  if(ssvsupdate==sdev)
     {
-    update_IWLS();
+    double logold = -designp->rankK*log(tauold)
+                    -0.5/(tauold*tauold)*designp->penalty_compute_quadform(FCnonpp->param)
+                    -0.5*tauold*tauold/(FC_psi2.beta(0,0)*r_delta);
+    double v = -designp->rankK / tauold
+               +designp->penalty_compute_quadform(FCnonpp->param) / (tauold*tauold*tauold)
+               -tauold/(FC_psi2.beta(0,0)*r_delta);
+    double w = -designp->rankK / (tauold*tauold)
+               +3*designp->penalty_compute_quadform(FCnonpp->param) / (tauold*tauold*tauold*tauold)
+               +1/(FC_psi2.beta(0,0)*r_delta);
+    double sigmataucurr = 1/w;
+    double mutaucurr = tauold + sigmataucurr*v;
+    double tauprop = mutaucurr + sqrt(sigmataucurr) * rand_normal();
+
+    double logprop = -designp->rankK*log(tauprop)
+                    -0.5/(tauprop*tauprop)*designp->penalty_compute_quadform(FCnonpp->param)
+                    -0.5*tauprop*tauprop/(FC_psi2.beta(0,0)*r_delta);
+    v = -designp->rankK / tauprop
+               +designp->penalty_compute_quadform(FCnonpp->param) / (tauprop*tauprop*tauprop)
+               -tauprop/(FC_psi2.beta(0,0)*r_delta);
+    w = -designp->rankK / (tauprop*tauprop)
+               +3*designp->penalty_compute_quadform(FCnonpp->param) / (tauprop*tauprop*tauprop*tauprop)
+               +1/(FC_psi2.beta(0,0)*r_delta);
+    double sigmatauprop = 1/w;
+    double mutauprop = tauprop + sigmatauprop*v;
+
+/*cout << "tauold: " << tauold << endl;
+cout << "mutauold: " << mutaucurr << endl;
+cout << "sigmatauold: " << sigmataucurr << endl;
+cout << "tauprop: " << tauprop << endl;
+cout << "mutauprop: " << mutauprop << endl;
+cout << "sigmatauprop: " << sigmatauprop << endl;
+cout << endl;*/
+
+    double u = log(uniform());
+
+    double qnew = -0.5*log(sigmataucurr) -0.5*(tauprop-mutaucurr)*(tauprop-mutaucurr)/sigmataucurr;
+    double qold = -0.5*log(sigmatauprop) -0.5*(tauold-mutauprop)*(tauold-mutauprop)/sigmatauprop;
+
+    if(u <= logprop - logold - qnew + qold)
+      {
+      acceptance++;
+
+      if(fabs(tauprop)<=ssvsvarlimit)
+        tauprop=tauold;
+
+      beta(0,0) = tauprop*tauprop;
+      beta(0,1) = 1/beta(0,0);
+      tauold=tauprop;
+
+      FCnonpp->tau2 = beta(0,0);
+      }
+    else
+      {
+      }
+    double tauratio=1.0;
+    FCnonpp->ssvs_update(tauratio,false,true);
     }
-  else
+  else if (ssvsupdate==regcoeff)
     {
-    update_gaussian();
+    if (FCnonpp->IWLS)
+      {
+      update_IWLS();
+      }
+    else
+      {
+      update_gaussian();
+      }
     }
   FC::update();
   }
@@ -1186,8 +1260,7 @@ void FC_nonp_variance_varselection::outoptions(void)
     optionsp->out("\n");
     optionsp->out("  Prior inclusion probability omega\n");
     optionsp->out("  Parameter a_omega: " +
-                ST::doubletostring(a_omega) + "\n\n" );
-
+                ST::doubletostring(a_omega) + "\n" );
     optionsp->out("  Parameter b_omega: " +
                 ST::doubletostring(b_omega) + "\n\n" );
 
