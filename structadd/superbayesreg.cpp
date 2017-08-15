@@ -4245,7 +4245,7 @@ bool superbayesreg::create_distribution(void)
 
     if (distr_gumbel2_sigma2s.size() != distr_gumbel2_mus.size())
       {
-      outerror("ERROR: Equation for sigma is missing");
+      outerror("ERROR: Equation for sigma2 is missing");
       return true;
       }
     else
