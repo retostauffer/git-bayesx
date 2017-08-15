@@ -1990,20 +1990,24 @@ double FC_nonp::compute_importance(void)
   double n = designp->data.rows();
 
   datamatrix meaneffect;
-  datamatrix meaneffectm(n,1,0);
-
   designp->compute_effect(meaneffect,betamean);
 
   unsigned i;
   double help;
+  double helpm;
+  double help_param;
+  double help_paramm;
   double diff = 0;
+
   for (i=0;i<n;i++)
     {
     help = (*likep->FCpredict_betamean)(i,0);
+    likep->compute_param(&help,&help_param);
 
-    meaneffectm(i,0) =  help-meaneffect(i,0);
+    helpm = help-meaneffect(i,0);
+    likep->compute_param(&helpm,&help_paramm);
 
-    diff+= abs(help-meaneffectm(i,0));
+    diff+= abs(help_param-help_paramm);
 
     }
 
