@@ -953,9 +953,11 @@ void FC_nonp_variance_varselection::update_IWLS(void)
   if(u <= logprop - logold - qnew + qold)
     {
     acceptance++;
-
     if(fabs(tauprop)<=ssvsvarlimit)
-      tauprop=tauold;
+      {
+      tauprop = tauold;
+      tauratio = 1.0;
+      }
 
     FCnonpp->ssvs_update(tauratio,false,false);
 
