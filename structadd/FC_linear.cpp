@@ -780,6 +780,16 @@ bool FC_linear::posteriormode(void)
 
       beta = XWX.solve(Xtresidual);
 
+/*      ofstream out1("c:/temp/XWX.raw");
+      XWX.prettyPrint(out1);
+      out1.close();
+      ofstream out2("c:/temp/weights.raw");
+      (likep->workingweight).prettyPrint(out2);
+      out2.close();
+      ofstream out3("c:/temp/Xtresidual.raw");
+      Xtresidual.prettyPrint(out3);
+      out3.close();*/
+
       betadiff.minus(beta,betaold);
 
      likep->addmult(design, betadiff);
