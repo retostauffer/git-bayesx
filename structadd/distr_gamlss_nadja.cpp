@@ -5286,7 +5286,7 @@ void DISTR_gumbel2_sigma2::compute_iwls_wweightschange_weightsone(
 /*  if(isnan(*workingweight) || *workingweight > 100)
     {
     *workingweight = 1.0;
-    cout << "counter: " << counter << endl;
+   d cout << "counter: " << counter << endl;
     cout << "Gumbel sigma *workingweight NAN" << endl;
     }*/
 
@@ -5535,7 +5535,7 @@ void DISTR_gumbel2_mu::compute_deviance_mult(vector<double *> response,
      double l;
 
 //     l =   -(*response[1]-mu)/sigma - exp(-(*response[1]-mu)/sigma);
-     l =  -log(sigma) +hilfs - exp(hilfs);
+     l = hilfs - exp(hilfs);
 
     *deviance = -2*l;
     }
@@ -5645,7 +5645,7 @@ void DISTR_gumbel2_mu::compute_iwls_wweightschange_weightsone(
     // compute and implement dF/deta, d^2 F/deta ^2
 //    double dF = exp(-exp(-hilfs))*exp(-hilfs)/(*worktransformlin[0]);
     double dF = -exp(-ehilfs)*ehilfs/sigma;
-    double ddF = dF*(1-ehilfs)/sigma;
+    double ddF = -dF*(1-ehilfs)/sigma;
     nu += logcandderivs[1]*dF;
 
    *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
