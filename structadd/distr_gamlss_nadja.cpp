@@ -5293,7 +5293,7 @@ void DISTR_gumbel2_sigma2::compute_iwls_wweightschange_weightsone(
   *workingresponse = *linpred + nu/(*workingweight);
 
 
-   cout << "workingweight sigma: " << *workingweight << endl;
+  // cout << "workingweight sigma: " << *workingweight << endl;
 
   if (compute_like)
     {
@@ -5427,14 +5427,15 @@ double DISTR_gumbel2_mu::cdf(const double & resp, const bool & ifcop)
     }
 
  // compute cdf (might work more efficiently)
-  double res,mu,sigma2;
+  double res,mu,sigma;
   mu = (*linpredp);
-  sigma2 = *worktransformlin[0];
+//  sigma2 = *worktransformlin[0];
+  sigma=exp(0.5*log(*worktransformlin[0]));
 //  double hilfs=exp(log(resp-mu)-0.5*log(sigma2));
-  double hilfs = (resp-mu)/sqrt(sigma2);
+  double hilfs = (resp-mu)/sigma;
   res = 1-exp(-exp(hilfs));
 
-/*  if(res>0.999)
+  if(res>0.999)
     {
     res = 0.999;
     cout << "counter: " << counter << endl;
@@ -5445,7 +5446,7 @@ double DISTR_gumbel2_mu::cdf(const double & resp, const bool & ifcop)
     res = 0.001;
     cout << "counter: " << counter << endl;
     cout << "Gumbel CDF < 0.001" << endl;
-    }*/
+    }
 
   if(ifcop)
     {
@@ -5457,11 +5458,12 @@ double DISTR_gumbel2_mu::cdf(const double & resp, const bool & ifcop)
 
 double DISTR_gumbel2_mu::cdf(const double & resp, const double & linpred)
   {
-  double res,mu,sigma2;
+  double res,mu,sigma;
   mu = (linpred);
-  sigma2 = *worktransformlin[0];
+//  sigma2 = *worktransformlin[0];
+  sigma=exp(0.5*log(*worktransformlin[0]));
 //  double hilfs=exp(log(resp-mu)-0.5*log(sigma2));
-  double hilfs = (resp-mu)/sqrt(sigma2);
+  double hilfs = (resp-mu)/sigma;
   res = 1-exp(-exp(hilfs));
 
 
@@ -5484,11 +5486,11 @@ double DISTR_gumbel2_mu::cdf(const double & resp, const double & linpred)
 double DISTR_gumbel2_mu::cdf(const double & resp, vector<double *>  linpred)
   {
   //linpred has only size=2!
-  double res,mu,sigma2;
+  double res,mu,sigma;
   mu = (*linpred[1]);
-  sigma2 = exp((*linpred[0]));
+  sigma = exp(0.5*(*linpred[0]));
 //  double hilfs=exp(log(resp-mu)-0.5*log(sigma2));
-  double hilfs = (resp-mu)/sqrt(sigma2);
+  double hilfs = (resp-mu)/(sigma);
   res = 1-exp(-exp(hilfs));
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
 
@@ -5633,6 +5635,7 @@ void DISTR_gumbel2_mu::compute_iwls_wweightschange_weightsone(
   if(optionsp->copula)
     {
     double F = cdf(*response,*linpred);
+    cout << "F mu: " << F << endl;
     vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
     if (compute_like)
       {
@@ -5640,21 +5643,21 @@ void DISTR_gumbel2_mu::compute_iwls_wweightschange_weightsone(
       }
     // compute and implement dF/deta, d^2 F/deta ^2
 //    double dF = exp(-exp(-hilfs))*exp(-hilfs)/(*worktransformlin[0]);
-cout << "in logcandderivs mu: " << nu << endl;
-      cout << "logcandderivs[1] mu: " << logcandderivs[2] << endl;
-      cout << "logcandderivs[2] mu: " << logcandderivs[2] << endl;
-    double dF = -exp(-ehilfs)*ehilfs/sigma;
-    double ddF = -dF*(1-ehilfs)/sigma;
-    nu += logcandderivs[1]*dF;
-
-   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
-    if (*workingweight <=0)
-      *workingweight = 0.001;
-
-    cout << "dF mu: " << dF << endl;
-    cout << "ddF mu: " << ddF << endl;
-    cout << "nu mu: " << nu << endl;
-    cout << "workingweight mu: " << *workingweight << endl;
+//cout << "in logcandderivs mu: " << nu << endl;
+//      cout << "logcandderivs[1] mu: " << logcandderivs[2] << endl;
+//      cout << "logcandderivs[2] mu: " << logcandderivs[2] << endl;
+//    double dF = -exp(-ehilfs)*ehilfs/sigma;
+//    double ddF = -dF*(1-ehilfs)/sigma;
+//    nu += logcandderivs[1]*dF;
+//
+//   *workingweight += -logcandderivs[2]*dF*dF-logcandderivs[1]*ddF;
+//    if (*workingweight <=0)
+//      *workingweight = 0.001;
+//
+//    cout << "dF mu: " << dF << endl;
+//    cout << "ddF mu: " << ddF << endl;
+//    cout << "nu mu: " << nu << endl;
+//    cout << "workingweight mu: " << *workingweight << endl;
     }
 
 
