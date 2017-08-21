@@ -5175,7 +5175,7 @@ double DISTR_gumbel2_sigma2::cdf(const double & resp, const bool & ifcop)
 double DISTR_gumbel2_sigma2::cdf(const double & resp, const double & linpred)
   {
   double res,mu,sigma2;
-  sigma2 = exp((*linpredp));
+  sigma2 = exp(linpred);
   mu = *worktransformlin[0];
 //  res = 1 - exp(-exp(-(resp-mu)/sigma));
 //  double hilfs=exp(log(resp-mu)-0.5*log(sigma2));
@@ -5435,7 +5435,7 @@ double DISTR_gumbel2_mu::cdf(const double & resp, const bool & ifcop)
   double hilfs = (resp-mu)/sigma;
   res = 1-exp(-exp(hilfs));
 
-  if(res>0.999)
+/*  if(res>0.999)
     {
     res = 0.999;
     cout << "counter: " << counter << endl;
@@ -5446,7 +5446,7 @@ double DISTR_gumbel2_mu::cdf(const double & resp, const bool & ifcop)
     res = 0.001;
     cout << "counter: " << counter << endl;
     cout << "Gumbel CDF < 0.001" << endl;
-    }
+    }*/
 
   if(ifcop)
     {
@@ -5635,7 +5635,7 @@ void DISTR_gumbel2_mu::compute_iwls_wweightschange_weightsone(
   if(optionsp->copula)
     {
     double F = cdf(*response,*linpred);
-    cout << "F mu: " << F << endl;
+//    cout << "F mu: " << F << endl;
     vector<double> logcandderivs = distrcopulap[0]->logc(F,copulapos,true);
     if (compute_like)
       {
