@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 #include "Random.h"
 #include <gsl/gsl_cdf.h>
-//#include <gsl/gsl_sf_gamma.h>
+#include <gsl/gsl_sf_gamma.h>
 
 
 // BEGIN: DSB //

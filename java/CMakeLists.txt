@@ -186,6 +186,11 @@ else(WIN32)
   endif()
 endif()
 
+find_package(GSL REQUIRED)
+include_directories(${GSL_INCLUDE_DIRS} ${GSLCBLAS_INCLUDE_DIRS})
+link_libraries( ${GSL_LIBRARIES}  ${GSLCBLAS_LIBRARIES})
+add_definitions(${GSL_CFLAGS})
+
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 include_directories(../bib ../alex ../adaptiv ../andrea ../dag ../graph ../mcmc ../psplines ../samson ../leyre ../structadd ../java)
