@@ -355,6 +355,9 @@ void FC_merror::update(void)
     FCp->designp->data.prettyPrint(out2);
     out2.close();*/
 
+    linpred = *linpredoldp + splinevalnew - splinevalold;
+    linprednewp = &linpred;
+
     if(*wp != 0.0)
       {
       logold = FCp->likep->loglikelihood(resp, linpredoldp, wp);
@@ -364,9 +367,6 @@ void FC_merror::update(void)
       {
       logold = lognew = 0.0;
       }
-
-    linpred = *linpredoldp + splinevalnew - splinevalold;
-    linprednewp = &linpred;
 
 /*    cout << "splinevalnew: " << splinevalnew << endl;
     cout << "splinevalold: " << splinevalold << endl;
