@@ -1072,7 +1072,7 @@ void FC_nonp_variance_varselection::update(void)
   if(ssvsupdate==sdev)
     {
 
-// version based on log(tau)
+/* version based on log(tau)
     double tauprop;
     double ltauold = log(tauold);
     double logold = -(designp->rankK)*ltauold
@@ -1123,38 +1123,52 @@ void FC_nonp_variance_varselection::update(void)
       {
       }
     double tauratio=1.0;
-    FCnonpp->ssvs_update(tauratio,false,true);
+    FCnonpp->ssvs_update(tauratio,false,true);*/
 
-/* version based on tau
-    double logold = -designp->rankK*log(tauold)
-                    -0.5/(tauold*tauold)*designp->penalty_compute_quadform(FCnonpp->param)
+/* version based on tau*/
+    double qf = designp->penalty_compute_quadform(FCnonpp->param);
+    double logold = -0.5*designp->rankK*log(tauold*tauold)
+                    -0.5/(tauold*tauold)*qf
                     -0.5*tauold*tauold/(FC_psi2.beta(0,0)*r_delta);
     double v = -designp->rankK / tauold
-               +designp->penalty_compute_quadform(FCnonpp->param) / (tauold*tauold*tauold)
+               +qf / (tauold*tauold*tauold)
                -tauold/(FC_psi2.beta(0,0)*r_delta);
     double w = -designp->rankK / (tauold*tauold)
-               +3*designp->penalty_compute_quadform(FCnonpp->param) / (tauold*tauold*tauold*tauold)
+               +3*qf / (tauold*tauold*tauold*tauold)
                +1/(FC_psi2.beta(0,0)*r_delta);
     double sigmataucurr = 1/w;
     double mutaucurr = tauold + sigmataucurr*v;
     double tauprop = mutaucurr + sqrt(sigmataucurr) * rand_normal();
 
-    double logprop = -designp->rankK*log(tauprop)
-                    -0.5/(tauprop*tauprop)*designp->penalty_compute_quadform(FCnonpp->param)
+    double logprop = -0.5*designp->rankK*log(tauprop*tauprop)
+                    -0.5/(tauprop*tauprop)*qf
                     -0.5*tauprop*tauprop/(FC_psi2.beta(0,0)*r_delta);
     v = -designp->rankK / tauprop
-               +designp->penalty_compute_quadform(FCnonpp->param) / (tauprop*tauprop*tauprop)
+               +qf / (tauprop*tauprop*tauprop)
                -tauprop/(FC_psi2.beta(0,0)*r_delta);
     w = -designp->rankK / (tauprop*tauprop)
-               +3*designp->penalty_compute_quadform(FCnonpp->param) / (tauprop*tauprop*tauprop*tauprop)
+               +3*qf / (tauprop*tauprop*tauprop*tauprop)
                +1/(FC_psi2.beta(0,0)*r_delta);
     double sigmatauprop = 1/w;
     double mutauprop = tauprop + sigmatauprop*v;
+
+    cout << "current: " << tauold << endl;
+    cout << "mutaucurrent: " << mutaucurr << endl;
+    cout << "sigmataucurrent: " << sigmataucurr << endl;
+    cout << endl;
+    cout << "proposed: " << tauprop << endl;
+    cout << "mutauprop: " << mutauprop << endl;
+    cout << "sigmatauprop: " << sigmatauprop << endl;
+    cout << endl;
 
     double u = log(uniform());
 
     double qnew = -0.5*log(sigmataucurr) -0.5*(tauprop-mutaucurr)*(tauprop-mutaucurr)/sigmataucurr;
     double qold = -0.5*log(sigmatauprop) -0.5*(tauold-mutauprop)*(tauold-mutauprop)/sigmatauprop;
+
+    cout << "qnew: " << qnew << endl;
+    cout << "qold: " << qold << endl;
+    cout << endl;
 
     if(u <= logprop - logold - qnew + qold)
       {
@@ -1173,7 +1187,7 @@ void FC_nonp_variance_varselection::update(void)
       {
       }
     double tauratio=1.0;
-    FCnonpp->ssvs_update(tauratio,false,true);*/
+    FCnonpp->ssvs_update(tauratio,false,true);
     }
   else if (ssvsupdate==regcoeff)
     {

@@ -511,6 +511,7 @@ void FC_nonp::ssvs_update(double & tauratio, bool signswitch, bool onlyupdate)
     {
     if (derivative)
       derivativesample.update();
+    paramsample.beta.assign(param);
     paramsample.update();
     FC::update();
     }
