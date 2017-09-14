@@ -739,6 +739,8 @@ void FC_nonp_variance_varselection::read_options(vector<ST::string> & op,
     ssvsupdate = regcoeff;
   else if (op[80] == "sdev")
     ssvsupdate = sdev;
+  else if (op[80] == "gibbs")
+    ssvsupdate = gibbs;
 
   }
 
@@ -1069,7 +1071,23 @@ void FC_nonp_variance_varselection::update(void)
     }
   // end: updating w
 
-  if(ssvsupdate==sdev)
+  if(ssvsupdate==gibbs)
+    {
+    double p = -designp->rankK/2 + 0.5;
+    double a = 1/(FC_psi2.beta(0,0)*r_delta);
+    double b = designp->penalty_compute_quadform(FCnonpp->param);
+    double tau2 = randnumbers::GIG2(p, a, b);
+    beta(0,0) = tau2;
+    beta(0,1) = 1/beta(0,0);
+    tauold=sqrt(tau2);
+
+    FCnonpp->tau2 = beta(0,0);
+    double tauratio=1.0;
+    FCnonpp->ssvs_update(tauratio,false,true);
+
+    acceptance++;
+    }
+  else if(ssvsupdate==sdev)
     {
     if(optionsp->nriter > 100)
       {
@@ -1099,23 +1117,10 @@ void FC_nonp_variance_varselection::update(void)
       double sigmatauprop = 1/w;
       double mutauprop = tauprop + sigmatauprop*v;
 
-  /*    cout << "current: " << tauold << endl;
-      cout << "mutaucurrent: " << mutaucurr << endl;
-    cout << "sigmataucurrent: " << sigmataucurr << endl;
-    cout << endl;
-    cout << "proposed: " << tauprop << endl;
-    cout << "mutauprop: " << mutauprop << endl;
-    cout << "sigmatauprop: " << sigmatauprop << endl;
-    cout << endl;*/
-
       double u = log(uniform());
 
       double qnew = -0.5*log(sigmataucurr) -0.5*(tauprop-mutaucurr)*(tauprop-mutaucurr)/sigmataucurr;
       double qold = -0.5*log(sigmatauprop) -0.5*(tauold-mutauprop)*(tauold-mutauprop)/sigmatauprop;
-
-/*    cout << "qnew: " << qnew << endl;
-    cout << "qold: " << qold << endl;
-    cout << endl;*/
 
       if(u <= logprop - logold - qnew + qold)
         {

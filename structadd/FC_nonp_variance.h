@@ -49,7 +49,7 @@ vector<ST::string> hyperpriors;
 enum hyperpr {invgamma,scaledep,hcauchy,hnormal,
               aunif};
 
-enum ssvsupdates {regcoeff, sdev};
+enum ssvsupdates {regcoeff, sdev, gibbs};
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: FC_nonp_variance --------------------------

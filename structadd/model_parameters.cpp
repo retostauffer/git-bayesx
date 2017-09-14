@@ -186,6 +186,7 @@ term_nonp::term_nonp(vector<ST::string> & na)
   vector<ST::string> ssvsupdates;
   ssvsupdates.push_back("regcoeff"); // IWLS update for tau based on interpretation as a regression coefficient
   ssvsupdates.push_back("sdev"); // IWLS update for tau based on interpretation as a standard deviation for beta
+  ssvsupdates.push_back("gibbs"); // Gibbs update for tau^2 based GIG full conditional
   ssvsupdate = stroption("ssvsupdate",ssvsupdates,"regcoeff");
 
   }
