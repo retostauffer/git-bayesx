@@ -1922,7 +1922,7 @@ DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
   counter = 0;
   alpha = 0;
 
-  predictor_name = "mu_shared";
+  predictor_name = "shared_predictor";
   outexpectation = true;
 
   if (check_weightsone() == true)
@@ -1930,7 +1930,7 @@ DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
   else
     wtype = wweightschange_weightsneqone;
 
-  family = "Gaussian (shared)";
+  family = "Shared predictor";
   updateIWLS = true;
 
   linpredminlimit=-10;

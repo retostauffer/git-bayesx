@@ -345,6 +345,7 @@ void superbayesreg::create_hregress(void)
   families.push_back("gaussiancopula_binary_dagum");
   families.push_back("dirichlet");
   families.push_back("gaussian_shared");
+  families.push_back("quantreg_shared");
   family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -8715,6 +8716,21 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_JMs[distr_JMs.size()-1];
     equations[modnr].pathd = "";
     }
+
+  else if (family.getvalue() == "quantreg_shared")
+    {
+    mainequation=false;
+    shared=true;
+
+    computemodeforstartingvalues = true;
+
+    equations[modnr].equationtype="mu_shared";
+
+    distr_JMs.push_back(DISTR_JM(&generaloptions,D.getCol(0),w));
+
+    equations[modnr].distrp = &distr_JMs[distr_JMs.size()-1];
+    equations[modnr].pathd = "";
+    }
 //---------------------------- END: JM responses -------------------------------
 
 //-------------- Poisson response with extended response function---------------
@@ -8804,6 +8820,11 @@ bool superbayesreg::create_distribution(void)
     equations[modnr].distrp = &distr_quantregs[distr_quantregs.size()-1];
     equations[modnr].pathd = outfile.getvalue() + "_scale.res";
 
+    if(shared)
+      {
+      mainequation=false;
+      distr_JMs[distr_JMs.size()-1].dist2 = &distr_quantregs[distr_quantregs.size()-1];
+      }
     }
 //------------------------- END: quantreg response -----------------------------
 
