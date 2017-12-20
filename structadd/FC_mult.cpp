@@ -22,13 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include "FC_mult.h"
 
 
-//------------------------------------------------------------------------------
-//----------------- CLASS: FC_mult implementation of member functions ----------
-//------------------------------------------------------------------------------
-
 
 namespace MCMC
 {
+
+//------------------------------------------------------------------------------
+//----------------- CLASS: FC_mult implementation of member functions ----------
+//------------------------------------------------------------------------------
 
 void FC_mult::set_effectp(DESIGN * d,FC_nonp * fp)
   {
@@ -554,6 +554,105 @@ void FC_mult::reset(void)
 
   }
 
+//------------------------------------------------------------------------------
+//------------ CLASS: FC_mult_pred implementation of member functions ----------
+//------------------------------------------------------------------------------
+
+void FC_mult_pred::set_effectp(DESIGN * d, FC_nonp * fp)
+  {
+  FCnp = fp;
+  dp = d;
+  }
+
+void FC_mult_pred::set_distrp(DISTR * d)
+  {
+  distrp = d;
+  distrp->multintvar = datamatrix(distrp->nrobs, 1, 1.0);
+  effect = datamatrix(distrp->nrobs, 1, 0.0);
+  }
+
+FC_mult_pred::FC_mult_pred(void)
+  {
+  nosamples = true;
+  }
+
+FC_mult_pred::FC_mult_pred(bool splupd)
+  : FC()
+  {
+  nosamples = true;
+  splineupdate = splupd;
+  }
+
+FC_mult_pred::FC_mult_pred(const FC_mult_pred & m)
+  : FC(FC(m))
+  {
+  equationnr = m.equationnr;
+  masterp = m.masterp;
+  dp = m.dp;
+  distrp = m.distrp;
+  FCnp = m.FCnp;
+  effect = m.effect;
+  splineupdate = m.splineupdate;
+  }
+
+const FC_mult_pred & FC_mult_pred::operator=(const FC_mult_pred & m)
+  {
+  if (this==&m)
+	 return *this;
+  FC::operator=(FC(m));
+  equationnr = m.equationnr;
+  masterp = m.masterp;
+  dp = m.dp;
+  distrp = m.distrp;
+  FCnp = m.FCnp;
+  effect = m.effect;
+  splineupdate = m.splineupdate;
+  return *this;
+  }
+
+
+void FC_mult_pred::update(void)
+  {
+  if(splineupdate)
+    {
+    dp->compute_effect(effect, FCnp->beta,MCMC::Function);
+    double * effp = effect.getV();
+    double * multintvarp = (distrp->multintvar).getV();
+
+    double * worklin;
+    if(distrp->linpred_current==1)
+      worklin = distrp->linearpred1.getV();
+    else
+      worklin = distrp->linearpred2.getV();
+
+    unsigned i;
+    for(i=0; i<effect.rows(); i++, effp++, worklin++, multintvarp++)
+      *multintvarp = exp(*worklin) * (*effp);
+    }
+  else
+    {
+    double * effp;
+    double * worklin;
+    if(distrp->linpred_current==1)
+      worklin = distrp->linearpred1.getV();
+    else
+      worklin = distrp->linearpred2.getV();
+    unsigned i;
+    for(i=0; i<effect.rows(); i++, effp++, worklin++)
+      *effp = exp(*worklin);
+    dp->set_intvar(effect, 0.0);
+    }
+  }
+
+bool FC_mult_pred::posteriormode(void)
+  {
+  update();
+  return true;
+  }
+
+void FC_mult_pred::reset(void)
+  {
+  }
 
 } // end: namespace MCMC
 

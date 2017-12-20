@@ -216,6 +216,7 @@ void superbayesreg::create_hregress(void)
   tnames.push_back("userdefined");
   tnames.push_back("tensor");
   tnames.push_back("pspline_merror");
+  tnames.push_back("multiplicative_pspline");
 
 
   tnonp = term_nonp(tnames);
@@ -1095,6 +1096,9 @@ void superbayesreg::clear(void)
 
   FC_mults.erase(FC_mults.begin(),FC_mults.end());
   FC_mults.reserve(200);
+
+  FC_mult_preds.erase(FC_mult_preds.begin(),FC_mult_preds.end());
+  FC_mult_preds.reserve(200);
 
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
   FC_nonp_variances.reserve(400);
@@ -10119,7 +10123,56 @@ bool superbayesreg::create_random(unsigned i)
 
   }
 
+bool superbayesreg::create_multiplicative_pspline(unsigned i)
+  {
+  unsigned modnr = equations.size()-1;
 
+  terms[i].options[12] = "true";
+
+  datamatrix datadummy = datamatrix(1,1,0.0);
+  create_pspline(i, datadummy);
+
+  FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
+  MCMC::DESIGN * dp_pspline = &design_psplines[design_psplines.size()-1];
+
+  dp_pspline->changingdesign=true;
+  datamatrix effect(D.rows(),1,1);
+  dp_pspline->set_intvar(effect,0);
+  dp_pspline->meaneffectintvar = 1;
+
+  FC_mult_preds.push_back(FC_mult_pred(true));
+  equations[modnr].add_FC(&FC_mult_preds[FC_mult_preds.size()-1],"");
+
+  term helpt = terms[i];
+  terms[i].varnames.erase(terms[i].varnames.begin(),terms[i].varnames.end());
+  terms[i].varnames.push_back(helpt.varnames[1]);
+  terms[i].varnames.push_back(helpt.varnames[0]);
+
+  terms[i].options[12] = "true";
+  bool error=false;
+
+  unsigned fnr;
+  ST::string na = terms[i].varnames[terms[i].varnames.size()-1];
+  bool found = findREdistr(na,equations[modnr],fnr);
+
+  if (found==false)
+    {
+    outerror("ERROR: level 2 equation for variable " + na + " not found \n");
+    return true;
+    }
+
+  FC_mult_preds.push_back(FC_mult_pred(false));
+
+  FC_mult_preds[FC_mult_preds.size()-2].set_effectp(dp_pspline,fcnp_pspline);
+  FC_mult_preds[FC_mult_preds.size()-2].set_distrp(equations[fnr].distrp);
+
+  FC_mult_preds[FC_mult_preds.size()-1].set_effectp(dp_pspline,fcnp_pspline);
+  FC_mult_preds[FC_mult_preds.size()-1].set_distrp(equations[fnr].distrp);
+
+  equations[modnr].add_FC(&FC_mult_preds[FC_mult_preds.size()-1],"");
+
+  return false;
+  }
 
 
 bool  superbayesreg::create_random_pspline(unsigned i)
@@ -11272,6 +11325,8 @@ bool superbayesreg::create_nonp(void)
       if ((terms[i].options[0] == "hrandom_pspline") ||
           (terms[i].options[0] == "hrandomexp_pspline"))
         error = create_random_pspline(i);
+      if ((terms[i].options[0] == "multiplicative_pspline"))
+        error = create_multiplicative_pspline(i);
       if ((terms[i].options[0] == "mrf_pspline"))
         error = create_mrf_pspline(i);
       if ((terms[i].options[0] == "hrandom_mrf"))

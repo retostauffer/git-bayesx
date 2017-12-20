@@ -155,6 +155,8 @@ class __EXPORT_TYPE DISTR
 
   double meaneffect;
 
+  datamatrix multintvar;           // for multiplicative psplines (contains interaction variable for level 2 effects)
+
   //----------------------------------------------------------------------------
   //---------------------- linpredlimits for save estimation -------------------
   //----------------------------------------------------------------------------

@@ -258,6 +258,7 @@ using MCMC::FC_nonp;
 using MCMC::FC_linear;
 using MCMC::FC_linear_pen;
 using MCMC::FC_mult;
+using MCMC::FC_mult_pred;
 using MCMC::FC_hrandom;
 using MCMC::FC_hrandom_distributional;
 using MCMC::FC_nonp_variance;
@@ -760,7 +761,9 @@ class __EXPORT_TYPE superbayesreg : public statobject
 //---------------------- multiplicative random effects -------------------------
 
   vector<FC_mult> FC_mults;
+  vector<FC_mult_pred> FC_mult_preds;
 
+  bool create_multiplicative_pspline(unsigned i);
   bool create_random_pspline(unsigned i);
   bool create_random_mrf(unsigned i);
 

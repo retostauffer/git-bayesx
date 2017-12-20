@@ -101,6 +101,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   workingresponse = r;
   responsename = "Y";
 
+  multintvar = datamatrix(1,1,0.0);
+
   nrobs = response.rows();
 
   if (w.rows() == 1)
@@ -169,6 +171,8 @@ DISTR::DISTR(const DISTR & d)
   workingresponse = d.workingresponse;
   responsename = d.responsename;
   offsetname = d.offsetname;
+
+  multintvar = d.multintvar;
 
   weight = d.weight;
   weightname = d.weightname;
@@ -270,6 +274,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   helpquantity1 = d.helpquantity1;
   helpquantity2 = d.helpquantity2;
   helpquantity3 = d.helpquantity3;
+
+  multintvar = d.multintvar;
 
   updateIWLS = d.updateIWLS;
   family = d.family;

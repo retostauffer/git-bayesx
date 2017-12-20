@@ -341,7 +341,6 @@ void FC_nonp::perform_centering(void)
 
 void FC_nonp::update_IWLS(void)
   {
-
   // TEST
 //  ofstream out("c:\\bayesx\\testh\\results\\beta.res");
 //  beta.prettyPrint(out);
@@ -545,6 +544,7 @@ void FC_nonp::ssvs_update(double & tauratio, bool signswitch, bool onlyupdate)
 
 void FC_nonp::update(void)
   {
+  set_multiplicative();
   if (IWLS)
     {
     update_IWLS();
@@ -956,6 +956,7 @@ void FC_nonp::update_isotonic(void)
 
 bool FC_nonp::posteriormode_transform(void)
   {
+  set_multiplicative();
 
   double h = likep->compute_iwls(true,false);
 
@@ -1016,10 +1017,9 @@ bool FC_nonp::posteriormode_transform(void)
 
   }
 
-
-
 bool FC_nonp::posteriormode(void)
   {
+  set_multiplicative();
 
   if (orthogonal)
     return posteriormode_transform();
@@ -2323,6 +2323,15 @@ void FC_nonp::get_samples(const ST::string & filename,ofstream & outg) const
 
   }
 
+void FC_nonp::set_multiplicative(void)
+  {
+  if(likep->multintvar.rows()>1)
+    {
+    designp->changingdesign=true;
+    designp->set_intvar(likep->multintvar,0);
+    designp->meaneffectintvar = 1;
+    }
+  }
 
 
 void FC_nonp::reset(void)

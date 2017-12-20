@@ -118,6 +118,62 @@ class __EXPORT_TYPE FC_mult  : public FC
 
   };
 
+//------------------------------------------------------------------------------
+//--------------------------- CLASS: FC_mult_pred ------------------------------
+//------------------------------------------------------------------------------
+
+class __EXPORT_TYPE FC_mult_pred  : public FC
+  {
+  protected:
+
+  MASTER_OBJ * masterp;
+  unsigned equationnr;
+
+  DESIGN * dp;
+  FC_nonp * FCnp;
+  DISTR * distrp;
+
+  datamatrix effect;
+
+  bool splineupdate;
+
+  public:
+
+//----------------------- CONSTRUCTORS, DESTRUCTOR -----------------------------
+
+  // DEFAULT CONSTRUCTOR
+
+  FC_mult_pred(void);
+
+  // CONSTRUCTOR
+
+  FC_mult_pred(bool splupd);
+
+  // COPY CONSTRUCTOR
+
+  FC_mult_pred(const FC_mult_pred & m);
+
+  // OVERLOADED ASSIGNMENT OPERATOR
+
+  const FC_mult_pred & operator=(const FC_mult_pred & m);
+
+  // DESTRUCTOR
+
+  ~FC_mult_pred()
+    {
+    }
+
+  void update(void);
+
+  bool posteriormode(void);
+
+  void reset(void);
+
+  void set_effectp(DESIGN * d,FC_nonp * fp);
+
+  void set_distrp(DISTR * d);
+
+  };
 
 } // end: namespace MCMC
 
