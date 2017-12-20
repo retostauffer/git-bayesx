@@ -1,0 +1,23 @@
+% usefile c:\bayesx\trunk\testh\prg\gaussian_scaling.txt
+
+dataset d
+d.infile using c:\bayesx\trunk\testh\testdata\gaussian_scaling.raw
+
+dataset d2
+d2.infile using c:\bayesx\trunk\testh\testdata\gaussian_scaling_id.raw
+
+
+mcmcreg b
+
+logopen using c:\bayesx\trunk\testh\results\gaussian_scaling_id.log
+
+
+b.outfile = c:\bayesx\trunk\testh\results\gaussian_scaling_re
+b.hregress id , family=gaussian_re iterations=52000 burnin=2000 hlevel=2 step=50 using d2
+
+
+b.outfile = c:\bayesx\trunk\testh\results\gaussian_scaling
+b.hregress y = const + id*x1(hrandom_pspline)  ,  family=normal equationtype=mu  using d
+
+
+
