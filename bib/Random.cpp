@@ -23,9 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 
 #include "Random.h"
-#include <gsl/gsl_cdf.h>
-#include <gsl/gsl_sf_gamma.h>
-
+#if defined(BAYESX_GSL_INCLUDED)
+  #include <gsl/gsl_cdf.h>
+  #include <gsl/gsl_sf_gamma.h>
+#endif
 
 // BEGIN: DSB //
 
@@ -2152,8 +2153,12 @@ double incomplete_gamma (double a, double x)
     return gamser;
 }
 
-double gamma_cdf(double y, double mu, double sigma) {
-  const double p = gsl_cdf_gamma_P(y, sigma, mu/sigma);
+double gamma_cdf(double y, double mu, double sigma)
+  {
+  const double p = 0.0;
+  #if defined(BAYESX_GSL_INCLUDED)
+  p = gsl_cdf_gamma_P(y, sigma, mu/sigma);
+  #endif
   // TODO check for errors
   return p;
 }
