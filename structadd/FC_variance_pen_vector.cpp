@@ -817,7 +817,7 @@ void FC_variance_pen_vector_ssvs::update(void)
 
       // update tau^2_j
 
-      p = -0.5 + 0.5;
+      p = 0.0;
       q = 1.0/(r_delta * FC_psi2.beta(j,0));
       c = pow(Cp->beta(j,0),2);
 
