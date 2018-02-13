@@ -8390,7 +8390,7 @@ bool superbayesreg::create_distribution(void)
       double * sampleselwp = sampleselweight.getV();
       for(i=0; i<sampleselweight.rows(); i++,wpa++,wpb++,wpp++,wprho++,sampleselwp++)
         {
-        if( ((*sampleselwp)==0) )
+        if ((*sampleselwp)==0)
           {
           *wpa = 0;
           *wpb = 0;

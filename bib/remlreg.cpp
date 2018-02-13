@@ -4370,7 +4370,7 @@ void plotnonprun(remlreg & b)
   {
 #if !defined(JAVA_OUTPUT_WINDOW)
   b.outerror("ERROR: method plotnonp is not available in this version\n");
-#else defined(JAVA_OUTPUT_WINDOW)
+#elif defined(JAVA_OUTPUT_WINDOW)
   bool error = false;
 
   vector<ST::string> varnames = b.mplotnonp.getModelVarnamesAsVector();

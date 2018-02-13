@@ -375,7 +375,7 @@ void FC_nonp_variance::update(void)
           }
         }
       }
-    else if ((hyperprior == hnormal)) // half normal for tau
+    else if (hyperprior == hnormal) // half normal for tau
       {
    //   cout << "hyperprior" << hyperprior << endl;
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
@@ -399,7 +399,7 @@ void FC_nonp_variance::update(void)
         acceptance++;
         }
       }
-    else if ((hyperprior == hcauchy)) // half cauchy for tau
+    else if (hyperprior == hcauchy) // half cauchy for tau
       {
       double quadf = designp->penalty_compute_quadform(FCnonpp->param);
       double quadstau2=(scaletau2*scaletau2);
@@ -423,7 +423,7 @@ void FC_nonp_variance::update(void)
         acceptance++;
         }
       }
-    else if ((hyperprior == aunif))  // approximation of uniform prior for tau
+    else if (hyperprior == aunif)  // approximation of uniform prior for tau
       {
       double tildec = 13.86294;
       double argold = sqrt(beta(0,0))*tildec/scaletau2;

@@ -27855,7 +27855,7 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_deviance_mult(vector<double 
    // *linpred[3] = eta_rho
    // *linpred[4] = eta_mu_1
 
-   if ((*weight[0]==0))
+   if (*weight[0]==0)
      *deviance=0;
    else
      {

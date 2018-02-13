@@ -191,7 +191,7 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   {
 
   multf=m.multf;
-  multf_value=multf_value;
+  multf_value=m.multf_value;
 
   imeasures=m.imeasures;
 
@@ -251,7 +251,7 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
   FC::operator=(FC(m));
 
   multf=m.multf;
-  multf_value=multf_value;
+  multf_value=m.multf_value;
 
   imeasures=m.imeasures;
 
@@ -1309,7 +1309,7 @@ void FC_nonp::outgraphs(ofstream & out_stata, ofstream & out_R, ofstream & out_R
                 << "graph export " << pathps << "_mu.eps, replace"
                 << endl << endl;
       }
-    else if(designp->type != userdefined)
+    else
       {
       out_stata << "graph twoway rarea pqu" << pu1_str << "_mu"
                 << " pqu" << pu2_str << "_mu"
