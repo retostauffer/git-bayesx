@@ -620,6 +620,11 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   f = op[54].strtodouble(b);
   f = op[41].strtodouble(rhelp);
 
+  if(op[57]=="true")
+     NBPSS = true;
+  else
+     NBPSS = false;
+
   atau2.push_back(a);
   btau2_orig.push_back(b);
   btau2.push_back(masterp->level1_likep[equationnr]->trmult*b);
@@ -639,6 +644,13 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
   delta.setbeta(nrpen,1,0);
   delta.setbeta(nrpen,2,0.5);
   setbeta(nrpen,1,0.1);
+
+  FC_psi2 = FC(optionsp,"",nrpen,1,"");
+  FC_psi2.setbeta(nrpen,1,0.1);
+
+  FC_delta = FC(optionsp,"",nrpen,2,"");
+  FC_delta.setbeta(nrpen,1,0);
+  FC_delta.setbeta(nrpen,2,0.5);
 
   Cp->tau2 = datamatrix(nrpen,1,0);
   Cp->tau2oldinv = datamatrix(nrpen,1,0);
@@ -670,6 +682,9 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(MASTER_OBJ * mp,
   theta = FC(optionsp,"",1,1,"");
   theta.setbeta(1,1,0.5);
 
+  FC_omega = FC(optionsp,"",1,1,"");
+  FC_omega.setbeta(1,1,0.5);
+
   atheta=1;
   btheta=1;
 
@@ -697,6 +712,11 @@ FC_variance_pen_vector_ssvs::FC_variance_pen_vector_ssvs(const FC_variance_pen_v
 
   r = t.r;
 
+  FC_omega = t.FC_omega;
+  FC_psi2 =  t.FC_psi2;
+  FC_delta = t.FC_delta;
+
+  NBPSS = t.NBPSS;
   }
 
 
@@ -723,6 +743,12 @@ const FC_variance_pen_vector_ssvs & FC_variance_pen_vector_ssvs::operator=(const
   btheta = t.btheta;
 
   r = t.r;
+
+  FC_omega = t.FC_omega;
+  FC_psi2 =  t.FC_psi2;
+  FC_delta = t.FC_delta;
+
+  NBPSS = t.NBPSS;
 
   return *this;
   }
@@ -751,7 +777,69 @@ bool FC_variance_pen_vector_ssvs::posteriormode(void)
 
 void FC_variance_pen_vector_ssvs::update(void)
   {
+  if(NBPSS)
+    {
+    unsigned j;
+    double p, q, c, r_delta;
+    double anew, bnew;
+    double sumdelta=0.0;
+    for (j=0; j<nrpen; j++)
+      {
+      // update psi2_j
+      if(FC_delta.beta(j,0) > 0)
+        r_delta = 1.0;
+      else
+        r_delta = r[j];
 
+      anew = atau2[j] + 0.5;
+      bnew = btau2[j]+0.5*beta(j,0)/r_delta;
+      FC_psi2.beta(j,0) = rand_invgamma(anew, bnew);
+
+      // update delta_j
+
+      double u = uniform();
+      double L = 1/sqrt(r[j])*exp(- beta(j,0)/(2*FC_psi2.beta(j,0))*(1/r[j]-1));
+      double pr1 = 1/(1+ ((1-FC_omega.beta(0,0))/FC_omega.beta(0,0))*L);
+
+      if (u <= pr1)
+        {
+        FC_delta.beta(j,0) = 1;
+        r_delta = 1;
+        }
+      else
+        {
+        FC_delta.beta(j,0) = 0;
+        r_delta = r[j];
+        }
+
+      FC_delta.beta(j,1) = pr1;
+      sumdelta += FC_delta.beta(j,0);
+
+      // update tau^2_j
+
+      p = -0.5 + 0.5;
+      q = 1.0/(r_delta * FC_psi2.beta(j,0));
+      c = pow(Cp->beta(j,0),2);
+
+      double tau2 = randnumbers::GIG2(p, q, c);
+      beta(j,0) = tau2;
+
+      Cp->tau2(j,0) = beta(j,0);
+      if(cprior[j])
+        Cp->tau2(j,0) = beta(j,0)*distrp->get_scale();
+      }
+
+    // update omega
+
+    FC_omega.beta(0,0) = randnumbers::rand_beta(atheta+sumdelta,btheta+nrpen-sumdelta);
+
+    FC_omega.update();
+    FC_psi2.update();
+    FC_delta.update();
+
+    }
+  else
+  {
   unsigned j;
   double anew_tau2;
   double bnew_tau2;
@@ -838,6 +926,7 @@ void FC_variance_pen_vector_ssvs::update(void)
 */
 
   theta.update();
+  }
 
 
   FC::update();
@@ -878,8 +967,16 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    ST::string pathresults_delta = pathresults.substr(0,pathresults.length()-7)+"delta.res";
    ST::string pathresults_delta_prob = pathresults.substr(0,pathresults.length()-7)+"delta_prob.res";
 
-   delta.outresults(out_stata,out_R,out_R2BayesX,"");
-   delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
+   if(NBPSS)
+     {
+     FC_delta.outresults(out_stata,out_R,out_R2BayesX,"");
+     FC_delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
+     }
+   else
+     {
+     delta.outresults(out_stata,out_R,out_R2BayesX,"");
+     delta.outresults_help(out_stata,out_R,pathresults_delta,Cp->datanames);
+     }
 
    optionsp->out("\n");
    optionsp->out("    Results for delta parameters are also stored in file\n");
@@ -889,8 +986,14 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
 
    optionsp->out("    Rao-Blackwellised inclusion probabilities:\n");
 
-   delta.outresults_help(out_stata,out_R,pathresults_delta_prob,Cp->datanames,1);
-
+   if(NBPSS)
+     {
+     FC_delta.outresults_help(out_stata,out_R,pathresults_delta_prob,Cp->datanames,1);
+     }
+   else
+     {
+     delta.outresults_help(out_stata,out_R,pathresults_delta_prob,Cp->datanames,1);
+     }
    optionsp->out("\n");
    optionsp->out("    Results for Rao-Blackwellised inclusion probabilities are also stored in file\n");
    optionsp->out("    " + pathresults_delta + "\n");
@@ -912,8 +1015,16 @@ void FC_variance_pen_vector_ssvs::outresults(ofstream & out_stata, ofstream & ou
    optionsp->out("    Inclusion probability parameter omega:\n");
    optionsp->out("\n");
 
-   theta.outresults(out_stata,out_R,out_R2BayesX,"");
-   theta.outresults_singleparam(out_stata,out_R,pathresults_theta);
+   if(NBPSS)
+     {
+     FC_omega.outresults(out_stata,out_R,out_R2BayesX,"");
+     FC_omega.outresults_singleparam(out_stata,out_R,pathresults_theta);
+     }
+   else
+     {
+     theta.outresults(out_stata,out_R,out_R2BayesX,"");
+     theta.outresults_singleparam(out_stata,out_R,pathresults_theta);
+     }
 
    optionsp->out("    Results for linear effects omega parameters are also stored in file\n");
    optionsp->out("    " + pathresults_theta + "\n");

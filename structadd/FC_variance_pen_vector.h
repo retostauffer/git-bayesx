@@ -204,6 +204,12 @@ class __EXPORT_TYPE FC_variance_pen_vector_ssvs : public FC
 
   vector<double> r;
 
+  FC FC_psi2;
+  FC FC_omega;
+  FC FC_delta;
+
+  bool NBPSS;
+
   public:
 
 

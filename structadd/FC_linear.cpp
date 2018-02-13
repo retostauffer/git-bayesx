@@ -50,7 +50,6 @@ void FC_linear::read_options(vector<ST::string> & op,vector<ST::string> & vn)
   13      samplemult
   14      constraints
   */
-
   }
 
 
