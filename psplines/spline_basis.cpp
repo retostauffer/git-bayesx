@@ -1474,8 +1474,12 @@ void spline_basis::add_linearpred_multBS(const bool & current)
       workbeta = beta.getV() + k;
       for(j=0;j<col;j++,workBS++,workbeta++)
         {
-        *lp += *workBS * *workbeta;
-        *workspline += *workBS * *workbeta;
+// ASAN/UBSAN
+        if( (!(lp==NULL)) && (!(workBS==NULL)) && (!(workbeta==NULL)) && (!(workspline==NULL)) )
+          {
+          *lp += *workBS * *workbeta;
+          *workspline += *workBS * *workbeta;
+          }
         }
       if((freqwork+1)!=freq.end() && *freqwork==*(freqwork+1))
         {
@@ -1487,8 +1491,12 @@ void spline_basis::add_linearpred_multBS(const bool & current)
         {
         freqwork++;
         workindex2++;
-        workspline += *workindex2;
-        lp += *workindex2*lpcols;
+// ASAN/UBSAN
+        if(workindex2!=index2.end())
+          {
+          workspline += *workindex2;
+          lp += *workindex2*lpcols;
+          }
         }
       }
     k++;
