@@ -361,7 +361,7 @@ string string::insert_string_char(char p, string & str) const
   string result = s;
   unsigned l = str.length();
   unsigned k = 0;
-  for (unsigned i=0;i<s.length()-1;i++)
+  for (int i=0;i<s.length()-1;i++)
       {
       char z = s[i];
       if (z == p)

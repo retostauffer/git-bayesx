@@ -689,7 +689,7 @@ double GIG(double chi)
 double GIG(double lambda, double psi, double chi)
   {
 
-  double out;
+  double out = 0.0;
 
   if (chi == 0)
     return rand_gamma(lambda,psi/2);
@@ -1022,7 +1022,7 @@ double pbivn(const double & xl, const double &  xu, const double &  yl, const do
   //cout << "p=" << p << endl;
   p += pbivnu(xu,yu,r);
   //cout << "p=" << p << endl;
-  double minp = min( p, 1.0 );
+  // double minp = min( p, 1.0 );
   //p = max( 0.0, minp );
   return p;
   }
@@ -2138,7 +2138,7 @@ double incomplete_gamma (double a, double x)
     const double EPS = 2.22045e-016;
     int n;
     double sum;
-    double gamser;
+    double gamser = 0.0;
     double gln = randnumbers::lngamma_exact(a);
     double ap = a;
     double del = sum = 1.0/a;

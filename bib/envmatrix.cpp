@@ -254,7 +254,7 @@ T envmatrix<T>::operator()(const unsigned & i, const unsigned & j) const
   assert(i<dim);
   assert(j<dim);
 
-  unsigned ih, jh;
+  int ih, jh;
   int kl, ku, zeroes;
 
   if(i>j)
@@ -528,8 +528,9 @@ void envmatrix<T>::decomp()
       }
     else
       {
-      unsigned i, ixenv, iband, ifirst, last, k, l, mstop, m, jstop, j;
+      unsigned i, ixenv, iband, ifirst, last, l, mstop, m, jstop, j;
 //        unsigned i, ixenv, iband, ifirst, last, k, mstop, m, jstop, j;
+      int k;
       int kband;
       T temp = T(0);
       T s = T(0);
@@ -2053,7 +2054,7 @@ void envmatrix<T>::solveU(datamatrix &b)
   else
     {
     int i;
-    unsigned iband, l, k, h;
+    int iband, l, k, h;
     T s = T(0);
 
     T* bi = b.getV() + dim -1;
@@ -2219,7 +2220,7 @@ void envmatrix<T>::solveU(datamatrix &b, const datamatrix &bhelp)
   else
     {
     int i;
-    unsigned iband, l, k, h;
+    int iband, l, k, h;
     T s = T(0);
 
     T* bi = b.getV() + dim -1;
@@ -2855,7 +2856,7 @@ template<class T>
 void envmatrix<T>::set(const unsigned & i, const unsigned & j, const T & t)
   {
 
-  unsigned ih, jh;
+  int ih, jh;
   int kl, ku, zeroes;
 
   if(i>j)

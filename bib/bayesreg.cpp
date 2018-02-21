@@ -1099,7 +1099,7 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
 int bayesreg::parse(const ST::string & c)
   {
 
-  int u = statobject::parse(c);
+  // int u = statobject::parse(c);
 
   int pos = statobject::parsecom(c,methods,globaloptions);
 
@@ -1238,7 +1238,7 @@ bool bayesreg::create_distribution(void)
 
   // add variables for measurement error terms
 
-  unsigned j;
+  int j;
   ST::string test;
   vector<ST::string> modelvarnamesvhelp;
   for(i=0; i<modelvarnamesv.size(); i++)
@@ -1291,7 +1291,7 @@ bool bayesreg::create_distribution(void)
     ifexpression = methods[0].getexpression();
     }
 
-  // Für Cox/Multistate model
+  // F\FCr Cox/Multistate model
   if(begin.getvalue() != "")
     {
     modelvarnamesv.push_back(begin.getvalue());
@@ -1304,7 +1304,7 @@ bool bayesreg::create_distribution(void)
     censpos = modelvarnamesv.size()-1;
     }
 
-  // Für Multistate model
+  // F\FCr Multistate model
   if(state.getvalue() != "")
     {
     modelvarnamesv.push_back(state.getvalue());

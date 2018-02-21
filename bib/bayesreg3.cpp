@@ -50,9 +50,9 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
   unsigned min,max,degree,nrknots;
   double lambda, mvar1, mvar2, arva, arpa1, arpa2, bmean, bvar;
   double a1,b1;
-  int gridsize, contourprob;
+  int gridsize; //, contourprob;
   int f;
-  bool diagtransform,derivative,center;
+  bool diagtransform,derivative; //,center;
 
   unsigned i,j,k;
   int j1,j2;
@@ -133,12 +133,12 @@ bool bayesreg::create_varcoeffmerror(const unsigned & collinpred)
         derivative = true;
 
       f = (terms[i].options[16]).strtolong(h);
-      contourprob = unsigned(h);
+//      contourprob = unsigned(h);
 
-      if (terms[i].options[20] == "false")
-        center = false;
-      else
-        center = true;
+//      if (terms[i].options[20] == "false")
+//        center = false;
+//      else
+//        center = true;
 
       // SUSI: read new opttion form the options list
 
@@ -2196,7 +2196,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
   double shrinkageweight;
   bool shrinkageadaptive=false;
 
-  // Vektoren mit den Startwerten die uebergeben werden für adaptive shrinkkage
+  // Vektoren mit den Startwerten die uebergeben werden f\FCr adaptive shrinkkage
   vector<double> variances_vec;
   vector<double> shrinkagestart_vec;    // for adaptive shrinkage (individual shrinkageparameters)
   vector<double> a_shrinkage_vec;       // for adaptive shrinkage
@@ -2301,7 +2301,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
               }
             f = terms[i].options[5].strtodouble(shrinkageweight);
 
-            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gewählt
+            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gew\E4hlt
             // ansonsten werden die Werte aus dem 1. Term genommen
             if(shrinkageadaptive==false)
               {
@@ -2425,7 +2425,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
             }
           shrinkageweight = startdata.get(readline,3);
 
-          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gewählt
+          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gew\E4hlt
           // ansonsten werden die Werte aus der 1. zeile genommen
           if(shrinkageadaptive==false)
             {
@@ -2442,7 +2442,7 @@ bool bayesreg::create_ridge(const unsigned & collinpred)
             b_shrinkage = startdata.get(readline,5);      //Option aus jeder Zeile
             }
 
-          // Vektoren der Startwerte die übergeben werden sollen
+          // Vektoren der Startwerte die \FCbergeben werden sollen
           effectstart_vec.push_back(effectstart);
           variances_vec.push_back(tau2start);
           shrinkagestart_vec.push_back(shrinkagestart);
@@ -2644,10 +2644,10 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
   double shrinkagestart;
   double a_shrinkage;
   double b_shrinkage;
-  bool shrinkagefix;
+  bool shrinkagefix = false;
   double effectstart;
   double shrinkageweight;
-  bool shrinkageadaptive;
+  bool shrinkageadaptive = false;
 
   // Vektoren mit den Startwerten die uebergeben werden
   vector<double> variances_vec;
@@ -2670,7 +2670,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
   bool use_effectstart = true;
   bool external = false;    // stammen Hyperparameter/Startwerte aus externer Datei
   int termnr1 = -1;           // Zaehler fuer die erste Lassoterm Nummer aus der derzeit der
-                            // Startdataset üebergeben wird.
+                            // Startdataset \FCebergeben wird.
   unsigned lassocount = 0;  // Zaehler fuer die Anzahl der Lassoterme
   unsigned readline = 0;    // Zeilennummer die aus Dataset eingelesen wird
   dataobject * datap;       // pointer to datasetobject
@@ -2756,7 +2756,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
             f = terms[i].options[3].strtodouble(tau2start);
             f = terms[i].options[5].strtodouble(shrinkageweight);
 
-            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gewählt
+            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gew\E4hlt
             // ansonsten werden die Werte aus dem 1. Term genommen
             if(shrinkageadaptive==false)
               {
@@ -2878,7 +2878,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
           tau2start = startdata.get(readline,1);
           shrinkageweight = startdata.get(readline,3);
 
-          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gewählt
+          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gew\E4hlt
           // ansonsten werden die Werte aus der 1. zeile genommen
           if(shrinkageadaptive==false)
             {
@@ -2893,7 +2893,7 @@ bool bayesreg::create_lasso(const unsigned & collinpred)
             b_shrinkage = startdata.get(readline,5);      //Option aus jeder Zeile
             }
 
-          // Vektoren der Startwerte die übergeben werden sollen
+          // Vektoren der Startwerte die \FCbergeben werden sollen
           effectstart_vec.push_back(effectstart);
           variances_vec.push_back(tau2start);
           shrinkagestart_vec.push_back(shrinkagestart);
@@ -3108,7 +3108,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
   double helpindicator;
   double helpvariances;
 
-  // Vector-options (ersetzen später die 1-dim optionen von oben)
+  // Vector-options (ersetzen sp\E4ter die 1-dim optionen von oben)
   vector<double> variances_vec;
   vector<double> effectstart_vec;
   vector<unsigned long> indicator_vec;
@@ -3221,7 +3221,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
             indicator = help;
             f = (terms[i].options[4]).strtodouble(t2);
 
-            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gewählt
+            // Folgende Werte werden nur aus jedem Term gesetzt wenn adaptive gew\E4hlt
             // ansonsten werden die Werte aus dem 1. Term genommen
           if(omegaadaptive==false)
             {
@@ -3380,7 +3380,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
 
           t2 = startdata.get(readline,2);
 
-          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gewählt
+          // Folgende Werte werden nur aus jeder Zeile gesetzt wenn adaptive gew\E4hlt
           // ansonsten werden die Werte aus der 1. zeile genommen
           if(omegaadaptive==false)
             {
@@ -3411,7 +3411,7 @@ bool bayesreg::create_nigmix(const unsigned & collinpred)
             {
             helpvariances = (v1 * t2);
             }
-          // Vektoren denen Startwerte die übergeben werden sollen
+          // Vektoren denen Startwerte die \FCbergeben werden sollen
           variances_vec.push_back(helpvariances);
           effectstart_vec.push_back(effectstart);
           indicator_vec.push_back(indicator);
@@ -3673,7 +3673,7 @@ void regressrun(bayesreg & b)
   if (!failure)
     failure = b.create_distribution();
 
-// Speicherplatz für normalconst/nongaussianconst/nbinomialconst reservieren
+// Speicherplatz f\FCr normalconst/nongaussianconst/nbinomialconst reservieren
   unsigned nrfcfixed = b.fixedeffects.get_constvariables(b.terms).size()+1;
   unsigned blocksize_fixed = 10;
   unsigned reserved = 20;
@@ -4067,7 +4067,7 @@ void hregressrun(bayesreg & b)
   if (!failure)
     failure = b.create_distribution();
 
-// Speicherplatz für normalconst/nongaussianconst/nbinomialconst reservieren
+// Speicherplatz f\FCr normalconst/nongaussianconst/nbinomialconst reservieren
 /*
   unsigned nrfcfixed = b.fixedeffects.get_constvariables(b.terms).size()+1;
   unsigned blocksize_fixed = 10;
