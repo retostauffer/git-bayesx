@@ -1076,19 +1076,19 @@ void DISTR::outresults_predictive_check(datamatrix & D,datamatrix & sr)
 
   for (j=1;j<h.rows();j++)
     h(j,0) = sr.quantile(25,j);
-  optionsp->out("    25\% Quantile  " + ST::doubletostring(D.quantile(25,0)) +  "  " +
+  optionsp->out("    25% Quantile  " + ST::doubletostring(D.quantile(25,0)) +  "  " +
                 ST::doubletostring(h.quantile(5,0)) + " - "
                 + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
 
   for (j=1;j<h.rows();j++)
     h(j,0) = sr.quantile(50,j);
-  optionsp->out("    50\% Quantile  " + ST::doubletostring(D.quantile(50,0)) +  "  " +
+  optionsp->out("    50% Quantile  " + ST::doubletostring(D.quantile(50,0)) +  "  " +
                 ST::doubletostring(h.quantile(5,0)) + " - "
                 + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
 
   for (j=1;j<h.rows();j++)
     h(j,0) = sr.quantile(75,j);
-  optionsp->out("    75\% Quantile  " + ST::doubletostring(D.quantile(75,0)) +  "  " +
+  optionsp->out("    75% Quantile  " + ST::doubletostring(D.quantile(75,0)) +  "  " +
                 ST::doubletostring(h.quantile(5,0)) + " - "
                 + ST::doubletostring(h.quantile(95,0)) + "\n" ) ;
 

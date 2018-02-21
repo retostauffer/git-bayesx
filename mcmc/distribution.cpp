@@ -3705,7 +3705,7 @@ void DISTRIBUTION::outresults(void)
           }
 
         optionsp->out("\n");
-        optionsp->out("  Posterior 50\% quantile:\n");
+        optionsp->out("  Posterior 50 percent quantile:\n");
         optionsp->out("\n");
 
         for (i=0;i<scale.rows();i++)
