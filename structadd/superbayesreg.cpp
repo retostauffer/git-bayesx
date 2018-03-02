@@ -1118,6 +1118,9 @@ void superbayesreg::clear(void)
                                 FC_variance_pen_vectors.end());
   FC_variance_pen_vectors.reserve(200);
 
+  FC_variance_pen_vector_ssvss.erase(FC_variance_pen_vector_ssvss.begin(),
+                                FC_variance_pen_vector_ssvss.end());
+  FC_variance_pen_vector_ssvss.reserve(200);
 
   FC_hrandom_variances.erase(FC_hrandom_variances.begin(),
   FC_hrandom_variances.end());
@@ -11055,9 +11058,10 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
     sh = MCMC::ridge;
   else if (terms[i].options[0]=="lasso")
     sh = MCMC::lasso;
-  else
+  else if (terms[i].options[0]=="ssvs")
     sh = MCMC::ssvs;
 
+  unsigned modnr = equations.size()-1;
 
   if ( ( (ridge == -1) && (terms[i].options[0] == "ridge")  ) ||
        ( (lasso == -1) && (terms[i].options[0] == "lasso")  ) ||
@@ -11065,7 +11069,6 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
      )
     {
 
-    unsigned modnr = equations.size()-1;
 
     ST::string title;
     ST::string pathpen;
@@ -11082,105 +11085,79 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
       {
 
       title = h + ": linear effects with ridge penalty";
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ridgepenalty.res";
+      pathpenresvar = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ridgepenalty_var.res";
+      titlevar = h + ": linear effects with ridge penalty (var)";
 
 #if defined(__BUILDING_LINUX)
       pathpen = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
                              + "_LinearEffects_ridgepenalty"  +
                              "_" + h + ".raw";
-#else
-      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
-                             + "_LinearEffects_ridgepenalty"  +
-                             "_" + h + ".raw";
-#endif
-
-      pathpenres = outfile.getvalue() + "_" + h +
-                   "_LinearEffects_ridgepenalty.res";
-
-      titlevar = h + ": linear effects with ridge penalty (var)";
-
-#if defined(__BUILDING_LINUX)
       pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
                              + "_LinearEffects_ridgepenalty_var"  +
                              "_" + h + ".raw";
 #else
+      pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
+                             + "_LinearEffects_ridgepenalty"  +
+                             "_" + h + ".raw";
       pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_ridgepenalty_var"  +
                              "_" + h + ".raw";
 #endif
-
-      pathpenresvar = outfile.getvalue() + "_" + h +
-                   "_LinearEffects_ridgepenalty_var.res";
-
       }
     else if (terms[i].options[0] == "lasso")
       {
       title = h + ": linear effects with lasso penalty";
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_lassopenalty.res";
+      titlevar = h + ": linear effects with lasso penalty (var)";
+      pathpenresvar = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_lassopenalty_var.res";
 
 #if defined(__BUILDING_LINUX)
       pathpen = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
                              + "_LinearEffects_lassopenalty"  +
+                             "_" + h + ".raw";
+      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty_var"  +
                              "_" + h + ".raw";
 #else
       pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_lassopenalty"  +
                              "_" + h + ".raw";
-#endif
-
-      pathpenres = outfile.getvalue() + "_" + h +
-                   "_LinearEffects_lassopenalty.res";
-
-      titlevar = h + ": linear effects with lasso penalty (var)";
-
-#if defined(__BUILDING_LINUX)
-      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                             + "_LinearEffects_lassopenalty_var"  +
-                             "_" + h + ".raw";
-#else
       pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_lassopenalty_var"  +
                              "_" + h + ".raw";
 #endif
-
-      pathpenresvar = outfile.getvalue() + "_" + h +
-                   "_LinearEffects_lassopenalty_var.res";
-
       }
-    else
+    else if (terms[i].options[0] == "ssvs")
       {
       title = h + ": linear effects with ssvs prior";
+      pathpenres = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ssvs.res";
+      pathpenresvar = outfile.getvalue() + "_" + h +
+                   "_LinearEffects_ssvs_var.res";
+      titlevar = h + ": variance of linear effects with ssvs prior";
+//      titlevar = "";
 
 #if defined(__BUILDING_LINUX)
       pathpen = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
                              + "_LinearEffects_lassopenalty"  +
+                             "_" + h + ".raw";
+      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
+                             + "_LinearEffects_lassopenalty_var"  +
                              "_" + h + ".raw";
 #else
       pathpen = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_ssvs"  +
                              "_" + h + ".raw";
-#endif
-
-      pathpenres = outfile.getvalue() + "_" + h +
-                   "_LinearEffects_ssvs.res";
-
-//      titlevar = h + ": variance of linear effects with ssvs prior";
-      titlevar = "";
-
-#if defined(__BUILDING_LINUX)
-      pathpenvar = defaultpath.to_bstr() + "/temp/" + name.to_bstr()
-                             + "_LinearEffects_lassopenalty_var"  +
-                             "_" + h + ".raw";
-#else
       pathpenvar = defaultpath.to_bstr() + "\\temp\\" + name.to_bstr()
                              + "_LinearEffects_ssvs_var"  +
                              "_" + h + ".raw";
 #endif
-
-      pathpenresvar = outfile.getvalue() + "_" + h +
-                   "_LinearEffects_ssvs_var.res";
-
       }
-
-
 
     if (pathpen.isvalidfile() == 1)
       {
@@ -11246,10 +11223,23 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
       }
     else
       {
+//      cout << "begtest" << endl;
+//      cout << "modnr: "  << modnr << endl;
+//      int testsize = FC_variance_pen_vector_ssvss.size()-1;
+//      cout << "size (ssvs): " << testsize << endl;
+//      FC_variance_pen_vector_ssvss[testsize].outoptions();
+
       equations[modnr].add_FC(&FC_variance_pen_vector_ssvss[
       FC_variance_pen_vector_ssvss.size()-1],pathpenresvar);
-      }
 
+//      cout << "size (FCs): " << equations[modnr].FCpointer.size()-1 << endl;
+//      cout << "midtest" << endl;
+
+//      testsize = equations[modnr].FCpointer.size()-1;
+//      equations[modnr].FCpointer[testsize]->outoptions();
+
+//      cout << "endtest" << endl;
+      }
 
     }
   else
@@ -11274,6 +11264,20 @@ bool superbayesreg::create_ridge_lasso(unsigned i)
       FC_linear_pens[ssvs_linear].add_variable(d,terms[i].varnames[0]);
       FC_variance_pen_vector_ssvss[ssvs].add_variable(d,terms[i].options,
                                                   terms[i].varnames);
+
+//      cout << "begtest" << endl;
+//      cout << "modnr: "  << modnr << endl;
+//      int testsize = FC_variance_pen_vector_ssvss.size()-1;
+//      cout << "size: " << testsize << endl;
+//      FC_variance_pen_vector_ssvss[testsize].outoptions();
+//      cout << "size (FCs): " << equations[modnr].FCpointer.size()-1 << endl;
+
+//      cout << "midtest" << endl;
+
+//      testsize = equations[modnr].FCpointer.size()-1;
+//      equations[modnr].FCpointer[testsize]->outoptions();
+
+//      cout << "endtest" << endl;
       }
 
     }

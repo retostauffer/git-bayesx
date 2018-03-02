@@ -197,6 +197,9 @@ const int & seed, const bool & computemode, const bool & skipfirst)
 
       for(j=0;j<equations[nrmodels-1-i].FCpointer.size();j++)
         {
+//        cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
+//        cout << "j: " << j << endl;
+//        cout << equations[nrmodels-1-i].FCpointer[j]->title << endl;
         equations[nrmodels-1-i].FCpointer[j]->outoptions();
         }
       genoptions->out("\n");
