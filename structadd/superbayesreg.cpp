@@ -347,6 +347,8 @@ void superbayesreg::create_hregress(void)
   families.push_back("dirichlet");
   families.push_back("gaussian_shared");
   families.push_back("quantreg_shared");
+  families.push_back("gaussian_multeffect");
+
   family = stroption("family",families,"normal");
   aresp = doubleoption("aresp",0.001,-1.0,500);
   bresp = doubleoption("bresp",0.001,0.0,500);
@@ -1061,6 +1063,9 @@ void superbayesreg::clear(void)
   distr_JMs.erase(distr_JMs.begin(),distr_JMs.end());
   distr_JMs.reserve(20);
 
+  distr_gaussian_multeffects.erase(distr_gaussian_multeffects.begin(),distr_gaussian_multeffects.end());
+  distr_gaussian_multeffects.reserve(20);
+
   FC_linears.erase(FC_linears.begin(),FC_linears.end());
   FC_linears.reserve(200);
 
@@ -1096,9 +1101,6 @@ void superbayesreg::clear(void)
 
   FC_mults.erase(FC_mults.begin(),FC_mults.end());
   FC_mults.reserve(200);
-
-  FC_mult_preds.erase(FC_mult_preds.begin(),FC_mult_preds.end());
-  FC_mult_preds.reserve(200);
 
   FC_nonp_variances.erase(FC_nonp_variances.begin(),FC_nonp_variances.end());
   FC_nonp_variances.reserve(400);
@@ -1230,6 +1232,7 @@ superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_gaussian_multeffects = b.distr_gaussian_multeffects;
   distr_hetgaussians = b.distr_hetgaussians;
   distr_vargaussians = b.distr_vargaussians;
   distr_quantregs = b.distr_quantregs;
@@ -1462,6 +1465,7 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
   generaloptions = b.generaloptions;
 
   distr_gaussians = b.distr_gaussians;
+  distr_gaussian_multeffects = b.distr_gaussian_multeffects;
   distr_hetgaussians = b.distr_hetgaussians;
   distr_vargaussians = b.distr_vargaussians;
   distr_quantregs = b.distr_quantregs;
@@ -2028,6 +2032,18 @@ bool superbayesreg::create_distribution(void)
       }
     }
 //-------------------------- END: Gaussian response ----------------------------
+
+//------------------------- Gaussian multiplicative response -------------------
+  else if ((family.getvalue() == "gaussian_multeffect") && (equationtype.getvalue()=="mu"))
+    {
+    computemodeforstartingvalues = true;
+    mainequation=false;
+    distr_gaussian_multeffects.push_back(DISTR_gaussian_multeffect(aresp.getvalue(),bresp.getvalue(),
+                                      &generaloptions,D.getCol(0),"",w) );
+    equations[modnr].distrp = &distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1];
+    }
+//-------------------------- END: Gaussian response ----------------------------
+
 
 //-------------------------------- normal sigma2 ---------------------------------
   else if ( ((family.getvalue() == "normal")) && equationtype.getvalue()=="sigma2")
@@ -10143,9 +10159,6 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
   dp_pspline->set_intvar(effect,0);
   dp_pspline->meaneffectintvar = 1;
 
-  FC_mult_preds.push_back(FC_mult_pred(true));
-  equations[modnr].add_FC(&FC_mult_preds[FC_mult_preds.size()-1],"");
-
   term helpt = terms[i];
   terms[i].varnames.erase(terms[i].varnames.begin(),terms[i].varnames.end());
   terms[i].varnames.push_back(helpt.varnames[1]);
@@ -10164,21 +10177,15 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
     return true;
     }
 
-  FC_mult_preds.push_back(FC_mult_pred(false));
+  FC_nonps[FC_nonps.size()-1].set_multiplicative(equations[fnr].distrp);
 
-  FC_mult_preds[FC_mult_preds.size()-2].set_effectp(dp_pspline,fcnp_pspline);
-  FC_mult_preds[FC_mult_preds.size()-2].set_distrp(equations[fnr].distrp);
-
-  FC_mult_preds[FC_mult_preds.size()-1].set_effectp(dp_pspline,fcnp_pspline);
-  FC_mult_preds[FC_mult_preds.size()-1].set_distrp(equations[fnr].distrp);
-
-  equations[modnr].add_FC(&FC_mult_preds[FC_mult_preds.size()-1],"");
+  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dg = &(distr_gaussians[distr_gaussians.size()-1]);
 
   return false;
   }
 
 
-bool  superbayesreg::create_random_pspline(unsigned i)
+bool superbayesreg::create_random_pspline(unsigned i)
   {
 
   unsigned modnr = equations.size()-1;

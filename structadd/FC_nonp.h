@@ -226,7 +226,12 @@ class __EXPORT_TYPE FC_nonp  : public FC
 
   void get_effect(datamatrix & effect);
 
-  void set_multiplicative(void);
+  void set_multiplicative(DISTR * dp);
+  void get_multiplicative(void);
+
+  bool multiplicative;
+  DISTR * multlikep;
+  datamatrix expetatilde;
 
 /*  //return log-proposal density
   double compute_log_proposal(void);

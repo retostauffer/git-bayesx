@@ -1,19 +1,24 @@
 % usefile c:\bayesx\trunk\testh\prg\gaussian_scaling_exp.txt
 
 dataset d
-d.infile using c:\bayesx\trunk\testh\testdata\gaussian_scaling.raw
-d.generate y2 = y
+d.infile using c:\bayesx\trunk\testh\testdata\gaussian_exp_mult.raw
+
+%d.infile using c:\bayesx\trunk\testh\testdata\gaussian_scaling.raw
+%d.generate y2 = y
+
 
 mcmcreg b
 
-logopen using c:\bayesx\trunk\testh\results\gaussian_scaling_id_exp.log
+logopen using c:\bayesx\trunk\testh\results\gaussian_exp_mult.log
 
-b.outfile = c:\bayesx\trunk\testh\results\gaussian_scaling_exp
-b.hregress y2 = id(pspline), family=gaussian iterations=12000 burnin=2000 step=10 hlevel=2 equationtype=mu modeonly using d
-b.hregress y = const + y2*x1(multiplicative_pspline), family=gaussian equationtype=mu modeonly using d
+b.outfile = c:\bayesx\trunk\testh\results\gaussian_exp_mult
 
-drop b d 
+b.hregress y2 = z(pspline), family=gaussian_multeffect iterations=12000 burnin=2000 step=10 hlevel=2 equationtype=mu using d
+b.hregress y = const + y2*x(multiplicative_pspline), family=gaussian equationtype=mu using d
+
 logclose
+
+drop b d
 
 
 

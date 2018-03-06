@@ -125,6 +125,8 @@ FC_nonp::FC_nonp(MASTER_OBJ * mp,unsigned & enr, GENERAL_OPTIONS * o,DISTR * lp,
 
   read_options(op,vn);
 
+  multiplicative = false;
+
   multf=false;
 
   imeasures=false;
@@ -193,6 +195,10 @@ FC_nonp::FC_nonp(const FC_nonp & m)
   multf=m.multf;
   multf_value=m.multf_value;
 
+  multiplicative = m.multiplicative;
+  multlikep = m.multlikep;
+  expetatilde = m.expetatilde;
+
   imeasures=m.imeasures;
 
   masterp = m.masterp;
@@ -252,6 +258,10 @@ const FC_nonp & FC_nonp::operator=(const FC_nonp & m)
 
   multf=m.multf;
   multf_value=m.multf_value;
+
+  multiplicative = m.multiplicative;
+  multlikep = m.multlikep;
+  expetatilde = m.expetatilde;
 
   imeasures=m.imeasures;
 
@@ -544,7 +554,9 @@ void FC_nonp::ssvs_update(double & tauratio, bool signswitch, bool onlyupdate)
 
 void FC_nonp::update(void)
   {
-  set_multiplicative();
+  if(multiplicative)
+    get_multiplicative();
+
   if (IWLS)
     {
     update_IWLS();
@@ -573,6 +585,10 @@ void FC_nonp::update(void)
     meaneffect_sample.update();
     }
 
+  if(multiplicative)
+    {
+    designp->compute_effect(multlikep->fx,beta,MCMC::Function);
+    }
   }
 
 
@@ -956,7 +972,8 @@ void FC_nonp::update_isotonic(void)
 
 bool FC_nonp::posteriormode_transform(void)
   {
-  set_multiplicative();
+  if(multiplicative)
+    get_multiplicative();
 
   double h = likep->compute_iwls(true,false);
 
@@ -1013,13 +1030,19 @@ bool FC_nonp::posteriormode_transform(void)
                               meaneffect_sample.beta,computemeaneffect,
                               meaneffectconstant);
 
-  return FC::posteriormode();
 
+  if(multiplicative)
+    {
+    designp->compute_effect(multlikep->fx,beta,MCMC::Function);
+    }
+
+  return FC::posteriormode();
   }
 
 bool FC_nonp::posteriormode(void)
   {
-  set_multiplicative();
+  if(multiplicative)
+    get_multiplicative();
 
   if (orthogonal)
     return posteriormode_transform();
@@ -1106,6 +1129,11 @@ bool FC_nonp::posteriormode(void)
 //    ofstream out("c:\\bayesx\\trunk\\testh\\results\\intvar.raw");
 //    designp->intvar.prettyPrint(out);
 
+    }
+
+  if(multiplicative)
+    {
+    designp->compute_effect(multlikep->fx,beta,MCMC::Function);
     }
 
   return FC::posteriormode();
@@ -2323,16 +2351,29 @@ void FC_nonp::get_samples(const ST::string & filename,ofstream & outg) const
 
   }
 
-void FC_nonp::set_multiplicative(void)
+void FC_nonp::set_multiplicative(DISTR * dp)
   {
-  if(likep->multintvar.rows()>1)
-    {
-    designp->changingdesign=true;
-    designp->set_intvar(likep->multintvar,0);
-    designp->meaneffectintvar = 1;
-    }
+  multiplicative = true;
+  designp->changingdesign=true;
+  multlikep = dp;
+  expetatilde = datamatrix(likep->nrobs,1,1.0);
   }
 
+void FC_nonp::get_multiplicative(void)
+  {
+  double * worklin;
+  if (multlikep->linpred_current==1)
+    worklin = multlikep->linearpred1.getV();
+  else
+    worklin = multlikep->linearpred2.getV();
+  double * etildep = expetatilde.getV();
+  unsigned i;
+
+  for(i=0; i<likep->nrobs; i++, worklin++, etildep++)
+    *etildep = exp(*worklin);
+
+  designp->set_intvar(expetatilde);
+  }
 
 void FC_nonp::reset(void)
   {

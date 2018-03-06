@@ -857,7 +857,6 @@ const FC_nonp_variance_varselection & FC_nonp_variance_varselection::operator=(c
 
 void FC_nonp_variance_varselection::add_linpred(datamatrix & l)
   {
-
   if (likep->linpred_current==1)
     likep->linearpred1.plus(l);
   else
