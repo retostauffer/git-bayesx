@@ -1069,16 +1069,16 @@ void FC_variance_pen_vector_ssvs::outoptions(void)
       nsp = 12-Cp->datanames[i].length();
     ST::string ls(' ',nsp);
 
-    nsp2 = 9 - ST::doubletostring(atau2[i],6).length();
+    nsp2 = 9 - ST::doubletostring(atau2[i],3).length();
     ST::string ls2(' ',nsp2);
 
-    nsp3 = 9 - ST::doubletostring(btau2[i],6).length();
+    nsp3 = 9 - ST::doubletostring(btau2[i],3).length();
     ST::string ls3(' ',nsp3);
 
     optionsp->out("    " + Cp->datanames[i] + ls +
-                  ST::doubletostring(atau2[i],6) + ls2 +
-                  ST::doubletostring(btau2[i],6) + ls3 +
-                  ST::doubletostring(r[i],10) + "\n");
+                  ST::doubletostring(atau2[i],3) + ls2 +
+                  ST::doubletostring(btau2[i],3) + ls3 +
+                  ST::doubletostring(r[i],3) + "\n");
     }
   optionsp->out("\n");
   }
