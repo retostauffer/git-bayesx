@@ -1331,6 +1331,7 @@ class __EXPORT_TYPE DISTR_gaussian_multeffect : public DISTR_gaussian
   public:
 
   DISTR_gaussian * dg;
+  bool dgexists;
 
    // DEFAULT CONSTRUCTOR
 
@@ -1421,6 +1422,8 @@ class __EXPORT_TYPE DISTR_gaussian_multeffect : public DISTR_gaussian
   void outresults(ofstream & out_stata, ofstream & out_R, ofstream & out_R2BayesX,ST::string pathresults="");
 
   double get_scalemean(void);
+
+  double get_scale(void);
 
   void sample_responses(unsigned i,datamatrix & sr);
 

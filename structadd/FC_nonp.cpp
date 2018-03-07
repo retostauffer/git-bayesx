@@ -360,8 +360,8 @@ void FC_nonp::update_IWLS(void)
   unsigned i;
   double * workparam;
 
-//  lambda = likep->get_scale()/tau2;
-  lambda = 1/tau2;
+  lambda = likep->get_scale()/tau2;
+//  lambda = 1/tau2;
 
   if (optionsp->nriter == 1)
     {
@@ -2371,6 +2371,13 @@ void FC_nonp::get_multiplicative(void)
 
   for(i=0; i<likep->nrobs; i++, worklin++, etildep++)
     *etildep = exp(*worklin);
+
+  ofstream out1("c:/temp/etatilde.raw");
+  (multlikep->linearpred1).prettyPrint(out1);
+  out1.close();
+  ofstream out2("c:/temp/expetatilde.raw");
+  expetatilde.prettyPrint(out2);
+  out2.close();
 
   designp->set_intvar(expetatilde);
   }

@@ -2914,6 +2914,11 @@ DISTR_gaussian_multeffect::DISTR_gaussian_multeffect(const double & a,
   {
   family = "Normal distribution for multiplicative effects";
   updateIWLS = true;
+  dgexists = false;
+  if (check_weightsone())
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
   }
 
 const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
@@ -2923,6 +2928,7 @@ const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
     return *this;
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
   dg = nd.dg;
+  dgexists = nd.dgexists;
   return *this;
   }
 
@@ -2932,6 +2938,7 @@ DISTR_gaussian_multeffect::DISTR_gaussian_multeffect(const DISTR_gaussian_multef
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
   dg = nd.dg;
+  dgexists = nd.dgexists;
   }
 
 void DISTR_gaussian_multeffect::sample_responses(unsigned i,datamatrix & sr)
@@ -3136,6 +3143,10 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
   double * worklintilde;
   double * fxp = fx.getV();
 
+/*  ofstream out("c:/temp/fx.raw");
+  fx.prettyPrint(out);
+  out.close();*/
+
   if (current)
     {
     if (dg->linpred_current == 1)
@@ -3161,7 +3172,21 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
       worklintilde = linearpred1.getV();
     }
 
-  double * work_workingresponse=workingresponse.getV();
+/*  ofstream out1("c:/temp/etatilde1.raw");
+  linearpred1.prettyPrint(out1);
+  out1.close();
+  ofstream out2("c:/temp/etatilde2.raw");
+  linearpred2.prettyPrint(out2);
+  out2.close();
+  ofstream out3("c:/temp/eta1.raw");
+  (dg->linearpred1).prettyPrint(out3);
+  out3.close();
+  ofstream out4("c:/temp/eta2.raw");
+  (dg->linearpred2).prettyPrint(out4);
+  out4.close();*/
+
+
+  double * work_workingresponse = workingresponse.getV();
   double * work_workingweight = workingweight.getV();
 
   double likelihood = 0;
@@ -3384,6 +3409,14 @@ void DISTR_gaussian_multeffect::outresults(ofstream & out_stata, ofstream & out_
 double DISTR_gaussian_multeffect::get_scalemean(void)
   {
   return (dg->FCsigma2).betamean(0,0);
+  }
+
+double DISTR_gaussian_multeffect::get_scale(void)
+  {
+  if(dgexists)
+    return dg->sigma2;
+  else
+    return sigma2;
   }
 
 void DISTR_gaussian_multeffect::addmult(datamatrix & design, datamatrix & betadiff)

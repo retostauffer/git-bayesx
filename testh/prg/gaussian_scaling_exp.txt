@@ -14,7 +14,7 @@ logopen using c:\bayesx\trunk\testh\results\gaussian_exp_mult.log
 b.outfile = c:\bayesx\trunk\testh\results\gaussian_exp_mult
 
 b.hregress y2 = z(pspline), family=gaussian_multeffect iterations=12000 burnin=2000 step=10 hlevel=2 equationtype=mu using d
-b.hregress y = const + y2*x(multiplicative_pspline), family=gaussian equationtype=mu using d
+b.hregress y = const + y2*x(multiplicative_pspline), family=gaussian equationtype=mu modeonly modemaxit=3 using d
 
 logclose
 
