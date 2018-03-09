@@ -1049,6 +1049,13 @@ bool FC_nonp::posteriormode(void)
   else
     {
 
+    if(!multiplicative)
+      {
+/*      ofstream out0("c:/temp/intvar.raw");
+      (designp->intvar).prettyPrint(out);
+      out.close();*/
+      }
+
     double h = likep->compute_iwls(true,false);
 
     betaold.assign(beta);
@@ -1134,6 +1141,10 @@ bool FC_nonp::posteriormode(void)
   if(multiplicative)
     {
     designp->compute_effect(multlikep->fx,beta,MCMC::Function);
+
+/*    ofstream out("c:/temp/fx.raw");
+    (multlikep->fx).prettyPrint(out);
+    out.close();*/
     }
 
   return FC::posteriormode();
@@ -2372,12 +2383,12 @@ void FC_nonp::get_multiplicative(void)
   for(i=0; i<likep->nrobs; i++, worklin++, etildep++)
     *etildep = exp(*worklin);
 
-  ofstream out1("c:/temp/etatilde.raw");
+/*  ofstream out1("c:/temp/etatilde.raw");
   (multlikep->linearpred1).prettyPrint(out1);
   out1.close();
   ofstream out2("c:/temp/expetatilde.raw");
   expetatilde.prettyPrint(out2);
-  out2.close();
+  out2.close();*/
 
   designp->set_intvar(expetatilde);
   }

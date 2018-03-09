@@ -3244,6 +3244,19 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
       *work_workingresponse *= help;
       }
     }
+
+/*  ofstream out("c:/temp/workresponse.res");
+  workingresponse.prettyPrint(out);
+  our.close();
+
+  ofstream out2("c:/temp/workweight.res");
+  workingweight.prettyPrint(out2);
+  out2.close();
+
+  ofstream out3("c:/temp/linpred.res");
+  linearpred1.prettyPrint(out3);
+  out3.close();*/
+
   return likelihood;
   }
 
@@ -3349,6 +3362,17 @@ void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & l
       *work_workingresponse *= help;
       }
     }
+/*  ofstream out("c:/temp/workresponse.res");
+  workingresponse.prettyPrint(out);
+  our.close();
+
+  ofstream out2("c:/temp/workweight.res");
+  workingweight.prettyPrint(out2);
+  out2.close();
+
+  ofstream out3("c:/temp/linpred.res");
+  linearpred1.prettyPrint(out3);
+  out3.close();*/
   }
 
 double DISTR_gaussian_multeffect::compute_iwls(double * response, double * linpred,
@@ -3474,6 +3498,8 @@ void DISTR_gaussian_multeffect::update_linpred(datamatrix & f, datamatrix & intv
       *worklinp_dg += (exp(*worklinp)-help)*(*fxp);
       }
     }
+
+
   }
 
 bool DISTR_gaussian_multeffect::update_linpred_save(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
