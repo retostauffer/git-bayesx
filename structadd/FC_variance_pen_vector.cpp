@@ -778,10 +778,13 @@ bool FC_variance_pen_vector_ssvs::posteriormode(void)
 
 void FC_variance_pen_vector_ssvs::update(void)
   {
+  unsigned j;
+  for(j=0; j<btau2.size(); j++)
+    btau2[j] = masterp->level1_likep[equationnr]->trmult*btau2[j];
+
   acceptance++;
   if(NBPSS)
     {
-    unsigned j;
     double p, q, c, r_delta;
     double anew, bnew;
     double sumdelta=0.0;
