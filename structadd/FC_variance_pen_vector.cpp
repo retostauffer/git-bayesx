@@ -627,7 +627,8 @@ void FC_variance_pen_vector_ssvs::add_variable(datamatrix & x,vector<ST::string>
 
   atau2.push_back(a);
   btau2_orig.push_back(b);
-  btau2.push_back(masterp->level1_likep[equationnr]->trmult*b);
+  btau2.push_back(b);
+//  btau2.push_back(masterp->level1_likep[equationnr]->trmult*b);
   r.push_back(rhelp);
 
   if (op[61] == "true")
@@ -777,6 +778,7 @@ bool FC_variance_pen_vector_ssvs::posteriormode(void)
 
 void FC_variance_pen_vector_ssvs::update(void)
   {
+  acceptance++;
   if(NBPSS)
     {
     unsigned j;
