@@ -182,6 +182,8 @@ class __EXPORT_TYPE DISTR
   datamatrix helpmat3;              // Stores auxiliary quantities
 
   datamatrix fx;                    // Auxiliary variable for multiplicative effects
+  DISTR * dg;
+  bool dgexists;
 
   double * linpredp;              // pointer to own linpred
 
@@ -1329,9 +1331,6 @@ class __EXPORT_TYPE DISTR_gaussian_multeffect : public DISTR_gaussian
   protected:
 
   public:
-
-  DISTR_gaussian * dg;
-  bool dgexists;
 
    // DEFAULT CONSTRUCTOR
 

@@ -81,6 +81,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
   maindistribution=true;
   predict_mult=false;
 
+  dgexists = false;
+
   option1 = "";
   offsetname = "";
 
@@ -186,6 +188,8 @@ DISTR::DISTR(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
   fx = d.fx;
+  dg = d.dg;
+  dgexists = d.dgexists;
 
   linpredp = d.linpredp;
 
@@ -266,6 +270,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
   helpmat2 = d.helpmat2;
   helpmat3 = d.helpmat3;
   fx = d.fx;
+  dg = d.dg;
+  dgexists = d.dgexists;
 
   linpredp = d.linpredp;
 
@@ -2927,8 +2933,6 @@ const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
   if (this==&nd)
     return *this;
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
-  dg = nd.dg;
-  dgexists = nd.dgexists;
   return *this;
   }
 
@@ -2937,8 +2941,6 @@ const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
 DISTR_gaussian_multeffect::DISTR_gaussian_multeffect(const DISTR_gaussian_multeffect & nd)
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
-  dg = nd.dg;
-  dgexists = nd.dgexists;
   }
 
 void DISTR_gaussian_multeffect::sample_responses(unsigned i,datamatrix & sr)
@@ -3432,7 +3434,9 @@ void DISTR_gaussian_multeffect::outresults(ofstream & out_stata, ofstream & out_
 
 double DISTR_gaussian_multeffect::get_scalemean(void)
   {
-  return (dg->FCsigma2).betamean(0,0);
+// FIX!
+//  return (dg->FCsigma2).betamean(0,0);
+  return dg->sigma2;
   }
 
 double DISTR_gaussian_multeffect::get_scale(void)

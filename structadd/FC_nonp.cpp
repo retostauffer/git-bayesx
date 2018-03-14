@@ -979,7 +979,10 @@ bool FC_nonp::posteriormode_transform(void)
 
   betaold.assign(beta);
 
-  designp->compute_partres(partres,beta,true);
+  if(likep->dgexists)
+    designp->compute_partres_multiplicative(partres,beta,true);
+  else
+    designp->compute_partres(partres,beta,true);
 
   if (designp->QtRinv.rows() <= 1)
     {
@@ -1049,18 +1052,14 @@ bool FC_nonp::posteriormode(void)
   else
     {
 
-    if(!multiplicative)
-      {
-/*      ofstream out0("c:/temp/intvar.raw");
-      (designp->intvar).prettyPrint(out);
-      out.close();*/
-      }
-
     double h = likep->compute_iwls(true,false);
 
     betaold.assign(beta);
-    designp->compute_partres(partres,beta,true);
 
+    if(likep->dgexists)
+      designp->compute_partres_multiplicative(partres,beta,true);
+    else
+      designp->compute_partres(partres,beta,true);
 
     designp->compute_XtransposedWX();
 
