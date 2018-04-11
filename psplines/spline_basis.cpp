@@ -2898,7 +2898,8 @@ void spline_basis::compute_XWtildey(const datamatrix & weight, const datamatrix 
           l++;
 // ASAN/UBSAN checks
           freqwork++;
-          workBS += BScols*(*freqwork - *(freqwork-1));
+          if(freqwork!=freq.end())
+            workBS += BScols*(*freqwork - *(freqwork-1));
           if (l <= stop )
             {
             workindex2++;
