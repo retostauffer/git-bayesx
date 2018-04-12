@@ -849,7 +849,7 @@ void FC_variance_pen_vector_ssvs::update(void)
   double anew_tau2;
   double bnew_tau2;
   double beta2;
-  double thetanew;
+//  double thetanew;
 
   double sumdelta=0;
 

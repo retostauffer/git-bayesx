@@ -761,7 +761,8 @@ const stepwisereg & stepwisereg::operator=(const stepwisereg & b)
 int stepwisereg::parse(const ST::string & c)
   {
 
-  int u = statobject::parse(c);
+  int u = 0;
+  u = statobject::parse(c);
 
   int pos = statobject::parsecom(c,methods,globaloptions);
 

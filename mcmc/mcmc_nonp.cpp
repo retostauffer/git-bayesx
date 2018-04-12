@@ -719,7 +719,7 @@ double PenaltyMatrix::compute_quadform_prec(const datamatrix & beta,
 
 unsigned PenaltyMatrix::get_category(const double & v) const
   {
-  unsigned cat;
+  unsigned cat=0;
   unsigned i=0;
   double value;
 

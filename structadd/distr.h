@@ -429,7 +429,7 @@ class __EXPORT_TYPE DISTR
 
   virtual void compute_mu(const double * linpred,double * mu);
 
-  virtual void compute_mu_mult(vector<double *> linpred,vector<double *> response,double * mu);
+  virtual void compute_mu_mult(vector<double *> linpred, vector<double *> response, double * mu);
 
 
   //----------------------------------------------------------------------------

@@ -187,10 +187,10 @@ void spline_basis::get_effectmatrix(datamatrix & e, vector<ST::string> & enames,
 //  else
 //    workbeta = betaqu50.getV();
 
-  vector<int>::iterator itbeg = posbeg.begin();
-  vector<int>::iterator itend = posend.begin();
+//  vector<int>::iterator itbeg = posbeg.begin();
+//  vector<int>::iterator itend = posend.begin();
 
-  int j;
+//  int j;
   unsigned i;
 
   if (varcoeff)

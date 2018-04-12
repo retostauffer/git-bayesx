@@ -600,7 +600,8 @@ const remlreg & remlreg::operator=(const remlreg & b)
 
 int remlreg::parse(const ST::string & c)
   {
-  int u = statobject::parse(c);
+  int u = 0;
+  u = statobject::parse(c);
   int pos = statobject::parsecom(c,methods,globaloptions);
 
   if (pos >= 0)

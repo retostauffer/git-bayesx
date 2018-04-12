@@ -126,7 +126,7 @@ void DISTR_multgaussian::compute_mu(const double * linpred,double * mu)
   *mu = *linpred;
   }
 
-void DISTR_multgaussian::compute_mu_mult(vector<double *> linpred,double * mu)
+void DISTR_multgaussian::compute_mu_mult(vector<double *> linpred, vector<double *> response, double * mu)
   {
   *mu = *linpred[catnr];
   }
