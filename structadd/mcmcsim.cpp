@@ -221,7 +221,7 @@ const int & seed, const bool & computemode, const bool & skipfirst)
 
     genoptions->out("  COMPUTING STARTING VALUES (MAY TAKE SOME TIME)");
     genoptions->out("\n");
-//    ST::string h = "";
+    ST::string h = "";
     bool c = posteriormode(h,skipfirst,true);
     }
 
