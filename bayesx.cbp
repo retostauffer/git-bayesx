@@ -45,6 +45,7 @@
 			<Add directory="dag" />
 			<Add directory="structadd" />
 			<Add directory="../../../gsl/gsl" />
+			<Add directory="../../../gsl" />
 		</Compiler>
 		<Linker>
 			<Add library="..\..\gsl\lib\libgsl.a" />
