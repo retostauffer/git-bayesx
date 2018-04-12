@@ -3318,7 +3318,7 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
 
     double nu = 1 + a*(*worktransformlin[0])*log((*response)/(*worktransformlin[1]))
                 - (((*worktransformlin[0])+1)*a*hilfs*log((*response)/(*worktransformlin[1])))/(1+hilfs);
-
+f
     *workingweight = 1 + (((*worktransformlin[0])+1)*pow(a,2)*hilfs*pow(log((*response)/(*worktransformlin[1])),2))/pow((1+hilfs),2);
 
     if(optionsp->copula)
@@ -11337,7 +11337,7 @@ void DISTR_gumbelcopula2_normal_sigma2::compute_iwls_wweightschange_weightsone(
     double logvrho = pow(-logv, (*worktransformlin[0]));
     double arg = logurho + logvrho;
 
-    double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) * arg1 * 0.5 ;
+//    double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) * arg1 * 0.5 ;
 //    double dd2 = - 0.5 * dd1 * (1 - pow(arg1, 2));
 
 //    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
@@ -11591,7 +11591,7 @@ void DISTR_gumbelcopula2_normal_mu::compute_iwls_wweightschange_weightsone(
     double arg = logurho + logvrho;
 
     double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) / pow((*worktransformlin[2]), 0.5);
-    double dd2 = dd1 * arg1 / pow((*worktransformlin[2]), 0.5);
+//    double dd2 = dd1 * arg1 / pow((*worktransformlin[2]), 0.5);
 //    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
 //    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
 //    double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
@@ -27449,7 +27449,7 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
 
     double ybpa = pow(*response/b,(*worktransformlin[1]));
     double ybpmap = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0])-1);
-    double ybpmap2 = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0]));
+    // double ybpmap2 = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0]));
     double dF = -(*worktransformlin[1])*(*worktransformlin[0])*ybpmap/ybpa;
     // double ddF = (*worktransformlin[1])*(*worktransformlin[1])*(*worktransformlin[0])*((*worktransformlin[0])-ybpa)*ybpmap2/((ybpa+1)*(ybpa+1));
 
@@ -27691,11 +27691,11 @@ void DISTR_gaussiancopula_binary_dagum_a::compute_iwls_wweightschange_weightsone
     double d2 = d1 - pcurrent * pow(1+pow(respdivb, -a), -pcurrent-1) * a * a * log(respdivb) * log(respdivb) * pow(respdivb, -a) +
                 pcurrent * (pcurrent + 1) *pow(1+pow(respdivb, -a), -pcurrent-2) * pow((pow(respdivb, -a) * log(respdivb) * a), 2);
 
-    double ybpa = pow((*response/(*worktransformlin[1])),a);
+    // double ybpa = pow((*response/(*worktransformlin[1])),a);
     double lyb = log(*response/(*worktransformlin[1]));
     double ybpma = pow(*response/(*worktransformlin[1]),-a);
     double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
-    double ybpmap2 = pow(1+ybpma,-(*worktransformlin[0]));
+    // double ybpmap2 = pow(1+ybpma,-(*worktransformlin[0]));
     double dF = (*worktransformlin[0])*lyb*a*ybpma*ybpmap;
     // double ddF = a*(*worktransformlin[0])*lyb*ybpmap2*(a*lyb*((*worktransformlin[0])-ybpa)+ybpa+1)/pow(1+ybpa,2);
 
