@@ -126,7 +126,7 @@ DESIGN_userdefined::DESIGN_userdefined(void) : DESIGN()
   }
 
 
-void DESIGN_userdefined::init_data(datamatrix & dm, datamatrix & iv)
+void DESIGN_userdefined::init_data(const datamatrix & dm, const datamatrix & iv)
   {
 
   unsigned j;
@@ -779,7 +779,7 @@ DESIGN_userdefined_tensor::DESIGN_userdefined_tensor(void) : DESIGN_userdefined(
   }
 
 
-void DESIGN_userdefined_tensor::init_data(datamatrix & dm, datamatrix & iv)
+void DESIGN_userdefined_tensor::init_data(const datamatrix & dm, const datamatrix & iv)
   {
 
   unsigned j;
