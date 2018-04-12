@@ -3318,7 +3318,7 @@ void DISTR_dagum_a::compute_iwls_wweightschange_weightsone(
 
     double nu = 1 + a*(*worktransformlin[0])*log((*response)/(*worktransformlin[1]))
                 - (((*worktransformlin[0])+1)*a*hilfs*log((*response)/(*worktransformlin[1])))/(1+hilfs);
-f
+
     *workingweight = 1 + (((*worktransformlin[0])+1)*pow(a,2)*hilfs*pow(log((*response)/(*worktransformlin[1])),2))/pow((1+hilfs),2);
 
     if(optionsp->copula)
@@ -11590,7 +11590,7 @@ void DISTR_gumbelcopula2_normal_mu::compute_iwls_wweightschange_weightsone(
     double logvrho = pow(-logv, (*worktransformlin[0]));
     double arg = logurho + logvrho;
 
-    double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) / pow((*worktransformlin[2]), 0.5);
+//    double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) / pow((*worktransformlin[2]), 0.5);
 //    double dd2 = dd1 * arg1 / pow((*worktransformlin[2]), 0.5);
 //    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
 //    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
