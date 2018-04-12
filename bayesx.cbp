@@ -32,7 +32,7 @@
 		<Compiler>
 			<Add option="-O3" />
 			<Add option="-w" />
-			<Add option="-fexceptions -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC" />
+			<Add option="-fexceptions -DBayesX_gsl_included -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC" />
 			<Add directory="adaptiv" />
 			<Add directory="alex" />
 			<Add directory="andrea" />
@@ -44,7 +44,7 @@
 			<Add directory="samson" />
 			<Add directory="dag" />
 			<Add directory="structadd" />
-			<Add directory="../../../gsl" />
+			<Add directory="../../../gsl/gsl" />
 		</Compiler>
 		<Linker>
 			<Add library="..\..\gsl\lib\libgsl.a" />

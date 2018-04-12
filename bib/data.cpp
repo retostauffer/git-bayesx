@@ -1540,13 +1540,15 @@ void dataset::marketing(vector<ST::string> & names, ST::string & defs, int & lak
 
   int nrout=0;
   int nrwoche=0;
+  int found=0;
 
   unsigned i;
   for(i=0;i<names.size()-2;i++)    //durchläuft die Variablen outlet, wochenin
     {
     list<ST::string>namen;
     namen.push_back(names[i]);
-    int found = datarep.findvar(names[i],stit,varitwo);  //damit man varit bekommt und später Werte auslesen kann
+    found = datarep.findvar(names[i],stit,varitwo);  //damit man varit bekommt und später Werte auslesen kann
+
     sort(namen,0,nrobs-1);   //sortiert nach Variable "i"
     unsigned k = 0;      //Anzahl der Beobachtungen der einzelnen Variablen feststellen
     int zaehler = 0;
@@ -1577,7 +1579,7 @@ void dataset::marketing(vector<ST::string> & names, ST::string & defs, int & lak
   sort(namen,0,nrobs-1);   // endgültiges Sortieren; Reihenfolge: markenin, outlet, wochenin, preis
   realvar wert(nrobs,NA);      //erzeugt neue Variable, die später den minimalen Preis pro Marke enthält
 
-  int found = datarep.findvar(names[3],stit,varitp);    //Zeiger auf "preis"
+  found = datarep.findvar(names[3],stit,varitp);    //Zeiger auf "preis"
   found = datarep.findvar(names[1],stit,varitwo);       //Zeiger auf "wochenin"
   found = datarep.findvar(names[2],stit,varitm);        //Zeiger auf "markenin"
 
