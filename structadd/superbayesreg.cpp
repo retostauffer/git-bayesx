@@ -1667,7 +1667,8 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 int superbayesreg::parse(const ST::string & c)
   {
 
-  int u = statobject::parse(c);
+  int u = 0;
+  u = statobject::parse(c);
 
   int pos = statobject::parsecom(c,methods,globaloptions);
 
@@ -10151,7 +10152,7 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
   datamatrix datadummy = datamatrix(1,1,0.0);
   create_pspline(i, datadummy);
 
-  FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
+  // FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
   MCMC::DESIGN * dp_pspline = &design_psplines[design_psplines.size()-1];
 
   dp_pspline->changingdesign=true;
@@ -10165,7 +10166,7 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
   terms[i].varnames.push_back(helpt.varnames[0]);
 
   terms[i].options[12] = "true";
-  bool error=false;
+  // bool error=false;
 
   unsigned fnr;
   ST::string na = terms[i].varnames[terms[i].varnames.size()-1];

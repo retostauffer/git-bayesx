@@ -11338,12 +11338,12 @@ void DISTR_gumbelcopula2_normal_sigma2::compute_iwls_wweightschange_weightsone(
     double arg = logurho + logvrho;
 
     double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) * arg1 * 0.5 ;
-    double dd2 = - 0.5 * dd1 * (1 - pow(arg1, 2));
+//    double dd2 = - 0.5 * dd1 * (1 - pow(arg1, 2));
 
-    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
+//    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
 //    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
-    double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
-    double ner = (1 / (*worktransformlin[0])) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 1));
+//    double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
+//    double ner = (1 / (*worktransformlin[0])) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 1));
 //    double rest1 = - pow(arg, (1 / (*worktransformlin[0]) - 1)) / (*worktransformlin[0])
 //                    + 2 * (1 / (*worktransformlin[0]) - 1) / arg - ner / zer;
 //    double rest2 = ((*worktransformlin[0]) - 1) / logu - 1;
@@ -11592,10 +11592,10 @@ void DISTR_gumbelcopula2_normal_mu::compute_iwls_wweightschange_weightsone(
 
     double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) / pow((*worktransformlin[2]), 0.5);
     double dd2 = dd1 * arg1 / pow((*worktransformlin[2]), 0.5);
-    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
+//    double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
 //    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
-    double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
-    double ner = (1 / (*worktransformlin[0])) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 1));
+//    double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
+//    double ner = (1 / (*worktransformlin[0])) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 1));
 //    double rest1 = - pow(arg, (1 / (*worktransformlin[0]) - 1)) / (*worktransformlin[0])
 //                    + 2 * (1 / (*worktransformlin[0]) - 1) / arg - ner / zer;
 //    double rest2 = ((*worktransformlin[0]) - 1) / logu - 1;
@@ -16516,7 +16516,7 @@ void DISTR_dirichlet::update_end(void)
   else
     worklin = linearpred2.getV();
 
-  double exp_lin;
+  // double exp_lin;
   double * pmu = helpmat1.getV();
 
   unsigned i;
@@ -18321,7 +18321,7 @@ double DISTR_bivnormal_sigma::loglikelihood_weightsone(double * response,
 
   double sigma = exp((*linpred));
 
-  double rho2 = pow((*worktransformlin[0]),2);
+  // double rho2 = pow((*worktransformlin[0]),2);
   double oneminusrho2 = 1- pow((*worktransformlin[0]),2);
   double l;
 
@@ -19678,7 +19678,7 @@ void DISTR_bivprobit2_mu::compute_deviance_mult(vector<double *> response,
      *deviance=0;
    else
      {
-     double rho = (*linpred[0])/pow(1+pow((*linpred[0]),2),0.5);
+     // double rho = (*linpred[0])/pow(1+pow((*linpred[0]),2),0.5);
      double mu_2 = (*linpred[1]);
      double mu_1 = (*linpred[2]);
 
@@ -20688,7 +20688,7 @@ void DISTR_BCCG_nu::compute_iwls_wweightschange_weightsone(
      double hilfs2 = (*response)/(*worktransformlin[1]);
      double hilfs = pow(hilfs2, nup);
      double nu2sig2 =  pow(nup * (*worktransformlin[0]), 2);
-     double arg = abs(nup) * (*worktransformlin[0]);
+     // double arg = abs(nup) * (*worktransformlin[0]);
 
      double nu = log((*response)) - log((*worktransformlin[1])) + (1/(pow(nup,3)*pow((*worktransformlin[0]),2)))*pow(hilfs-1,2) -
                     (1/(nu2sig2))*(hilfs-1)*hilfs*log(hilfs2);// + randnumbers::phi(1 / arg) * randnumbers::sgn(nup) / (pow(nup, 2) * randnumbers::Phi2(1 / arg));
@@ -20864,7 +20864,7 @@ void DISTR_BCCG_sigma::compute_iwls_wweightschange_weightsone(
      double sig = exp(*linpred);
      double hilfs2 = (*response)/(*worktransformlin[1]);
      double hilfs = pow(hilfs2, (*worktransformlin[0]));
-     double arg = sig * abs((*worktransformlin[0]));
+     // double arg = sig * abs((*worktransformlin[0]));
 
 
     double nu = -1 +  ((1)/(pow(sig*(*worktransformlin[0]), 2)))*pow((hilfs-1) ,2);// + randnumbers::phi(1 / arg) / (arg * randnumbers::Phi2(1 / arg));
@@ -21017,7 +21017,7 @@ void DISTR_BCCG_mu::compute_deviance_mult(vector<double *> response,
      double sig = exp(*linpred[1]);
      double mu = exp(*linpred[2]);
      double hilfs = pow((*response[2])/mu, nup);
-     double hilfs2 = (*response[2])/mu;
+     // double hilfs2 = (*response[2])/mu;
 
      double l;
 
@@ -22479,7 +22479,7 @@ void DISTR_sfa_mu_u::compute_iwls_wweightschange_weightsone(
     double darg2 = (muu*(*worktransformlin[1]))/(sigu*pow(hilfs,0.5));
   //  double darg2 = ((*worktransformlin[1]))/((*worktransformlin[2])*pow(hilfs,0.5));
     double arg1 = muu/sigu;
-    double darg1 = arg1;
+    // double darg1 = arg1;
 	double densarg1 = randnumbers::phi(arg1);
 	double proparg1 = randnumbers::Phi2(arg1);
 	double densarg2 = randnumbers::phi(arg2);
@@ -23802,7 +23802,7 @@ void DISTR_sfa2_mu_u::compute_iwls_wweightschange_weightsone(
     double darg2 = (muu*(*worktransformlin[1]))/(sigu*pow(hilfs,0.5));
   //  double darg2 = ((*worktransformlin[1]))/((*worktransformlin[2])*pow(hilfs,0.5));
     double arg1 = muu/sigu;
-    double darg1 = 1/(*worktransformlin[2]);
+    // double darg1 = 1/(*worktransformlin[2]);
 	double densarg1 = randnumbers::phi(arg1);
 	double proparg1 = randnumbers::Phi2(arg1);
 	double densarg2 = randnumbers::phi(arg2);
@@ -24880,7 +24880,7 @@ void DISTR_hurdle_lambda::compute_deviance_mult(vector<double *> response,
     double expminuslambda;
     double l;
      double explinpi = exp(*linpred[0]);
-     double p =  explinpi / (1 + explinpi);
+     // double p =  explinpi / (1 + explinpi);
      if (*linpred[1] <= linpredminlimit)
        lambda = exp(linpredminlimit);
 //     else if (*linpred[1] >= linpredmaxlimit)
@@ -24951,7 +24951,7 @@ double DISTR_hurdle_lambda::loglikelihood_weightsone(double * response,
 
   double lambda = exp(*linpred);
 
-  double expminuslambda = exp(-lambda);
+  // double expminuslambda = exp(-lambda);
 
   double l = -log(1-exp(-lambda)) + (*response)*(*linpred)-lambda;
 
@@ -26890,7 +26890,7 @@ void DISTR_gaussiancopula_binary_dagum_latent::update(void)
       {
       if(optionsp->samplesel && *workresporig == 0)
         {
-        double x = randnumbers::uniform();
+        // double x = randnumbers::uniform();
         *workresp = trunc_normal2(-20,0,*worklin_current, 1);
         }
       else
@@ -27205,7 +27205,7 @@ void DISTR_gaussiancopula_binary_dagum_p::compute_iwls_wweightschange_weightsone
 
 
     double u = pow((1 + hilfs2), -p);
-    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
+    // double v = randnumbers::Phi2(*response2p-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = *response2p-(*worklin[2]);
@@ -27377,11 +27377,11 @@ double DISTR_gaussiancopula_binary_dagum_b::loglikelihood_weightsone(double * re
     double respdivb = (*response) / b;
     double acurrent = (*worktransformlin[1]);
     double hilfs = pow(respdivb,acurrent);
-    double hilfs2 = pow(respdivb, -acurrent);
+    // double hilfs2 = pow(respdivb, -acurrent);
     double pcurrent = (*worktransformlin[0]);
 
     double u = pow((1 + pow((respdivb), -acurrent)), -pcurrent);
-    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
+    // double v = randnumbers::Phi2(*response2p-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = *response2p-(*worklin[2]);
@@ -27433,7 +27433,7 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
     double pcurrent = (*worktransformlin[0]);
 
     double u = pow((1 + pow((respdivb), -acurrent)), -pcurrent);
-    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
+    // double v = randnumbers::Phi2(*response2p-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = *response2p-(*worklin[2]);
@@ -27443,7 +27443,7 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
     double ddphiinvu = phinvu * 2 * PI / pow(exp(-0.5*pow(phinvu, 2)), 2);
 
 
-    double d1 =  -acurrent * pcurrent * pow(1 +  hilfs2, -pcurrent-1) * hilfs2;
+    // double d1 =  -acurrent * pcurrent * pow(1 +  hilfs2, -pcurrent-1) * hilfs2;
     double d2 = -acurrent * acurrent * pow(1+ hilfs2, -pcurrent-1) * pcurrent * hilfs2 +
                 acurrent * acurrent * pow(1+ hilfs2, -pcurrent-2) * (pcurrent+1) * pcurrent * pow(hilfs2, 2);
 
@@ -27451,7 +27451,7 @@ void DISTR_gaussiancopula_binary_dagum_b::compute_iwls_wweightschange_weightsone
     double ybpmap = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0])-1);
     double ybpmap2 = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0]));
     double dF = -(*worktransformlin[1])*(*worktransformlin[0])*ybpmap/ybpa;
-    double ddF = (*worktransformlin[1])*(*worktransformlin[1])*(*worktransformlin[0])*((*worktransformlin[0])-ybpa)*ybpmap2/((ybpa+1)*(ybpa+1));
+    // double ddF = (*worktransformlin[1])*(*worktransformlin[1])*(*worktransformlin[0])*((*worktransformlin[0])-ybpa)*ybpmap2/((ybpa+1)*(ybpa+1));
 
     double nu = acurrent - ((pcurrent+1)*acurrent)/(1+hilfs)+
                 ((*worktransformlin[3]) * dF * dphiinvu / orho) * (phinvv - (*worktransformlin[3]) * phinvu);
@@ -27634,7 +27634,7 @@ double DISTR_gaussiancopula_binary_dagum_a::loglikelihood_weightsone(double * re
     double pcurrent = (*worktransformlin[0]);
 
     double u = pow((1 + pow((respdivb), -a)), -pcurrent);
-    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
+    // double v = randnumbers::Phi2(*response2p-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = *response2p-(*worklin[2]);
@@ -27677,7 +27677,7 @@ void DISTR_gaussiancopula_binary_dagum_a::compute_iwls_wweightschange_weightsone
     double pcurrent = (*worktransformlin[0]);
 
     double u = pow((1 + pow((respdivb), -a)), -pcurrent);
-    double v = randnumbers::Phi2(*response2p-(*worklin[2]));
+    // double v = randnumbers::Phi2(*response2p-(*worklin[2]));
 
     double phinvu = randnumbers::invPhi2(u);
     double phinvv = *response2p-(*worklin[2]);
@@ -27697,7 +27697,7 @@ void DISTR_gaussiancopula_binary_dagum_a::compute_iwls_wweightschange_weightsone
     double ybpmap = pow(1+ybpma,-(*worktransformlin[0])-1);
     double ybpmap2 = pow(1+ybpma,-(*worktransformlin[0]));
     double dF = (*worktransformlin[0])*lyb*a*ybpma*ybpmap;
-    double ddF = a*(*worktransformlin[0])*lyb*ybpmap2*(a*lyb*((*worktransformlin[0])-ybpa)+ybpa+1)/pow(1+ybpa,2);
+    // double ddF = a*(*worktransformlin[0])*lyb*ybpmap2*(a*lyb*((*worktransformlin[0])-ybpa)+ybpa+1)/pow(1+ybpa,2);
 
     double nu = 1 + a*pcurrent*log(respdivb)
                 - ((pcurrent+1)*a*hilfs*log(respdivb))/(1+hilfs) +
@@ -27864,7 +27864,7 @@ void DISTR_gaussiancopula_binary_dagum_rho::compute_deviance_mult(vector<double 
      double b = exp(*linpred[2]);
      double a = exp(*linpred[3]);
      double mu = (*linpred[0]);
-     double hilfs1 = 1-pow(rho,2);
+     // double hilfs1 = 1-pow(rho,2);
      double u = pow(1+pow(*response[1]/b,-a),-p);
      double phiinvu = randnumbers::invPhi2(u);
      double phiinv = *response[0]-mu;
@@ -28427,7 +28427,7 @@ double DISTR_gaussiancopula_binary_normal_sigma::loglikelihood_weightsone(double
 
   double sigma = exp((*linpred));
 
-  double rho2 = pow((*worktransformlin[2]),2);
+  // double rho2 = pow((*worktransformlin[2]),2);
   double oneminusrho2 = 1- pow((*worktransformlin[2]),2);
   double l;
 
@@ -28695,7 +28695,7 @@ void DISTR_gaussiancopula_binary_normal_mu::update(void)
 
   register unsigned i;
 
-  double help;
+  // double help;
 
   double * worktransformlinr;
   double * worktransformlins;
