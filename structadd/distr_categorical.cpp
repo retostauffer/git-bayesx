@@ -917,7 +917,7 @@ void DISTR_binomialprobit::update(void)
   double * weightwork;
   double * workingweightwork;
 
-  register unsigned i;
+   unsigned i;
 
 
   if (optionsp->nriter==1)
@@ -1215,7 +1215,7 @@ void DISTR_binomialsvm::update(void)
 
   double * wweightwork;
 
-  register unsigned i;
+   unsigned i;
 
   workwresp = workingresponse.getV();
   weightwork = weight.getV();

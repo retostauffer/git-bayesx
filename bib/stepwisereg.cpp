@@ -1629,7 +1629,7 @@ bool stepwisereg::create_offset(datamatrix & o)
       if (o.rows() < D.rows())
         o = datamatrix(D.rows(),1,0);
 
-      register unsigned k;
+       unsigned k;
       double * worko = o.getV();
       double * workD = D.getV()+j;
       unsigned size = D.cols();

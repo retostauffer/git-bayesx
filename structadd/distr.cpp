@@ -498,7 +498,7 @@ double DISTR::compute_CRPS_mult(void)
 double DISTR::loglikelihood(const bool & current)
   {
 
-  register unsigned  i;
+   unsigned  i;
   double* workweight = weight.getV();
   double* workres = response.getV();
   double help = 0;
@@ -793,7 +793,7 @@ void DISTR::update_scale_hyperparameters(datamatrix & h)
 double DISTR::compute_iwls(const bool & current, const bool & like)
   {
 
-  register unsigned  i;
+   unsigned  i;
 
   double * workweight = weight.getV();
   double * workresponse = response.getV();
@@ -910,7 +910,7 @@ void DISTR::compute_iwls(const bool & current,datamatrix & likelihood,
   // ind.prettyPrint(out);
   // TEST
 
-  register unsigned  i;
+   unsigned  i;
 
   double * workweight = weight.getV();
   double * workresponse = response.getV();
@@ -1354,7 +1354,7 @@ void DISTR_gaussian::outresults_predictive_check(datamatrix & D,datamatrix & sr)
 void DISTR_gaussian::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -2484,7 +2484,7 @@ void DISTR_gaussian_exp::outoptions(void)
 void DISTR_gaussian_exp::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -3014,7 +3014,7 @@ void DISTR_gaussian_multeffect::outresults_predictive_check(datamatrix & D,datam
 void DISTR_gaussian_multeffect::update(void)
   {
 /*
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -3068,7 +3068,7 @@ double DISTR_gaussian_multeffect::get_intercept_start(void)
 double DISTR_gaussian_multeffect::loglikelihood(const bool & current)
   {
 
-  register unsigned  i;
+   unsigned  i;
   double* workweight = weight.getV();
   double* workres = response.getV();
   double help = 0;
@@ -3137,7 +3137,7 @@ double DISTR_gaussian_multeffect::loglikelihood_weightsone(double * res, double 
 double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool & like)
   {
 
-  register unsigned  i;
+   unsigned  i;
 
   double * workweight = weight.getV();
   double * workresponse = response.getV();
@@ -3269,7 +3269,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
 void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & likelihood,
                     statmatrix<unsigned> & ind)
   {
-  register unsigned  i;
+   unsigned  i;
 
   double * workweight = weight.getV();
   double * workresponse = response.getV();

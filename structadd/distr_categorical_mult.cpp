@@ -491,7 +491,7 @@ bool DISTR_multgaussian::posteriormode(void)
 
   if (master)
     {
-    register unsigned i,j;
+     unsigned i,j;
 
     double * worklin;
     double * workresp;

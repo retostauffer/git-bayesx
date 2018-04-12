@@ -7147,7 +7147,7 @@ void DISTR_lognormal2_mu::outoptions(void)
 /*void DISTR_lognormal2_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -7598,7 +7598,7 @@ void DISTR_lognormal_mu::outoptions(void)
 /*void DISTR_lognormal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -8430,7 +8430,7 @@ void DISTR_normal2_mu::outoptions(void)
 /*void DISTR_normal2_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -9034,7 +9034,7 @@ void DISTR_normal_mu::outoptions(void)
 /*void DISTR_normal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -10660,7 +10660,7 @@ void DISTR_claytoncopula2_normal_mu::outoptions(void)
 /*void DISTR_claytoncopula2_normal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -11655,7 +11655,7 @@ void DISTR_gumbelcopula2_normal_mu::outoptions(void)
 /*void DISTR_gumbelcopula2_normal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -12060,7 +12060,7 @@ void DISTR_gumbelcopula2_normal_mu_2::outoptions(void)
 void DISTR_gumbelcopula2_normal_mu_2::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
 //  double help;
 
@@ -13064,7 +13064,7 @@ void DISTR_gaussiancopula_dagum_a::outoptions(void)
 /*void DISTR_gaussiancopula_dagum_a::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -15026,7 +15026,7 @@ void DISTR_frankcopula2_normal_mu::outoptions(void)
 /*void DISTR_frankcopula2_normal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -17951,7 +17951,7 @@ void DISTR_bivnormal_mufz::outoptions(void)
 /*void DISTR_bivnormal_mufz::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -18707,7 +18707,7 @@ void DISTR_bivnormal_mu::outoptions(void)
 /*void DISTR_bivnormal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   double help;
 
@@ -28693,7 +28693,7 @@ void DISTR_gaussiancopula_binary_normal_mu::outoptions(void)
 void DISTR_gaussiancopula_binary_normal_mu::update(void)
   {
 
-  register unsigned i;
+   unsigned i;
 
   // double help;
 
