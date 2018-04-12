@@ -221,7 +221,7 @@ const int & seed, const bool & computemode, const bool & skipfirst)
 
     genoptions->out("  COMPUTING STARTING VALUES (MAY TAKE SOME TIME)");
     genoptions->out("\n");
-    ST::string h = "";
+//    ST::string h = "";
     bool c = posteriormode(h,skipfirst,true);
     }
 
@@ -484,8 +484,7 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & skipfirst, con
 
   unsigned nrmodels = equations.size();
 
-  bool errors=false;
-
+//  bool errors=false;
 
   for (i=0;i<nrmodels;i++)
     {

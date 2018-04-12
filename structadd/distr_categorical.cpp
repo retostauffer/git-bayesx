@@ -1597,10 +1597,10 @@ DISTR_poisson_ext::DISTR_poisson_ext(GENERAL_OPTIONS * o, const datamatrix & r,
   a=ap;
   b=bp;
   adapt = ada;
-  if (adapt)
-    {
-    double rmax = response.max(0);
-    }
+//  if (adapt)
+//    {
+//    double rmax = response.max(0);
+//    }
   }
 
 

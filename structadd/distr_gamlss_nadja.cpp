@@ -1010,7 +1010,7 @@ void DISTR_t_mu::compute_iwls_wweightschange_weightsone(
 
     double mu = (*linpred);
     double hilfs = ((*worktransformlin[0])+1)/2;
-    double denom1 = (*worktransformlin[1])*(*worktransformlin[0])-pow((*response)-mu,2);
+//    double denom1 = (*worktransformlin[1])*(*worktransformlin[0])-pow((*response)-mu,2);
     double denom2 = (*worktransformlin[1])*(*worktransformlin[0])+pow((*response)-mu,2);
 
     double nu = ((*worktransformlin[0])+1)*((*response)-mu)/denom2;
@@ -2084,9 +2084,9 @@ double DISTR_betainf_tau::cdf_mult(vector<double *> response,
 
 
     {
-    double a =  (*param[2])*(*param[3]);
-    double b = (*param[2])*(1-(*param[3]));
-    double frac = 1 + (*param[0]) + (*param[1]);
+//    double a =  (*param[2])*(*param[3]);
+//    double b = (*param[2])*(1-(*param[3]));
+//    double frac = 1 + (*param[0]) + (*param[1]);
     return 0;
 //
 //    return ( ((*param[0])+(*param[1]))/frac+((1-(*param[0])-(*param[1]))/frac)*randnumbers::incomplete_beta(a,b,(*response[3])) );
@@ -2774,7 +2774,7 @@ void DISTR_dagum_p::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double lyb = log(*response/(*worktransformlin[0]));
+//    double lyb = log(*response/(*worktransformlin[0]));
     double ybpma = pow(*response/(*worktransformlin[0]),-(*worktransformlin[1]));
     double ybpmap = pow(1+ybpma,-p);
     double dF = -p*log(1+ybpma)*ybpmap;
@@ -2996,7 +2996,7 @@ void DISTR_dagum_b::compute_iwls_wweightschange_weightsone(
       like += logcandderivs[0];
       }
     // compute and implement dF/deta, d^2 F/deta ^2
-    double lyb = log(*response/b);
+//    double lyb = log(*response/b);
     double ybpa = pow(*response/b,(*worktransformlin[1]));
     double ybpmap = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0])-1);
     double ybpmap2 = pow(1+pow(*response/b,-(*worktransformlin[1])),-(*worktransformlin[0]));
@@ -5217,7 +5217,7 @@ double DISTR_gumbel2_sigma2::loglikelihood_weightsone(double * response,
     }
 
   double sigma = exp(0.5*(*linpred));
-  double sigma2 = exp((*linpred));
+//  double sigma2 = exp((*linpred));
   double hilfs = (*response-(*worktransformlin[0]))/sigma;
 
   double l;
@@ -5253,7 +5253,7 @@ void DISTR_gumbel2_sigma2::compute_iwls_wweightschange_weightsone(
     }
 
   double sigma = exp(0.5*(*linpred));
-  double sigma2 = exp(*linpred);
+//  double sigma2 = exp(*linpred);
   double hilfs = (*response-(*worktransformlin[0]))/sigma;
   double ehilfs = exp(hilfs);
   double nu = -0.5 - 0.5*hilfs + 0.5*ehilfs*hilfs;
@@ -9444,8 +9444,8 @@ double DISTR_beta_mu::cdf_mult(vector<double *> response,
 
 
     {
-    double a =  (*param[0])*(*param[1]);
-    double b = (*param[0])*(1-(*param[1]));
+//    double a =  (*param[0])*(*param[1]);
+//    double b = (*param[0])*(1-(*param[1]));
 
      return 0;
 //   return ( randnumbers::incomplete_beta(a,b,(*response[1])) );
@@ -11341,16 +11341,16 @@ void DISTR_gumbelcopula2_normal_sigma2::compute_iwls_wweightschange_weightsone(
     double dd2 = - 0.5 * dd1 * (1 - pow(arg1, 2));
 
     double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
-    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
+//    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
     double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
     double ner = (1 / (*worktransformlin[0])) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 1));
-    double rest1 = - pow(arg, (1 / (*worktransformlin[0]) - 1)) / (*worktransformlin[0])
-                    + 2 * (1 / (*worktransformlin[0]) - 1) / arg - ner / zer;
-    double rest2 = ((*worktransformlin[0]) - 1) / logu - 1;
-    double rest3 = - (1 / (*worktransformlin[0]) - 1) * pow(arg, (1 / (*worktransformlin[0]) - 2)) / (*worktransformlin[0])
-                    - 2 * (1 / (*worktransformlin[0]) - 1) / pow(arg, 2)
-                    - (1 / (*worktransformlin[0])) * (-1 / (*worktransformlin[0]) - 1) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 2)) / zer
-                    - pow(((ner) / (zer)), 2);
+//    double rest1 = - pow(arg, (1 / (*worktransformlin[0]) - 1)) / (*worktransformlin[0])
+//                    + 2 * (1 / (*worktransformlin[0]) - 1) / arg - ner / zer;
+//    double rest2 = ((*worktransformlin[0]) - 1) / logu - 1;
+//    double rest3 = - (1 / (*worktransformlin[0]) - 1) * pow(arg, (1 / (*worktransformlin[0]) - 2)) / (*worktransformlin[0])
+//                    - 2 * (1 / (*worktransformlin[0]) - 1) / pow(arg, 2)
+//                    - (1 / (*worktransformlin[0])) * (-1 / (*worktransformlin[0]) - 1) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 2)) / zer
+ //                   - pow(((ner) / (zer)), 2);
 
     double nu = -0.5 + (pow(((*response)-(*worklin[2])),2))/(2*sigma_2) ;
     //+ darg * rest1 + dd1 * rest2 / u;
@@ -11593,16 +11593,16 @@ void DISTR_gumbelcopula2_normal_mu::compute_iwls_wweightschange_weightsone(
     double dd1 = - 0.398942280401433 * exp(- 0.5 * pow(arg1, 2)) / pow((*worktransformlin[2]), 0.5);
     double dd2 = dd1 * arg1 / pow((*worktransformlin[2]), 0.5);
     double darg = -(*worktransformlin[0]) * dd1 * pow(-logu, ((*worktransformlin[0]) - 1)) / u;
-    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
+//    double ddarg = - darg * ((dd1 / u) * (((*worktransformlin[0]) - 1) * pow(-logu, -1) + 1) - dd2 / dd1);
     double zer = 1 + ((*worktransformlin[0]) - 1) * pow(arg, (- 1 / (*worktransformlin[0])));
     double ner = (1 / (*worktransformlin[0])) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 1));
-    double rest1 = - pow(arg, (1 / (*worktransformlin[0]) - 1)) / (*worktransformlin[0])
-                    + 2 * (1 / (*worktransformlin[0]) - 1) / arg - ner / zer;
-    double rest2 = ((*worktransformlin[0]) - 1) / logu - 1;
-    double rest3 = - (1 / (*worktransformlin[0]) - 1) * pow(arg, (1 / (*worktransformlin[0]) - 2)) / (*worktransformlin[0])
-                    - 2 * (1 / (*worktransformlin[0]) - 1) / pow(arg, 2)
-                    - (1 / (*worktransformlin[0])) * (-1 / (*worktransformlin[0]) - 1) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 2)) / zer
-                    - pow(((ner) / (zer)), 2);
+//    double rest1 = - pow(arg, (1 / (*worktransformlin[0]) - 1)) / (*worktransformlin[0])
+//                    + 2 * (1 / (*worktransformlin[0]) - 1) / arg - ner / zer;
+//    double rest2 = ((*worktransformlin[0]) - 1) / logu - 1;
+//    double rest3 = - (1 / (*worktransformlin[0]) - 1) * pow(arg, (1 / (*worktransformlin[0]) - 2)) / (*worktransformlin[0])
+//                    - 2 * (1 / (*worktransformlin[0]) - 1) / pow(arg, 2)
+//                    - (1 / (*worktransformlin[0])) * (-1 / (*worktransformlin[0]) - 1) * ((*worktransformlin[0]) - 1) * pow(arg, (-1 / (*worktransformlin[0]) - 2)) / zer
+//                    - pow(((ner) / (zer)), 2);
 
     double nu = ((*response)-mu)/(*worktransformlin[2]);
     //  + darg * rest1 + dd1 * rest2 / u;
@@ -12062,7 +12062,7 @@ void DISTR_gumbelcopula2_normal_mu_2::update(void)
 
   register unsigned i;
 
-  double help;
+//  double help;
 
   double * worktransformlinp;
   double * workweight;
@@ -12316,12 +12316,12 @@ void DISTR_gumbelcopula2_rho::compute_iwls_wweightschange_weightsone(
     }
 
     double rho = exp((*linpred)) + 1;
-    double t1 = (*worktransformlin[0]);
-    double t2 = (*worktransformlin[1]);
-    double t3 = (*worktransformlin[2]);
-    double t4 = (*worktransformlin[3]);
-    double t5 = (*response);
-    double t6 = (*response2p);
+//    double t1 = (*worktransformlin[0]);
+//    double t2 = (*worktransformlin[1]);
+//    double t3 = (*worktransformlin[2]);
+//    double t4 = (*worktransformlin[3]);
+//    double t5 = (*response);
+//    double t6 = (*response2p);
     double u = randnumbers::Phi2(((*response) - (*worktransformlin[3])) / pow((*worktransformlin[2]), 0.5));
     double v = randnumbers::Phi2(((*response2p) - (*worktransformlin[1])) / pow((*worktransformlin[0]), 0.5));
     double logu = log(u);
@@ -12558,7 +12558,7 @@ void DISTR_gaussiancopula_dagum_p::compute_iwls_wweightschange_weightsone(
 
 
     double d1 =  -p * pow(1 +  hilfs2, -p) * log(1 +  hilfs2);
-    double d2 = d1 - +p * p * pow(1 +  hilfs2, -p) * pow(log(1 +  hilfs2), 2);
+//    double d2 = d1 - +p * p * pow(1 +  hilfs2, -p) * pow(log(1 +  hilfs2), 2);
 
     double nu = 1 + acurrent*p*log((*response)) - acurrent*p*log(bcurrent)
                 -p*log(1+hilfs) +
@@ -12717,7 +12717,7 @@ double DISTR_gaussiancopula_dagum_b::loglikelihood_weightsone(double * response,
     double respdivb = (*response) / b;
     double acurrent = (*worktransformlin[4]);
     double hilfs = pow(respdivb,acurrent);
-    double hilfs2 = pow(respdivb, -acurrent);
+//    double hilfs2 = pow(respdivb, -acurrent);
     double pcurrent = (*worktransformlin[2]);
 
     double u = pow((1 + pow((respdivb), -acurrent)), -pcurrent);
@@ -12774,8 +12774,8 @@ void DISTR_gaussiancopula_dagum_b::compute_iwls_wweightschange_weightsone(
 
 
     double d1 =  -acurrent * pcurrent * pow(1 +  hilfs2, -pcurrent-1) * hilfs2;
-    double d2 = -acurrent * acurrent * pow(1+ hilfs2, -pcurrent-1) * pcurrent * hilfs2 +
-                acurrent * acurrent * pow(1+ hilfs2, -pcurrent-2) * (pcurrent+1) * pow(hilfs2, 2);
+//    double d2 = -acurrent * acurrent * pow(1+ hilfs2, -pcurrent-1) * pcurrent * hilfs2 +
+//                acurrent * acurrent * pow(1+ hilfs2, -pcurrent-2) * (pcurrent+1) * pow(hilfs2, 2);
 
     double nu = acurrent - ((pcurrent+1)*acurrent)/(1+hilfs)+
                 ((*worktransformlin[0]) * d1 * dphiinvu / orho) * (phinvv - (*worktransformlin[0]) * phinvu);
@@ -13016,8 +13016,8 @@ void DISTR_gaussiancopula_dagum_a::compute_iwls_wweightschange_weightsone(
 
 
     double d1 =  pcurrent * pow(1 +  pow(respdivb, -a), -pcurrent-1) * a * pow(respdivb, -a) * log(respdivb);
-    double d2 = d1 - pcurrent * pow(1+pow(respdivb, -a), -pcurrent-1) * a * a * log(respdivb) * log(respdivb) * pow(respdivb, -a) +
-                pcurrent * (pcurrent + 1) *pow(1+pow(respdivb, -a), -pcurrent-2) * pow((pow(respdivb, -a) * log(respdivb) * a), 2);
+//    double d2 = d1 - pcurrent * pow(1+pow(respdivb, -a), -pcurrent-1) * a * a * log(respdivb) * log(respdivb) * pow(respdivb, -a) +
+//                pcurrent * (pcurrent + 1) *pow(1+pow(respdivb, -a), -pcurrent-2) * pow((pow(respdivb, -a) * log(respdivb) * a), 2);
 
     double nu = 1 + a*pcurrent*log(respdivb)
                 - ((pcurrent+1)*a*hilfs*log(respdivb))/(1+hilfs) +

@@ -775,7 +775,8 @@ void DISTR::update_end(void)
 
 bool DISTR::posteriormode(void)
   {
-  double h = compute_iwls(true,false);
+  double h = 0.0;
+  h = compute_iwls(true,false);
   return true;
   }
 

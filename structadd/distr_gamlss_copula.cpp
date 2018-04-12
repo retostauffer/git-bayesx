@@ -1125,8 +1125,8 @@ vector<double> DISTR_clayton_copula::derivative(double & F1, double & F2, double
 
   double rho = exp(*linpred);
 
-  double logu = log(F1);
-  double logv = log(F2);
+//  double logu = log(F1);
+//  double logv = log(F2);
 
   double arg = pow(F1, -rho) + pow(F2, -rho) - 1;
   // first derivative
