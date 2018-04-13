@@ -44,8 +44,9 @@ int main(int argc, char *argv[])
   bool run=false;
   admin_gnu a;
 
+  char *ptr;
   char path[100] = "";
-  getcwd(path, 100);
+  ptr = getcwd(path, 100);
 
   srand((unsigned)time(NULL));
 
