@@ -4403,7 +4403,8 @@ void spline_basis::update_merror_varcoef(datamatrix & effmod, datamatrix & newin
 
 void spline_basis::update_merror(datamatrix & newdata)
   {
-  unsigned i,j,k;
+  unsigned i,k;
+  unsigned j=0;
   double value;
 
   freq = vector<int>();

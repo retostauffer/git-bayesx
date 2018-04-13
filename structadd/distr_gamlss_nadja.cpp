@@ -26979,11 +26979,11 @@ void DISTR_gaussiancopula_binary_dagum_latent::compute_iwls_wweightschange_weigh
 
   double mu = (*linpred);
   double rho2;
-  double oneminusrho2;
+  double oneminusrho2 = 0.0;
   double v;
   double u;
-  double phiinvu;
-  double phiinvv;
+  double phiinvu = 0.0;
+  double phiinvv = 0.0;
   double nu;
   double dphiinvu;
   double ddphiinvu;

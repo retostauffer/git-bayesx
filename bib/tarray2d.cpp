@@ -47,6 +47,7 @@ Array2D(unsigned rows, unsigned cols, const T init)
 {
 	m_rows = rows;
 	m_cols = cols;
+	m_row = new T*[ m_rows ];
 	create();
 	if (m_v)
 	{
@@ -73,6 +74,7 @@ Array2D(const Array2D<T> &init)
 {
 	m_rows = init.m_rows;
 	m_cols = init.m_cols;
+	m_row = new T*[ m_rows ];
 	create();
 	if (m_v)
 		copyContents(init);
@@ -99,6 +101,7 @@ operator=(const Array2D<T> &from)
 	discard();
 	m_rows = from.m_rows;
 	m_cols = from.m_cols;
+	m_row = new T*[ m_rows ];
 	create();
 	if (m_v)
 		copyContents(from);

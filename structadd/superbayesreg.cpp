@@ -11060,12 +11060,8 @@ bool superbayesreg::create_geokriging(unsigned i)
 
 bool superbayesreg::create_ridge_lasso(unsigned i)
   {
-  MCMC::shrinktype sh;
-
-
-  if (terms[i].options[0]=="ridge")
-    sh = MCMC::ridge;
-  else if (terms[i].options[0]=="lasso")
+  MCMC::shrinktype sh = MCMC::ridge;
+  if (terms[i].options[0]=="lasso")
     sh = MCMC::lasso;
   else if (terms[i].options[0]=="ssvs")
     sh = MCMC::ssvs;

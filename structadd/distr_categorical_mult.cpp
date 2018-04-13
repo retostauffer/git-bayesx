@@ -327,7 +327,7 @@ void DISTR_multgaussian::compute_offset(void)
   vector<double *> workresp;
   vector<double *> worklin;
 
-  double * workresp_c;
+  double * workresp_c = workingresponse.getV();
   double * workrespcat = response.getV();
 
   for (j=0;j<nrcat;j++)
@@ -343,11 +343,6 @@ void DISTR_multgaussian::compute_offset(void)
       workresp.push_back(othercat[j]->response.getV());
 
       }
-    else
-      {
-      workresp_c = workingresponse.getV();
-      }
-
     }
 
   double o;
