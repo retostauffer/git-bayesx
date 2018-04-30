@@ -884,7 +884,7 @@ void FULLCOND::update(void)
     )
     {
 
-     unsigned i;
+    unsigned i;
     double* workbeta = beta.getV();
     double* workbetamean = betamean.getV();
     double* workbetas2 = betas2.getV();
