@@ -134,6 +134,7 @@ class __EXPORT_TYPE DISTR
 
   datamatrix workingweight;       // Working weight (workingweight = weight
                                   // in the constructor)
+                                  // in the constructor)
 
   weighttype wtype;               // weight type: default is
                                   // wweightschange_weightsneqone, i.e.

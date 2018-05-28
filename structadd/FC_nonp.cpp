@@ -786,26 +786,14 @@ void FC_nonp::update_gaussian(void)
       fsample.update();
       }
 
-
-  if(!ssvs)
-    {
     paramsample.beta.assign(param);
+
     paramsample.update();
 
     if (derivative)
       derivativesample.update();
 
     FC::update();
-    }
-
-//    paramsample.beta.assign(param);
-
-//    paramsample.update();
-
-//    if (derivative)
-//      derivativesample.update();
-
-//    FC::update();
     }
 
   }
@@ -1159,8 +1147,62 @@ bool FC_nonp::posteriormode(void)
 
 /*    ofstream out("c:/temp/fx.raw");
     (multlikep->fx).prettyPrint(out);
-    out.close();*/
+    out.close();
+
+    ofstream out7("c:/temp/multlike_linpred1.raw");
+    multlikep->linearpred1.prettyPrint(out7);
+    out7.close();
+    ofstream out8("c:/temp/multlike_linpred2.raw");
+    multlikep->linearpred2.prettyPrint(out8);
+    out8.close();
+
+    ofstream out9("c:/temp/multlike_workingweight.raw");
+    multlikep->workingweight.prettyPrint(out9);
+    out9.close();
+    ofstream out10("c:/temp/multlike_workingresponse.raw");
+    multlikep->workingresponse.prettyPrint(out10);
+    out10.close();*/
     }
+  if(likep->dgexists)
+    {
+/*    ofstream out11("c:/temp/multlike_linpred1.raw");
+    likep->dg->linearpred1.prettyPrint(out11);
+    out11.close();
+    ofstream out12("c:/temp/multlike_linpred2.raw");
+    likep->dg->linearpred2.prettyPrint(out12);
+    out12.close();
+
+    ofstream out13("c:/temp/multlike_workingweight.raw");
+    likep->dg->workingweight.prettyPrint(out13);
+    out13.close();
+    ofstream out14("c:/temp/multlike_workingresponse.raw");
+    likep->dg->workingresponse.prettyPrint(out14);
+    out14.close();*/
+    }
+
+
+/*  ofstream out1("c:/temp/linpred1.raw");
+  likep->linearpred1.prettyPrint(out1);
+  out1.close();
+  ofstream out2("c:/temp/linpred2.raw");
+  likep->linearpred2.prettyPrint(out2);
+  out2.close();
+
+  ofstream out5("c:/temp/workingweight.raw");
+  likep->workingweight.prettyPrint(out5);
+  out5.close();
+  ofstream out6("c:/temp/workingresponse.raw");
+  likep->workingresponse.prettyPrint(out6);
+  out6.close();
+
+  ofstream out3("c:/temp/intvar.raw");
+  designp->intvar.prettyPrint(out3);
+  out3.close();
+  ofstream out4("c:/temp/intvar2.raw");
+  designp->intvar2.prettyPrint(out4);
+  out4.close();*/
+
+
 
   return FC::posteriormode();
   }

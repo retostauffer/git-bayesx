@@ -10150,6 +10150,7 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
   terms[i].options[12] = "true";
 
   datamatrix datadummy = datamatrix(1,1,0.0);
+  // creates the penalized spline for f(x) in exp(etatilde)*f(x)
   create_pspline(i, datadummy);
 
   // FC_nonp * fcnp_pspline = &FC_nonps[FC_nonps.size()-1];
@@ -10182,6 +10183,19 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
 
   (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dg = &(distr_gaussians[distr_gaussians.size()-1]);
   (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dgexists = true;
+
+  ofstream out("c:/temp/dg_linpred1.raw");
+  (distr_gaussians[distr_gaussians.size()-1]).linearpred1.prettyPrint(out);
+  out.close();
+  ofstream out1("c:/temp/dg_linpred2.raw");
+  (distr_gaussians[distr_gaussians.size()-1]).linearpred2.prettyPrint(out1);
+  out1.close();
+  ofstream out2("c:/temp/mult_linpred1.raw");
+  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).linearpred1.prettyPrint(out2);
+  out2.close();
+  ofstream out3("c:/temp/mult_linpred2.raw");
+  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).linearpred2.prettyPrint(out3);
+  out3.close();
 
   return false;
   }

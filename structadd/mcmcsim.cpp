@@ -179,8 +179,7 @@ const int & seed, const bool & computemode, const bool & skipfirst)
     {
 
     genoptions->out("\n");
-    genoptions->out(equations[nrmodels-1-i].header +
-    "\n",true,false,16);
+    genoptions->out(equations[nrmodels-1-i].header + "\n",true,false,16);
     genoptions->out("\n");
     if (i==0)
       {
@@ -551,6 +550,24 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & skipfirst, con
             {
             if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
                 allconverged = false;
+
+//        cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
+//        cout << "j: " << j << endl;
+//        cout << equations[nrmodels-1-i].FCpointer[j]->title << endl;
+
+/*        ofstream out("c:/temp/workingweight.raw");
+        equations[nrmodels-1-i].distrp->workingweight.prettyPrint(out);
+        out.close();
+        ofstream out1("c:/temp/workingresponse.raw");
+        equations[nrmodels-1-i].distrp->workingresponse.prettyPrint(out1);
+        out1.close();
+        ofstream out2("c:/temp/linpred1.raw");
+        equations[nrmodels-1-i].distrp->linearpred1.prettyPrint(out2);
+        out2.close();
+        ofstream out3("c:/temp/linpred2.raw");
+        equations[nrmodels-1-i].distrp->linearpred2.prettyPrint(out3);
+        out3.close();*/
+
             } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
 
           equations[nrmodels-1-i].distrp->posteriormode_end();
