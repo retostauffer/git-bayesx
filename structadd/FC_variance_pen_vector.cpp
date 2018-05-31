@@ -942,11 +942,22 @@ void FC_variance_pen_vector_ssvs::get_samples(const ST::string & filename,ofstre
   {
   FC::get_samples(filename, outg);
 
-  ST::string filename_delta = filename.substr(0,filename.length()-15) + "_delta_sample.raw";
-  delta.get_samples(filename_delta,outg);
+  if(NBPSS)
+     {
+     ST::string filename_delta = filename.substr(0,filename.length()-15) + "_delta_sample.raw";
+     FC_delta.get_samples(filename_delta,outg);
 
-  ST::string filename_theta = filename.substr(0,filename.length()-15) + "_omega_sample.raw";
-  theta.get_samples(filename_theta,outg);
+     ST::string filename_omega = filename.substr(0,filename.length()-15) + "_omega_sample.raw";
+     FC_omega.get_samples(filename_omega,outg);
+     }
+  else
+     {
+     ST::string filename_delta = filename.substr(0,filename.length()-15) + "_delta_sample.raw";
+     delta.get_samples(filename_delta,outg);
+
+     ST::string filename_theta = filename.substr(0,filename.length()-15) + "_omega_sample.raw";
+     theta.get_samples(filename_theta,outg);
+     }
   }
 
 
