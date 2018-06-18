@@ -3211,7 +3211,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
           work_workingresponse++,worklin++,worklintilde++,fxp++)
       {
       help = exp(*worklintilde);
-      *work_workingweight = (*fxp)/get_scale() * (pow(help,2)*(*fxp) - (*workresponse - *worklin)*help);
+      *work_workingweight = (*fxp)/get_scale() * (pow(help,2)*(*fxp) + (*workresponse - *worklin)*help);
       *work_workingresponse = *worklintilde + ((*workresponse - *worklin) * help * (*fxp)) / (get_scale() * (*work_workingweight));
 //      *work_workingweight = (*fxp) * (pow(help,2)*(*fxp) - (*workresponse - *worklin)*help);
 //      *work_workingresponse = *worklin + (*workresponse - *worklin) * help * (*fxp) / (*work_workingweight);
