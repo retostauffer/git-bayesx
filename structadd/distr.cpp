@@ -3066,7 +3066,7 @@ double DISTR_gaussian_multeffect::get_intercept_start(void)
 double DISTR_gaussian_multeffect::loglikelihood(const bool & current)
   {
 
-   unsigned  i;
+  unsigned  i;
   double* workweight = weight.getV();
   double* workres = response.getV();
   double help = 0;
@@ -3203,13 +3203,6 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
       *work_workingweight = *workweight * (*fxp)/get_scale() * (pow(help,2)*(*fxp) - (*workresponse - *worklin)*help);
       *work_workingresponse = *worklin + (*workresponse - *worklin) * help * (*fxp) / (get_scale() * *work_workingweight);
       likelihood += - 0.5 * *workweight * pow(*workresponse - *worklin, 2) / get_scale();
-
-//      likelihood += compute_iwls(workresponse,worklin,
-//                                 workweight,work_workingweight,
-//                                 work_workingresponse,like);
-//      help = (*fxp) * exp(*worklintilde);
-//      *work_workingweight = *workweight * pow(help,2);
-//      *work_workingresponse = *worklin + (*work_workingresponse - *worklin) / help;
       }
     }
   else if (wtype==wweightschange_weightsone)
@@ -3219,7 +3212,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
       {
       help = exp(*worklintilde);
       *work_workingweight = (*fxp)/get_scale() * (pow(help,2)*(*fxp) - (*workresponse - *worklin)*help);
-      *work_workingresponse = *worklin + (*workresponse - *worklin) * help * (*fxp) / (get_scale() * *work_workingweight);
+      *work_workingresponse = *worklintilde + ((*workresponse - *worklin) * help * (*fxp)) / (get_scale() * (*work_workingweight));
 //      *work_workingweight = (*fxp) * (pow(help,2)*(*fxp) - (*workresponse - *worklin)*help);
 //      *work_workingresponse = *worklin + (*workresponse - *worklin) * help * (*fxp) / (*work_workingweight);
       likelihood += - 0.5 * pow(*workresponse - *worklin, 2) / get_scale();

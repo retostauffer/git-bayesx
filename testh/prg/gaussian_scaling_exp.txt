@@ -1,7 +1,7 @@
 % usefile c:\bayesx\trunk\testh\prg\gaussian_scaling_exp.txt
 
 dataset d
-d.infile using c:\bayesx\trunk\testh\testdata\gaussian_exp_mult.raw
+d.infile using c:\arbeit\paper\PreisAbsatz\simdata.raw
 
 %d.infile using c:\bayesx\trunk\testh\testdata\gaussian_scaling.raw
 %d.generate y2 = y
@@ -14,7 +14,7 @@ logopen using c:\bayesx\trunk\testh\results\gaussian_exp_mult.log
 b.outfile = c:\bayesx\trunk\testh\results\gaussian_exp_mult
 
 b.hregress y2 = z(pspline), family=gaussian_multeffect iterations=12000 burnin=2000 step=10 hlevel=2 equationtype=mu using d
-b.hregress y = const + y2*x(multiplicative_pspline), family=gaussian equationtype=mu modeonly modemaxit=1 using d
+b.hregress y = const + y2*x(multiplicative_pspline), family=gaussian equationtype=mu modemaxit=15 predict=light using d
 
 logclose
 
