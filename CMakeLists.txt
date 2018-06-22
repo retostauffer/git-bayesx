@@ -175,7 +175,7 @@ if(NOT WithoutJava)
 endif()
 add_executable(bayesx ${SRC})
 
-add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
+add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -DBayesX_gsl_included)
 if(NOT WithoutDefaultOs)
   add_definitions(-Os)
 endif()
