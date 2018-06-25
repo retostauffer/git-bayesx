@@ -360,8 +360,8 @@ void FC_nonp::update_IWLS(void)
   unsigned i;
   double * workparam;
 
-  lambda = likep->get_scale()/tau2;
-//  lambda = 1/tau2;
+//  lambda = likep->get_scale()/tau2;
+  lambda = 1/tau2;
 
   if (optionsp->nriter == 1)
     {
@@ -2347,7 +2347,6 @@ void FC_nonp::centerparam_weight(void)
 
   for (i=0;i<nrparam;i++,workparam++)
     *workparam-= sum;
-
   }
 
 
