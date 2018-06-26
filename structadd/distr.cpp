@@ -3167,9 +3167,10 @@ void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & l
     for (i=0;i<nrobs;i++,workweight++,work_workingweight++,workresponse++,
           work_workingresponse++,worklin++,workind++,worklintilde++,fxp++)
       {
-      likelihood(*workind,0) += compute_iwls(workresponse,worklin,
-                                 workweight,work_workingweight,
-                                 work_workingresponse,true);
+      cout << "todo" << endl;
+//      likelihood(*workind,0) += compute_iwls(workresponse,worklin,
+//                                workweight,work_workingweight,
+//                                work_workingresponse,true);
       }
     }
   else if (wtype==wweightschange_weightsone)
@@ -3177,9 +3178,10 @@ void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & l
     for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
           work_workingresponse++,worklin++,workind++,worklintilde++,fxp++)
       {
-      compute_iwls_wweightschange_weightsone(workresponse,worklin,
-                                 work_workingweight,work_workingresponse,
-                                 likelihood(*workind,0),true);
+      help = exp(*worklintilde);
+      *work_workingweight = pow(help*(*fxp),2)/get_scale();
+      *work_workingresponse = *worklintilde + ((*workresponse - *worklin) * help * (*fxp)) / (get_scale() * (*work_workingweight));
+      likelihood(*workind,0) += - 0.5 * pow(*workresponse - *worklin, 2) / get_scale();
       }
     }
   else if (wtype==wweightsnochange_constant)
@@ -3187,9 +3189,7 @@ void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & l
     for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
           work_workingresponse++,worklin++,workind++,worklintilde++,fxp++)
       {
-      compute_iwls_wweightsnochange_constant(workresponse,worklin,
-                                 work_workingweight,work_workingresponse,
-                                 likelihood(*workind,0),true);
+      cout << "argh!" << endl;
       }
     }
   else if (wtype==wweightsnochange_one)
@@ -3197,9 +3197,7 @@ void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & l
     for (i=0;i<nrobs;i++,workresponse++,
           work_workingresponse++,worklin++,workind++,worklintilde++,fxp++)
       {
-      compute_iwls_wweightsnochange_one(workresponse,worklin,
-                                        work_workingresponse,
-                                        likelihood(*workind,0),true);
+      cout << "argh!" << endl;
       }
     }
   }
@@ -3210,7 +3208,7 @@ double DISTR_gaussian_multeffect::compute_iwls(double * response, double * linpr
   {
   // CHECK
   //Note: linpred has to point to the linear predictor of dg.
-  cout << "check" << endl;
+  cout << "check 1" << endl;
   return dg->compute_iwls(response,linpred,weight,workingweight,workingresponse,like);
   }
 
@@ -3222,7 +3220,7 @@ void DISTR_gaussian_multeffect::compute_iwls_wweightschange_weightsone(
   {
   // CHECK
   //Note: linpred has to point to the linear predictor of dg.
-  cout << "check" << endl;
+  cout << "check 2" << endl;
   dg->compute_iwls_wweightschange_weightsone(response,linpred,workingweight,workingresponse,like,compute_like);
   }
 
@@ -3235,8 +3233,8 @@ void DISTR_gaussian_multeffect::compute_iwls_wweightsnochange_constant(double * 
   {
   // CHECK
   //Note: linpred has to point to the linear predictor of dg.
-  cout << "check" << endl;
-  dg->compute_iwls_wweightsnochange_constant(response,linpred,workingweight,workingresponse,like,compute_like);
+  cout << "argh" << endl;
+//  dg->compute_iwls_wweightsnochange_constant(response,linpred,workingweight,workingresponse,like,compute_like);
   }
 
 void DISTR_gaussian_multeffect::compute_iwls_wweightsnochange_one(double * response,
@@ -3247,8 +3245,8 @@ void DISTR_gaussian_multeffect::compute_iwls_wweightsnochange_one(double * respo
   {
   // CHECK
   //Note: linpred has to point to the linear predictor of dg.
-  cout << "check" << endl;
-  dg->compute_iwls_wweightsnochange_one(response,linpred,workingresponse,like,compute_like);
+  cout << "argh" << endl;
+//  dg->compute_iwls_wweightsnochange_one(response,linpred,workingresponse,like,compute_like);
   }
 
 
@@ -3339,8 +3337,7 @@ void DISTR_gaussian_multeffect::add_linpred(datamatrix & l)
 
 void DISTR_gaussian_multeffect::add_linpred(datamatrix & l, const double & b)
   {
-  double test = 1;
-  test *= test;
+  cout << "test (add_linpred)" << endl;
   }
 
 void DISTR_gaussian_multeffect::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)
