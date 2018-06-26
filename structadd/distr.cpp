@@ -306,6 +306,17 @@ const DISTR & DISTR::operator=(const DISTR & d)
   return *this;
   }
 
+void DISTR::set_multiplicative(DISTR * d)
+  {
+  dg = d;
+  dgexists=true;
+  updateIWLS=true;
+  if (check_weightsone())
+    wtype = wweightschange_weightsone;
+  else
+    wtype = wweightschange_weightsneqone;
+  }
+
 
 void DISTR::set_copulapos(int cp)
     {
@@ -493,45 +504,70 @@ double DISTR::compute_CRPS_mult(void)
   return 0;
   }
 
-
-
 double DISTR::loglikelihood(const bool & current)
   {
-
-   unsigned  i;
+  unsigned  i;
   double* workweight = weight.getV();
   double* workres = response.getV();
   double help = 0;
 
   double* worklin;
-  if (current)
+
+  if(dgexists)
     {
-    if (linpred_current==1)
-      worklin = linearpred1.getV();
+    if (current)
+      {
+      if (dg->linpred_current==1)
+        worklin = dg->linearpred1.getV();
+      else
+        worklin = dg->linearpred2.getV();
+      }
     else
-      worklin = linearpred2.getV();
+      {
+      if (dg->linpred_current==1)
+        worklin = dg->linearpred2.getV();
+      else
+        worklin = dg->linearpred1.getV();
+      }
+    if (weightsone==true)
+      {
+      for (i=0;i<nrobs;i++,worklin++,workres++)
+        help += dg->loglikelihood_weightsone(workres,worklin);
+      }
+    else
+      {
+      for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
+        help += dg->loglikelihood(workres,worklin,workweight);
+      }
     }
   else
     {
-    if (linpred_current==1)
-      worklin = linearpred2.getV();
+    if (current)
+      {
+      if (linpred_current==1)
+        worklin = linearpred1.getV();
+      else
+        worklin = linearpred2.getV();
+      }
     else
-      worklin = linearpred1.getV();
+      {
+      if (linpred_current==1)
+        worklin = linearpred2.getV();
+      else
+        worklin = linearpred1.getV();
+      }
+    if (weightsone==true)
+      {
+      for (i=0;i<nrobs;i++,worklin++,workres++)
+        help += loglikelihood_weightsone(workres,worklin);
+      }
+    else
+      {
+      for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
+        help += loglikelihood(workres,worklin,workweight);
+      }
     }
-
-  if (weightsone==true)
-    {
-    for (i=0;i<nrobs;i++,worklin++,workres++)
-      help += loglikelihood_weightsone(workres,worklin);
-    }
-  else
-    {
-    for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
-      help += loglikelihood(workres,worklin,workweight);
-    }
-
   return help;
-
   }
 
 
