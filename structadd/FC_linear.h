@@ -99,7 +99,8 @@ class __EXPORT_TYPE FC_linear  : public FC
   virtual void compute_XWX(datamatrix & r);
   virtual void compute_XWXroot(datamatrix & r);
   void compute_Wpartres(datamatrix & linpred);
-  double compute_XtWpartres(double & mo);
+//  void compute_Wpartres_multiplicative(datamatrix & linpred);
+//  double compute_XtWpartres(double & mo);
 
   void add_linpred(datamatrix & l);
 

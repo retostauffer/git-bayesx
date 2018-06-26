@@ -719,8 +719,51 @@ void FC_linear::compute_Wpartres(datamatrix & linpred)
     }
   }
 
+/*void FC_linear::compute_Wpartres_multiplicative(datamatrix & linpred)
+  {
+  unsigned i;
+  double * workingweightp = likep->workingweight.getV();
+  double * workingresponsep = likep->workingresponse.getV();
+  double * residualp = residual.getV();
+  double * linpredp = linpred.getV();
 
-double FC_linear::compute_XtWpartres(double & mo)
+  double * predictorp;
+  if (likep->linpred_current==1)
+    predictorp = (likep->linearpred1).getV();
+  else
+    predictorp = (likep->linearpred2).getV();
+
+  double * worklinp_dg;
+  if (likep->dg->linpred_current==1)
+    worklinp_dg = (likep->dg->linearpred1).getV();
+  else
+    worklinp_dg = (likep->dg->linearpred2).getV();
+
+  double * fxp = (likep->fx).getV();
+
+  if (likep->wtype == wweightsnochange_one)
+    {
+    for (i=0;i<likep->nrobs;i++,workingresponsep++,
+                                residualp++,linpredp++,worklinp_dg++,fxp++,predictorp++)
+    cout << "argh (max)!!" << endl;
+    }
+  else
+    {
+    for (i=0;i<likep->nrobs;i++,workingweightp++,workingresponsep++,
+                                residualp++,linpredp++,worklinp_dg++,fxp++,predictorp++)
+      {
+//      cout << *workingweightp << endl;
+      if (*workingweightp==0)
+        *residualp = 0;
+      else
+//        *residualp = *workingweightp * ((*workingresponsep) - *worklinp_dg +
+//                        exp(*linpredp) * (*fxp));
+        *residualp = *workingweightp * ((*workingresponsep) - *predictorp + *linpredp);
+      }
+    }
+  }*/
+
+/*double FC_linear::compute_XtWpartres(double & mo)
   {
 
   unsigned i;
@@ -743,9 +786,7 @@ double FC_linear::compute_XtWpartres(double & mo)
            ((*workingresponsep)  - (*predictorp) + *workdesign*mo);
 
   return res;
-  }
-
-
+  }*/
 
 bool FC_linear::posteriormode(void)
   {
@@ -779,7 +820,10 @@ bool FC_linear::posteriormode(void)
     if (rankXWX_ok == true)
       {
       linold.mult(design,beta);
-      compute_Wpartres(linold);
+//      if(likep->dgexists)
+//        compute_Wpartres_multiplicative(linold);
+//      else
+        compute_Wpartres(linold);
 
       Xtresidual.mult(Xt,residual);
 

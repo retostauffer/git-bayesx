@@ -10181,10 +10181,12 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
 
   FC_nonps[FC_nonps.size()-1].set_multiplicative(equations[fnr].distrp);
 
-  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dg = &(distr_gaussians[distr_gaussians.size()-1]);
-  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dgexists = true;
+  equations[fnr].distrp->dg = &(distr_gaussians[distr_gaussians.size()-1]);
+  equations[fnr].distrp->dgexists = true;
+//  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dg = &(distr_gaussians[distr_gaussians.size()-1]);
+//  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dgexists = true;
 
-  ofstream out("c:/temp/dg_linpred1.raw");
+/*  ofstream out("c:/temp/dg_linpred1.raw");
   (distr_gaussians[distr_gaussians.size()-1]).linearpred1.prettyPrint(out);
   out.close();
   ofstream out1("c:/temp/dg_linpred2.raw");
@@ -10195,7 +10197,7 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
   out2.close();
   ofstream out3("c:/temp/mult_linpred2.raw");
   (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).linearpred2.prettyPrint(out3);
-  out3.close();
+  out3.close();*/
 
   return false;
   }

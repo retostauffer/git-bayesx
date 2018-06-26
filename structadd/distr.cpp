@@ -3078,7 +3078,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
       {
       help = exp(*worklintilde);
       *work_workingweight = *workweight * pow(help*(*fxp),2)/get_scale();
-      *work_workingresponse = *worklin + (*workresponse - *worklin) * help * (*fxp) / (get_scale() * (*work_workingweight));
+      *work_workingresponse = *worklintilde + (*workresponse - *worklin) * help * (*fxp) / (get_scale() * (*work_workingweight));
       likelihood += - 0.5 * *workweight * pow(*workresponse - *worklin, 2) / get_scale();
       }
     }
@@ -3281,17 +3281,66 @@ double DISTR_gaussian_multeffect::get_scale(void)
 
 void DISTR_gaussian_multeffect::addmult(datamatrix & design, datamatrix & betadiff)
   {
+  double * worklinp;
+  double help;
+  datamatrix helpmat(nrobs,1);
+  helpmat.addmult(design,betadiff);
+  double * helpmatp = helpmat.getV();
 
+  if (linpred_current==1)
+    worklinp = linearpred1.getV();
+  else
+    worklinp = linearpred2.getV();
+
+  double * worklinp_dg;
+  if (dg->linpred_current==1)
+    worklinp_dg = dg->linearpred1.getV();
+  else
+    worklinp_dg = dg->linearpred2.getV();
+
+  double * fxp = fx.getV();
+  unsigned i;
+
+  for (i=0;i<nrobs;i++,worklinp++,worklinp_dg++,helpmatp++,fxp++)
+    {
+    help = exp(*worklinp);
+    *worklinp += *helpmatp;
+    *worklinp_dg += (exp(*worklinp)-help)*(*fxp);
+    }
   }
 
 void DISTR_gaussian_multeffect::add_linpred(datamatrix & l)
   {
+  double * worklinp;
+  double help;
+  double * lp = l.getV();
 
+  if (linpred_current==1)
+    worklinp = linearpred1.getV();
+  else
+    worklinp = linearpred2.getV();
+
+  double * worklinp_dg;
+  if (dg->linpred_current==1)
+    worklinp_dg = dg->linearpred1.getV();
+  else
+    worklinp_dg = dg->linearpred2.getV();
+
+  double * fxp = fx.getV();
+  unsigned i;
+
+  for (i=0;i<nrobs;i++,worklinp++,worklinp_dg++,lp++,fxp++)
+    {
+    help = exp(*worklinp);
+    *worklinp += *lp;
+    *worklinp_dg += (exp(*worklinp)-help)*(*fxp);
+    }
   }
 
 void DISTR_gaussian_multeffect::add_linpred(datamatrix & l, const double & b)
   {
-
+  double test = 1;
+  test *= test;
   }
 
 void DISTR_gaussian_multeffect::update_linpred(datamatrix & f, datamatrix & intvar, statmatrix<unsigned> & ind)

@@ -551,9 +551,9 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & skipfirst, con
             if (equations[nrmodels-1-i].FCpointer[j]->posteriormode() == false)
                 allconverged = false;
 
-//        cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
-//        cout << "j: " << j << endl;
-//        cout << equations[nrmodels-1-i].FCpointer[j]->title << endl;
+/*        cout << "nrmodels-1-i: " << nrmodels-1-i << endl;
+        cout << "j: " << j << endl;
+        cout << equations[nrmodels-1-i].FCpointer[j]->title << endl;*/
 
 /*        ofstream out("c:/temp/workingweight.raw");
         equations[nrmodels-1-i].distrp->workingweight.prettyPrint(out);

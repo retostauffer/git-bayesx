@@ -982,9 +982,9 @@ bool FC_nonp::posteriormode_transform(void)
 
   betaold.assign(beta);
 
-  if(likep->dgexists)
-    designp->compute_partres_multiplicative(partres,beta,true);
-  else
+//  if(likep->dgexists)
+//    designp->compute_partres_multiplicative(partres,beta,true);
+//  else
     designp->compute_partres(partres,beta,true);
 
   if (designp->QtRinv.rows() <= 1)
@@ -1060,9 +1060,9 @@ bool FC_nonp::posteriormode(void)
 
     betaold.assign(beta);
 
-    if(likep->dgexists)
-      designp->compute_partres_multiplicative(partres,beta,true);
-    else
+//    if(likep->dgexists)
+//      designp->compute_partres_multiplicative(partres,beta,true);
+//    else
       designp->compute_partres(partres,beta,true);
 
     designp->compute_XtransposedWX();
