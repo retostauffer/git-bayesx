@@ -306,7 +306,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   return *this;
   }
 
-void DISTR::set_multiplicative(DISTR * d)
+/*void DISTR::set_multiplicative(DISTR * d)
   {
   dg = d;
   dgexists=true;
@@ -315,7 +315,7 @@ void DISTR::set_multiplicative(DISTR * d)
     wtype = wweightschange_weightsone;
   else
     wtype = wweightschange_weightsneqone;
-  }
+  }*/
 
 
 void DISTR::set_copulapos(int cp)
@@ -513,7 +513,7 @@ double DISTR::loglikelihood(const bool & current)
 
   double* worklin;
 
-  if(dgexists)
+/*  if(dgexists)
     {
     if (current)
       {
@@ -541,7 +541,7 @@ double DISTR::loglikelihood(const bool & current)
       }
     }
   else
-    {
+    {*/
     if (current)
       {
       if (linpred_current==1)
@@ -566,7 +566,7 @@ double DISTR::loglikelihood(const bool & current)
       for (i=0;i<nrobs;i++,workweight++,worklin++,workres++)
         help += loglikelihood(workres,worklin,workweight);
       }
-    }
+//    }
   return help;
   }
 
