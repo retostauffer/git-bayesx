@@ -306,7 +306,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
   return *this;
   }
 
-/*void DISTR::set_multiplicative(DISTR * d)
+void DISTR::set_multiplicative(DISTR * d)
   {
   dg = d;
   dgexists=true;
@@ -315,7 +315,7 @@ const DISTR & DISTR::operator=(const DISTR & d)
     wtype = wweightschange_weightsone;
   else
     wtype = wweightschange_weightsneqone;
-  }*/
+  }
 
 
 void DISTR::set_copulapos(int cp)

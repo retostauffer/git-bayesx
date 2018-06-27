@@ -10181,11 +10181,12 @@ bool superbayesreg::create_multiplicative_pspline(unsigned i)
 
   FC_nonps[FC_nonps.size()-1].set_multiplicative(equations[fnr].distrp);
 
-//  equations[fnr].distrp->set_multiplicative(equations[modnr].distrp);
+  equations[fnr].distrp->set_multiplicative(equations[modnr].distrp);
 
-  equations[fnr].distrp->dg = equations[modnr].distrp;
+//  equations[fnr].distrp->dgexists = true;
+//  equations[fnr].distrp->dg = equations[modnr].distrp;
+
 //  equations[fnr].distrp->dg = &(distr_gaussians[distr_gaussians.size()-1]);
-  equations[fnr].distrp->dgexists = true;
 
 //  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dg = &(distr_gaussians[distr_gaussians.size()-1]);
 //  (distr_gaussian_multeffects[distr_gaussian_multeffects.size()-1]).dgexists = true;

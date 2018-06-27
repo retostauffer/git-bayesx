@@ -185,7 +185,7 @@ class __EXPORT_TYPE DISTR
   datamatrix fx;                    // Auxiliary variable for multiplicative effects
   DISTR * dg;
   bool dgexists;
-//  void set_multiplicative(DISTR * d);
+  void set_multiplicative(DISTR * d);
 
   double * linpredp;              // pointer to own linpred
 
