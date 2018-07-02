@@ -18,8 +18,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 #if defined(BayesX_gsl_included)
-#include <gsl_sf_lambert.h>
-#include <gsl_cdf.h>
+#include <gsl/gsl_sf_lambert.h>
+#include <gsl/gsl_cdf.h>
 #endif
 
 #include "distr_gamlss_copula.h"

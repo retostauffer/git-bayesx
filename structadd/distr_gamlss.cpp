@@ -20,9 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include "distr_gamlss.h"
 
 #if defined(BayesX_gsl_included)
-#include "gsl_randist.h"
-#include "gsl_cdf.h"
-#include "gsl_rng.h"
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_cdf.h>
+#include <gsl/gsl_rng.h>
 #endif
 
 namespace MCMC
