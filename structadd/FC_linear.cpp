@@ -1083,6 +1083,8 @@ void FC_linear_pen::compute_XWX(datamatrix & r)
   double * tau2oldinvp = tau2oldinv.getV();
   unsigned nrpar = beta.rows();
 
+  double sigma2resp = likep->get_scale();
+
   if ((likep->wtype==wweightschange_weightsneqone) ||
       (likep->wtype==wweightschange_weightsone) ||
       (optionsp->nriter<=1))
@@ -1091,8 +1093,8 @@ void FC_linear_pen::compute_XWX(datamatrix & r)
     for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
       {
 //      XWX(i,i) += (1/(*tau2p));
-      r(i,i) += (1/(*tau2p));
-      *tau2oldinvp =  1/(*tau2p);
+      r(i,i) += (sigma2resp/(*tau2p));
+      *tau2oldinvp =  sigma2resp/(*tau2p);
       }
 
     }
@@ -1102,8 +1104,8 @@ void FC_linear_pen::compute_XWX(datamatrix & r)
     for (i=0;i<nrpar;i++,tau2p++,tau2oldinvp++)
       {
 //      XWX(i,i) += (1/(*tau2p) - *tau2oldinvp);
-      r(i,i) += (1/(*tau2p) - *tau2oldinvp);
-      *tau2oldinvp =  1/(*tau2p);
+      r(i,i) += sigma2resp/(*tau2p) - *tau2oldinvp;
+      *tau2oldinvp =  sigma2resp/(*tau2p);
       }
 
     }

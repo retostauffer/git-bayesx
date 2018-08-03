@@ -780,7 +780,11 @@ void FC_variance_pen_vector_ssvs::update(void)
   {
   unsigned j;
   for(j=0; j<btau2.size(); j++)
-    btau2[j] = masterp->level1_likep[equationnr]->trmult*btau2[j];
+    btau2[j] = masterp->level1_likep[equationnr]->trmult*btau2_orig[j];
+
+//  cout << masterp->level1_likep[equationnr]->trmult << endl;
+//  cout << distrp->family << endl;
+//  cout << endl;
 
   acceptance++;
   if(NBPSS)
@@ -799,6 +803,14 @@ void FC_variance_pen_vector_ssvs::update(void)
       anew = atau2[j] + 0.5;
       bnew = btau2[j]+0.5*beta(j,0)/r_delta;
       FC_psi2.beta(j,0) = rand_invgamma(anew, bnew);
+
+//cout << "r_delta: " << r_delta << endl;
+//cout << "beta(j,0): " << beta(j,0) << endl;
+//cout << "atau2[j]: " << atau2[j] << endl;
+//cout << "btau2[j]: " << btau2[j] << endl;
+//cout << "anew: " << anew << endl;
+//cout << "bnew: " << bnew << endl;
+//cout << "FC_psi2.beta(j,0): " << FC_psi2.beta(j,0) << endl;
 
       // update delta_j
 
@@ -826,8 +838,16 @@ void FC_variance_pen_vector_ssvs::update(void)
       q = 1.0/(r_delta * FC_psi2.beta(j,0));
       c = pow(Cp->beta(j,0),2);
 
+//cout << "r_delta: " << r_delta << endl;
+//cout << "p: " << p << endl;
+//cout << "q: " << q << endl;
+//cout << "c: " << c << endl;
+
       double tau2 = randnumbers::GIG2(p, q, c);
       beta(j,0) = tau2;
+
+//cout << "tau2: " << tau2 << endl;
+//cout << endl;
 
       Cp->tau2(j,0) = beta(j,0);
       if(cprior[j])
