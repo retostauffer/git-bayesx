@@ -3317,7 +3317,7 @@ void DISTR_gaussian_multeffect::addmult(datamatrix & design, datamatrix & betadi
   {
   double * worklinp;
   double help;
-  datamatrix helpmat(nrobs,1);
+  datamatrix helpmat(nrobs,1, 0.0);
   helpmat.addmult(design,betadiff);
   double * helpmatp = helpmat.getV();
 
