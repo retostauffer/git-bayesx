@@ -2960,6 +2960,7 @@ DISTR_gaussian_multeffect::DISTR_gaussian_multeffect(const double & a,
     wtype = wweightschange_weightsone;
   else
     wtype = wweightschange_weightsneqone;
+  helpmat = datamatrix(nrobs,1, 0.0);
   }
 
 const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
@@ -2968,6 +2969,7 @@ const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
   if (this==&nd)
     return *this;
   DISTR_gaussian::operator=(DISTR_gaussian(nd));
+  helpmat = nd.helpmat;
   return *this;
   }
 
@@ -2976,6 +2978,7 @@ const DISTR_gaussian_multeffect & DISTR_gaussian_multeffect::operator=(
 DISTR_gaussian_multeffect::DISTR_gaussian_multeffect(const DISTR_gaussian_multeffect & nd)
    : DISTR_gaussian(DISTR_gaussian(nd))
   {
+  helpmat = nd.helpmat;
   }
 
 void DISTR_gaussian_multeffect::sample_responses(unsigned i,datamatrix & sr)
@@ -3317,8 +3320,7 @@ void DISTR_gaussian_multeffect::addmult(datamatrix & design, datamatrix & betadi
   {
   double * worklinp;
   double help;
-  datamatrix helpmat(nrobs,1, 0.0);
-  helpmat.addmult(design,betadiff);
+  helpmat.mult(design,betadiff);
   double * helpmatp = helpmat.getV();
 
   if (linpred_current==1)

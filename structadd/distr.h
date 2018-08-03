@@ -1332,6 +1332,8 @@ class __EXPORT_TYPE DISTR_gaussian_multeffect : public DISTR_gaussian
 
   protected:
 
+  datamatrix helpmat;
+
   public:
 
    // DEFAULT CONSTRUCTOR
