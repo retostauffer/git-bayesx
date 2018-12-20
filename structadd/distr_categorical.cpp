@@ -253,6 +253,25 @@ DISTR_binomial::DISTR_binomial(GENERAL_OPTIONS * o, const datamatrix & r,
   linpredmaxlimit= 10;
 
   check_errors();
+
+/*  //quickanddirty
+  //nice and nerdy
+  unsigned ngrid=5000;
+  weightgrid = datamatrix(ngrid,4,0.0);
+  unsigned i;
+  delta = (linpredmaxlimit - linpredminlimit)/ngrid;
+
+  cout << "delta: " << delta << endl;
+
+  double help;
+  for(i=0; i<ngrid; i++)
+    {
+    help = linpredminlimit + i*delta;
+    weightgrid(i,0) = 1/(1+exp(-help));
+    weightgrid(i,1) = weightgrid(i,0)*(1-weightgrid(i,0));
+    weightgrid(i,2) = log(1+exp(help));
+    weightgrid(i,3) = help;
+    }*/
   }
 
 
@@ -306,13 +325,14 @@ void DISTR_binomial::check_errors(void)
 
   }
 
-
 const DISTR_binomial & DISTR_binomial::operator=(
                                       const DISTR_binomial & nd)
   {
   if (this==&nd)
     return *this;
   DISTR::operator=(DISTR(nd));
+  weightgrid = nd.weightgrid;
+  delta = nd.delta;
   return *this;
   }
 
@@ -320,6 +340,8 @@ const DISTR_binomial & DISTR_binomial::operator=(
 DISTR_binomial::DISTR_binomial(const DISTR_binomial & nd)
    : DISTR(DISTR(nd))
   {
+  weightgrid = nd.weightgrid;
+  delta = nd.delta;
   }
 
 
@@ -430,7 +452,6 @@ void DISTR_binomial::compute_iwls_wweightschange_weightsone(
                                          const bool & compute_like)
   {
 
-
   double el = exp(*linpred);
   double mu = el/(1+el);
   if(mu > 0.999)
@@ -440,8 +461,7 @@ void DISTR_binomial::compute_iwls_wweightschange_weightsone(
   double v = mu*(1-mu);
 
   *workingweight =  v;
-
-  *workingresponse = *linpred + (*response - mu)/v;
+  *workingresponse = *linpred + (*response - mu) / v;
 
   if (compute_like)
     {
@@ -450,6 +470,35 @@ void DISTR_binomial::compute_iwls_wweightschange_weightsone(
     else
       like += *response * (*linpred) - log(1+el);
     }
+
+/*  unsigned ind = (unsigned)floor((*linpred-linpredminlimit)/delta);
+//  if(ind>=2000)
+//    cout << ind << endl;
+
+//  cout << "ind: " << ind << endl;
+
+  *workingweight =  weightgrid(ind,1);
+
+//  cout << "workingweight: " << *workingweight << endl;
+//  cout << "workingweight: " << v << endl;
+
+  *workingresponse = *linpred + (*response - weightgrid(ind,0)) / *workingweight;
+
+//  cout << "workingresponse: " << *workingresponse << endl;
+//  cout << "workingresponse: " << *linpred + (*response - mu) / v << endl;
+
+  if (compute_like)
+    {
+    if (*linpred >= 10)
+      like += *response * (*linpred) - *linpred;
+    else
+//      like += *response * (*linpred) - log(1+el);
+      like += *response * weightgrid(ind,3) - weightgrid(ind,2);
+    }
+
+//  cout << "like+: " << *response * (*linpred) - weightgrid(ind,2) << endl;
+//  cout << "like+: " << *response * (*linpred) - log(1+el) << endl;
+//  cout << endl;*/
 
   }
 

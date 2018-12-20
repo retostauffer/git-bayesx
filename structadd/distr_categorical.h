@@ -44,6 +44,9 @@ class __EXPORT_TYPE DISTR_binomial : public DISTR
 
   protected:
 
+  datamatrix weightgrid;
+  double delta;
+
   public:
 
   void check_errors(void);
