@@ -1,8 +1,8 @@
 project(BayesX)
 cmake_minimum_required(VERSION 2.8.9)
 
-option(WithoutJava "Compiles BayesX without adding the java subdirectory" OFF)
 option(WithoutDefaultOs "Compiles BayesX without adding -Os to definitions" OFF)
+option(WithoutGSL "Compiles BayesX without gsl" OFF)
 
 set(CMAKE_MODULE_PATH ${BayesX_SOURCE_DIR}/share/cmake ${CMAKE_MODULE_PATH})
 set(ANDREA_SRC
@@ -170,14 +170,14 @@ find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS} ${GSLCBLAS_INCLUDE_DIRS})
 link_libraries( ${GSL_LIBRARIES}  ${GSLCBLAS_LIBRARIES})
 add_definitions(${GSL_CFLAGS})
-if(NOT WithoutJava)
-  add_subdirectory(java)
-endif()
 add_executable(bayesx ${SRC})
 
-add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -DBayesX_gsl_included)
+add_definitions(-D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC)
 if(NOT WithoutDefaultOs)
   add_definitions(-Os)
+endif()
+if(NOT WithoutGSL)
+  add_definitions(-DBayesX_gsl_included -DBAYESX_GSL_INCLUDED)
 endif()
 
 if(32BIT)

@@ -14,19 +14,12 @@ set GSL_DIR=c:\gsl
 
 # call cmake with explicit compiler specification for 64bit comilation
 # if there has been no previous call that set the compiler:
-cmake -G "MinGW Makefiles" -D CMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -D CMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ .
+cmake -G "MinGW Makefiles" -D WithoutGSL=ON -D CMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -D CMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ .
 #otherwise
-cmake -G "MinGW Makefiles" .
+cmake -G "MinGW Makefiles" -D WithoutGSL=ON .
 
 # call make (with no. of kernels defined by -j)
 mingw32-make -j4
-
-# add java to the path
-c:\env\java.bat
-# compile java version
-cd java
-javac BayesX.java
-java BayesX
 
 
 #####################################
