@@ -375,6 +375,7 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("nu");
   equationtypes.push_back("df");
   equationtypes.push_back("rho");
+  equationtypes.push_back("rhofz");
   equationtypes.push_back("alpha");
   equationtypes.push_back("alpha1");
   equationtypes.push_back("alpha2");
