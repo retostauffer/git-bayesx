@@ -510,7 +510,7 @@ DESIGN_userdefined::DESIGN_userdefined(datamatrix & dm,datamatrix & iv,
 
   compute_Zout(designmat);
   compute_Zout_transposed_vector();
-  K = envmatdouble(penmat, 0.0);
+  K = envmatdouble(penmat, 0.00000001);
   if(rankK==-1)
     {
     // compute rankK;
