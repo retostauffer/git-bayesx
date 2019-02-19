@@ -15,11 +15,125 @@ hierarchical or multilevel structured additive predictors. For multilevel struct
 simulation techniques. The methodology manual provides a brief introduction to (multilevel) structured additive regression and MCMC-based
 inference. More details can be found in the references cited above and in the book by \citeasnoun{fahkne13}.
 
-\section{Linear and Structured Additive Mean Regression Models}
+\section{Linear and Additive Mean Regression Models}
 
 \subsection{Methodological Background}
 
+Gaussian linear models
+
+$$
+y \sim (\eta,\sigma^2)  
+$$
+where
+$$
+ \eta = E(y) = \beta_0 + \beta_1 x_1 + \ldots + \beta_k x_k
+$$
+
+Binary regression
+$$
+y \sim B(1,\pi)
+$$
+where
+$$
+\pi = E(y) = F(\eta) = F(\beta_0 + \beta_1 x_1 + \ldots + \beta_k x_k)
+$$
+and 
+$$
+F(\eta) = \Phi(\eta) \mbox{ or } F(\eta) = \frac{\exp(\eta)}{1+\exp(\eta)} 
+$$
+
+Poisson regression
+$$
+y \sim Po(\lambda)
+$$
+where
+$$
+\lambda = E(y) = \exp(\eta) = \exp(\beta_0 + \beta_1 x_1 + \ldots + \beta_k x_k)
+$$
+
+Other distributions see ??
+
+Additive predictor. 
+
+Replace 
+$$
+\eta = \beta_0 + \beta_1 x_1 + \ldots + \beta_k x_k
+$$
+by
+$$
+\eta = f(z_{1}) + \ldots + f(z_{q}) + \beta_0 + \beta_1 x_{1} + \ldots + \beta_k x_{k}
+$$
+
+For modeling $f_j$ see ??
+
 \subsection{Syntax and Options}
+
+All models are estimated using method #hregress#. The general syntax is \\
+
+#> #{\em objectname}.#hregress# {\em model} [#weight# {\em weightvar}] [#if# {\em expression}] [{\em , options}] #using# {\em dataset} \\
+
+Method #hregress# estimates the regression model specified in {\em
+model} using the data specified in {\em dataset}, which is 
+the name of a {\em dataset object} created before. 
+
+The distribution of the response variable can be chosen from a wide
+range of uni- and even multivariate distributions. It is
+specified using option
+#family#, e.g. #family=gaussian# for Gaussian linear or additive models. 
+For a comprehensive list of available distributions compare \autoref{mcmcreg_distributions}.
+The default value is #family=gaussian#
+with an identity link.  
+
+An #if# statement may be specified to analyze
+only parts of the data set, i.e.~the observations where {\em
+expression} is true.
+
+An optional weight variable {\em weightvar} may be specified to
+estimate weighted regression models.
+
+
+The general syntax of models is: \\
+
+$depvar = term_1 + term_2 + \cdots + term_r$ \\
+
+where {\em depvar} specifies the dependent variable in the model
+and $term_1$,\dots,$term_r$ define the specific form of covariate
+effects on the dependent variable. The different terms have to be
+separated by '+' signs. A constant intercept is NOT automatically
+included in the models and must be specified using the term #const#. 
+All terms may be combined
+in arbitrary order. 
+The following model statement specifies a model with $q$ linear effects and an intercept: \\
+
+\texttt{Y = const + W1 + W2 + $\cdots$ + Wq} \\
+
+A P-spline is obtained by \\
+
+#Y = X1(pspline)# \\
+
+By default, a second order random walk prior is used, the degree of the spline is 3 and the number of inner
+knots is 20. The following model term defines a quadratic P-spline
+with 30 knots and a first order random walk prior: \\
+
+#Y = X1(pspline,degree=2,nrknots=30,difforder=1)# \\
+
+
+
+A comprehensive overview about  possible model terms including 
+spatial effects, two dimensional nonlinear effects, etc. is given in \autoref{mcmcreg_modelterms}.
+
+
+Examples..
+
+
+
+
+
+
+
+
+
+ 
 
 \subsection{Examples}
 
@@ -39,7 +153,12 @@ inference. More details can be found in the references cited above and in the bo
 
 \subsection{Examples}
 
+\subsection{Overview on available Distributions}
+\label{mcmcreg_distributions}
+
+
 \section{Overview on Model Terms}
+\label{mcmcreg_modelterms}
 
 incl. userdefined
 
