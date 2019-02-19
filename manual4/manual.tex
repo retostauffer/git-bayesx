@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper,twoside]{bayesxreport}
+
+\input{manual_preliminaries.tex}
+
+ \externaldocument{manual_star}
+ \externaldocument{manual_tutorials}
+
+\makeindex
+
+\setcounter{secnumdepth}{3}
+
+\begin{document}
+
+\MakeShortVerb{\#}
+
+\preface{Reference Manual}
+
+\pdfbookmark[1]{Contents}{contents} \tableofcontents \hypertarget{contents}{}
+
+\newpage
+
+\input{manual_gettingstarted.tex}
+
+\input{manual_datasetobjects.tex}
+
+\input{manual_mapobjects.tex}
+
+\input{manual_mcmcregobjects.tex}
+
+\input{manual_remlregobjects.tex}
+
+\input{manual_stepwiseregobjects.tex}
+
+\input{manual_literature.tex}
+
+\addcontentsline{toc}{chapter}{Index}
+
+\input{manual.ind}
+\hypertarget{index}{}
+
+\end{document}

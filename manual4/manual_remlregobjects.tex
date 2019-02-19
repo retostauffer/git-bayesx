@@ -1,0 +1,1736 @@
+\chapter{remlreg objects}\normalsize
+\label{remlreg} \index{Remlreg object}
+
+{\em Remlreg objects} are used to fit (multivariate) exponential family, hazard rate or multi-state models with {\em structured
+additive predictor} subsumed in the class of {\em structured additive regression (STAR)} models, see \citeasnoun{FahKneLan04}.
+Inference is based on a mixed model representation of the regression model and yields either penalised likelihood estimates
+(from a frequentist perspective) or empirical Bayes / posterior mode estimates (from a Bayesian perspective). The
+methodological background is provided in considerable detail in the methodology manual. More details on models for univariate
+responses can be found in \citeasnoun{FahKneLan04}. \citeasnoun{KneFah06} describe models for categorical responses. Models for
+continuous time survival analysis based on structured hazard regression can be found in \citeasnoun{KneFah07}. Interval
+censoring and some further extensions are discussed in \citeasnoun{Kne06}.
+
+\index{Generalized linear models} \index{Generalized additive
+models} \index{Varying coefficients} \index{Bayesian semiparametric
+regression} \index{MCMC} \index{Markov chain Monte Carlo}
+
+First steps with {\em remlreg objects} can be done with the
+example in chapter \ref*{remlregzambiaanalysis} of the tutorial
+manual which provides a self-contained demonstrating example.
+
+\section{Method regress}\index{Regress function}\index{Remlreg object!Regress
+function}\index{Mixed model based regression} \label{remlregregress}
+
+\subsection{Syntax}\index{Regression syntax}\index{Remlreg object!Regression syntax}
+\label{remlregregresssyntax}
+
+ #># {\em objectname}.#regress# {\em model} [#weight# {\em weightvar}] [#if# {\em expression}] [{\em , options}] #using# {\em dataset}
+
+Method #regress# estimates the regression model specified in {\em
+model} using the data specified in {\em dataset}. {\em dataset}
+has to be the name of a {\em dataset object} created before. The
+details of correct model specification are covered in
+\autoref{remlregmodelsyntax}. The distribution of the response
+variable can be either Gaussian, binomial, multinomial, Poisson or
+gamma. In addition, {\em BayesX} supports continuous time survival
+and multi-state models, see also \autoref{familyopt} for a more
+detailled overview.. The response distribution is specified using
+option #family#, see \autoref{remlregfamilysyntax} below. The
+default is #family=binomial# with a logit link. An #if# statement
+can be specified to analyze only parts of the data set, i.e. the
+observations where {\em expression} is true.
+
+\subsubsection{Optional weight variable}\index{Weighted regression}
+\label{remlregweightspecification}
+
+An optional weight variable {\em weightvar} can be specified to
+estimate weighted regression models. For Gaussian responses, {\em
+BayesX} assumes that $y_i|\eta_i,\sigma^2 \sim
+N(\eta_i,\sigma^2/weightvar_i)$. Thus, for grouped Gaussian
+responses the weights represent the number of observations in the
+groups if the $y_i$'s are the average of individual responses. If
+the $y_i$s are the sum of responses in every group, the weights
+have to be the reciprocal of the number of observations in the
+groups. Of course, estimation of usual weighted regression models
+with heteroscedastic errors is also possible. In this case, the
+weights should be proportional to the reciprocal of the
+heteroscedastic variances. If the response distribution is
+binomial, the weight variable should correspond to the number of
+replications while the values of the response variable should
+represent the number of successes. If weight is omitted, {\em
+BayesX} assumes that the number of replications is one, i.e. the
+values of the response must be either zero or one. For grouped
+Poisson data, the weights have to specify the number of
+observations in a group while the $y_i$s are assumed to be the
+average of individual responses. Weights are not allowed for
+models with categorical response, continuous survival time models
+and multi-state models.
+
+\subsubsection{Syntax of possible model terms}
+\label{remlregmodelsyntax}\index{Model terms}\index{Remlreg
+object!Model terms}
+
+The general syntax of models for {\em remlreg objects} is:
+
+$depvar = term_1 + term_2 + \cdots + term_r$
+
+{\em depvar} specifies the dependent variable whereas
+$term_1$,\dots,$term_r$ define the form of covariate influences.
+The different terms must be separated by '+' signs. A constant
+intercept is automatically included in the model and therefore has
+not to be specified by the user.
+
+This section reviews all possible model terms supported in the
+current version of {\em remlreg objects} and provides some
+specific examples. Note that all described terms may be combined
+in arbitrary order. An overview about the capabilities of {\em
+remlreg objects} is given in \autoref{remlregterms}.
+\autoref{remlreginteractions} shows how interactions between
+covariates are specified. Full details about all available options
+are given in \autoref{remlreglocaloptions}.
+
+Throughout this section Y denotes the dependent variable.
+
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{|p{2.8cm}|p{3.6cm}|p{7.1cm}|}
+\hline
+{\bf Type} & {\bf Syntax example} & {\bf Description} \\
+\hline \hline
+Offset & #offs(offset)#  & Variable #offs# is an offset term. \\
+\hline
+Linear effect & #W1#  & Linear effect of #W1#. \\
+\hline
+Category-specific linear effect & #W1(catspecific)#  & Category-specific linear effect of #W1# (in cumulative or sequential models only). \\
+\hline
+First or second order random walk &   #X1(rw1)#  \newline  #X1(rw2)#  & Nonlinear effect of #X1#. \\
+\hline
+P-spline &  #X1(psplinerw1)#   \newline  #X1(psplinerw2)#  & Nonlinear effect of #X1#.  \\
+\hline
+Seasonal prior & #time(season,period=12)# & Varying seasonal effect of #time# with period 12. \\
+\hline Markov random \newline field &  #region(spatial,map=m)#  &
+Spatial effect of #region# where #region# indicates the region an
+observation pertains to. The boundary information and the
+neighborhood structure is stored in the {\em map object}
+#m#. \\
+\hline Two dimensional \newline P-spline &
+#region(geospline,map=m)# & Spatial effect of #region#. Estimates
+a two dimensional P-spline
+based on the centroids of the regions. The centroids are stored in the {\em map object} #m#. \\
+ \hline
+ Stationary Gaussian random field & #region(geokriging)# & Spatial effect of #region#. Estimates
+a stationary Gaussian random field
+based on the centroids of the regions. The centroids are stored in the {\em map object} #m#. \\
+\hline
+ Random intercept &  #grvar(random)# & I.i.d. Gaussian (random) effect of the group indicator #grvar#,
+ e.g.~#grvar# may be an individual indicator when analyzing longitudinal data.  \\
+\hline
+ Baseline in Cox or multi-state models & #time(baseline)# & Nonlinear shape
+of the baseline effect $\lambda_0(time)$ of a Cox model. $\log(\lambda_0(time))$ is modelled by a P-spline with second order random walk penalty. \\
+ \hline
+\end{tabular}
+{\em \caption {\label{remlregterms} Overview over different model
+terms for remlreg objects.}}
+\end{center}
+\end{table}
+
+
+\begin{table}[ht] \footnotesize
+\begin{center}
+\begin{tabular}{|p{3.5cm}|p{3.8cm}|p{5.9cm}|}
+\hline
+{\bf Type of interaction} & {\bf Syntax example} & {\bf Description} \\
+ \hline
+\hline Varying coefficient term & #X1*X2(rw1)# \newline
+#X1*X2(rw2)#
+\newline
+ #X1*X2(psplinerw1) #
+ \newline  #X1*X2(psplinerw2)# \newline #X1*time(season)#
+ & Effect of #X1# varies smoothly over the range of the continuous covariate #X2# or #time#. \\
+\hline Random slope & #X1*grvar(random)#  &  The regression
+coefficient of #X1# varies with respect
+to the unit- or cluster index variable #grvar#. \\
+\hline Geographically weighted \newline regression &
+#X1*region(spatial,map=m)#  & Effect of #X1# varies
+geographically.
+Covariate #region# indicates the region an observation pertains to. \\
+\hline Two dimensional \newline surface &  #X1*X2(pspline2dimrw1)#
+ & Two dimensional surface for the continuous
+covariates #X1# and #X2#. \\
+ \hline
+ Stationary Gaussian random field &  #X1*X2(kriging)# & Stationary Gaussian random field for coordinates #X1# and #X2#. \\
+ \hline
+ Time-varying effect in Cox or multi-state models & #X1*time(baseline)# &
+ Nonlinear, time-varying effect of #X1#.\\
+ \hline
+\end{tabular}
+\caption {\label{remlreginteractions} \em Possible interaction
+terms for remlreg objects.}
+\end{center}
+\end{table}
+
+\subsubsection*{Offset}\index{Offset}
+
+\begin{itemize}
+\item[] {\em Description}: Adds an offset term to the predictor.
+\item[] {\em Predictor}: $\eta =  \cdots + offs + \cdots$
+\item[] {\em Syntax}:
+
+#offs(offset)#
+\item[] {\em Example}:
+
+For example, the following model statement can be used to estimate
+a poisson model with #offs# as offset term and #W1# and #W2# as
+fixed effects (if #family=poisson# is specified in addition):
+
+\texttt{Y = offs(offset) + W1 + W2}
+\end{itemize}
+
+\subsubsection*{Fixed effects}\index{Fixed effects}
+
+\begin{itemize}
+\item[] {\em Description}: Incorporates covariate #W1# as a fixed effect into the model.
+\item[] {\em Predictor}: $\eta =  \cdots + \gamma_1 W1 + \cdots$
+\item[] {\em Syntax}:
+
+#W1#
+\item[] {\em Example}:
+
+The following model statement causes #regress# to estimate a model
+with $q$ fixed (linear) effects:
+
+\texttt{Y = W1 + W2 + $\cdots$ + Wq}
+\end{itemize}
+
+\subsubsection*{Category-specific fixed
+effects}\index{Category-specific fixed effects}
+
+\begin{itemize}
+\item[] {\em Description}: In cumulative and sequential models for
+ordered categorical responses, fixed effects may either be defined
+globally or category-specific. To request the estimation of
+category-specific fixed effects, the keyword #catspecific# has to
+be specified. Category-specific effects can only be estimated for
+the response families #cumlogit#, #cumprobit#, #seqlogit#, and
+#seqprobit#.
+\item[] {\em Predictor}: $\eta^{(j)} =  \cdots +
+\gamma_1^{(j)} W1 + \cdots$ \item[] {\em Syntax}:
+
+#W1(catspecific)#
+\item[] {\em Example}:
+
+The following model statement causes #regress# to estimate a model
+with category-specific effect of covariate #W1# and a global
+effect of covariate #W2#:
+
+\texttt{Y = W1(catspecific) + W2}
+\end{itemize}
+
+\subsubsection*{Nonlinear effects of continuous covariates and time
+scales}\index{Nonlinear effects}\index{Random
+walks}\index{P-splines}
+
+\begin{itemize}
+\item[]{\bf\sffamily First or second order random walk}
+
+\item[] {\em Description}: Defines a first or second order random walk prior for the effect of #X1#.
+\item[] {\em Predictor}: $\eta = \cdots + f_1(X1) + \cdots $
+\item[] {\em Syntax}:
+
+#X1(rw1#[, {\em options}]#)#
+
+#X1(rw2#[, {\em options}]#)#
+\item[] {\em Example}:
+
+Suppose that #X1# is a continuous covariate with possibly
+nonlinear effect. The following model statement defines a second
+order random walk prior for $f_1$:
+
+#Y = X1(rw2)#
+
+The term #X1(rw2,a=0.001,b=0.001)# indicates, that the effect of
+#X1# should be incorporated nonparametrically using a second order
+random walk prior. A first order random walk can be requested by
+specifying #X1(rw1)# instead.
+
+\item[] {\bf\sffamily P-spline with first or second order random
+walk penalty}
+
+\item[] {\em Description}: Defines a P-spline with first or second
+order random walk penalty for the parameters of the spline.
+\item[] {\em Predictor}: $\eta =  \cdots + f_1(X1) + \cdots$
+\item[] {\em Syntax}:
+
+#X1(psplinerw1#[, {\em options}]#)#
+
+#X1(psplinerw2#[, {\em options}]#)#
+\item[] {\em Example}:
+
+For example, a P-spline with second order random walk penalty is
+obtained using the following model statement:
+
+#Y = X1(psplinerw2)#
+
+By default, the degree of the spline is 3 and the number of inner
+knots is 20. The following model term defines a quadratic P-spline
+with 30 knots:
+
+#Y = X1(psplinerw2,degree=2,nrknots=30)#
+
+\item[]{\bf\sffamily Seasonal component for time scales}
+
+\item[] {\em Description}: Defines a time-varying seasonal effect
+of #time#. \item[] {\em Predictor}: $\eta =  \cdots +
+f_{season}(time) + \cdots $ \item[] {\em Syntax}:
+
+#time(season#[, {\em options}]#)#
+\item[] {\em Example}:
+
+A seasonal component for a time scale #time# is specified by
+
+#Y = time(season,period=12)#
+
+where the second argument indicates the period of the seasonal
+effect. In the example above, the period is 12 corresponding to
+monthly data.
+\end{itemize}
+
+\subsubsection*{Nonlinear baseline effect in continuous time survival or multi-state models}
+\index{Baseline}\index{Cox model}\index{Multi-state model}
+
+\begin{itemize}
+\item[]{\bf\sffamily P-spline with second order random walk
+penalty}
+
+\item[] {\em Description}: Defines a P-spline with second order
+random walk penalty for the parameters of the spline for the
+log-baseline effect $\log(\lambda_0$(#time#)). \item[] {\em
+Predictor}: $\eta = \log(\lambda_0(time)) + \cdots$ \item[] {\em
+Syntax}:
+
+#time(baseline#[, {\em options}]#) # \item[] {\em Example}:
+
+Suppose continuous-time survival data (#time#, #delta#) with
+additional covariates (#W1#, #X1#) are given, where #time# denotes
+the vector of observed duration times, #delta# is the vector of
+corresponding indicators of non-censoring, #W1# is a discrete
+covariate, and #X1# a continuous covariate. The following Cox-type
+model with hazard rate $\lambda$ and log-baseline effect
+$\log(\lambda_0$(#time#))
+\begin{eqnarray*}
+ \lambda(time) & = & \lambda_0(time)\exp (\gamma_0 + \gamma_1 W1 + f(X1))\\
+ & = & \exp\left(\log(\lambda_0(time)) + \gamma_0 + \gamma_1 W1 + f(X1)\right)
+\end{eqnarray*}
+can be estimated by the model statement
+
+#delta = time(baseline) + W1 + X1(psplinerw2)#
+
+Similarly, baseline effects for the transition intensities in
+multi-state models can be specified.
+\end{itemize}
+
+\subsubsection*{Spatial Covariates}\index{Spatial effects}\index{Markov random fields}
+\index{Two-dimensional P-spline}\index{Kriging}
+
+\begin{itemize}
+\item[]{\bf\sffamily Markov random field}
+
+\item[] {\em Description}:
+
+Defines a Markov random field prior for the spatial covariate
+#region#. {\em BayesX} allows to incorporate spatial covariates
+with geographical information stored in the {\em map object}
+specified in option #map#.
+\item[] {\em Predictor}: $\eta = \cdots
++ f_{spat}(region) + \cdots$ \item[] {\em Syntax}:
+
+#region(spatial,map=#{\em characterstring}[, {\em options}]#)#
+\item[] {\em Example}:
+
+For the specification of a Markov random field prior, #map# is an
+obligatory argument that represents the name of a {\em map object}
+(see \autoref{map}) containing all necessary spatial information
+about the geographical map, i.e.~the neighbors of each region and
+the weights associated with the neighbors. For example the
+statement
+
+#Y = region(spatial,map=germany)#
+
+defines a Markov random field prior for #region# where the
+geographical information is stored in the {\em map object}
+#germany#. An error will be raised if #germany# is not existing.
+
+\item[]{\bf\sffamily Two-dimensional P-spline with first order
+random walk penalty}
+
+\item[] {\em Description}:
+
+Defines a two-dimensional P-spline for the spatial covariate
+#region# with a two-dimensional first order random walk penalty
+for the parameters of the spline. Estimation is based on the
+coordinates of the centroids of the regions. The centroids are
+computed using the geographical information stored in the {\em map
+object} specified in the option #map#.
+\item[] {\em Predictor}:
+$\eta= \cdots + f(centroids) + \cdots$ \item[] {\em Syntax}:
+
+#region(geospline,map=#{\em characterstring}[, {\em options}]#)#
+\item[] {\em Example}:
+
+For the specification of a two-dimensional P-spline ({\em
+geospline}) #map# is an obligatory argument indicating the name of
+a {\em map object} (see \autoref{map}) that contains all necessary
+spatial information about the geographical map, i.e.~the neighbors
+of each region and the weights associated with the neighbors. The
+model term
+
+#Y = region(geospline,map=germany)#
+
+specifies a two-dimensional cubic P-spline with first order random
+walk penalty where the geographical information is stored in the
+{\em map object} #germany#.
+
+\item[]{\bf\sffamily Stationary Gaussian random field}
+
+\item[] {\em Description}:
+
+Defines a stationary Gaussian random field for the spatial
+covariate #region#. Estimation is based on the coordinates of the
+centroids of the regions an observation pertains to. The centroids
+are computed using the geographical information stored in the {\em
+map object} specified in option #map#. \item[] {\em Predictor}:
+$\eta= \cdots + f(centroids) + \cdots$ \item[] {\em Syntax}:
+
+#region(geokriging,map=#{\em characterstring}[, {\em options}]#)#
+\item[] {\em Example}:
+
+For the specification of a stationary Gaussian random field
+(#geokriging#), #map# is an obligatory argument indicating the
+name of a {\em map object} (see \autoref{map}). The model term
+
+#Y = region(geokriging,map=germany)#
+
+specifies a stationary Gaussian random field where the geographical
+information is stored in the {\em map object} #germany#.
+\end{itemize}
+
+\subsubsection*{Unordered group indicators}\index{Unordered group
+indicators}\index{Random effects}\index{Random intercept}
+
+\begin{itemize}
+\item[]{\bf\sffamily Unit- or cluster specific unstructured
+effect}
+
+\item[] {\em Description}: Defines an unstructured (uncorrelated)
+random effect with respect to grouping variable #grvar#. \item[]
+{\em Predictor}: $\eta = \cdots + f(grvar) + \cdots$ \item[] {\em
+Syntax}:
+
+#grvar(random#[, {\em options}]#)#
+\item[] {\em Example}:
+
+Gaussian i.i.d.~random effects allow to cope with unobserved
+heterogeneity among units or clusters of observations. Suppose the
+analyzed data set contains a group indicator #grvar# that gives
+information about the individual or cluster a particular
+observation belongs to. Then an individual-specific uncorrelated
+random effect is defined by
+
+#Y = grvar(random)#
+
+The inclusion of more than one random effect term in the model is
+possible, allowing the estimation of multilevel models. However,
+we have only limited experience with multilevel models so that it
+is not clear how well these models can be estimated using {\em
+remlreg objects}.
+\end{itemize}
+
+\subsubsection*{Varying coefficients with continuous covariates as
+effect modifier}\index{Varying coefficients}
+
+\begin{itemize}
+\item[]{\bf\sffamily First or second order random walk}
+
+\item[] {\em Description}:
+
+Defines a varying coefficient term, where the effect of #X1#
+varies smoothly over the range of #X2#. Therefore covariate #X2#
+is called the effect modifier. The smoothness prior for $f(X2)$ is
+a first or second order random walk.
+\item[] {\em Predictor}:
+$\eta= \cdots + f(X2)X1 + \cdots$ \item[] {\em Syntax}:
+
+#X1*X2(rw1#[, {\em options}]#)#
+
+#X1*X2(rw2#[, {\em options}]#)#
+\item[] {\em Example}:
+
+For example, a varying coefficient term with a second order random
+walk smoothness prior is defined as follows:
+
+#Y = X1*X2(rw2)#
+
+\item[]{\bf\sffamily P-spline with first or second order random
+walk penalty}
+
+\item[] {\em Description}:
+
+Defines a varying coefficient term, where the effect of #X1#
+varies smoothly over the range of #X2#. The smoothness prior for
+$f$ is a P-spline with first or second order random walk penalty.
+\item[] {\em Predictor}: $\eta= \cdots + f(X2)X1 + \cdots$ \item[]
+{\em Syntax}:
+
+#X1*X2(psplinerw1#[, {\em options}]#)#
+
+#X1*X2(psplinerw2#[, {\em options}]#)#
+\item[] {\em Example}:
+
+For example, a varying coefficient term with a second order random
+walk smoothness prior is defined as follows:
+
+#Y = X1*X2(psplinerw2)#
+
+If the effect of a covariate should vary according to different
+types of effect modifiers, this leads to similar identification
+problems as in usual additive models. To avoid such problems,
+option #center# can be specified to request the estimation of
+centered effects. For example, if both #X2# and #Z2# are assumed
+to modify the effect of #X1#, the specification of
+
+#Y = X1*X2(psplinerw2) + X1*Z2(psplinerw2)#
+
+yields a non-identifiable model. In contrast
+
+#Y = X1 + X1*X2(psplinerw2, center) + X1*Z2(psplinerw2, center)#
+
+is well-identified. Note that the main effect of #X1# has to be
+included separately. Equivalently, we could absorb the main effect
+into the first term, yielding
+
+#Y = X1*X2(psplinerw2) + X1*Z2(psplinerw2, center)#
+
+However, the former specification has the advantage that the model
+terms are clearly separated.
+
+Models of the type just discussed arise for example if #X1# is a
+binary dummy-variable indicating two different groups of data. In
+this case the model
+
+ #Y = X1 + X2(psplinerw2) + X1*X2(psplinerw2, center) + Z2(psplinerw2) + X1*Z2(psplinerw2, center)#
+
+assumes different effects of both #X2# and #Z2# in the groups.
+
+\item[]{\bf\sffamily Seasonal prior}
+
+\item[] {\em Description}:
+
+Defines a varying coefficients term where the effect of #X1#
+varies over the range of the effect modifier #time#. A seasonal
+prior is assumed for the effect of #time#.
+
+\item[] {\em Predictor}: $\eta= \cdots + f_{season}(time)X1 +
+\cdots $ \item[] {\em Syntax}:
+
+#X1*time(season#[, {\em options}]#)#
+\item[] {\em Example}:
+
+The inclusion of a varying coefficients term with a seasonal prior
+may be meaningful if we expect a different seasonal effect with
+respect to a binary variable #X1#. In this case we can include an
+additional seasonal effects for observations with #X1#=1 by
+
+#Y = X1*time(season) #
+
+\end{itemize}
+
+\subsubsection*{Time-varying effects in continuous-time or multi-state models}
+\index{Time-varying effects}
+
+\begin{itemize}
+\item[]{\bf\sffamily P-spline with second order random walk
+penalty}
+
+\item[] {\em Description}: Defines a varying coefficients term
+where the effect of #X1# varies over the range of the effect
+modifier #time#, i.e. variable #X1# is assumed to have a
+time-varying effect. The smoothness prior for $f($#time#$)$ is a
+P-spline with second order random walk penalty.
+
+ \item[] {\em Predictor}: $\eta = \log(\lambda_0(time)) +
+f(time)X1 \cdots$ \item[] {\em Syntax}:
+
+ #X1*time(baseline#[, {\em options}]#) #
+ \item[] {\em Example}:
+
+Suppose continuous-time survival data (#time#, #delta#) together
+with an additional covariate #X1# are given, where #time# denotes
+the vector of observed duration times and #delta# is the vector of
+corresponding indicators of non-censoring. The following Cox model
+with hazard rate
+\begin{eqnarray*}
+ \lambda(time) & = & \lambda_0(time)\exp(\gamma_0 + f(time)X1)\\
+ & = & \exp\left(\log(\lambda_0(time)) + \gamma_0 + f(time)X1\right)
+\end{eqnarray*}
+is estimated by the model statement
+
+#delta = time(baseline) + X1*time(baseline)#
+
+Similarly, time-varying effects on the transition intensities in
+multi-state models can be specified.
+\end{itemize}
+
+\subsubsection*{ Varying coefficients with spatial covariates as
+effect modifiers}
+
+\begin{itemize}
+\item[]{\bf\sffamily Markov random field}
+
+\item[] {\em Description}:
+
+Defines a varying coefficient term where the effect of #X1# varies
+smoothly over the range of the spatial covariate #region#. A
+Markov random field is estimated for $f_{spat}$. The geographical
+information is stored in the {\em map object} specified through the
+option #map#.
+\item[] {\em Predictor}: $\eta = \cdots + f_{spat}(region)X1 + \cdots$
+\item[] {\em Syntax}:
+
+#X1*region(spatial,map=#{\it characterstring} #[,# {\it options}#])#
+\item[] {\em Example}:
+
+For example the statement
+
+#Y = X1*region(spatial,map=germany)#
+
+defines a varying coefficient term with the spatial covariate
+#region# as the effect modifier and a Markov random field as spatial
+smoothness prior. Weighted Markov random fields can be estimated by
+including an appropriate weight definition when creating the {\em
+map object} #germany# (see \autoref{mapinfile}).
+
+Similarly as for varying coefficient terms with continuous effect
+modifiers, varying coefficients with spatial effect modifier can be
+centered to avoid identifiability problems:
+
+#Y = X1*region(spatial, map=germany, center)#
+
+\end{itemize}
+
+\subsubsection*{Varying coefficients with unordered group indicators
+as effect modifiers (random slopes)}\index{Random
+effects}\index{Random slope}
+
+\begin{itemize}
+\item[]{\bf\sffamily Unit- or cluster specific unstructured
+effect}
+
+\item[] {\em Description}:
+
+Defines a varying coefficient term where the effect of #X1# varies
+over the range of the group indicator #grvar#. Models of this type
+are usually referred to as models with random slopes. A Gaussian
+i.i.d.~random effect with respect to grouping variable #grvar# is
+assumed for $f$.
+\item[] {\em Predictor}: $\eta = \cdots + f(grvar)X1 + \cdots$
+\item[] {\em Syntax}:
+
+#X1*grvar(random#[, {\em options}]#)#
+\item[] {\em Example}:
+
+For example, a random slope is specified as follows:
+
+#Y = X1*grvar(random)#
+
+Note, that in contrast to {\em bayesreg objects}, the main effects
+are {\em not} included automatically. If main effects should be
+included in the model, they have to be specified as additional
+fixed effects. The syntax for obtaining the predictor
+
+$\eta = \cdots + \gamma X1 + f(grvar)X1 + \cdots$
+
+would be
+
+#X1 + X1*grvar(random#[, {\em options}]#)#
+
+\end{itemize}
+
+\subsubsection*{Surface estimators}\index{Surface
+estimators}\index{Two-dimensional P-spline}\index{Kriging}
+
+\begin{itemize}
+\item[]{\bf\sffamily Two-dimensional P-spline with first order
+random walk penalty}
+
+\item[] {\em Description}:
+
+Defines a two-dimensional P-spline based on the tensor product of
+one-dimensional P-splines with a two-dimensional first order
+random walk penalty for the parameters of the spline. \item[] {\em
+Predictor}: $\eta= \cdots + f(X1,X2) + \cdots$ \item[] {\em
+Syntax}:
+
+#X1*X2(pspline2dimrw1#[, {\em options}]#)#
+\item[] {\em Example}:
+
+The model term
+
+#Y = X1*X2(pspline2dimrw1)#
+
+specifies a tensor product cubic P-spline with first order random
+walk penalty.
+
+In many applications it is favorable to additionally incorporate
+the one-dimensional main effects of #X1# and #X2# into the models.
+In this case the two-dimensional surface can be seen as the
+deviation from the main effects. Note, that in contrast to {\em
+bayesreg objects} the number of inner knots and the degree of the
+spline may be different for the main effects and for the
+interaction. For example, a model with 20 inner knots for the main
+effects and 10 inner knots for the two-dimensional P-spline is
+estimated by
+
+ #Y = X1(psplinerw2,nrknots=20) + X2(psplinerw2,nrknots=20)#\\
+ #    + X1*X2(pspline2dimrw1,nrknots=10)#
+
+\item[]{\bf\sffamily Stationary Gaussian random field}
+
+\item[] {\em Description}:
+
+Defines that the parameters of the locations follow a stationary
+Gaussian random field. Depending on the options chosen, locations
+are given either by the distinct pairs of #X1# and #X2# or by a
+subset of these pairs, which we will also refer to as knots. Note
+that in principle stationary Gaussian random fields can be used to
+estimate surfaces depending on arbitrary variables #X1# and #X2#,
+but they are defined based on {\em isotropic} correlation
+functions. This means that correlations between sites that have
+the same distance also have the same correlation, regardless of
+direction and the sites location. Therefore, if Gaussian random
+fields shall be used to estimate interactions between variables
+that do not represent longitude and latitude, these variables have
+to be standardized appropriately.
+
+\item[] {\em Predictor}: $\eta= \cdots + f(X1,X2) + \cdots$
+\item[] {\em Syntax}:
+
+#X1*X2(kriging#[, {\em options}]#)# \item[] {\em Example}:
+
+The model term
+
+#Y = X1*X2(kriging,nrknots=100)#
+
+specifies a stationary Gaussian random field for the effect of
+#X1# and #X2# with 100 knots, which are computed based on the
+space filling algorithm mentioned in section \ref*{spatial} of the
+methodology manual. If all distinct pairs of #X1# and #X2# shall
+be used as knots, we have to specify
+
+#Y = X1*X2(kriging,full)#
+
+Note, that the knots computed by the space filling algorithm will
+be stored in a file in the outfile directory of the {\em remlreg
+object} (the file name will be printed in the output window with
+the estimated effects). These knots can be read into a {\em
+dataset object} which may be passed to the kriging term if we want
+to use the same knots as in previous calls:
+
+ #dataset kn#\\
+ #kn.infile using #{\em knotfile}\\
+ #Y = X1*X2(kriging,knotdata=kn)#
+
+To determine the actual number of knots, the options are
+interpreted in a specific sequence. If option #full# is specified,
+both #nrknots# and #knotdata# are ignored. Similarly, #nrknots# is
+ignored if #knotdata# is specified.
+
+\end{itemize}
+
+\subsubsection{Description of additional options for terms of {\em remlreg objects}}
+\label{remlreglocaloptions}
+
+All arguments described in this section are optional and may be
+omitted. Generally, options are specified by adding the option name
+to the specification of the model term type in the parentheses,
+separated by commas. All options may be specified in arbitrary
+order. \autoref{remlregoptions} provides explanations and the
+default values of all possible options. All reasonable combinations
+of model terms and options can be found in
+\autoref{remlregtermsoptions}.
+
+\begin{table}[ht] \footnotesize \centering
+\begin{tabular}{|p{0.1\linewidth}|p{0.6\linewidth}|p{0.2\linewidth}|}
+ \hline
+ optionname & description & default\\
+ \hline\hline
+ #lambdastart# & Starting value for the smoothing parameter $\lambda$. & #lambdastart=10# \\
+ \hline
+ #degree# & Degree of B-spline basis functions. & #degree=3# \\
+ \hline
+ #nrknots# & Number of inner knots for a P-spline term or number of knots for a kriging term. & #nrknots=20# (P-splines)\newline #nrknots=100# (kriging)  \\
+ \hline
+ #knotdata# & {\em Dataset object} containing the knots to be used
+ with the kriging term & no default.\\
+ \hline
+ #full# & Specifies that all distinct locations should be used as
+ knots in the kriging term. & -\\
+ \hline
+ #nu# & The smoothness parameter $\nu$ of the Mat\`{e}rn correlation function for kriging terms. & #nu=1.5# \\
+ \hline
+ #maxdist# & Specifies the value $c$ that is used to determine the scale parameter $\rho$ of the Mat\`{e}rn correlation function for kriging terms. Compare section \ref*{spatial} of the methodology manual. & default depends on #nu#\\
+ \hline
+ #p# & Parameter $p$ of the coverage criterion for the space filling algorithm that determines the knots of a kriging term. & #p=-20#\\
+ \hline
+ #q# & Parameter $q$ of the coverage criterion for the space filling algorithm that determines the knots of a kriging term. & #q=20#\\
+ \hline
+ #maxsteps# & Maximum number of steps to be performed by the space filling algorithm. & #maxsteps=300#\\
+ \hline
+ #gridchoice# & How to choose grid points for numerical integration in Cox and multi-state models. May be either '#quantiles#', '#equidistant#' or '#all#'. & #gridchoice=quantiles# \\
+ \hline
+ #tgrid# & Number of equidistant time points to be used for numerical integration in Cox and multi-state models. Only meaningful if #gridchoice=equidistant#. & #tgrid=100#\\
+ \hline
+ #nrquantiles# & Number of quantiles that are used to define the grid points for numerical integration in Cox and multi-state models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#. & #nrquantiles=50#\\
+ \hline
+ #nrbetween# & Number of points between quantiles that are used to define the grid points for numerical integration in Cox and multi-state models. First a grid of #nrquantiles# quantiles is computed, then the grid for integration is defined by #nrbetween# equidistant points between each quantile. Only meaningful if #gridchoice=quantiles#.& #nrbetween=5#\\
+ \hline
+ #map# & {\em Map object} for spatial effects. & no default\\
+ \hline
+ #period# & Period of a seasonal effect. The default (#period=12#) corresponds to monthly data. & #period=12# \\
+ \hline
+ #catspecific# & Requests that the corresponding effect should be modelled category-specific. Can only be used in cumulative and sequential models for categorical responses, i.e. with response families #cumlogit#, #cumprobit#, #seqlogit# and #seqprobit#. & - \\
+ \hline
+ #center# & For varying coefficient terms this option requests that the effect should be centered to avoid identifiability problems& - \\
+ \hline
+\end{tabular}
+{\em \caption{\label{remlregoptions} Optional arguments for {\em
+remlreg object} terms.}}
+\end{table}
+
+\begin{sidewaystable} \footnotesize
+\begin{tabular}{|l||c|c|c|c|c|c|c|c|c|c|}
+
+\hline
+            & rw1/rw2       & season    & psplinerw1/psplinerw2    & spatial & random & geospline & pspline2dimrw1 & kriging  & geokriging & baseline\\
+ \hline\hline
+ #lambdastart#$^*$  & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue   & realvalue & realvalue  & realvalue & realvalue\\
+ \hline
+ #degree#       & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  $\times$ & $\times$ & integer\\
+ \hline
+ #nrknots#      & $\times$   & $\times$   &  integer   & $\times$ & $\times$ &  integer &  integer &  integer & $\times$ & integer\\
+ \hline
+ #knotdata#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ & {\em dataset object}& {\em dataset object} & $\times$\\
+ \hline
+ #full#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  $\triangle$ & $\triangle$ & $\times$\\
+ \hline
+ #nu#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  $\bullet$ &  $\bullet$ & $\times$\\
+ \hline
+ #maxdist#$^*$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue &  realvalue &  $\times$\\
+ \hline
+ #p#$^{**}$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue &  realvalue &  $\times$\\
+ \hline
+ #q#$^*$     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  realvalue &  realvalue &  $\times$\\
+ \hline
+ #maxsteps#     & $\times$   & $\times$   &  $\times$   & $\times$ & $\times$ &  $\times$ &  $\times$ &  integer  &  integer & $\times$\\
+ \hline
+ #gridchoice#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & $\circ$\\
+ \hline
+ #tgrid#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & integer\\
+ \hline
+ #nrquantiles#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & integer\\
+ \hline
+ #nrbetween#   & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$  & $\times$ & integer\\
+ \hline
+ #period#      & $\times$   & integer     & $\times$  & $\times$      & $\times$  & $\times$ & $\times$ & $\times$  & $\times$ & $\times$\\
+ \hline
+ #map#      & $\times$   & $\times$     & $\times$  & {\em map object}  & $\times$  & {\em map object} & $\times$ & $\times$ & {\em map object} & $\times$ \\
+ \hline
+ #catspecific#      & $\triangle$   & $\triangle$     & $\triangle$  & $\triangle$ & $\triangle$  & $\triangle$ & $\triangle$ & $\triangle$ & $\triangle$ & $\times$ \\
+ \hline
+ #center#      & $\triangle$   & $\triangle$     & $\triangle$  & $\triangle$ & $\times$  & $\triangle$ & $\times$ & $\times$ & $\triangle$ & $\times$ \\
+ \hline \hline
+ $^*$ & \multicolumn{10}{l|}{positive values only}\\
+ \hline
+ $^{**}$ & \multicolumn{10}{l|}{negative values only}\\
+ \hline
+ $\times$    & \multicolumn{10}{l|}{not available} \\
+ \hline
+ $\bullet$  & \multicolumn{10}{l|}{admissible values are #0.5,1.5,2.5,3.5#} \\
+ \hline
+ $\triangle$   & \multicolumn{10}{l|}{available as boolean option (specified without supplying a value)} \\
+ \hline
+ $\circ$  & \multicolumn{10}{l|}{admissible values are #quantiles#, #equidistant# and #all#} \\
+ \hline
+\end{tabular}
+{\em\centering \caption{\label{remlregtermsoptions} Terms and
+options for remlreg objects.}}
+\end{sidewaystable}
+
+\subsubsection{Specifying the response distribution}\index{Response
+distribution} \label{remlregfamilysyntax}
+
+Supported univariate distributions are Gaussian, binomial (with
+logit, probit or cumulative log-log link), Poisson and gamma. For
+multivariate responses, {\em BayesX} supports multinomial logit
+models for categorical responses with unordered categories and
+cumulative as well as sequential logit and probit models for
+categorical responses with ordered categories. Continuous survival
+times as well as multi-state models can be analysed based on
+semiparametric models with Cox-type hazard rates. An overview over
+the supported models is given in \autoref{remlregfamilyopt}. The
+distribution of the response is specified by adding the additional
+option #family# to the (global) options list of the regression call.
+For instance, #family=gaussian# defines the response to be Gaussian
+distributed. In some cases, one or more additional options
+associated with the specified response distribution can be
+specified. An example is the #reference# option for multinomial
+responses, which defines the reference category. In the following we
+give detailed instructions on how to specify the various models.
+
+\begin{table}[ht]
+\begin{center}
+\begin{tabular} {|l|p{5cm}|p{2.7cm}|p{1.7cm}|}
+ \hline
+ value of #family# & response distribution & link & options\\
+ \hline
+ \hline
+ #family=gaussian#            & Gaussian              & identity & \\
+ \hline
+ #family=binomial#            & binomial              & logit & \\
+ #family=binomialprobit#      & binomial              & probit & \\
+ #family=binomialcomploglog#      & binomial              & complementary log-log & \\
+ \hline
+ #family=multinomial#         & unordered multinomial & logit & #reference#\\
+ #family=multinomialcatsp#    & unordered multinomial (with category-specific covariates) & logit & #reference#\\
+ \hline
+ #family=cumprobit#           & cumulative multinomial   & probit & \\
+ #family=cumlogit#            & cumulative multinomial   & logit & \\
+ \hline
+ #family=seqprobit#           & sequential multinomial   & probit & \\
+ #family=seqlogit#            & sequential multinomial   & logit & \\
+ \hline
+ #family=poisson#             & Poisson               & log & \\
+ \hline
+ #family=gamma#               & gamma                 & log & \\
+ \hline
+ #family=cox#                 & continuous-time survival data & & #leftint#, #lefttrunc#\\
+ \hline
+ #family=multistate#                 & continuous-time multi-state data & & #state#, #lefttrunc#\\
+ \hline
+\end{tabular}
+{\em \caption {\label{remlregfamilyopt} Summary of supported
+response distributions.}}
+\end{center}
+\end{table}
+
+\subsubsection*{Gaussian responses}
+
+For Gaussian responses {\em BayesX} assumes $y_i | \eta_i,\sigma^2
+\sim N(\eta_i,\sigma^2/weightvar_i)$ or, equivalently, in matrix
+notation $y | \eta, \sigma^2 \sim N(\eta,\sigma^2C^{-1})$, where
+$C=diag(weightvar_1,\dots,weightvar_n)$ is a known weight matrix.
+Gaussian regression models are obtained by adding
+
+#family=gaussian#
+
+to the options list.
+
+An optional weight variable {\em weightvar} can be specified to
+estimate weighted regression models, see
+\autoref{weightspecification} for details. For grouped Gaussian
+responses, the weights represent the number of observations in the
+groups if the $y_i$'s are the average of individual responses. If
+the $y_i$s are the sum of responses in every group, the weights are
+given by the reciprocal of the number of observations in the groups.
+Of course, estimation of usual weighted regression models with
+heteroscedastic errors is also possible. In this case, the weights
+should be proportional to the reciprocal of the heteroscedastic
+variances. If no weight variable is specified, {\em BayesX} assumes
+$weightvar_i = 1$, $i=1,\dots,n$.
+
+\subsubsection*{Binomial logit, probit and complementary log-log
+models}
+
+A binomial logit model is requested by the option
+
+#family=binomial#
+
+while a probit model is obtained with
+
+#family=binomialprobit#
+
+and a complementary log-log model with
+
+#family=binomialcomploglog#
+
+A additional weight variable may be specified, see
+\autoref{remlregregresssyntax} for the syntax. {\em BayesX} assumes
+that the weight variable corresponds to the number of replications
+and the response variable to the number of successes. If the weight
+variable is omitted, {\em BayesX} assumes that the number of
+replications is one, i.e.~the values of the response must be either
+zero or one.
+
+\subsubsection*{Multinomial logit models}\index{Category-specific
+covariates}\index{Multinomial logit model!Category-specific
+covariates}
+
+So far, {\em remlreg objects} support only multinomial logit models
+and no probit models. A multinomial logit model without
+category-specific covariates is specified by adding the option
+
+#family=multinomial#
+
+to the options list.
+
+If there are category-specific covariates, the option has to be
+altered to
+
+#family=multinomialcatsp#
+
+Category-specific covariates are included as follows: Suppose that
+covariate #x# has been observed for a response variable with the
+three categories 1, 2 and 3. Then you have to include the three
+variable #x1#, #x2# and #x3# into your dataset. Within the
+regression syntax, you have to specify
+
+#x_catspecific#
+
+to request a parametric effect of #x#
+
+#x_catspecific(psplinerw2)#
+
+for a nonparametric effect of #x# and
+
+#x_catspecific*id(psplinerw2)#
+
+to obtain a random effect of #x# with respect to the grouping
+variable #id#. Currently BayesX only supports these three term types
+for effects of category-specific effects.
+
+For both #family=multinomial# and #family=multinomialcatsp# a second
+option (#reference#) can be added to the options list to define the
+reference category.  If the response variable has three categories
+1, 2 and 3, the reference category can be set to 2, by adding
+
+#reference=2#
+
+to the options list. If the option is omitted, the {\em smallest}
+number will be used as the reference category.
+
+\index{Availability indicators}\index{Multinomial logit
+Model!Availability indicators} If some categories are not available
+for some observations, {\em BayesX} can account for this by
+including either category-specific offsets or non-availability
+indicators. Suppose again that the response has the three categories
+1, 2 and 3. Then offset terms #o1#, #o2# and #o3# can be used to
+account for varying choice sets. If a category is available, the
+offset is simply set to zero, while a large negative value (i.e.
+-1000) has to be assigned to the offset term of categories which are
+not available. To account for the offset term,
+
+#o_catspecific(offset)#
+
+has to be added to the model specification. Of course, you can also
+assign different values to the offsets, e.g. to account for a priori
+differences in the availability of some categories.
+
+The usage of offset terms to account for non-availability may in
+some cases be numerically unstable (e.g. if several categories are
+not available or if the reference category is not available).
+Therefore an alternative possibility is to include non-availability
+indicators #na1#, #na2# and #na3#. Each of the indicators is
+assigned the value one if the corresponding category is not
+available and zero otherwise. Within the regression syntax, the
+non-availability indicator has to be specified as a global option,
+i.e.
+
+# ... , family=multinomialcatsp naindicator=na_catspecific#
+
+
+\subsubsection*{Cumulative logit and probit models}\index{Cumulative
+logit model}\index{Cumulative probit model}\index{Category-specific
+effects}\index{Cumulative logit model!Category-specific
+effects}\index{Cumulative probit model!Category-specific effects}
+
+A cumulative logit model is specified by adding
+
+#family=cumlogit#
+
+to the options list, a cumulative probit is obtained by
+
+#family=cumprobit#
+
+In both cases, the reference category will always be the largest
+value of the response.
+
+Note, that in contrast to {\em bayesreg objects} {\em remlreg
+objects} can deal with an arbitrary number of ordered categories.
+However, for more than about 5 categories estimation may become
+rather computer intensive and time demanding (depending on the size
+of your data set).
+
+By default, all effects in cumulative logit and probit models are
+considered to be defined globally. To obtain category-specific
+effects, the additional keyword #catspecific# has to be specified.
+For example, the specification of the predictor
+
+ #Y = W1(catspecific) + W2 + X1(psplinerw2, catspecific) + X2(psplinerw2)#
+
+requests category-specific effects for the covariates #W1# and #X1#,
+and global effects for the covariates #W2# and #X2#. Note that
+complicated ordering restrictions have to be fulfilled for the
+covariate-dependent thresholds defined implicitly by
+category-specific effects. Therefore numerical problems are likely
+to be observed in models with sparse data or a lot of
+category-specific effects.
+
+\subsubsection*{Sequential logit and probit models}\index{Sequential
+logit model}\index{Sequential probit model}\index{Category-specific
+effects}\index{Sequential logit model!Category-specific
+effects}\index{Sequential probit model!Category-specific effects}
+
+A sequential logit model is specified by adding
+
+#family=cumlogit#
+
+to the options list, while a sequential probit can be requested by
+
+#family=cumprobit#
+
+The reference category will always be the largest value of the
+response.
+
+Similar as in cumulative models, all effects in sequential logit and
+probit models are considered to be defined globally by default. To
+obtain category-specific effects, the additional keyword
+#catspecific# has to be specified. For example, the specification of
+the predictor
+
+ #Y = W1(catspecific) + W2 + X1(psplinerw2, catspecific) + X2(psplinerw2)#
+
+requests category-specific effects for the covariates #W1# and #X1#,
+and global effects for the covariates #W2# and #X2#. In contrast to
+cumulative models no ordering restrictions are imposed in sequential
+models.
+
+\subsubsection*{Poisson regression}
+
+A Poisson regression model is specified by adding
+
+#family=poisson#
+
+to the options list.
+
+A weight variable may be specified in addition, see
+\autoref{remlregregresssyntax} for the syntax. For grouped Poisson
+data, the weights must be the number of observations in a group and
+the responses are assumed to be the average of individual responses.
+
+\subsubsection*{Gamma distributed responses}
+
+In the literature, the density function of the gamma distribution is
+parameterized in various ways. In the context of regression
+analysis, the density is usually parameterized in terms of the mean
+$\mu$ and the scale parameter $s$. Then, the density of a gamma
+distributed random variable $y$ is given by
+\begin{equation}
+\label{remlgammapar1} p(y) \propto y^{s-1}\exp(-\frac{s}{\mu} y)
+\end{equation}
+for $y > 0$. For the mean and the variance we obtain $E(y) = \mu$
+and $Var(y) = \mu^2/s$. We write $y \sim G(\mu,s)$.
+
+A second parameterization is typically employed for hyperparameters
+#a# and #b# of priors for variance parameters in the context of
+Bayesian hierarchical models. In this case, the density is given by
+\begin{equation}
+\label{remlgammapar2} p(y) \propto y^{a-1}\exp(-b y)
+\end{equation}
+for $y>0$. In this parameterization we obtain $E(y) = a/b$ and
+$Var(y) = a/b^2$ for the mean and the variance, respectively. We
+write $y \sim G(a,b)$
+
+In {\em BayesX} a gamma distributed response variable is
+parameterised in the first form (\ref{remlgammapar1}). For the $r$th
+observation {\em BayesX} assumes  $y_r | \eta_r,\nu \sim
+G(\exp(\eta_r),\nu/weightvar_r)$ where $\mu_r = \exp(\eta_r)$ is the
+mean and $s=\nu/weightvar_r$ is the scale parameter. A gamma
+distributed response is specified by adding
+
+#family=gamma#
+
+to the options list. An optional weight variable {\em weightvar} can
+be specified to estimate weighted regression models, see
+\autoref{remlregregresssyntax} for the syntax.
+
+\subsubsection*{Continuous time survival analysis}
+
+\textit{BayesX} offers two alternatives of estimating continuous
+time survivals models with semiparametric predictor $\eta$, both of
+which are described in subsection \ref*{continuoustime} of the
+methodology manual. The first alternative is to assume that all
+time-dependent values are piecewise constant, leading to the so
+called \textit{piecewise exponential model} (p.e.m.). The second
+alternative is to estimate the log-baseline effect
+$\log(\lambda_0(t))=f_0(t)$ based on a P-spline with second order
+random walk penalty.
+
+\subsubsection*{Piecewise exponential model
+(p.e.m.)}\index{Piecewise exponential model}
+
+In subsection \ref*{continuoustime} of the methodology manual we
+demonstrated how continuous time survival data has to be manipulated
+to transform it to a Poisson for model estimation. Suppose that the
+following modified data set is available
+\vspace{0.5cm}\\
+\begin{tabular}{c|c|c|c|c|c|c}
+#y# & #indnr# & #a# & $\delta$ &  $\Delta$ &   #x1# &
+#x#2\\\hline\hline
+0 &  1 &   0.1 &   1  &  log(0.1) & 0  & 3\\
+0  & 1   & 0.2  &  1  &  log(0.1) & 0 &  3\\
+1  & 1   & 0.3  &  1  &  log(0.05)& 0  & 3\\\hline
+0 &  2 &   0.1 &   0 &   log(0.1) & 1 &  5\\
+0  & 2  &  0.2 &   0  &  log(0.02)& 1 &  5\\\hline
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$\\
+\end{tabular}
+\vspace{0.5cm}\\
+with indicator #y#, interval limit #a#, indicator of non-censoring
+$\delta$ and offset $\Delta$ defined as in subsection
+\ref*{continuoustime} of the methodology manual. Let #x1# be a
+covariate with linear effect and #x2# a continuous covariate with
+nonlinear effect. Then the correct syntax for estimating a
+p.e.m.~with a {\em remlreg object} named #r# is e.g.~as follows:
+
+ #> r.regress y = a(rw1) + Delta(offset) + x1 + x2(psplinerw2), family=poisson# $\ldots$
+
+or
+
+ #> r.regress y = a(rw2) + Delta(offset) + x1 + x2(psplinerw2), family=poisson# $\ldots$
+
+Note that a time-varying effect of an additional covariate #X# may
+be estimated by simply adding the term
+
+#X*a(rw1) or X*a(rw2)#
+
+to the model statement.
+
+\subsubsection*{Specifying a P-spline prior for the
+log-baseline}\index{Cox model}\index{Continuous time survival
+analysis}\index{Survival analysis}\index{Baseline}
+
+For a continuous time survival model with a P-spline prior with
+second order random walk penalty for the baseline effect,
+
+#family=cox#
+
+has to be specified in the options list. The number of knots and
+degree of the P-spline prior for $f_0(t)$ can be specified as
+additional options for the baseline term. Note that it is obligatory
+that there is a baseline term specified for the vector of observed
+duration times. The indicator of non-censoring $\delta_i$ has to be
+specified as the dependent variable in the model statement. Data
+augmentation and the specification of an offset term are not
+required here. In the example above with survival data
+
+\vspace{0.5cm}
+
+\begin{tabular}{c|c|c|c}
+  #t# &   $\delta$ &  #x1# &  #x2#\\\hline\hline
+0.25  &  1  &    0  &  3\\\hline 0.12  &  0  &    1  &  5\\\hline
+$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ \\
+\end{tabular}
+\vspace{0.5cm}\\
+a continuous time survival model with a quadratic P-spline prior
+with 15 knots for the log-baseline would be estimated as follows:
+
+ #> r.regress delta = t(baseline,degree=2,nrknots=15)+ x1 + x2(psplinerw2),#\\
+ #  family=cox# \ldots
+
+Again a time-varying effect of a covariate #X# can be estimated by
+simply adding the term
+
+#X*time(baseline)#
+
+to the model statement.
+
+\subsubsection*{Interval censoring and left truncation}
+\index{Interval censoring} \index{Left truncation} \index{Left
+censoring}
+
+Interval censoring and left truncation can be incorporated using the
+additional options #leftint# and #lefttrunc# of {\em remlreg
+objects}. These two variables represent the lower interval boundary
+$T_{lo}$ and the left truncation time $T_{tr}$ as discussed in
+section \ref*{intervalcensoring} of the methodology manual. The time
+variable specified in the baseline statement corresponds to
+$T_{up}$, the upper boundary of the interval. In general an
+observation can now be described completely by the quadruple
+$(T_{tr},T_{lo},T_{up},\delta)$, with
+\begin{center}
+\begin{tabular}{ll}
+$T_{lo}=T_{up}$, $\delta=1$ & if the observation is uncensored,\\
+$T_{lo}=T_{up}$, $\delta=0$ & if the observation is right censored,\\
+$T_{lo}<T_{up}$, $\delta=0$ & if the observation is interval censored.\\
+\end{tabular}
+\end{center}
+For left truncated observations we have $T_{tr}>0$ while $T_{tr}=0$
+for observations which are not truncated.
+
+An example for a statement that estimates a model with left
+truncation and interval censoring is given by
+
+ #> r.regress delta = tup(baseline)+ x1 + x2(psplinerw2), family=cox#\\
+ #  lefttrunc=ttr leftint=tlo# \ldots
+
+\subsubsection*{Continuous time multi-state
+models}\index{Multi-state model}
+
+Multi-state models describe the temporal development of discrete
+phenomena in continuous time based on transition intensities for
+each of the observable transition types. Consider for example a
+multi-state model for human sleep as depicted in
+\autoref{msmsleep_illustration_reml} and that the transition
+intensities for the four possible transitions are specified as
+\begin{center}
+\begin{tabular}{rcl}
+ $\lambda_{AS,i}(t)$ & $=$ & $\exp\left[g_0^{(AS)}(t) + b_i^{(AS)}\right],$\\[2mm]
+ $\lambda_{SA,i}(t)$ & $=$ & $\exp\left[g_0^{(SA)}(t) + b_i^{(SA)}\right],$\\[2mm]
+ $\lambda_{NR,i}(t)$ & $=$ & $\exp\left[g_0^{(NR)}(t) + c_i(t)g_1^{(NR)}(t) + b_i^{(NR)}\right]$\\[2mm]
+ $\lambda_{RN,i}(t)$ & $=$ & $\exp\left[g_0^{(RN)}(t) + c_i(t)g_1^{(RN)}(t) + b_i^{(RN)}\right]$
+\end{tabular}
+\end{center}
+Each of the transitions is parameterised in terms of a baseline
+effect $g_0^{(h)}(t)$ and a transition specific frailty term (random
+effect) $b_i^{(h)}$. In addition, time-varying effects
+$g_1^{(h)}(t)$ of binary indicators $c_i(t)$ for a high blood level
+of cortisol are introduced for the transitions between REM and
+Non-REM.
+
+\begin{figure}
+\begin{center}
+\setlength{\unitlength}{0.7cm}
+\begin{picture}(15,7)
+ \put(0,0) {\framebox(15,7){ }}
+ \put(0.5,0.5) {\framebox(14,3){ }}
+
+ \put(5.5,5.5) {\framebox(4,1){\sf Awake}}
+ \put(1.5,1.5) {\framebox(4,1){\sf Non-REM}}
+ \put(9.5,1.5) {\framebox(4,1){\sf REM}}
+
+ \put(0.7,2.8) {\makebox(2,0.5)[lt]{\sf Sleep}}
+
+ \put(7,5.25) {\vector(0,-1){1.5}}
+ \put(8,3.75) {\vector(0,1){1.5}}
+
+ \put(6.25,2.25) {\vector(1,0){2.5}}
+ \put(8.75,1.75) {\vector(-1,0){2.5}}
+
+ \put(6.5,0.9) {\makebox(2,0.75){\small$\lambda_{RN}(t)$}}
+ \put(6.5,2.35) {\makebox(2,0.75){\small$\lambda_{NR}(t)$}}
+
+ \put(5,4) {\makebox(1.5,1){\small$\lambda_{AS}(t)$}}
+ \put(8.5,4) {\makebox(1.5,1){\small$\lambda_{SA}(t)$}}
+
+\end{picture}
+\caption{Schematic representation of sleep stages and transitions of
+interest.\label{msmsleep_illustration_reml}}
+\end{center}
+\end{figure}
+
+The corresponding data set should be arranged as follows:
+
+\begin{verbatim}
+ id  st  beg    end  tas tsa trn tnr cort corthigh
+ 1   2   0      1    0   1   0   0   52.6  0
+ 1   1   1      5    1   0   0   0   52.6  0
+ 1   2   5      8    0   1   0   0   52.6  0
+ 1   1   8      10   1   0   0   0   52.6  0
+ 1   2   10     36   0   0   0   0   52.6  0
+ 1   2   36     76   0   0   0   0   46.9  0
+ 1   2   76     108  0   0   0   1   47.5  0
+ 1   3   108    109  0   0   1   0   47.5  0
+ 1   2   109    110  0   0   0   1   47.5  0
+ 1   3   110    111  0   0   1   0   47.5  0
+ 1   2   111    115  0   0   0   1   47.5  0
+ 1   3   115    116  0   0   0   0   47.5  0
+ 1   3   116    126  0   0   1   0   37.4  0
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ 2   2   0      12    0   1   0   0   22.5  0
+ 2   1   12     15    1   0   0   0   22.5  0
+ 2   1   15     28    0   1   0   0   88.6  1
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+ .   .    .      .   .   .   .   .     .   .
+\end{verbatim}
+
+Each path observed for the multi-state model is transformed into
+several lines in the data set, where #id# identifies the original
+paths. In the above example, parts of the first two observations are
+displayed. Each line of the data set represents a time interval
+identified by the variables #beg# and #end#. Variable #st# indicates
+the current state of the process. Note that the states have to be
+numbered consecutively from 1 to $H$. Since we are considering
+continuous time scales, an observation should start at $t=0$ (unless
+the observation is left truncated) and the variables #beg# and #end#
+should be generated so that within each observation process #beg#
+equals the value of #end# in the previous row (unless observations
+are fragmentary only).
+
+The variables #tas#, #tsa#, #trn# and #tnr# are binary indicators
+for the four transitions sleep $\rightarrow$ awake (#tsa#), awake
+$\rightarrow$ sleep (#tas#), Non-REM $\rightarrow$ REM (#tnr#) and
+REM $\rightarrow$ Non-REM (#trn#). Such an indicator equals one if
+the corresponding transition is observed at the end of the interval
+and zero otherwise. Note that there are lines in the data set, where
+none of the transitions is observed. These correspond to intervals
+where the value of the time-varying covariate #cort#
+(cortisol-level) changes. The variable #corthigh# is a dichotomized
+version of #cort# which indicates a high level of cortisol
+(#cort#$>$60).
+
+The model specified above is estimated by entering the following
+command
+
+\label{msm_code}
+\begin{verbatim}
+> remlreg msm
+> msm.mregress tas = end(baseline) + id(random):
+               tsa = end(baseline) + id(random):
+               trn = end(baseline) + corthigh*end(baseline) + id(random):
+               tnr = end(baseline) + corthigh*end(baseline) + id(random),
+ family=multistate lefttrunc=beg state=st using sleep
+\end{verbatim}
+
+Note that a separate model equation has to specified for each
+transition with the binary transition indicator as response. Instead
+of method #regress#, method #mregress# has to be called since
+multiple model equations are combined. The right and the left
+boundary of the time intervals have to specified as covariate for
+the the baseline effect and as global option #lefttrunc#,
+respectively. Similarly, the state variable has to specified via the
+global option #state#.
+
+\subsection{Options}
+\label{remlregregressoptions}
+
+\subsubsection*{Options for controlling the estimation process}
+\label{remlest_options}
+
+\begin{itemize}
+\item #eps = #{\em realvalue } \\
+Defines the termination criterion of the estimation process. If both
+the relative changes in the regression coefficients and the variance
+parameters are less than #eps#, the estimation process is
+assumed to have converged.\\
+DEFAULT: #eps = 0.00001#
+
+\item #lowerlim = #{\em realvalue } \\
+Since small variances are close to the boundary of their parameter
+space, the usual Fisher-scoring algorithm for their determination
+has to be modified. If the fraction of the penalized part of an
+effect relative to the total effect is less than #lowerlim#, the
+estimation of the corresponding variance is stopped and the
+estimator is defined to be the current value of the variance (see
+section \ref*{glmmmeth} of the methodology manual for details).\\
+DEFAULT: #lowerlim = 0.001#
+
+\item #maxit = #{\em integer } \\
+Defines the maximum number of iterations to be used in estimation.
+Since the estimation process will not necessarily converge, it may
+be useful to define an upper bound for the number of iterations.
+Note, that {\it BayesX} returns results based on the current values
+of all parameters even if no convergence could be achieved within
+#maxit# iterations, but a warning message will be printed
+in the {\it output window}.\\
+DEFAULT: #maxit=400#
+
+\item #maxchange = #{\em realvalue } \\
+Defines the maximum value that is allowed for relative changes in
+parameters in one iteration to prevent the program from crashing
+because of numerical problems. Note, that {\it BayesX} produces
+results based on the current values of all parameters even if the
+estimation procedure is stopped due to numerical problems, but an
+error message will be printed in the {\it output window}.\\
+DEFAULT: #maxchange=1000000#
+\end{itemize}
+
+\subsubsection*{Options for the analysis of survival times and multi-state models}
+\label{remlest_survival_options}
+
+\begin{itemize}
+\item #leftint = #{\em variablename}\\
+Gives the name of the variable that contains the lower (left)
+boundary $T_{lo}$ of the interval $[T_{lo},T_{up}]$ for an interval
+censored observation. For right censored or uncensored observations
+we have to specify $T_{lo}=T_{up}$. If #leftint# is missing, all
+observations are assumed to be right censored or uncensored,
+depending on the corresponding value of the censoring indicator.
+
+\item #lefttrunc = #{\em variablename}\\
+Option #lefttrunc# specifies the name of the variable containing the
+left truncation time $T_{tr}$. For observations that are not
+truncated, we have to specify $T_{tr}=0$. If #lefttrunc# is missing,
+all observations are assumed to be not truncated. For multi-state
+models variable #lefttrunc# specifies the left endpoint of the
+corresponding time interval (compare page~\pageref{msm_code}).
+
+\item #state = #{\em variablename}\\
+For multi-state models, #state# specifies the current state of the
+process (compare page~\pageref{msm_code}).
+\end{itemize}
+
+\subsubsection*{Further options} \label{remlreg_further_options}
+
+\index{Credible intervals} \index{Credible intervals!Changing the
+nominal level} \index{Changing the nominal level of credible
+intervals}\index{Remlreg object!Credible intervals}
+\begin{itemize}
+\item \label{remlreglevel1} #level1 = #{\em integer} \\
+Besides the posterior mode, #regress# provides (approximate)
+pointwise posterior credible intervals for every effect in the
+model. By default, {\em BayesX} computes credible intervals for
+nominal levels of 80\% and 95\%. The option #level1# allows to
+redefine one of the nominal levels (95\%). Adding, for instance,
+
+#level1=99 #
+
+to the options list leads to the computation of credible intervals
+for a nominal level of 99\% rather than 95\%.
+\item \label{remlreglevel2} #level2 = #{\em integer} \\
+Besides the posterior mode, #regress# provides (approximate)
+pointwise posterior credible intervals for every effect in the
+model. By default, {\em BayesX} computes credible intervals for
+nominal levels of 80\% and 95\%. The option #level2# allows to
+redefine one of the nominal levels (80\%). Adding, for instance,
+
+#level2=70#
+
+to the options list leads to the computation of credible intervals
+for a nominal level of 70\% rather than 80\%.
+\end{itemize}
+
+\subsection{Estimation output}
+
+The way the estimation output is presented depends on the estimated
+model. Estimation results for fixed effects are displayed in a
+tabular form in the {\em output window} and/or in a log file (if
+created before). This table will contain the posterior mode, the
+standard deviation, p-values and an approximate 95\% credible
+interval. Other credible intervals may be obtained by specifying the
+#level1# option, see \autoref{remlregregressoptions} for details.
+Additionally, a file replicating results for the fixed effects is
+created. The name of this file is supplied in the {\em output
+window} and/or in a log file.
+
+Estimated nonparametric effects are presented in a different way.
+Here, results are stored in external ASCII-files that can be read
+into any general purpose statistics program (e.g. STATA, R, S-plus)
+to further analyze and/or visualize the results. The structure of
+these files is as follows: There will be one file for every
+nonparametric effect in the model. The names of the files and the
+storing directory are displayed in the {\em output window} and/or a
+log file. The files contain ten columns (for main effects) or eleven
+columns (for interaction effects). The first column contains a
+parameter index (starting with one), the second column (and the
+third column if the estimated effect is an interaction) contain the
+values of the covariate(s) whose effect has been estimated. In the
+following columns the estimation results are given in form of the
+posterior mode, the lower boundaries of the (approximate) 95\% and
+80\% credible intervals, the standard deviation and the upper
+boundaries of the 80\% and 95\% credible intervals. The last two
+columns contain approximations to the posterior probabilities based
+on nominal levels of 95\% and 80\%. A value of 1 corresponds to a
+strictly positive 95\% or 80\% credible interval while a value of -1
+to a strictly negative credible interval. A value of 0 indicates
+that the corresponding credible interval contains zero. Other
+credible intervals and posterior probabilities may be obtained by
+specifying the #level1# and/or #level2# option, see
+\autoref{remlregregressoptions} for details. As an example, compare
+the following lines, which are the beginning of a file containing
+the results for a nonparametric effect of a particular covariate, x
+say:
+
+\footnotesize
+ intnr \,\, x \,\, pmode \,\, ci95lower \,\, ci80lower \,\, std \,\, ci80upper \,\, ci95upper \,\, pcat95 \,\, pcat80\\
+ 1 \,\, -2.87694 \,\, -0.307921 \,\, -0.886815 \,\, -0.686408 \,\, 0.295295 \,\, 0.070567   \,\, 0.270973 \,\, 0 \,\, 0\\
+ 2 \,\, -2.86203 \,\, -0.320479 \,\, -0.885375 \,\, -0.689815 \,\, 0.288154 \,\, 0.0488558  \,\, 0.244416 \,\, 0 \,\, 0\\
+ 3 \,\, -2.8515  \,\, -0.329367 \,\, -0.88473  \,\, -0.69247  \,\, 0.283292 \,\, 0.0337362  \,\, 0.225997 \,\, 0 \,\, 0\\
+ 4 \,\, -2.85066 \,\, -0.330072 \,\, -0.884692 \,\, -0.692689 \,\, 0.282913 \,\, 0.0325457  \,\, 0.224549 \,\, 0 \,\, 0\\
+ 5 \,\, -2.82295 \,\, -0.3535   \,\, -0.884544 \,\, -0.700703 \,\, 0.270887 \,\,-0.00629671 \,\, 0.177545 \,\, 0 \,\, -1\\
+ 6 \,\, -2.79856 \,\, -0.37418  \,\, -0.886192 \,\, -0.708939 \,\, 0.261178 \,\,-0.0394208  \,\, 0.137832 \,\, 0 \,\, -1\\
+ 7 \,\, -2.79492 \,\, -0.377272 \,\, -0.886579 \,\, -0.710263 \,\, 0.259798 \,\,-0.0442813  \,\, 0.132035 \,\, 0 \,\, -1\\
+ 8 \,\, -2.79195 \,\, -0.379788 \,\, -0.886921 \,\, -0.711358 \,\, 0.258689 \,\,-0.0482183  \,\, 0.127345 \,\, 0 \,\, -1\\
+ 9 \,\, -2.78837 \,\, -0.382834 \,\, -0.887367 \,\, -0.712704 \,\, 0.257363 \,\,-0.0529641  \,\, 0.1217   \,\, 0 \,\, -1
+\normalsize
+
+Note that the first row of the files always contains the names of
+the columns.
+
+The estimated nonlinear effects can be visualized by using either the graphics capabilities of {\em BayesX} or the {\it BayesX}
+R package, see \autoref{bayesxplot} and \autoref{rpackage}, respectively. Of course, any other (statistics) software package
+with plotting facilities may be used as well.
+
+Estimation results for the variances and the smoothing parameters of nonparametric effects are printed in the {\em output
+window} and/or a log file. Additionally, a file is created containing the same information. For example, the file corresponding
+to the nonparametric effect presented above contains:
+
+\footnotesize
+ variance \,\, smoothpar \,\, stopped\\
+ 0.0492324 \,\, 20.3118 \,\, 0
+\normalsize
+
+The value in the last row indicates whether the estimation of the
+variance has been stopped before convergence. A value of 1
+corresponds to a 'stopped' variance.
+
+\subsection{Examples}
+
+Here we give only a few examples about the usage of method
+#regress#. A more detailed, tutorial like example can be found in
+chapter \ref*{remlregzambiaanalysis} of the tutorial manual.
+
+Suppose that we have a data set #test# with a binary response
+variable #y#, and covariates #x1#, #x2#, #x3#, #t# and #region#,
+where #t# is assumed to be a time scale measured in months and
+#region# indicates the geographical region an observation belongs
+to. Suppose further that we have already created a {\em remlreg
+object} #r#.
+
+\subsubsection*{Fixed effects}
+
+We first specify a model with #y# as the response variable and
+fixed effects for the covariates #x1#, #x2# and #x3#. Hence the
+predictor is
+
+$$
+\eta = \gamma_0 + \gamma_1 x1 + \gamma_2 x2 + \gamma_3 x3
+$$
+
+This model is estimated by typing:
+
+#> r.regress y = x1 + x2 + x3, family=binomial using test#
+
+By specifying option #family=binomial#, a binomial logit model is
+estimated. A probit model can be obtained by specifying
+#family=binomialprobit#.
+
+\subsubsection*{Additive models}
+
+Suppose now that we want to allow for possibly nonlinear effects
+of #x2# and #x3#. Defining cubic P-splines with second order
+random walk penalty as smoothness priors, we obtain
+
+ #> r.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), family=binomial using test#
+
+which corresponds to the predictor
+
+$$
+\eta = \gamma_0 + \gamma_1 x1 + f_1(x2) + f_2(x3).
+$$
+
+If the response is not binary but categorical with unordered
+categories 1, 2 and 3, we can estimate a multinomial logit model by
+typing:
+
+ #> r.regress y = x1 + x2(psplinerw2) + x3(psplinerw2), family=multinomial#\\
+ #  reference=2 using test#
+
+In this case, #family=binomial# has to be altered to
+#family=multinomial#, and the option #reference=2# was added to
+define the value 2 as the reference category.
+
+\subsubsection*{Time scales}
+
+In the next step we extend the model by incorporating an additional
+trend and a flexible seasonal component for the time scale #t#:
+
+ #> r.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) +  #\\
+ #  t(psplinerw2) + t(season,period=12), family=binomial using test#
+
+Note that we passed the period of the seasonal component as a
+second argument.
+
+\subsubsection*{Spatial covariates}
+
+To incorporate a structured spatial effect, we have to create a {\em
+map object} first. Afterwards we read the boundary information of
+the different regions (polygons that form the regions, neighbors
+etc.). If you are unfamiliar with {\em map objects} please read
+\autoref{map} first.
+
+#> map m# \\
+#> m.infile using c:\maps\map.bnd#
+
+Since we usually need the map again in further sessions, we store
+it in {\em graph file} format, because reading {\em graph files}
+is much faster than reading {\em boundary files}.
+
+#> m.outfile , graph using c:\maps\mapgraph.gra#
+
+We can now augment our predictor with a spatial effect:
+
+ #> r.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2)#\\
+ #  + t(season,period=12) + region(spatial,map=m), family=binomial using test#
+
+In some situations it may be reasonable to incorporate  an
+additional unstructured  random effect into the model in order to
+split the total spatial effect into a structured and an unstructured
+component. This is achieved by
+
+#> r.regress y = x1 + x2(psplinerw2) + x3(psplinerw2) + t(psplinerw2)#\\
+#  + t(season,period=12) + region(spatial,map=m) + region(random),#\\
+#  family=binomial using test#
+
+\section{Global options}
+\label{remlregglobopt} \index{Remlreg object!Global options}
+
+The purpose of global options is to affect the global behavior of
+a {\em remlreg object}. The main characteristic of global options
+is, that they are not associated with a certain method.
+
+The syntax for specifying global options is
+
+{\em objectname}.{\em optionname} = {\em newvalue}
+
+where {\em newvalue} is the new value of the option. The type of
+the value depends on the respective option.
+
+Currently only one global option is available for {\em remlreg
+objects}:
+
+\begin{itemize}
+\item #outfile = #{\em filename} \\
+By default, the estimation output produced by the #regress#
+procedure will be written to the default output directory, which
+is
+
+{\em$<$INSTALLDIRECTORY$>$}#\output#
+
+The default file name is composed of the name of the {\em remlreg
+object} and the type of the file. For example, if you estimated a
+nonparametric effect for a covariate #X#, say, using a P-spline,
+then the estimation output will be written to
+
+{\em$<$INSTALLDIRECTORY$>$}#\output\r_f_X_pspline.res#
+
+where #r# is the name of the {\em remlreg object}. In most cases,
+however, it may be necessary to save estimation results into a
+different directory and/or under a different file name than the
+default. This can be achieved using the #outfile# option. Here, you
+have to specify the directory where the output should be stored and
+a base file name. This base file name should not be a complete file
+name. For example specifying
+
+#outfile = c:\data\res1#
+
+would cause {\em BayesX} to store the estimation result for the
+nonparametric effect of #X# in file
+
+#c:\data\res1_f_X_pspline.res#
+\end{itemize}
+
+\section{Visualizing estimation results}
+
+Visualization of estimation results is described in
+\autoref{visualization}
