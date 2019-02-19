@@ -22,7 +22,7 @@ inference. More details can be found in the references cited above and in the bo
 Gaussian linear models
 
 $$
-y \sim (\eta,\sigma^2)  
+y \sim N(\eta,\sigma^2)
 $$
 where
 $$
@@ -37,9 +37,9 @@ where
 $$
 \pi = E(y) = F(\eta) = F(\beta_0 + \beta_1 x_1 + \ldots + \beta_k x_k)
 $$
-and 
+and
 $$
-F(\eta) = \Phi(\eta) \mbox{ or } F(\eta) = \frac{\exp(\eta)}{1+\exp(\eta)} 
+F(\eta) = \Phi(\eta) \mbox{ or } F(\eta) = \frac{\exp(\eta)}{1+\exp(\eta)}
 $$
 
 Poisson regression
@@ -53,15 +53,15 @@ $$
 
 Other distributions see ??
 
-Additive predictor. 
+Additive predictor.
 
-Replace 
+Replace
 $$
 \eta = \beta_0 + \beta_1 x_1 + \ldots + \beta_k x_k
 $$
 by
 $$
-\eta = f(z_{1}) + \ldots + f(z_{q}) + \beta_0 + \beta_1 x_{1} + \ldots + \beta_k x_{k}
+\eta = f_1(z_{1}) + \ldots + f_q(z_{q}) + \beta_0 + \beta_1 x_{1} + \ldots + \beta_k x_{k}
 $$
 
 For modeling $f_j$ see ??
@@ -73,16 +73,16 @@ All models are estimated using method #hregress#. The general syntax is \\
 #> #{\em objectname}.#hregress# {\em model} [#weight# {\em weightvar}] [#if# {\em expression}] [{\em , options}] #using# {\em dataset} \\
 
 Method #hregress# estimates the regression model specified in {\em
-model} using the data specified in {\em dataset}, which is 
-the name of a {\em dataset object} created before. 
+model} using the data specified in {\em dataset}, which is
+the name of a {\em dataset object} created before.
 
 The distribution of the response variable can be chosen from a wide
 range of uni- and even multivariate distributions. It is
 specified using option
-#family#, e.g. #family=gaussian# for Gaussian linear or additive models. 
+#family#, e.g. #family=gaussian# for Gaussian linear or additive models.
 For a comprehensive list of available distributions compare \autoref{mcmcreg_distributions}.
 The default value is #family=gaussian#
-with an identity link.  
+with an identity link.
 
 An #if# statement may be specified to analyze
 only parts of the data set, i.e.~the observations where {\em
@@ -100,9 +100,9 @@ where {\em depvar} specifies the dependent variable in the model
 and $term_1$,\dots,$term_r$ define the specific form of covariate
 effects on the dependent variable. The different terms have to be
 separated by '+' signs. A constant intercept is NOT automatically
-included in the models and must be specified using the term #const#. 
+included in the models and must be specified using the term #const#.
 All terms may be combined
-in arbitrary order. 
+in arbitrary order.
 The following model statement specifies a model with $q$ linear effects and an intercept: \\
 
 \texttt{Y = const + W1 + W2 + $\cdots$ + Wq} \\
@@ -119,7 +119,7 @@ with 30 knots and a first order random walk prior: \\
 
 
 
-A comprehensive overview about  possible model terms including 
+A comprehensive overview about  possible model terms including
 spatial effects, two dimensional nonlinear effects, etc. is given in \autoref{mcmcreg_modelterms}.
 
 
@@ -133,7 +133,7 @@ Examples..
 
 
 
- 
+
 
 \subsection{Examples}
 
@@ -153,9 +153,8 @@ Examples..
 
 \subsection{Examples}
 
-\subsection{Overview on available Distributions}
+\section{Overview on Available Response Distributions}
 \label{mcmcreg_distributions}
-
 
 \section{Overview on Model Terms}
 \label{mcmcreg_modelterms}

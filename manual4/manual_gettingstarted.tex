@@ -10,6 +10,38 @@ Allah Regressionsbuch (Ch. 2)
 
 \section{Available Versions}
 
+\section{Available versions of BayesX}
+ \label{availableversions} 
+ \index{Command line version} 
+ \index{R2BayesX}
+
+\BayesX is available in two different versions: A simple command line version implemented in C++ including the computational kernel for all methods available and a second version within the R package {\it R2BayesX}
+
+\subsection{Command Line Version}
+
+The command line version of \BayesX provides all functionality for estimating various types of structured additive regression models. However, it only offers quite limited functionality concerning the handling of data sets or geographical information. 
+
+The command line version has to be installed from the source code available from
+
+requires make/cmake, C++ compiler, etc.
+
+
+
+The second version of \BayesX is a command line version that is based purely on C++ and comes without any graphics
+facilities. While the GUI version is provided as a pre-compiled binary with an easy to use installer, the command line
+version is provided in terms of source code and has to be compiled on your system. A makefile is provided that assumes that
+the GNU C++ compiler is available on your system. Hence, the command line version is suitable for any operating system that
+supports the GNU compiler family and has been successfully tested on Windows, Linux and Mac OS. In addition, the cmake toolchain can be used to generate customized makefiles.
+
+As a supplement to both versions, supplementing R packages are available from CRAN (\href{http://www.r-project.org}{http://www.r-project.org}). The package  \BayesX provides functionality for reading, creating and manipulating maps in R as well as some customized visualisation tools. The packages {\it R2BayesX} and {\it BayesR} provide access to \BayesX from within R such that models can be estimated in the usual R formula syntax. Note that not all features described in this manual will be supported by the two latter packages.
+
+The current releases of both {\em BayesX} versions can be downloaded from \href{http://www.bayesx.org}
+{http://www.bayesx.org}.
+
+Most of this manual applies for both versions of \BayesX. However, those parts that deal with visualisation of data sets
+or estimation results are exclusively for the GUI version.
+
+
 \section{Documentation}
 
 \section{General Usage}

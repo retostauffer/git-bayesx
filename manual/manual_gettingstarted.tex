@@ -16,36 +16,36 @@ the later chapters.
 \label{availableversions} \index{GUI version} \index{Command line version} \index{Versions} \index{Versions!GUI}
 \index{Versions!Command line}
 
-Currently, {\it BayesX} is available in two different versions. The first one includes a graphical user interface that enables
-visualisation of estimated effects. While the computational kernel of {\it BayesX} has been implemented in C++, the graphical
+Currently, \BayesX is available in two different versions. The first one includes a graphical user interface that enables
+visualisation of estimated effects. While the computational kernel of \BayesX has been implemented in C++, the graphical
 user interface has been implemented in Java.
 
-The second version of {\it BayesX} is a command line version that is based purely on C++ and comes without any graphics
+The second version of \BayesX is a command line version that is based purely on C++ and comes without any graphics
 facilities. While the GUI version is provided as a pre-compiled binary with an easy to use installer, the command line
 version is provided in terms of source code and has to be compiled on your system. A makefile is provided that assumes that
 the GNU C++ compiler is available on your system. Hence, the command line version is suitable for any operating system that
 supports the GNU compiler family and has been successfully tested on Windows, Linux and Mac OS. In addition, the cmake toolchain can be used to generate customized makefiles.
 
-As a supplement to both versions, supplementing R packages are available from CRAN (\href{http://www.r-project.org}{http://www.r-project.org}). The package  {\it BayesX} provides functionality for reading, creating and manipulating maps in R as well as some customized visualisation tools. The packages {\it R2BayesX} and {\it BayesR} provide access to {\it BayesX} from within R such that models can be estimated in the usual R formula syntax. Note that not all features described in this manual will be supported by the two latter packages.
+As a supplement to both versions, supplementing R packages are available from CRAN (\href{http://www.r-project.org}{http://www.r-project.org}). The package  \BayesX provides functionality for reading, creating and manipulating maps in R as well as some customized visualisation tools. The packages {\it R2BayesX} and {\it BayesR} provide access to \BayesX from within R such that models can be estimated in the usual R formula syntax. Note that not all features described in this manual will be supported by the two latter packages.
 
 The current releases of both {\em BayesX} versions can be downloaded from \href{http://www.bayesx.org}
 {http://www.bayesx.org}.
 
-Most of this manual applies for both versions of {\it BayesX}. However, those parts that deal with visualisation of data sets
+Most of this manual applies for both versions of \BayesX. However, those parts that deal with visualisation of data sets
 or estimation results are exclusively for the GUI version.
 
 \section{Installing BayesX}\label{installbayesx}
 \index{Installation} \index{Installation directories}
 
-Depending on the version of {\it BayesX} you are planning to use, there are two different ways to install it on your computer.
+Depending on the version of \BayesX you are planning to use, there are two different ways to install it on your computer.
 For the GUI version, you have to download the installation routine from the {\em BayesX} homepage and execute it (with
 administrator privileges for Windows Vista). The installation routine will request all necessary information during the
 installation process. Note that it is recommended to install BayesX in a directory without spaces in the path name. When {\em
 BayesX} has been installed successfully, it can be started using the {\em Windows Start} button or the icon created on the
 desktop (depending on your specifications during the installation process).
 
-For the command line version, you have to unpack the zip archive containing the source code of {\it BayesX}. If you have the
-make facility available, you can simply type #make BayesX# in the shell and {\it BayesX} will be compiled. Depending on your
+For the command line version, you have to unpack the zip archive containing the source code of \BayesX. If you have the
+make facility available, you can simply type #make BayesX# in the shell and \BayesX will be compiled. Depending on your
 operating system, some minor modifications of the make file (for example relating to the version of the GNU compiler you have
 installed or the location of the readline library) may be necessary.
 
@@ -86,13 +86,13 @@ BayesX}. The methodology manual provides background information on the statistic
 BayesX}. In this manual, you will also find more references on the methodological background. The tutorial manual is intended
 to make new users familiar with the usage of {\em BayesX} by demonstrating examples. It contains three self-contained
 tutorials, describing how to perform semiparametric regression analyses using {\em BayesX}. All three manuals can be found in
-the #doc# directory (a subdirectory of the installation directory). In the GUI version of {\it BayesX}, the manuals are
+the #doc# directory (a subdirectory of the installation directory). In the GUI version of \BayesX, the manuals are
 also available from the help menu.
 
 \section{Windows and buttons in BayesX}\label{bayesxwindows}
 \index{Windows}
 
-This section only applies to the GUI version of {\it BayesX}
+This section only applies to the GUI version of \BayesX
 
 After starting {\em BayesX} you will see a main window with a menu bar and four additional subwindows. The four windows are the
 {\em command window}, the {\em output window}, the {\em review window} and the {\em object browser}. The purpose of these
