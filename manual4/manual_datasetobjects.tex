@@ -1,106 +1,83 @@
-\chapter{dataset objects} \label{chap_data}
-\label{datasetobj} \index{Dataset objects} \index{Dataset}
+\chapter{dataset objects} 
+ \label{chap_data}
+ \label{datasetobj} 
+ \index{Dataset objects} 
+ \index{Dataset}
 
+In \BayesX, {\em dataset objects} are used to store, manage, and manipulate data. A new {\em dataset object} is created by typing
 
-{\em Dataset objects} are used to store, manage, and manipulate
-data. A new {\em dataset object} is created by typing
+ #> dataset# {\em objectname}
 
-#> dataset# {\em objectname}
+where {\em objectname} is the name to be assigned to the data set. After the creation of a {\em dataset object}, one can apply the various methods discussed below.
 
-where {\em objectname} is the name to be assigned to the data set.
-After the creation of a {\em dataset object} you can apply the
-methods discussed below.
+Note that in the current version of \BayesX only numerical variables are allowed while character-valued variables, for example, are not yet supported by \BayesX and the attempt to read such variables will raise an error message.
 
-Note that in the current version of {\em BayesX} only numerical
-variables are allowed. String valued variables, for example, are
-not yet supported by {\em BayesX} and the attempt to read such
-variables will raise an error message.
-
-\clearpage
-
-\section{Method descriptive} \label{descriptive} \index{Summary
-statistics} \index{Descriptives} \index{Dataset!Descriptive command}
+\section{Method descriptive} 
+ \label{descriptive} 
+ \index{Summary statistics} 
+ \index{Descriptives} 
+ \index{Dataset!Descriptive command}
 
 \begin{stanza}{Description}
 
-Method #descriptive# calculates and displays univariate summary
-statistics. To be more specific, the method computes the number of
-observations, the mean, median, standard deviation, minimum and
-maximum of the specified variables.
+Method #descriptive# calculates and displays a number of univariate summary statistics. To be more specific, the method computes the number of observations, the mean, median, standard deviation, minimum and maximum of the specified variables.
 \end{stanza}
 
 \begin{stanza}{Syntax}
-
  #> #{\em objectname}#.descriptive# {\em varlist} [#if# {\em expression}]
 
-Method #descriptive# computes summary statistics for the variables
-in {\em varlist}. An optional #if# statement may be added to
-analyze only a part of the data.
+Method #descriptive# computes summary statistics for the variables in {\em varlist}. An optional #if# statement can be added to analyze only a part of the data.
 \end{stanza}
 
 \begin{stanza}{Options}
-
-not allowed
+ not allowed
 \end{stanza}
 
-
 \begin{stanza}{Example}
-
-{The statement
+The statement
 
 #> d.descriptive x y#
 
-computes summary statistics for the variables #x# and #y#.
-The statement
+computes summary statistics for the variables #x# and #y#. The statement
 
 #> d.descriptive x y if x>0#
 
-restricts the analysis to observations with #x>0#.}
+restricts the analysis to observations with #x>0#.
 \end{stanza}
 
-\clearpage
 
 \section{Method drop}
-\label{drop} \index{Dropping variables} \index{Dropping
-observations} \index{Dataset!Drop command}
+ \label{drop} 
+ \index{Dropping variables} 
+ \index{Dropping observations} 
+ \index{Dataset!Drop command}
 
 \begin{stanza}{Description}
-
 Method #drop# deletes variables or observations from the data set.
 \end{stanza}
 
 \begin{stanza}{Syntax}
-
 #> #{\em objectname}.#drop# {\em varlist}
 
 #> #{\em objectname}.#drop if# {\em expression}
 
-The first command is used to delete the variables specified in
-{\em varlist} from the data set. The second statement deletes
-certain observations, i.e. all observations for which {\em
-expression} is true will be deleted.
+The first command is used to delete the variables specified in {\em varlist} from the data set. The second statement deletes certain observations, i.e. all observations for which {\em expression} is true will be deleted.
 \end{stanza}
-
 
 \begin{stanza}{Options}
-
-{not allowed}
+not allowed
 \end{stanza}
 
-
 \begin{stanza}{Example}
-
 The statement
 
 #> credit.drop account duration#
 
-deletes the variables #account# and #duration# from the credit
-scoring data set. With the statement
+deletes the variables #account# and #duration# from the credit scoring data set. With the statement
 
 #> credit.drop if marstat = 2#
 
-all observations with #marstat = 2#, i.e. all persons living
-alone, will be deleted. The statement
+all observations with #marstat = 2#, i.e. all persons living alone, will be deleted. The statement
 
 #> credit.drop account duration if marstat = 2#
 
@@ -108,135 +85,123 @@ will raise the error
 
 #ERROR: dropping variables and observations in one step not allowed#
 
-because is not allowed to drop variables and observations in one
-single command.
+because it is not allowed to drop variables and observations in one single command.
 \end{stanza}
 
-\clearpage
 
 \section{Functions and Expressions}
-\label{expression} \index{Expressions}
+ \label{expression} 
+ \index{Expressions}
 
-The primary use of expressions is to generate new variables or
-change existing variables, see \autoref{generate} and
-\autoref{replace}, respectively. Expressions may also be used in
-#if# statements to force {\em BayesX} to apply a method only to
-observations where the boolean expression in the #if# statement is
-true. The following statements are all examples of expressions:
+The primary use of expressions is to generate new variables or change existing variables, see \autoref{generate} and \autoref{replace}, respectively. Expressions can also be used in #if# statements to force \BayesX to apply a method only to
+observations where the boolean expression in the #if# statement is true. The following statements are all examples of expressions:
 
-#2+2# \\
-#log(amount)# \\
-#1*(age <= 30)+2*(age > 30 & age <= 40)+3*(age > 40)# \\
-#age=30# \\
-#age+3.4*age^2+2*age^3# \\
-#amount/1000#
+ #2+2# 
+ 
+ #log(amount)# 
+ 
+ #1*(age <= 30)+2*(age > 30 & age <= 40)+3*(age > 40)# 
+ 
+ #age=30# 
+ 
+ #age+3.4*age^2+2*age^3# 
+ 
+ #amount/1000#
 
 
 \subsection{Operators}
-\index{Expressions!Operators} \index{Operators}
+ \index{Expressions!Operators} 
+ \index{Operators}
 
-Three different types of operators can be included in expressions:
-arithmetic, relational and logical operators.
+Three different types of operators can be included in expressions: arithmetic, relational and logical operators.
 
 \subsubsection{Arithmetic operators}
-\index{Operators!Arithmetic}
+ \index{Operators!Arithmetic}
 
-The arithmetic operators are #+# (addition), #-# (subtraction),
-#*# (multiplication), #/# (division), #^# (raise to a power) and
-the prefix #-# (negation). Any arithmetic operation on a missing
-value or an undefined arithmetic operation (such as division by
-zero) yields a missing value.
+The arithmetic operators are #+# (addition), #-# (subtraction), #*# (multiplication), #/# (division), #^# (raise to a power) and the prefix #-# (negation). Any arithmetic operation on a missing value or an undefined arithmetic operation (such as division by zero) yields a missing value.
 
 \begin{stanza}{Example}
-
 The expression
 
 #(x+y^(3-x))/(x*y)#
 
-denotes the formula
+implements the formula
 $$
 \frac{x+y^{3-x}}{x\cdot y}
 $$
 and evaluates to missing if #x# or #y# is missing or zero.
 \end{stanza}
 
-\subsubsection{Relational operators}
-\index{Operators!Relational}
 
-The relational operators are #># (greater than), #<# (less than),
-#>=# (greater than or equal), #<=# (less than or equal), #=#
-(equal) and #!=# (not equal). Relational expressions are either 1
-(if the expression is true) or 0 (if the expression is false).
+\subsubsection{Relational operators}
+ \index{Operators!Relational}
+
+The relational operators are #># (greater than), #<# (less than), #>=# (greater than or equal), #<=# (less than or equal), #=# (equal) and #!=# (not equal). Relational expressions are either 1 (if the expression is true) or 0 (if the expression is false).
 
 \begin{stanza}{Example}
-
-Relational operators can for example be used to create indicator
-variables. The following statement generates a new variable
-#amountcat#, with value 1 if #amount<=10# and value 2 if
-#amount>10#.
+Relational operators can, for example, be used to create indicator variables. The following statement generates a new variable #amountcat#, with value 1 if #amount<=10# and value 2 if #amount>10#.
 
 #> credit.generate amountcat = 1*(amount<=10)+2*(amount>10)#
 
-Another useful application of relational operators is in #if#
-statements. For example, changing an existing variable only when a
-certain condition holds can be achieved by the following command:
+Another useful application of relational operators is in #if# statements. For example, changing an existing variable only when a certain condition holds can be achieved by the following command:
 
 #> credit.replace amount = NA if amount <= 0#
 
 This sets all observations missing where #amount<=0#.
 \end{stanza}
 
+
 \subsubsection{Logical operators}
-\index{Operators!Logical}
+ \index{Operators!Logical}
 
 The logical operators are #&# (and) and #|# (or).
 
 \subsubsection*{Example}
 
-Suppose you want to generate a variable #amountind# whose value is
-1 for married people with amount greater than 10 and 0 otherwise.
-This can be achieved by typing
+Suppose you want to generate a variable #amountind# whose value is 1 for married people with amount greater than 10 and 0 otherwise. This can be achieved by typing
 
 #> credit.generate amountind = 1*(marstat=1 & amount>10)#
 
+
 \subsubsection{Order of evaluation of the operators}
-\index{Operators!Order of evaluation}
+ \index{Operators!Order of evaluation}
 
 The order of evaluation (from first to last) of operators is
 
-#^# \\
-#/#, #*#\\
-#-#, #+#\\
-#!=#, #>#, #<#, #<=#, #>=#, #=#\\
-#&#, #|#
+ #^# 
+ 
+ #/#, #*#
+ 
+ #-#, #+#
+ 
+ #!=#, #>#, #<#, #<=#, #>=#, #=#
+ 
+ #&#, #|#
 
 Brackets can be used to change the order of evaluation.
 
 
 \subsection{Functions}
-\index{Functions}
+ \index{Functions}
 
-Functions are a further component of expressions. Any function is
-indicated by the function name followed by an opening and a
-closing parenthesis. Inside the parentheses one or more arguments
-may be specified. The argument(s) of a function may again be
-expressions, including calls to further functions. Multiple
-arguments of a function are separated by commas. All functions
-return missing values when given missing values as arguments or
-when the result is undefined.
+Functions are a further component of expressions. Any function is indicated by the function name followed by an opening and a closing parenthesis. Inside the parentheses, one or more arguments can be specified. The argument(s) of a function can again be expressions, including calls to further functions. Multiple arguments of a function are separated by commas. All functions return missing values when given missing values as arguments or when the result is undefined.
 
-All mathematical function currently available in {\em BayesX} are
-referenced in \autoref{mathfunc}. Statistical functions can be
+All mathematical function currently available in \BayesX are referenced in \autoref{mathfunc}. Statistical functions can be
 found in \autoref{statfunc}.
 
-\index{Functions!abs} \index{Functions!cos} \index{Functions!sin}
-\index{Functions!exp} \index{Functions!floor} \index{Functions!lag}
-\index{Functions!logarithm} \index{Functions!square root}
-\index{Functions!Bernoulli distributed random numbers}
-\index{Functions!Binomial distributed random numbers}
-\index{Functions!Exponential distributed random numbers}
-\index{Functions!Normally distributed random numbers}
-\index{Functions!Uniformly distributed random numbers}
+ \index{Functions!abs} 
+ \index{Functions!cos} 
+ \index{Functions!sin}
+ \index{Functions!exp} 
+ \index{Functions!floor} 
+ \index{Functions!lag}
+ \index{Functions!logarithm} 
+ \index{Functions!square root}
+ \index{Functions!Bernoulli distributed random numbers}
+ \index{Functions!Binomial distributed random numbers}
+ \index{Functions!Exponential distributed random numbers}
+ \index{Functions!Normally distributed random numbers}
+ \index{Functions!Uniformly distributed random numbers}
 
 \begin{table}[ht]
 \begin{center}
@@ -268,29 +233,16 @@ found in \autoref{statfunc}.
 \hline
 {\bf Function} & {\bf Description} \\
  \hline \hline
- #bernoulli(#$p$#)# & returns Bernoulli distributed
- random numbers with probability of success $p$. If $p$ is not
- within the interval $[0;1]$, a
- missing value will be returned. \\
+ #bernoulli(#$p$#)# & returns Bernoulli distributed random numbers with probability of success $p$. If $p$ is not
+ within the interval $[0;1]$, a missing value will be returned. \\
  \hline
- #binomial(#$n$#,#$p$#)# & returns $B(n;p)$ distributed random
- numbers. Both, the number of trials $n$ and the probability of
- success $p$ may be expressions. If $n < 1$, a missing value will
- be returned. If $n$ is not integer valued, the number of trials
- will be $[n]$. If $p$ is not within the interval $[0;1]$, a
- missing value will be returned. \\
+ #binomial(#$n$#,#$p$#)# & returns $B(n;p)$ distributed random numbers. Both, the number of trials $n$ and the probability of success $p$ may be expressions. If $n < 1$, a missing value will be returned. If $n$ is not integer valued, the number of trials will be $[n]$. If $p$ is not within the interval $[0;1]$, a  missing value will be returned. \\
  \hline
- #exponential(#$\lambda$#)# & returns exponentially distributed
- random numbers with parameter $\lambda$.
- If $\lambda \leq 0$, a missing value will be returned. \\
+ #exponential(#$\lambda$#)# & returns exponentially distributed  random numbers with parameter $\lambda$.  If $\lambda \leq 0$, a missing value will be returned. \\
  \hline
- #normal()# & returns standard normally distributed random
- numbers;
- $N(\mu,\sigma^2)$ distributed random numbers may be generated with $\mu + \sigma$*normal(). \\
+ #normal()# & returns standard normally distributed random  numbers; $N(\mu,\sigma^2)$ distributed random numbers may be generated with $\mu + \sigma$*normal(). \\
  \hline
- #uniform()# & uniform
- pseudo random number function; returns uniformly distributed
- pseudo-random numbers on the interval $(0,1)$ \\
+ #uniform()# & returns uniformly distributed pseudo-random numbers on the interval $(0,1)$ \\
  \hline
 \end{tabular}
 {\em \caption{\label{statfunc} List of statistical functions}}
@@ -299,11 +251,13 @@ found in \autoref{statfunc}.
 
 
 \subsection{Constants}
-\index{Expressions!Constants} \index{Number of observations}
-\index{Missing values} \index{$\pi$} \index{Current observation}
+ \index{Expressions!Constants} 
+ \index{Number of observations}
+ \index{Missing values} 
+ \index{$\pi$} 
+ \index{Current observation}
 
-\autoref{constant} lists all constants that can be used in
-expressions.
+\autoref{constant} lists all constants that can be used in expressions.
 
 
 \begin{table}[ht]
@@ -317,7 +271,6 @@ Constant & Description \\
 \texttt{\_pi} & contains the value of $\pi$. \\
 \texttt{NA} & indicates a missing value \\
 .  & indicates a missing value \\
-
 \hline
 \end{tabular}
 {\em \caption{\label{constant} List of constants}}
@@ -327,8 +280,7 @@ Constant & Description \\
 
 \subsubsection*{Example}
 
-The following statement generates a variable #obsnr# whose value
-is 1 for the first observation, 2 for the second and so on.
+The following statement generates a variable #obsnr# whose value is 1 for the first observation, 2 for the second and so on.
 
 #> credit.generate obsnr = _n#
 
@@ -336,27 +288,19 @@ The command
 
 #> credit.generate nrobs = _N#
 
-generates a new variable {\em nrobs} whose values are all equal to
-the total number of observations, say 1000, for all observations.
+generates a new variable {\em nrobs} whose values are all equal to the total number of observations, say 1000, for all observations.
 
-\subsection{Explicit subscribing}
-\index{Expressions!Explicit subscribing} \index{Subscribing}
+\subsection{Explicit Subscribing}
+ \index{Expressions!Explicit subscribing} 
+ \index{Subscribing}
 
-Individual observations on variables can be referenced by
-subscribing the variables. Explicit subscripts are specified by
-the variable name with square brackets that contain an expression.
-The result of the subscript expression is truncated to an integer,
-and the value of the variable for the indicated observation is
-returned. If  the value of the subscript expression is less than 1
-or greater than the number of observations in the data set,
-a missing value is returned.
+Individual observations on variables can be referenced by subscribing the variables. Explicit subscripts are specified by
+the variable name with square brackets that contain an expression. The result of the subscript expression is truncated to an integer, and the value of the variable for the indicated observation is returned. If  the value of the subscript expression is less than 1 or greater than the number of observations in the data set, a missing value is returned.
 
 \subsubsection*{Example}
 
-Explicit subscribing combined with the variable #_n# (see
-\autoref{constant}) can be used to create lagged values of a
-variable. For example, the lagged value of a variable #x# in a
-data set #data# can be created by
+Explicit subscribing combined with the variable #_n# (see \autoref{constant}) can be used to create lagged values of a
+variable. For example, the lagged value of a variable #x# in a data set #data# can be created by
 
 #> data.generate xlag = x[_n-1]#
 
@@ -365,39 +309,27 @@ Note that #xlag# can also be generated using the #lag# function
 #> data.generate xlag = lag(x)#
 
 
-\clearpage
-
 \section{Method generate}
-\label{generate} \index{Generating new variables}
-\index{Dataset!Generate command}
+ \label{generate} 
+ \index{Generating new variables}
+ \index{Dataset!Generate command}
 
 \begin{stanza}{Description}
-
-Method #generate# is used to create a new variable in an existing
-{\em dataset object}.
+Method #generate# is used to create a new variable in an existing {\em dataset object}.
 \end{stanza}
-
 
 \begin{stanza}{Syntax}
-
 #> #{\em objectname}.#generate# {\em newvar} = {\em expression}
 
-Method #generate# creates a new variable with name {\em newvar}
-(compare \autoref{varnames} for valid variable names) The values
-of the new variable are specified by {\em expression}.
+Method #generate# creates a new variable with name {\em newvar} (compare \autoref{varnames} for valid variable names). The values of the new variable are specified by {\em expression}.
 \end{stanza}
 
-
 \begin{stanza}{Options}
-
 not allowed
 \end{stanza}
 
-
 \begin{stanza}{Example}
-
-The following command generates a new variable called #amount2#
-which contains the squared amount in the credit scoring data set.
+The following command generates a new variable called #amount2# which contains the squared amount in the credit scoring data set.
 
 #> credit.generate amount2 = amount^2#
 
@@ -409,95 +341,48 @@ the error message
 
 #ERROR: variable amount2 is already existing #
 
-will occur. This prevents you to change an existing variable
-unintentionally. An existing variable can be changed with method
+will occur. This prevents unintentional changes of an existing variable. Existing variables can be changed with method
 #replace#, see \autoref{replace}.
 
-If you want to generate an indicator variable #largeamount# for
-amounts exceeding a certain value, say 3.5, you have to type
+If you want to generate an indicator variable #largeamount# for amounts exceeding a certain value, say 3.5, you have to type
 
 #> credit.generate largeamount = 1*(amount>3.5)#
 
-The variable #largeamount# takes the value 1 if #amount# is larger
-than 3.5 and 0 otherwise.
-
+The variable #largeamount# takes the value 1 if #amount# is larger than 3.5 and 0 otherwise.
 \end{stanza}
 
-\clearpage
 
 \section{Method infile}
-\label{infile} \index{Reading data from ASCII files}
-\index{Dataset!Infile command}
+ \label{infile} 
+ \index{Reading data from ASCII files}
+ \index{Dataset!Infile command}
 
 \begin{stanza}{Description}
-
-Reads data saved in an ASCII file.
+Reads data from an ASCII file.
 \end{stanza}
 
 \begin{stanza}{Syntax}
+#> #{\em objectname}.#infile #[{\em varlist}] [{\em , options}] #using# {\em filename}
 
-#> #{\em objectname}.#infile #[{\em varlist}] [{\em , options}]
-#using# {\em filename}
+Reads the data stored in {\em filename}. The variable names can either be specified in {\em varlist} or be extracted from the first line of the file. To be more specific, if {\em varlist} is empty, it is assumed that the first row of the file contains the variable names separated by blanks or tabs. The observations do not have to be stored in a special format, except that successive observations should be separated by one or more blanks or tabs. The first value read from the file will be the value of the first variable of the first observation, the second value will be the value of the second variable of the first observation, and so on. An error message will occur if no values can be read for the last observation for some variables.
 
-Reads the data stored in {\em filename}. The variable names can
-either be specified in {\em varlist} or be extracted from the
-first line of the file. To be more specific, if {\em varlist} is
-empty it is assumed that the first row of the file contains the
-variable names separated by blanks or tabs. The observations do
-not have to be stored in a special format, except that successive
-observations should be separated by one or more blanks or tabs.
-The first value read from the file will be the value of the first
-variable of the the first observation, the second value will be
-the value of the second variable of the first observation, and so
-on. An error message will occur if no values can be read for the
-last observation for some variables.
+The period '.' or '#NA#' should be used to indicate missing values.
 
-The period '.' or '#NA#' should be used to indicate missing
-values.
-
-Note that in the current version of {\em BayesX} only numerical
-variables are allowed. Thus, the attempt to read string valued
-variables, for example, will cause an error.
+Note that in the current version of \BayesX only numerical variables are allowed. Thus, the attempt to read string valued variables, for example, will cause an error.
 \end{stanza}
 
-\subheader{Options}
-
+\begin{stanza}{Options}
 \begin{itemize}
 \item #missing = # {\em missingsigns} \\
-By default the period '.' or '#NA#' indicate missing values. If
-the missing values are indicated by a different sign, you can
-specify them in the #missing# option. For example #missing = MIS#
-defines '#MIS#' as an indicator for a missing value. Note that
- '.' and '#NA#' remain valid indicators for missing values, even if the missing
-option is specified.
+By default, the period '.' or '#NA#' indicate missing values. If the missing values are indicated by a different sign, you can specify them in the #missing# option. For example #missing = MIS# defines '#MIS#' as an indicator for a missing value. Note that '.' and '#NA#' remain valid indicators for missing values, even if the missing option is specified.
 
 \item #maxobs = #{\em integer} \\
-If you work with large data sets, you may observe the problem that
-reading in a data set using the #infile# command is very time
-consuming. The reason for this problem is that {\em BayesX} does
-not know the number of observations in advance and therefore is
-unable to allocate enough memory. Therefore new memory has to be
-allocated whenever a certain amount of memory is exceeded.
-Specifying option #maxobs# allows to circumvent this problem and
-to considerably reduce the computing time. When #maxobs# is
-specified, {\em BayesX} can allocate enough memory to store at
-least {\em integer} observations before new memory must be
-reallocated. Suppose for example that your data set consists of
-approximately 100,000 observations. Then specifying
-#maxobs=105000# allocates enough memory to read in the data set
-quickly. Note that #maxobs=105000# does not require the data set
-to have exactly 105,000 observations. It only means that new
-memory will have to be allocated when the number of observations
-exceeds the 105,000 observations limit.
+If you work with large data sets, you may observe the problem that reading a data set using the #infile# command is time consuming. The reason for this problem is that \BayesX does not know the number of observations in advance and therefore is unable to allocate enough memory. Therefore new memory has to be allocated whenever a certain amount of memory is exceeded. Specifying option #maxobs# allows to circumvent this problem and to considerably reduce the computing time. When #maxobs# is specified, \BayesX can allocate enough memory to store at least {\em integer} observations before new memory must be reallocated. Suppose for example that your data set consists of approximately 100,000 observations. Then specifying #maxobs=105000# allocates enough memory to read in the data set quickly. Note that #maxobs=105000# does not require the data set to have exactly 105,000 observations. It only means that new memory will have to be allocated when the number of observations exceeds the 105,000 observations limit.
 \end{itemize}
-
-
+\end{stanza}
 
 \begin{stanza}{Example}
-
-Suppose we want to read a data set stored in
-#c:\data\testdata.raw# containing the two variables #var1# and
-#var2#. The first few rows of the datafile could look like this:
+Suppose we want to read a data set stored in #c:\data\testdata.raw# containing the two variables #var1# and #var2#. The first few rows of the datafile could look like this:
 
 var1 var2 \\
 2 2.3 \\
@@ -505,21 +390,16 @@ var1 var2 \\
 4 6 \\
 ...
 
-
-To read the data set, we have to create a new {\em dataset object}
-first, say #testdata#. We proceed by reading the data using the
-#infile# command:
+To read the data set, we have to create a new {\em dataset object} first, say #testdata#. We proceed by reading the data using the #infile# command:
 
 #> dataset testdata# \\
 #> testdata.infile using c:\data\testdata.raw#
 
-If the first row of the data set file contains no variable names,
-the second command has to be altered to:
+If the first row of the data set file contains no variable names, the second command has to be altered to:
 
 #> testdata.infile var1 var2 using c:\data\testdata.raw#
 
-If furthermore the data set is large with about 100,000
-observations. In this case, the #maxobs# option is very useful to
+If furthermore the data set is large with about 100,000 observations, the #maxobs# option is very useful to
 reduce reading time. Typing for example
 
 #> testdata.infile var1 var2 , maxobs=101000 using c:\data\testdata.raw#
@@ -527,67 +407,43 @@ reduce reading time. Typing for example
 will be much faster than the command without option #maxobs#.
 \end{stanza}
 
-\clearpage
-
-
 
 \section{Method outfile}
-\label{outfile} \index{Writing data to a file} \index{Saving data in
-an ASCII file} \index{Dataset!Outfile command}
+ \label{outfile} 
+ \index{Writing data to a file} 
+ \index{Saving data in an ASCII file} 
+ \index{Dataset!Outfile command}
 
 \begin{stanza}{Description}
-
 Method #outfile# writes data to a file in ASCII format.
 \end{stanza}
 
-
-
 \begin{stanza}{Syntax}
+#> #{\em objectname}.#outfile# [{\em varlist}] [#if# {\em expression}] [{\em , options}] #using# {\em filename}
 
-{#> #{\em objectname}.#outfile# [{\em varlist}] [#if# {\em expression}] [{\em , options}] #using# {\em filename}
-
-#outfile# writes the variables specified in {\em varlist} to the
-file with name {\em filename}. If {\em varlist} is omitted in the
-outfile statement, {\em all} variables in the data set will be
-included. Each row in the data file will correspond to one
-observation. Different variables will be separated by blanks.
-Optionally, an #if# statement may be used to store only those
-observations where a certain boolean expression is true.}
+#outfile# writes the variables specified in {\em varlist} to the file with name {\em filename}. If {\em varlist} is omitted in the outfile statement, {\em all} variables in the data set will be included. Each row in the data file will correspond to one observation. Different variables will be separated by blanks. Optionally, an #if# statement can be used to store only those observations where a certain boolean expression is true.
 \end{stanza}
 
-
-\subheader{Options}
-
-
+\begin{stanza}{Options}
 \begin{itemize}
 \item #header# \\
-Specifying the #header# option causes {\em BayesX} to write the
-variable names to the first row of the created data file.
+Specifying the #header# option causes \BayesX to write the variable names to the first row of the created data file.
 \item #replace# \\
-The #replace# option allows {\em BayesX} to overwrite an already
-existing data file. If #replace# is omitted and the file specified
-in {\em filename} is already existing, an error will be raised.
-This prevents you from unintentionally overwriting an existing
-file.
+The #replace# option allows \BayesX to overwrite an already existing data file. If #replace# is omitted and the file specified in {\em filename} is already existing, an error will be raised. This prevents you from unintentionally overwriting an existing file.
 \end{itemize}
-
+\end{stanza}
 
 \begin{stanza}{Example}
-
 The statement
 
 #> credit.outfile using c:\data\cr.dat#
 
-writes the complete credit scoring data set to
-#c:\data\cr.dat#. To generate two different
-ASCII
-data sets for married people and people living alone, you could type
+writes the complete credit scoring data set to #c:\data\cr.dat#. To generate two different ASCII data sets for married people and people living alone, you could type
 
 #> credit.outfile if marstat = 1 using c:\data\crmarried.dat# \\
 #> credit.outfile if marstat = 2 using c:\data\cralone.dat#
 
-If you want to store only the two variables #y# and #amount#, you
-could type
+If you want to store only the two variables #y# and #amount#, you could type
 
 #> credit.outfile y amount using c:\data\cr.dat#
 
@@ -595,159 +451,101 @@ This will raise the error message
 
 #ERROR: file c:\data\cr.dat is already existing#
 
-because #c:\data\cr.dat# has already been created. You can
-overwrite the file using the #replace# option
+because #c:\data\cr.dat# has already been created. You can overwrite the file using the #replace# option
 
 #> credit.outfile y amount, replace using c:\data\cr.dat#
 \end{stanza}
 
 
-
-\clearpage
-
-
-
-
 \section{Method rename}
-\index{Renaming variables} \index{Dataset!Rename command}
-
-
-\label{rename}
-
+ \index{Renaming variables}
+ \index{Dataset!Rename command}
+ \label{rename}
 
 \begin{stanza}{Description}
-
 #rename# is used to change variable names.
 \end{stanza}
 
-
 \begin{stanza}{Syntax}
-
 #> #{\em objectname}.#rename# {\em varname} {\em newname}
 
-#rename# changes the name of {\em varname} to {\em newname}. {\em
-newname} must be a valid variable name, see \autoref{varnames} for
-valid variable names.
+#rename# changes the name of {\em varname} to {\em newname}. {\em newname} must be a valid variable name, see \autoref{varnames} for valid variable names.
 \end{stanza}
 
 \begin{stanza}{Options}
-
 not allowed
-
 \end{stanza}
-
-\clearpage
-
 
 
 \section{Method replace}
-\label{replace} \index{Changing existing variables}
-\index{Dataset!Replace command}
-
-
+ \label{replace} 
+ \index{Changing existing variables}
+ \index{Dataset!Replace command}
 
 \begin{stanza}{Description}
-
-{#replace# changes values of an existing variable.}
+ #replace# changes values of an existing variable.
 \end{stanza}
-
 
 \begin{stanza}{Syntax}
-
  #> #{\em objectname}.#replace# {\em varname} = {\em expression} [#if# {\em expression}]
 
-#replace# changes some or all values of the variable {\em varname}
-to the values specified in {\em expression}. If {\em varname} is
-not existing, an error will be raised. An optional #if# statement
-may be used to change the values of the variable only if the
-boolean expression {\em expression} is true.
+#replace# changes some or all values of the variable {\em varname} to the values specified in {\em expression}. If {\em varname} is not existing, an error will be raised. An optional #if# statement can be used to change the values of the variable only if the boolean expression {\em expression} is true.
 \end{stanza}
 
-
 \begin{stanza}{Options}
-
 not allowed
 \end{stanza}
 
-
 \begin{stanza}{Example}
-
 The statement
 
 #> credit.replace amount = NA if amount<0#
 
-changes the values of the variable #amount# in the credit scoring
-data set to missing if #amount<0#.
+changes the values of the variable #amount# in the credit scoring data set to missing if #amount<0#.
 \end{stanza}
-
-
-
-\clearpage
-
 
 
 \section{Method set obs}
-\label{setobs}
-
+ \label{setobs}
 
 \begin{stanza}{Description}
-
-{#set obs# changes the number of observations in a data set.}
+ #set obs# changes the number of observations in a data set.
 \end{stanza}
-
 
 \begin{stanza}{Syntax}
-
 #> #{\em objectname}.#set obs# = {\em intvalue}
 
-#set obs# raises the number of observations in the data set to
-{\em intvalue}. The new number of observations has to be greater
-or equal than the current number to prevent you from
-unintentionally deleting parts of the data currently in memory.
-Observations may be eliminated using the #drop# statement, see
-\autoref{drop}. The values of newly created observations will be
-set to the missing value.
+#set obs# raises the number of observations in the data set to {\em intvalue}. The new number of observations has to be greater or equal than the current number to prevent you from unintentionally deleting parts of the data currently in memory. Observations may be eliminated using the #drop# statement, see \autoref{drop}. The values of newly created observations will be set to the missing value.
 \end{stanza}
-
-
-
-\clearpage
-
 
 
 \section{Method tabulate}
-\label{tabulate} \index{Tabulate} \index{Table of frequencies}
-\index{One way table of frequencies} \index{Dataset!Tabulate
-command}
+ \label{tabulate} 
+ \index{Tabulate} 
+ \index{Table of frequencies}
+ \index{One way table of frequencies} 
+ \index{Dataset!Tabulate command}
 
 \begin{stanza}{Description}
-
 Method #tabulate# calculates and displays a frequency tables.
 \end{stanza}
 
 \begin{stanza}{Syntax}
+#># {\em objectname}.#tabulate# {\em varlist} [#if# {\em expression}]
 
-#># {\em objectname}.#tabulate# {\em varlist} [#if# {\em
-expression}]
-
-Method #tabulate# computes and displays frequency tables of the
-variables specified in {\em varlist}. An optional #if# statement
-may be added to restrict the analysis to a part of the data.
+Method #tabulate# computes and displays frequency tables of the variables specified in {\em varlist}. An optional #if# statement can be added to restrict the analysis to a part of the data.
 \end{stanza}
 
 \begin{stanza}{Options}
-
 not allowed
 \end{stanza}
 
 \begin{stanza}{Example}
-
 The statement
 
 #> d.tabulate x y#
 
-displays frequency tables for the variables #x# and #y#. The
-statement
+displays frequency tables for the variables #x# and #y#. The statement
 
 #> d.tabulate x y if x>0#
 
@@ -755,41 +553,26 @@ restricts the analysis to observations with #x>0#.
 \end{stanza}
 
 
+\section{Variable Names}
+ \label{varnames} 
+ \index{Variables names}
 
-\clearpage
-
-
-
-\section{Variable names}
-\label{varnames} \index{Variables names}
-
-
-A valid variable name is a sequence of letters (#A#-#Z# and
-#a#-#z#), digits (#0#-#9#), and underscores (#_#). The first
-character of a variable name must be either a letter or an
-underscore. {\em BayesX} is case-sensitive, i.e. #myvar#, #Myvar#
+A valid variable name is a sequence of letters (#A#-#Z# and #a#-#z#), digits (#0#-#9#), and underscores (#_#). The first
+character of a variable name must be either a letter or an underscore. \BayesX is case-sensitive, i.e. #myvar#, #Myvar#
 and #MYVAR# are three distinct variable names.
 
 \section{Examples: The credit scoring data set}
 
-This section illustrates some of the
-methods described in this chapter using the credit scoring data
-set (see \autoref{creditdata} for a description).
+This section illustrates some of the methods described in this chapter using the credit scoring data set (see \autoref{creditdata} for a description).
 
-We start by illustrating how to code categorical variables
-according to either dummy or effect coding. This will be useful in
-regression models, where all categorical covariates must be coded
-in dummy or effect coding before they can be added to the model.
+We start by illustrating how to code categorical variables according to either dummy or effect coding. This will be useful in regression models, where all categorical covariates must be coded in dummy or effect coding before they can be added to the model.
 
-We start by creating the {\em dataset object} #credit# and proceed
-by reading the data using the #infile# command.
+We start by creating the {\em dataset object} #credit# and proceed by reading the data using the #infile# command.
 
 #> dataset credit# \\
 #> credit.infile using c:\bayesx\examples\credit.raw#
 
-We can now generate new variables to obtain dummy coded versions
-of the categorical covariates
-#account#, #payment#, #intuse# and #marstat#:
+We can now generate new variables to obtain dummy coded versions of the categorical covariates #account#, #payment#, #intuse# and #marstat#:
 
 #> credit.generate account1  = 1*(account=1)# \\
 #> credit.generate account2  = 1*(account=2)# \\
@@ -797,10 +580,8 @@ of the categorical covariates
 #> credit.generate intuse1 = 1*(intuse=1)# \\
 #> credit.generate marstat1 = 1*(marstat=1)#
 
-The reference categories are chosen to be 3 for #account# and 2
-for the other variables. Alternatively, we could code the
-variables according to effect coding. This is achieved with the
-following program code:
+The reference categories are chosen to be 3 for #account# and 2 for the other variables. Alternatively, we could code the
+variables according to effect coding. This is achieved as follows:
 
 #> credit.generate account_eff1  = 1*(account=1)-1*(account=3)# \\
 #> credit.generate account_eff2  = 1*(account=2)-1*(account=3)# \\
