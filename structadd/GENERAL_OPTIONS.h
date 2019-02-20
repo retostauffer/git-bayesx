@@ -96,8 +96,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
 
   bool IWLSlineff;
   bool forceIWLS;
-
-
+  bool highspeedon;
 
   // DEFAULT CONSTRUCTOR
   // Defines:
@@ -134,6 +133,7 @@ class __EXPORT_TYPE GENERAL_OPTIONS
                   const unsigned & it,const unsigned & bu,const unsigned & st,
                   const bool & sa,const bool & cop, const unsigned & rot,
                   const bool & samsel, const double & samselval, const bool & fiwls,
+                  const bool & hso,
                   ostream * lo=&cout,const double & l1=95,
                   const double & l2=80);
 

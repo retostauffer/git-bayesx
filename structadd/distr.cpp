@@ -77,6 +77,7 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
              const datamatrix & w)
   {
   counter = 0;
+  highspeedon = false;
 
   maindistribution=true;
   predict_mult=false;
@@ -149,6 +150,8 @@ DISTR::DISTR(GENERAL_OPTIONS * o, const datamatrix & r,
 DISTR::DISTR(const DISTR & d)
   {
   counter = d.counter;
+  highspeedon = d.highspeedon;
+
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
   copularotate = d.copularotate;
@@ -231,6 +234,8 @@ const DISTR & DISTR::operator=(const DISTR & d)
     return *this;
 
   counter = d.counter;
+  highspeedon = d.highspeedon;
+
   distrp = d.distrp;
   distrcopulap = d.distrcopulap;
   copularotate = d.copularotate;

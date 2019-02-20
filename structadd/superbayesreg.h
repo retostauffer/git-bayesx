@@ -449,6 +449,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
 
   simpleoption forceIWLS;
 
+  simpleoption highspeedon;
+
   simpleoption importance;
   // end: OPTIONS for method regress
 

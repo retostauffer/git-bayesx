@@ -56,6 +56,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(void)
   sampleselval = 0.0;
   IWLSlineff=false;
   forceIWLS=false;
+  highspeedon=false;
   }
 
 
@@ -67,6 +68,7 @@ const unsigned & it,const unsigned & bu,
                          const unsigned & st, const bool & sa,
                          const bool & cop, const unsigned & rot,
                          const bool & samsel, const double & samselval, const bool & fiwls,
+                         const bool & hso,
                          ostream * lo,
                          const double & l1,const double & l2)
   {
@@ -89,6 +91,7 @@ const unsigned & it,const unsigned & bu,
   samplesel = samsel;
   sampleselval = samselval;
   forceIWLS = fiwls;
+  highspeedon = hso;
 
   (*logout) << flush;
 #if defined(BORLAND_OUTPUT_WINDOW)
@@ -128,6 +131,7 @@ GENERAL_OPTIONS::GENERAL_OPTIONS(const GENERAL_OPTIONS & o)
   sampleselval = o.sampleselval;
   IWLSlineff = o.IWLSlineff;
   forceIWLS = o.forceIWLS;
+  highspeedon = o.highspeedon;
   }
 
 
@@ -159,6 +163,7 @@ const GENERAL_OPTIONS & GENERAL_OPTIONS::operator=(const GENERAL_OPTIONS & o)
   sampleselval = o.sampleselval;
   IWLSlineff = o.IWLSlineff;
   forceIWLS = o.forceIWLS;
+  highspeedon = o.highspeedon;
   return *this;
   }
 

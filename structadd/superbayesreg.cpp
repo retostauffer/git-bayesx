@@ -474,6 +474,7 @@ void superbayesreg::create_hregress(void)
   ssvsvarlimit = doubleoption("ssvsvarlimit",0.0000000001,0,0.1);
   IWLSlineff = simpleoption("IWLSlineff", false);
   forceIWLS = simpleoption("forceIWLS", false);
+  highspeedon = simpleoption("highspeedon", false);
 
   importance = simpleoption("importance", false);
 
@@ -529,6 +530,7 @@ void superbayesreg::create_hregress(void)
   regressoptions.push_back(&ssvsvarlimit);
   regressoptions.push_back(&IWLSlineff);
   regressoptions.push_back(&forceIWLS);
+  regressoptions.push_back(&highspeedon);
   regressoptions.push_back(&importance);
 
   // methods 0
@@ -1705,7 +1707,7 @@ bool superbayesreg::create_generaloptions(void)
                                 step.getvalue(),saveestimation.getvalue(),
                                 copula.getvalue(),rotation.getvalue(),
                                 samplesel.getvalue(), sampleselval.getvalue(),
-                                forceIWLS.getvalue(),
+                                forceIWLS.getvalue(), highspeedon.getvalue(),
                                 logout,
                                 level1.getvalue(),level2.getvalue());
 

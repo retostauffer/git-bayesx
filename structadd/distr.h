@@ -92,6 +92,7 @@ class __EXPORT_TYPE DISTR
   public:
 
   unsigned counter;
+  bool highspeedon;
 
   vector<DISTR*> distrp;  //pointer to other distributions
 

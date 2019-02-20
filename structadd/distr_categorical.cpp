@@ -254,24 +254,26 @@ DISTR_binomial::DISTR_binomial(GENERAL_OPTIONS * o, const datamatrix & r,
 
   check_errors();
 
-/*  //quickanddirty
-  //nice and nerdy
-  unsigned ngrid=5000;
-  weightgrid = datamatrix(ngrid,4,0.0);
-  unsigned i;
-  delta = (linpredmaxlimit - linpredminlimit)/ngrid;
+  highspeedon = optionsp->highspeedon;
 
-  cout << "delta: " << delta << endl;
-
-  double help;
-  for(i=0; i<ngrid; i++)
+  if(highspeedon)
     {
-    help = linpredminlimit + i*delta;
-    weightgrid(i,0) = 1/(1+exp(-help));
-    weightgrid(i,1) = weightgrid(i,0)*(1-weightgrid(i,0));
-    weightgrid(i,2) = log(1+exp(help));
-    weightgrid(i,3) = help;
-    }*/
+
+    unsigned ngrid=5000;
+    weightgrid = datamatrix(ngrid,4,0.0);
+    unsigned i;
+    delta = (linpredmaxlimit - linpredminlimit)/ngrid;
+
+    double help;
+    for(i=0; i<ngrid; i++)
+      {
+      help = linpredminlimit + i*delta;
+      weightgrid(i,1) = 1/(1+exp(-help));
+      weightgrid(i,0) = weightgrid(i,1)*(1-weightgrid(i,1));
+      weightgrid(i,2) = log(1+exp(help));
+      weightgrid(i,3) = help;
+      }
+    }
   }
 
 
@@ -451,57 +453,46 @@ void DISTR_binomial::compute_iwls_wweightschange_weightsone(
                                          double * workingresponse,double & like,
                                          const bool & compute_like)
   {
-
-  double el = exp(*linpred);
-  double mu = el/(1+el);
-  if(mu > 0.999)
-    mu = 0.999;
-  if(mu < 0.001)
-    mu = 0.001;
-  double v = mu*(1-mu);
-
-  *workingweight =  v;
-  *workingresponse = *linpred + (*response - mu) / v;
-
-  if (compute_like)
+  if(highspeedon)
     {
-    if (*linpred >= 10)
-      like += *response * (*linpred) - *linpred;
-    else
-      like += *response * (*linpred) - log(1+el);
-    }
-
-/*  unsigned ind = (unsigned)floor((*linpred-linpredminlimit)/delta);
-//  if(ind>=2000)
+    unsigned ind = (unsigned)floor((*linpred-linpredminlimit)/delta);
 //    cout << ind << endl;
 
-//  cout << "ind: " << ind << endl;
+    *workingweight =  weightgrid(ind,0);
+    *workingresponse = *linpred + (*response - weightgrid(ind,1)) / *workingweight;
 
-  *workingweight =  weightgrid(ind,1);
-
-//  cout << "workingweight: " << *workingweight << endl;
-//  cout << "workingweight: " << v << endl;
-
-  *workingresponse = *linpred + (*response - weightgrid(ind,0)) / *workingweight;
-
-//  cout << "workingresponse: " << *workingresponse << endl;
-//  cout << "workingresponse: " << *linpred + (*response - mu) / v << endl;
-
-  if (compute_like)
-    {
-    if (*linpred >= 10)
-      like += *response * (*linpred) - *linpred;
-    else
-//      like += *response * (*linpred) - log(1+el);
-      like += *response * weightgrid(ind,3) - weightgrid(ind,2);
+    if (compute_like)
+      {
+      if (*linpred >= 10)
+        like += *response * (*linpred) - *linpred;
+      else
+        {
+        like += *response * weightgrid(ind,3) - weightgrid(ind,2);
+        }
+      }
     }
+  else
+    {
+    double el = exp(*linpred);
+    double mu = el/(1+el);
+    if(mu > 0.999)
+      mu = 0.999;
+    if(mu < 0.001)
+      mu = 0.001;
+    double v = mu*(1-mu);
 
-//  cout << "like+: " << *response * (*linpred) - weightgrid(ind,2) << endl;
-//  cout << "like+: " << *response * (*linpred) - log(1+el) << endl;
-//  cout << endl;*/
+    *workingweight =  v;
+    *workingresponse = *linpred + (*response - mu) / v;
 
+    if (compute_like)
+      {
+      if (*linpred >= 10)
+        like += *response * (*linpred) - *linpred;
+      else
+        like += *response * (*linpred) - log(1+el);
+      }
+    }
   }
-
 
 void DISTR_binomial::compute_iwls_wweightsnochange_constant(double * response,
                                               double * linpred,
