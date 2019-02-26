@@ -1,7 +1,7 @@
 /* BayesX - Software for Bayesian Inference in
 Structured Additive Regression Models.
-Copyright (C) 2011  Christiane Belitz, Andreas Brezger,
-Thomas Kneib, Stefan Lang, Nikolaus Umlauf
+Copyright (C) 2019 Christiane Belitz, Andreas Brezger,
+Nadja Klein, Thomas Kneib, Stefan Lang, Nikolaus Umlauf
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -3348,71 +3348,7 @@ void regressrun(stepwisereg & b)
                        boot,uncond,b.D,b.modelvarnamesv,name,fullcond_z,path2,CI,
                        hier,prop);
      }
-
-    if(!failure)
-      {
-
-#if defined(JAVA_OUTPUT_WINDOW)
-
-      //if(CI == true && b.nrcategories == 1)
-      //  {
-      //  b.newcommands.push_back("drop " + b.name);
-      //  b.newcommands.push_back("bayesreg " + b.name);
-      //  b.newcommands.push_back(b.name + ".outfile = " + path);
-      //  double level1 = b.level1.getvalue();
-      //  double level2 = b.level2.getvalue();
-      //  ST::string data = " level1=" + ST::doubletostring(int(level1))
-      //       + " level2=" + ST::doubletostring(int(level2)) + " using " + b.udata.getusingtext();
-      //  b.newcommands.push_back(path2 + data);
-      //  }
-      //else
-      //  {
-        b.fullcond = fullcond_z;
-        for(unsigned j=0;j<b.fullcond.size();j++)
-           {
-           MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
-           if(plst != MCMC::noplot)
-             {
-             vector<ST::string> varnames = b.fullcond[j]->get_datanames();
-             ST::string xvar = varnames[0];
-             ST::string pathresult = b.fullcond[j]->get_pathresult();
-             ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-             if(plst == MCMC::plotnonp)
-               {
-               b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
-               + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
-               + " ylab = \" \" outfile = " + pathps + ".ps replace");
-               }
-
-             if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
-               {
-               b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               + ", color outfile = " + pathps + "_pmean.ps replace");
-               if(CI != "none")
-                 {
-                 double u = b.fullcond[j]->get_level1();
-                 double o = b.fullcond[j]->get_level2();
-                 ST::string u_str = ST::doubletostring(u,0);
-                 ST::string o_str = ST::doubletostring(o,0);
-                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-                 + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-                 + "_pcat" + u_str + ".ps replace");
-                 b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-                 + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-                 + "_pcat" + o_str + ".ps replace");
-                 }
-               }
-             }
-        //   }
-
-       // b.newcommands.push_back(b.name + ".texsummary");
-       }
-
-#endif
-
-     }
-
-    }
+   }
 
   if (!failure)
     {
@@ -3572,56 +3508,6 @@ void mregressrun(stepwisereg & b)
                        hier,prop);
 
    //  }
-
-    if(!failure)
-      {
-
-#if defined(JAVA_OUTPUT_WINDOW)
-
-      b.fullcond = fullcond_z;
-      for(unsigned j=0;j<b.fullcond.size();j++)
-         {
-         MCMC::plotstyles plst = b.fullcond[j]->get_plotstyle();
-         if(plst != MCMC::noplot)
-           {
-           vector<ST::string> varnames = b.fullcond[j]->get_datanames();
-           ST::string xvar = varnames[0];
-           ST::string pathresult = b.fullcond[j]->get_pathresult();
-           ST::string pathps = pathresult.substr(0, pathresult.length()-4);
-           if(plst == MCMC::plotnonp)
-             {
-             b.newcommands.push_back(b.name + ".plotnonp " + ST::inttostring(j)
-             + ", title = \"Effect of " + xvar +"\" xlab = " + xvar
-             + " ylab = \" \" outfile = " + pathps + ".ps replace");
-             }
-
-           if(plst==MCMC::drawmap)  // || plst==MCMC::drawmapgraph)
-             {
-             b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-             + ", color outfile = " + pathps + "_pmean.ps replace");
-             if(CI != "none")
-               {
-               double u = b.fullcond[j]->get_level1();
-               double o = b.fullcond[j]->get_level2();
-               ST::string u_str = ST::doubletostring(u,0);
-               ST::string o_str = ST::doubletostring(o,0);
-               b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               + ", plotvar = pcat" + u_str + " nolegend  pcat outfile = " + pathps
-               + "_pcat" + u_str + ".ps replace");
-               b.newcommands.push_back(b.name + ".drawmap " + ST::inttostring(j)
-               + ", plotvar = pcat" + o_str + " nolegend  pcat outfile = " + pathps
-               + "_pcat" + o_str + ".ps replace");
-               }
-             }
-           }
-
-        b.newcommands.push_back(b.name + ".texsummary");
-       }
-
-#endif
-
-     }
-
     }
 
   if (!failure)
