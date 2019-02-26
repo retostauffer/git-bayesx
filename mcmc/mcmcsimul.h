@@ -154,9 +154,6 @@ class __EXPORT_TYPE MCMCsimulate
   //       'path' + title of the full conditional + "_sample.raw"
 
   void get_samples(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  vector<ST::string> & newc,
-  #endif
   const ST::string & path,const unsigned & step=1);
 
   void setflags(const bitset<flagnr> & newflags);

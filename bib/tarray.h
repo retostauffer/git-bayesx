@@ -161,12 +161,6 @@ template <class T> class Array
 	void copyContents(const Array &from);
 };
 
-#if defined(TEMPL_INCL_DEF)
-#	if defined(CC_SOURCE)
-#		include <tarray.cc>
-#	else
-#		include "tarray.cpp"
-#	endif
-#endif
+#include "tarray.cpp"
 
 #endif

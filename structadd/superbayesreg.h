@@ -811,10 +811,6 @@ class __EXPORT_TYPE superbayesreg : public statobject
   void create_autocorr(void);
   void create_getsample(void);
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_pointer * adminp_p;
-  #endif
-
   public:
 
 
@@ -838,14 +834,8 @@ class __EXPORT_TYPE superbayesreg : public statobject
   // ADDITIONAL INFORMATION:
   // - name = n
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  superbayesreg (administrator_basic * adb, administrator_pointer * adp,
-                 const ST::string & n,ofstream * lo,istream * i,
-                                ST::string p,vector<statobject*> * st);
-  #else
   superbayesreg (const ST::string & n,ofstream * lo,istream * i,
                  ST::string p,vector<statobject*> * st);
-  #endif
 
   // COPY CONSTRUCTOR
 

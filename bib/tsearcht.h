@@ -148,13 +148,7 @@ class AVLTree : public SearchTree<T>
    static void rm( const T &x, AVLNode<T> *&node, int &change );
 };
 
-#if defined(TEMPL_INCL_DEF)
-#   if defined(CC_SOURCE)
-#      include <tsearcht.cc>
-#   else
-#      include <tsearcht.cpp>
-#   endif
-#endif
+#include <tsearcht.cpp>
 
 #endif
 

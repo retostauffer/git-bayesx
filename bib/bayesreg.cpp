@@ -18,19 +18,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
 
-
-
-
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-
-#include<StatwinFrame.h>
-#include<statwin_haupt.h>
-
-#endif
-
 #include"bayesreg.h"
 #include"dataobj.h"
 
@@ -972,21 +959,6 @@ void bayesreg::clear(void)
   }
 
 
-#if defined(JAVA_OUTPUT_WINDOW)
-bayesreg::bayesreg(
-administrator_basic * adb, administrator_pointer * adp,
-const ST::string & n,ofstream * lo,istream * in,
-						 ST::string p,vector<statobject*> * st)
-						 : statobject(adb,n,"bayesreg",lo,in,p)
-  {
-  adminp_p = adp;
-  statobj = st;
-  create();
-  resultsyesno = false;
-  posteriormode = false;
-  describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
-  }
-#else
 bayesreg::bayesreg(const ST::string & n,ofstream * lo,istream * in,
 						 ST::string p,vector<statobject*> * st)
 						 : statobject(n,"bayesreg",lo,in,p)
@@ -997,15 +969,11 @@ bayesreg::bayesreg(const ST::string & n,ofstream * lo,istream * in,
   posteriormode = false;
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
   }
-#endif
 
 
 bayesreg::bayesreg(const bayesreg & b) : statobject(statobject(b))
   {
   create();
-  #if defined(JAVA_OUTPUT_WINDOW)
-  adminp_p = b.adminp_p;
-  #endif
   statobj = b.statobj;
   D = b.D;
   distrstring = b.distrstring;
@@ -1052,9 +1020,6 @@ const bayesreg & bayesreg::operator=(const bayesreg & b)
 	 return *this;
   statobject::operator=(statobject(b));
   create();
-  #if defined(JAVA_OUTPUT_WINDOW)
-  adminp_p = b.adminp_p;
-  #endif
   statobj = b.statobj;
   D = b.D;
   distrstring = b.distrstring;
@@ -1127,9 +1092,6 @@ bool bayesreg::create_generaloptions(void)
 
 
   generaloptions.push_back(MCMCoptions(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  adminb_p,
-  #endif
   iterations.getvalue(),burnin.getvalue(),
                                step.getvalue(),logout,
                                level1.getvalue(),level2.getvalue()));
@@ -3943,10 +3905,6 @@ bool bayesreg::create_pspline(const unsigned & collinpred)
   return false;
   }
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-//------------------------------------------------------------------------------
-#pragma package(smart_init)
-#endif
 
 
 

@@ -455,17 +455,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		list <unsigned int> new_pot_i;
 
-		#if defined(MICROSOFT_VISUAL)
-		{
-			limit = __min(nedge+1, nvar);
-		}
-		#else
-		{
-// Vorschlag:
-//			limit = min(nedge+1, nvar);
-			limit = std::min(nedge+1, nvar);
-		}
-		#endif
+        limit = std::min(nedge+1, nvar);
 
 		for(l=0; l<limit; l++)
 		{
@@ -524,17 +514,7 @@ essfreq::essfreq(Matrix <unsigned> scel, vector< vector <unsigned> >  & imm, uns
 
 		list <unsigned int> new_pot_i;
 
-		#if defined(MICROSOFT_VISUAL)
-		{
-			limit = __min(nedge+1, nvar);
-		}
-		#else
-		{
-// Vorschlag:
-//			limit = min(nedge+1, nvar);
-			limit = std::min(nedge+1, nvar);
-		}
-		#endif
+		limit = std::min(nedge+1, nvar);
 
 		for(l=0; l<limit; l++)
 		{

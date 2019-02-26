@@ -26,9 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"data.h"
 #include"option.h"
 
-#if !defined(BORLAND_OUTPUT_WINDOW)
 using namespace std;
-#endif
 
 //------------------------------------------------------------------------------
 //--------------------------- CLASS: model -------------------------------------

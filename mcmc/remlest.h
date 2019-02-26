@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include "fullcond.h"
 #include "distribution.h"
 
-#if defined(JAVA_OUTPUT_WINDOW)
-#include<adminparse_basic.h>
-#endif
 
 using std::ofstream;
 
@@ -44,10 +41,6 @@ class remlest
 //------------------------------------------------------------------------------
 
   private:
-
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adminb_p;
-  #endif
 
   ostream * logout;                         // Pointer to filestream for writing
                                             // output
@@ -104,9 +97,6 @@ class remlest
   // CONSTRUCTOR 1: Initialize from fullcond-objects
 
   remlest(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adb,
-  #endif
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,bool dispers,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,

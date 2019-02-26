@@ -50,7 +50,7 @@ public:
 
 	unsigned next;
 
-	//	Verweis auf das vorangehende Listenelement 
+	//	Verweis auf das vorangehende Listenelement
 	//
 	//	Werte mit besonderer Bedeutung: wie oben
 
@@ -310,7 +310,7 @@ public:
 
 	//	2. Schnittstelle eines Stacks
 
-	void insert(T v); 
+	void insert(T v);
 
 	void remove()
 	{
@@ -319,7 +319,7 @@ public:
 //		removeHead();
 	}
 
-	const T &top() 
+	const T &top()
 	{
 // GNU:
 	  return this->head();
@@ -386,7 +386,7 @@ public:
 
 	//	2. Schnittstelle einer Liste
 
-	void insert(T v) 
+	void insert(T v)
 	{
 		addTail(v);
 	}
@@ -444,11 +444,11 @@ public :
 	//	Konstruktor, der die Verbindung des Iterators zu einer
 	//	Liste herstellt
 
-	ListIterator(List<T> &list) : 
+	ListIterator(List<T> &list) :
         m_current(list.ihead()), m_list(list) { }
 
 	//	Destruktor
-		
+
 	virtual ~ListIterator() { }
 
    //	2. Oeffentliche Elementfunktionen -----------------------
@@ -457,8 +457,8 @@ public :
    //	Liste
 
 	const T &current() const
-	{ 
-		assert(m_current); 
+	{
+		assert(m_current);
 		return m_list.getNode(m_current)->v;
 	}
 
@@ -506,12 +506,6 @@ private :
 };
 
 
-#if defined(TEMPL_INCL_DEF)
-#	if defined (CC_SOURCE)
-#		include <tlinklst.cc>
-#	else
-#		include "tlinklst.cpp"
-#	endif
-#endif
+#include "tlinklst.cpp"
 
 #endif

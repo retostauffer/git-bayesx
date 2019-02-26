@@ -28,10 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include<vector>
 #include"clstring.h"
 
-#if defined(JAVA_OUTPUT_WINDOW)
-#include"adminparse_basic.h"
-#endif
-
 using std::cout;
 
 namespace MCMC
@@ -54,10 +50,6 @@ class __EXPORT_TYPE GENERAL_OPTIONS
                                   // output
 
   public:
-
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adminb_p;
-  #endif
 
   unsigned iterations;            // Number of iterations
   unsigned burnin;                // Number of burnin iterations
@@ -127,9 +119,6 @@ class __EXPORT_TYPE GENERAL_OPTIONS
   // copula = cop
 
   GENERAL_OPTIONS(
-  #if defined(JAVA_OUTPUT_WINDOW)
-                  administrator_basic * abp,
-  #endif
                   const unsigned & it,const unsigned & bu,const unsigned & st,
                   const bool & sa,const bool & cop, const unsigned & rot,
                   const bool & samsel, const double & samselval, const bool & fiwls,

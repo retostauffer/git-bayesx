@@ -24,19 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #ifndef ADMINPARSE
 #define ADMINPARSE
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-
-#include "StatReview.h"
-#include<StatwinFrame.h>
-#include<statwin_haupt.h>
-
-#elif defined(JAVA_OUTPUT_WINDOW)
-#include<jni.h>
-#endif
-
-//#include <vcl.h>
 #if !defined(__BUILDING_GNU)
 #include <FileCtrl.hpp>
 #include<dir.h>

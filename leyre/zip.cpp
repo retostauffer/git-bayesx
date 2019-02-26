@@ -21,11 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 #include "zip.h"
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 using std::ios;
 
 namespace MCMC

@@ -592,16 +592,10 @@ double FULLCOND::centerbeta(void)
   double sum=0;
   double * workbeta = beta.getV();
 
-  #if defined(MICROSOFT_VISUAL)
-  for (i=0;i<nrpar;i++,workbeta++)
-    sum+= *workbeta;
-  #else
-
   for (i=0;i<nrpar;i++,workbeta++)
     {
     sum+= *workbeta;
     }
-  #endif
 
   workbeta = beta.getV();
 
@@ -983,41 +977,25 @@ void FULLCOND::update(void)
 
     normold = norm(betameanold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmean = DBL_MAX;
-#else
 	  diffmean = MAXDOUBLE;
-#endif
     else
       diffmean = norm(betamean-betameanold)/normold;
 
     normold = norm(betavarold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffvar = DBL_MAX;
-#else
 	  diffvar = MAXDOUBLE;
-#endif
 	else
       diffvar = norm(betavar-betavarold)/normold;
 
     normold = norm(betaminold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmin = DBL_MAX;
-#else
 	  diffmin = MAXDOUBLE;
-#endif
     else
       diffmin = norm(betamin-betaminold)/normold;
 
     normold = norm(betamaxold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmax = DBL_MAX;
-#else
 	  diffmax = MAXDOUBLE;
-#endif
     else
       diffmax = norm(betamax-betamaxold)/normold;
 
@@ -1158,41 +1136,25 @@ void FULLCOND::updatemult(void)
 
     normold = norm(betameanold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmean = DBL_MAX;
-#else
 	  diffmean = MAXDOUBLE;
-#endif
     else
       diffmean = norm(betamean-betameanold)/normold;
 
     normold = norm(betavarold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffvar = DBL_MAX;
-#else
 	  diffvar = MAXDOUBLE;
-#endif
 	else
       diffvar = norm(betavar-betavarold)/normold;
 
     normold = norm(betaminold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmin = DBL_MAX;
-#else
 	  diffmin = MAXDOUBLE;
-#endif
     else
       diffmin = norm(betamin-betaminold)/normold;
 
     normold = norm(betamaxold);
     if (normold==0)
-#if defined(MICROSOFT_VISUAL)
-      diffmax = DBL_MAX;
-#else
 	  diffmax = MAXDOUBLE;
-#endif
     else
       diffmax = norm(betamax-betamaxold)/normold;
 
@@ -1226,11 +1188,7 @@ bool FULLCOND::posteriormode(void)
   normold = norm(betameanold);
 
   if (normold==0)
-    #if defined(MICROSOFT_VISUAL)
-      diffmean = DBL_MAX;
-    #else
       diffmean = MAXDOUBLE;
-    #endif
   else
     diffmean = norm(beta-betameanold)/normold;
 

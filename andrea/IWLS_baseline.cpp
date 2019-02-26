@@ -17,15 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
-
-
-
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-#endif
-
 #include "IWLS_baseline.h"
 
 namespace MCMC
@@ -737,7 +728,7 @@ void IWLS_baseline::update_IWLS(void)
 
   add_linearpred_multBS(beta,betaold,true);
   betahelp.minus(beta,betahelp);
-   
+
   double qold = - 0.5*prec_env.compute_quadformblock(betahelp,0,nrparpredictleft,nrpar-nrparpredictright-1);
 //  double qold = - 0.5*prec_env.compute_quadform(betahelp,0);
 

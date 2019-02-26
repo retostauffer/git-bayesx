@@ -315,12 +315,6 @@ protected :
    		{ return m_v; }
 };
 
-#if defined(TEMPL_INCL_DEF)
-#	if defined(CC_SOURCE)
-#		include <tarray2d.cc>
-#	else
-#		include "tarray2d.cpp"
-#	endif
-#endif
+#include "tarray2d.cpp"
 
 #endif

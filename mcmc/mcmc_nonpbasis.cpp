@@ -545,38 +545,9 @@ void FULLCOND_nonp_basis::outresults(void)
 
   if (type == MCMC::mrf)
     {
-    #if defined(JAVA_OUTPUT_WINDOW)
-
-    if (polex == true)
-      {
-      optionsp->out("  Postscript file is stored in file\n");
-      ST::string psfile = pathcurrent.substr(0,pathcurrent.length()-4) + ".ps";
-      optionsp->out("  " + psfile + "\n");
-      optionsp->out("\n");
-      }
-
-    optionsp->out("  Results may be visualized in BayesX using method 'drawmap'\n");
-    optionsp->out("  Type for example: objectname.drawmap " +
-    ST::inttostring(fcnumber) + "\n");
-    optionsp->out("\n");
-    #elif defined(BORLAND_OUTPUT_WINDOW)
-    optionsp->out("  Results may be visualized using the R function");
-    optionsp->out(" 'drawmap'\n");
-    optionsp->out("\n");
-    #endif
     }
   else
     {
-    #if defined(JAVA_OUTPUT_WINDOW)
-    optionsp->out("  Postscript file is stored in file\n");
-    ST::string psfile = pathcurrent.substr(0,pathcurrent.length()-4) + ".ps";
-    optionsp->out("  " + psfile + "\n");
-    optionsp->out("\n");
-    optionsp->out("  Results may be visualized in BayesX using method 'plotnonp'\n");
-    optionsp->out("  Type for example: objectname.plotnonp " +
-    ST::inttostring(fcnumber) + "\n");
-    optionsp->out("\n");
-    #else
     char hchar = '\\';
     ST::string hstring = "/";
     ST::string pathresultsplus = pathcurrent.insert_string_char(hchar,hstring);
@@ -588,7 +559,6 @@ void FULLCOND_nonp_basis::outresults(void)
     optionsp->out("\n");
     optionsp->out("  plotnonp(\""+ pathresultsplus + "\")\n");
     optionsp->out("\n");
-    #endif
     }
   optionsp->out("\n");
 

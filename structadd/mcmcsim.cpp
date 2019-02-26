@@ -17,16 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
-
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-
-#include<StatwinFrame.h>
-
-#endif
-
 #include"mcmcsim.h"
 #include<time.h>
 #include"clstring.h"
@@ -290,47 +280,9 @@ const int & seed, const bool & computemode, const bool & skipfirst)
          }
       equations[nrmodels-1-i].distrp->update_end();
       }
-
-
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-    Application->ProcessMessages();
-
-    if (Frame->stop)
-      {
-      genoptions->out("USER BREAK\n");
-      break;
-      }
-
-    if (Frame->pause)
-      {
-      genoptions->out("\n");
-      genoptions->out("SIMULATION PAUSED\n");
-      genoptions->out("Click CONTINUE to proceed\n");
-      genoptions->out("\n");
-
-      while (Frame->pause)
-        {
-        Application->ProcessMessages();
-        }
-
-      genoptions->out("SIMULATION CONTINUED\n");
-      genoptions->out("\n");
-      }
-#elif defined(JAVA_OUTPUT_WINDOW)
-      bool stop = genoptions->adminb_p->breakcommand();
-      if(stop)
-        break;
-#endif
-
     } // end: for (i=1;i<=genoptions->iterations;i++)
 
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-    if (!Frame->stop)
-#elif defined(JAVA_OUTPUT_WINDOW)
-    if (!genoptions->adminb_p->get_stop())
-#endif
       {
       genoptions->out("\n");
       genoptions->out("SIMULATION TERMINATED\n",true);
@@ -420,56 +372,6 @@ const int & seed, const bool & computemode, const bool & skipfirst)
       return false;
 
       } // end: if Frame->stop
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-    else
-      {
-
-      genoptions->out("\n");
-      genoptions->out("SIMULATION TERMINATED BY USER BREAK\n");
-      genoptions->out("\n");
-      genoptions->out("Estimation results: none\n");
-      genoptions->out("\n");
-
-
-      for(i=0;i<nrmodels;i++)
-        {
-
-        equations[nrmodels-1-i].distrp->reset();
-
-        for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-          {
-          equations[nrmodels-1-i].FCpointer[j]->reset();
-          } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-
-        }
-
-      return true;
-      }
-#elif defined(JAVA_OUTPUT_WINDOW)
-    else
-      {
-
-      genoptions->out("\n");
-      genoptions->out("Estimation results: none\n");
-      genoptions->out("\n");
-
-      for(i=0;i<nrmodels;i++)
-        {
-
-        equations[nrmodels-1-i].distrp->reset();
-
-        for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-          {
-          equations[nrmodels-1-i].FCpointer[j]->reset();
-          } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-
-        }
-
-      return true;
-      }
-#endif
-
   } // end: no errors
 
   return true;
@@ -583,11 +485,6 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & skipfirst, con
 
     if (!presim)
       {
-      #if defined(BORLAND_OUTPUT_WINDOW)
-      if (!Frame->stop)
-      #elif defined(JAVA_OUTPUT_WINDOW)
-      if (!genoptions->adminb_p->get_stop())
-      #endif
         {
         genoptions->out("\n");
         genoptions->out("ESTIMATION RESULTS:\n",true);
@@ -638,42 +535,6 @@ bool MCMCsim::posteriormode(ST::string & pathgraphs, const bool & skipfirst, con
 
 
         } // end: if Frame->stop
-      #if defined(BORLAND_OUTPUT_WINDOW)
-      else
-        {
-
-        genoptions->out("\n");
-        genoptions->out(
-        "ESTIMATION TERMINATED BY USER BREAK\n");
-        genoptions->out("\n");
-        genoptions->out("Estimation results: none\n");
-        genoptions->out("\n");
-
-
-        for(i=0;i<nrmodels;i++)
-          {
-
-          equations[nrmodels-1-i].distrp->reset();
-
-          for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-            {
-            equations[nrmodels-1-i].FCpointer[j]->reset();
-            } // end: for(j=0;j<equations[nrmodels-1-i].nrfc;j++)
-
-          }
-
-        }
-      #elif defined(JAVA_OUTPUT_WINDOW)
-      else
-        {
-
-        genoptions->out("\n");
-        genoptions->out("Estimation results: none\n");
-        genoptions->out("\n");
-
-        }
-      #endif
-
       } // end: if (!presim)
 
 
@@ -740,58 +601,10 @@ void MCMCsim::autocorr(const unsigned & lag,datamatrix & cmat)
             {
             cmat.putCol(col,equations[l].FCpointer[j]->compute_autocorr(lag,i,k));
             col++;
-
-            #if defined(BORLAND_OUTPUT_WINDOW)
-            Application->ProcessMessages();
-
-            if (Frame->stop)
-              {
-              break;
-              }
-
-            if (Frame->pause)
-              {
-              genoptions->out("\n");
-              genoptions->out("SIMULATION PAUSED\n");
-              genoptions->out("Click CONTINUE to proceed\n");
-              genoptions->out("\n");
-
-              while (Frame->pause)
-                {
-                Application->ProcessMessages();
-                }
-
-              genoptions->out("SIMULATION CONTINUED\n");
-              genoptions->out("\n");
-              }
-            #elif defined(JAVA_OUTPUT_WINDOW)
-            bool stop = genoptions->adminb_p->breakcommand();
-            if(stop)
-              break;
-            #endif
-
             }
-
-        #if defined(BORLAND_OUTPUT_WINDOW)
-        Application->ProcessMessages();
-        if (Frame->stop)
-          {
-          cmat = datamatrix(1,1);
-          break;
-          }
-        #elif defined(JAVA_OUTPUT_WINDOW)
-
-        if (genoptions->adminb_p->get_stop())
-          {
-          cmat = datamatrix(1,1);
-          break;
-          }
-        #endif
         }
       } // end:  for(j=0;j<fullcondp.size();j++)
-
     } // for (l=0;l<nrmodels;l++)
-
   }
 
 
@@ -849,11 +662,7 @@ void MCMCsim::autocorr(const unsigned & lag,ST::string & pathgraphs)
   //       for each full conditional one file will be created with filename
   //       'path' + title of the full conditional + "_sample.raw"
 
-void MCMCsim::get_samples(ST::string & pathgraphs
-  #if defined(JAVA_OUTPUT_WINDOW)
-  , vector<ST::string> & newc
-  #endif
-  )
+void MCMCsim::get_samples(ST::string & pathgraphs)
   {
 
   unsigned i,j;
@@ -895,21 +704,6 @@ void MCMCsim::get_samples(ST::string & pathgraphs
           filename = "";
         equations[j].FCpointer[i]->get_samples(filename,outg);
 
-        #if defined(JAVA_OUTPUT_WINDOW)
-
-        if (equations[j].FCpaths[i].length() >= 4)
-          psname = equations[j].FCpaths[i].substr(0,equations[j].FCpaths[i].length()-4) + "_sample.ps";
-        else
-          psname = "";
-        newc.push_back("dataset _dat");
-        newc.push_back("_dat.infile , nonote using " + filename);
-        newc.push_back("graph _g");
-        newc.push_back("_g.plotsample , replace outfile=" +
-                      psname  + " using _dat");
-        genoptions->out(psname + " (graphs)\n");
-        newc.push_back("drop _dat _g");
-
-        #endif
         genoptions->out("\n");
         }
       }
@@ -936,32 +730,12 @@ void MCMCsim::get_samples(ST::string & pathgraphs
         filename = likep_mult[i]->get_scale_sample();
         genoptions->out(filename+"\n");
         genoptions->out("\n");
-        #if defined(JAVA_OUTPUT_WINDOW)
-
-        psname = filename.substr(0,filename.length()-4) +   + ".ps";
-        newc.push_back("dataset _dat");
-        newc.push_back("_dat.infile , nonote using " + filename);
-        newc.push_back("graph _g");
-        newc.push_back("_g.plotsample , replace outfile=" +
-                      psname  + " using _dat");
-        genoptions->out(psname + " (graphs)\n");
-        newc.push_back("drop _dat _g");
-
-        #endif
-
         }
       }
     }
    */
 
   genoptions->out("\n");
-  #if defined(BORLAND_OUTPUT_WINDOW)
-  genoptions->out(
-  "Sampled parameters may also be visualized using the R\n");
-  genoptions->out("function 'plotsample'.\n");
-  genoptions->out("\n");
-  #endif
-
   }
 
 
@@ -972,13 +746,6 @@ void MCMCsim::get_samples(ST::string & pathgraphs
 
 
 } // end: namespace MCMC
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-//---------------------------------------------------------------------------
-#pragma package(smart_init)
-#endif
-
-
 
 
 

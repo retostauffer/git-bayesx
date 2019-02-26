@@ -156,9 +156,6 @@ class __EXPORT_TYPE MCMCsim
   //       'path' + title of the full conditional + "_sample.raw"
 
   void get_samples(ST::string & pathgraphs
-  #if defined(JAVA_OUTPUT_WINDOW)
-  , vector<ST::string> & newc
-  #endif
   );
 
   // DESTRUCTOR

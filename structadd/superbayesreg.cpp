@@ -17,16 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. */
 
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-
-#include<StatwinFrame.h>
-#include<statwin_haupt.h>
-
-#endif
-
 #include"superbayesreg.h"
 #include <mapobject.h>
 
@@ -1164,25 +1154,6 @@ void superbayesreg::clear(void)
   }
 
 
-#if defined(JAVA_OUTPUT_WINDOW)
-superbayesreg::superbayesreg(
-administrator_basic * adb, administrator_pointer * adp,
-const ST::string & n,ofstream * lo,istream * in,
-						 ST::string p,vector<statobject*> * st)
-						 : statobject(adb,n,"mcmcreg",lo,in,p)
-  {
-  clear();
-  adminp_p = adp;
-  statobj = st;
-  master = MASTER_OBJ();
-  create();
-  resultsyesno = false;
-  run_yes = false;
-  posteriormode = false;
-  computemodeforstartingvalues = true;
-  describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
-  }
-#else
 superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
 						 ST::string p,vector<statobject*> * st)
 						 : statobject(n,"mcmcreg",lo,in,p)
@@ -1200,15 +1171,11 @@ superbayesreg::superbayesreg(const ST::string & n,ofstream * lo,istream * in,
   firstvarselection = true;
   describetext.push_back("CURRENT REGRESSION RESULTS: none\n");
   }
-#endif
 
 
 superbayesreg::superbayesreg(const superbayesreg & b) : statobject(statobject(b))
   {
   create();
-  #if defined(JAVA_OUTPUT_WINDOW)
-  adminp_p = b.adminp_p;
-  #endif
 
   firstvarselection = b.firstvarselection;
 
@@ -1440,9 +1407,6 @@ const superbayesreg & superbayesreg::operator=(const superbayesreg & b)
 	 return *this;
   statobject::operator=(statobject(b));
   create();
-  #if defined(JAVA_OUTPUT_WINDOW)
-  adminp_p = b.adminp_p;
-  #endif
 
   firstvarselection = b.firstvarselection;
 
@@ -1700,9 +1664,6 @@ bool superbayesreg::create_generaloptions(void)
 
 
     generaloptions = MCMC::GENERAL_OPTIONS(
-    #if defined(JAVA_OUTPUT_WINDOW)
-    adminb_p,
-    #endif
     iterations.getvalue(),burnin.getvalue(),
                                 step.getvalue(),saveestimation.getvalue(),
                                 copula.getvalue(),rotation.getvalue(),
@@ -11414,16 +11375,7 @@ void getsamplerun(superbayesreg & b)
     ST::string pathgraphs = b.outfile.getvalue();
     if (b.posteriormode == false)
       {
-      #if defined(JAVA_OUTPUT_WINDOW)
-
-// STEFAN: CHECKEN
-// zweites Argument sollte ein Vektor sein.
-      // b.simobj.get_samples(b.newcommands,b.outfile.getvalue() + "_");
-      ST::string aString( b.outfile.getvalue() + "_" );
-      b.simobj.get_samples(aString, b.newcommands);
-      #else
       b.simobj.get_samples(pathgraphs);
-      #endif
       }
     else
       b.outerror("ERROR: no MCMC simulation results\n");
@@ -11439,8 +11391,3 @@ void superbayesreg::describe(const optionlist & globaloptions)
   statobject::describe(globaloptions);
   }
 
-
-#if defined(BORLAND_OUTPUT_WINDOW)
-//------------------------------------------------------------------------------
-#pragma package(smart_init)
-#endif

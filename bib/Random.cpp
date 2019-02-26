@@ -31,14 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 // BEGIN: DSB //
 
 // define what is NAN, and how we determine whether a double is infinite.
-#if defined(MICROSOFT_VISUAL)
-#include <limits>
-    bool
-    infinite(double x)
-    {
-        return ABS(x) > DBL_MAX;
-    }
-#elif defined(__BUILDING_GNU)
+#if defined(__BUILDING_GNU)
     bool
     infinite(double x)
     {

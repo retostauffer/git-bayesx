@@ -408,9 +408,6 @@ class __EXPORT_TYPE remlreg : public statobject
   // - name = n
 
   remlreg (
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adb,
-  #endif
   const ST::string & n,ofstream * lo,istream * i,
                                 ST::string p,vector<statobject*> * st);
 

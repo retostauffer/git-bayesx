@@ -5,14 +5,6 @@
 #define __BUILDING_GNU
 #endif
 
-#if !defined (TEMPL_INCL_DEF)
-#define TEMPL_INCL_DEF
-#endif
-
-#if !defined (_MSC_VER2)
-#define _MSC_VER2
-#endif
-
 #if !defined (NO_TEMPLATE_FRIENDS)
 #define NO_TEMPLATE_FRIENDS
 #endif
@@ -64,7 +56,7 @@ int main()
 
     MAP::map m = MAP::map();
     std::cout << "  m.get_maxn(): " << m.get_maxn() << "\n";
-    
+
     datamatrix d = datamatrix(2,2,1);
     datamatrix d2 = datamatrix(2,1,3);
 
@@ -82,8 +74,8 @@ int main()
     run = a.parse(*s);
 
     // check for terminating condition
-//    if(*s==*stop1 || *s==*stop2) 
+//    if(*s==*stop1 || *s==*stop2)
 //      run=-1;
-    } //end while run 
+    } //end while run
   }
 

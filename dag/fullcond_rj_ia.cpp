@@ -1031,16 +1031,7 @@ double FULLCOND_rj::p_prop(double prop)
 
 //		FULLCOND::outresults();
 
-		 #if defined(MICROSOFT_VISUAL)
-		{
-			number = __min(number, freq.size());
-		}
-		#else
-		{
-			number = min(number, freq.size());
-		}
-		#endif
-
+		number = min(number, freq.size());
 
 		std::sort(freq.begin(), freq.end());
 

@@ -26,10 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include "fullcond.h"
 #include "mcmc_const.h"
 
-#if defined(JAVA_OUTPUT_WINDOW)
-#include"adminparse_basic.h"
-#endif
-
 using std::ofstream;
 
 //------------------------------------------------------------------------------
@@ -44,11 +40,6 @@ class remlest_multinomial_catsp
 //------------------------------------------------------------------------------
 
   private:
-
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adminb_p;
-  #endif
-
   ostream * logout;                         // Pointer to filestream for writing
                                             // output
 
@@ -119,9 +110,6 @@ class remlest_multinomial_catsp
   // Initialize from fullcond-objects
 
   remlest_multinomial_catsp(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adb,
-  #endif
   vector<MCMC::FULLCOND*> & fc,datamatrix & re,
           const ST::string & family, const ST::string & ofile,
           const int & maxiter, const double & lowerlimit, const double & epsi,

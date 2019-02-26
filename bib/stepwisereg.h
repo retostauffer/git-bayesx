@@ -420,10 +420,6 @@ class __EXPORT_TYPE stepwisereg : public statobject
 
   void create(void);
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_pointer * adminp_p;
-  #endif
-
   public:
 
   //------------------------- PUBLIC FUNCTIONS ---------------------------------
@@ -441,14 +437,8 @@ class __EXPORT_TYPE stepwisereg : public statobject
   // - name = n
 
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  stepwisereg (administrator_basic * adb, administrator_pointer * adp,
-               const ST::string & n,ofstream * lo,istream * i,
-                                ST::string p,vector<statobject*> * st);
-  #else
   stepwisereg (const ST::string & n,ofstream * lo,istream * i,
                                 ST::string p,vector<statobject*> * st);
-  #endif
 
   // COPY CONSTRUCTOR
 

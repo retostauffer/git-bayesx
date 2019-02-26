@@ -2204,21 +2204,12 @@ if(matrixnumber == 1 || kombimatrix == false)
     optionsp->out("  Results are stored in file\n");
     optionsp->out("  " + pathcurrent + "\n");
     optionsp->out("\n");
-    #if defined(JAVA_OUTPUT_WINDOW)
-    optionsp->out("  Postscript file is stored in file\n");
-    ST::string psfile = pathcurrent.substr(0,pathcurrent.length()-4) + ".ps";
-    optionsp->out("  " + psfile + "\n");
-    optionsp->out("\n");
-    optionsp->out("  Results may be visualized using method 'plotnonp'\n");
-    optionsp->out("  Type for example: objectname.plotnonp " + ST::inttostring(fcnumber) + "\n");
-    #else
     optionsp->out("  Results may be visualized using the R function 'plotnonp'\n");
     ST::string doublebackslash = "/";
     ST::string spluspath = pathcurrent.insert_string_char('\\',doublebackslash);
     optionsp->out("  Type for example:\n");
     optionsp->out("  plotnonp(\"" + spluspath + "\")");
     optionsp->out("\n");
-    #endif
     optionsp->out("\n");
 
     fchelp.outresults();

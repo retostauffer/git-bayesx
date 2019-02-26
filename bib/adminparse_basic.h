@@ -24,18 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #ifndef ADMINPARSEBASIC
 #define ADMINPARSEBASIC
 
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-
-#include "StatReview.h"
-#include<StatwinFrame.h>
-#include<statwin_haupt.h>
-#elif defined(JAVA_OUTPUT_WINDOW)
-#include<jni.h>
-#endif
-
-
 //------------------------------------------------------------------------------
 
 
@@ -53,14 +41,6 @@ class __EXPORT_TYPE administrator_basic
   bool stop;
   bool processrunning;
   bool suppressoutput;
-
-
-#if defined(JAVA_OUTPUT_WINDOW)
-  JNIEnv* Java;
-  jclass BayesX_cls;
-  jobject BayesX_obj;
-  jmethodID javaoutput;
-#endif
 
   // CONSTRUCTOR
 

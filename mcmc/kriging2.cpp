@@ -1306,22 +1306,7 @@ void FULLCOND_kriging2::outresults()
 
   if(mapexisting)
     {
-#if defined(JAVA_OUTPUT_WINDOW)
-    optionsp->out("  Postscript files are stored in files\n");
-    ST::string psfile;
-    psfile = outest.substr(0,outest.length()-4) + ".ps";
-    optionsp->out("  " + psfile + "\n");
-    psfile = outest.substr(0,outest.length()-4) + "_pcatbig" + ".ps";
-    optionsp->out("  " + psfile + "\n");
-    psfile = outest.substr(0,outest.length()-4) + "_pcatsmall" + ".ps";
-    optionsp->out("  " + psfile + "\n");
-    optionsp->out("\n");
-    optionsp->out("  Results may be visualized using method 'drawmap'\n");
-    optionsp->out("  Type for example:\n");
-    optionsp->out("  objectname.drawmap " + ST::inttostring(fcnumber) + "\n");
-#else
     optionsp->out("  Results may be visualized using the R function 'drawmap' \n");
-#endif
     optionsp->out("\n");
     }
   else

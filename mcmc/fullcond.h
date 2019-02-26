@@ -26,11 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include"../export_type.h"
 #include"statmat.h"
 #include"Random.h"
-#if defined(MICROSOFT_VISUAL)
-#include<limits>
-#else
 #include"../values.h"
-#endif
 #include<fstream>
 #include<vector>
 #include<bitset>

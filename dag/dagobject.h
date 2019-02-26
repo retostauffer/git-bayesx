@@ -135,9 +135,6 @@ class __EXPORT_TYPE dagobject : public statobject
     }
 
   dagobject(
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adb,
-  #endif
   const ST::string & n,ofstream * lo,istream * i,ST::string p,
             vector<statobject*> * st);
 

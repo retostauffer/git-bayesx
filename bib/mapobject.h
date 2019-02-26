@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #define MAPOBJECT_INCLUDED
 
 #include"../export_type.h"
-#if defined(JAVA_OUTPUT_WINDOW)
-#include"adminparse_pointers.h"
-#endif
 
 #include"map.h"
 #include"statobj.h"
@@ -58,10 +55,6 @@ class __EXPORT_TYPE mapobject : public statobject
   {
 
   private:
-
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_pointer * adminp_p;
-  #endif
 
   // vector of pointers to current statobjects
 
@@ -186,14 +179,8 @@ class __EXPORT_TYPE mapobject : public statobject
 
   // CONSTRUCTOR
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  mapobject(administrator_basic * adb, administrator_pointer * adp,
-            const ST::string & n,ofstream * lo,istream * i,ST::string p,
-            vector<statobject*> * st);
-  #else
   mapobject(const ST::string & n,ofstream * lo,istream * i,ST::string p,
             vector<statobject*> * st);
-  #endif
 
   // COPY CONSTRUCTOR
 

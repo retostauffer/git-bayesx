@@ -19,15 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 
 
 //---------------------------------------------------------------------------
-#if defined(BORLAND_OUTPUT_WINDOW)
-#include <vcl.h>
-#pragma hdrstop
-
-#include<StatwinFrame.h>
-#include<statwin_haupt.h>
-
-#endif
-
 #include<bayesreg.h>
 #include<bayesreg4.h>
 #include<typeinfo.h>

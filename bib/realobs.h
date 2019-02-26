@@ -24,11 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #define REALOBS_INCLUDED
 
 #include"../export_type.h"
-#if defined(MICROSOFT_VISUAL)
-#include<limits>
-#else
 #include"../values.h"
-#endif
 
 #include<iostream>
 #include<math.h>
@@ -41,12 +37,7 @@ namespace realob
 // missing value
 
 
-#if defined(MICROSOFT_VISUAL)
-  const double NA = DBL_MAX;
-
-#else
-  const double NA = MAXDOUBLE;
-#endif
+const double NA = MAXDOUBLE;
 //------------------------------------------------------------------------------
 //--------------------------- CLASS realobs ------------------------------------
 //------------------------------------------------------------------------------

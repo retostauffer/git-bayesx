@@ -31,10 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
 #include<fstream>
 #include<vector>
 
-#if defined(JAVA_OUTPUT_WINDOW)
-#include"adminparse_basic.h"
-#endif
-
 using std::cout;
 
 namespace MCMC
@@ -73,11 +69,6 @@ class __EXPORT_TYPE MCMCoptions
 
   public:
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_basic * adminb_p;
-  #endif
-
-
   // DEFAULT CONSTRUCTOR
   // Defines:
   // iterations = 52000
@@ -103,14 +94,8 @@ class __EXPORT_TYPE MCMCoptions
   // samplesize = 0
   // logout = lo
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  MCMCoptions(administrator_basic * abp,
-              const unsigned & it,const unsigned & bu,const unsigned & st,
-              ostream * lo=&cout,const double & l1=95,const double & l2=80);
-  #else
   MCMCoptions(const unsigned & it,const unsigned & bu,const unsigned & st,
               ostream * lo=&cout,const double & l1=95,const double & l2=80);
-  #endif
 
   // COPY CONSTRUCTOR
 

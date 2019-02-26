@@ -634,10 +634,6 @@ class __EXPORT_TYPE bayesreg : public statobject
 
   void create(void);
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  administrator_pointer * adminp_p;
-  #endif
-
   public:
 
 
@@ -655,14 +651,8 @@ class __EXPORT_TYPE bayesreg : public statobject
   // ADDITIONAL INFORMATION:
   // - name = n
 
-  #if defined(JAVA_OUTPUT_WINDOW)
-  bayesreg (administrator_basic * adb, administrator_pointer * adp,
-            const ST::string & n,ofstream * lo,istream * i,
-                                ST::string p,vector<statobject*> * st);
-  #else
   bayesreg (const ST::string & n,ofstream * lo,istream * i,
                                 ST::string p,vector<statobject*> * st);
-  #endif
 
   // COPY CONSTRUCTOR
 
