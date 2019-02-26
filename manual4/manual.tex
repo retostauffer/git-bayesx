@@ -2,9 +2,6 @@
 
 \input{manual_preliminaries.tex}
 
- \externaldocument{manual_star}
- \externaldocument{manual_tutorials}
-
 \makeindex
 
 \setcounter{secnumdepth}{3}
@@ -31,7 +28,13 @@
 
 \input{manual_stepwiseregobjects.tex}
 
-\input{manual_literature.tex}
+\newpage
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibliography{manual}
+
+\newpage
 
 \addcontentsline{toc}{chapter}{Index}
 

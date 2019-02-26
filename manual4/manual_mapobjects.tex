@@ -3,20 +3,17 @@
 
 The main purpose of {\em map objects} is to provide functionality for handling and storing spatial information in terms of geographical maps. In addition, {\em map objects} serve as auxiliary objects for regression models with spatial effects, where the effect of a location variable is to be included via a spatially correlated prior. In this context, {\em map objects} store the neighborhood structure of a map and provide functionality to compute weights associated with this neighborhood structure.
 
-The typical approach will be as follows: A {\em map object} is created, the boundary information of a geographical map is read from an external file and stored in the {\em map object}. This can be achieved using the #infile# command, see
-\autoref{mapinfile} below. Based on the boundary information, the {\em map object} automatically computes the neighborhood
-structure of the map and the weights associated with the neighborhood structure. Since there are several proposals in the
-spatial statistics literature for defining weights, the user is given the choice between a couple of alternatives.  Afterwards, the {\em map object} can be passed to the regression function of a regression object to estimate regression models with spatial covariates, see \autoref{XXX}.
+The typical approach will be as follows: A {\em map object} is created, the boundary information of a geographical map is read from an external file and stored in the {\em map object}. This can be achieved using the #infile# command, see \autoref{mapinfile} below. Based on the boundary information, the {\em map object} automatically computes the neighborhood structure of the map and the weights associated with the neighborhood structure. Since there are several proposals in the spatial statistics literature for defining weights, the user is given the choice between a couple of alternatives.  Afterwards, the {\em map object} can be passed to the regression function of a regression object to estimate regression models with spatial covariates.
 
 Note that \BayesX itself offers only limited functionality for creating and/or modifying geographical information. The {\it R2BayesX} R package provides some functionality for creating and manipulating boundary information and for storing it in file formats that can be processed by \BayesX.
 
 \section{Method infile}
- \label{mapinfile} 
- \index{Map object!Infile command} 
- \index{Map object!Boundary files} 
- \index{Boundary files} 
+ \label{mapinfile}
+ \index{Map object!Infile command}
+ \index{Map object!Boundary files}
+ \index{Boundary files}
  \index{Graph files}
- \index{Reading graph files} 
+ \index{Reading graph files}
  \index{Reading boundary files}
 
 \subsection{Description}
@@ -208,7 +205,7 @@ Note that the specification of the #weightdef# option is only meaningful if a {\
 
 
 \section{Method outfile}
- \label{mapoutfile} 
+ \label{mapoutfile}
  \index{Map object!Outfile command}
 
 \begin{stanza}{Description}
@@ -227,15 +224,15 @@ additional option, the file format will be a {\em graph file} and a {\em boundar
 \item #graph# \\
 Forces the program to store the map information in {\em graph file} format rather than in {\em boundary file} format.
 \item #includeweights# \\
-Option #includeweights# is meaningful only if the storing format is a {\em graph file}, i.e. if option #graph# is specified. In this case, the weights associated with the edges (neighbors) of the nodes (regions) are stored in addition to the graph structure. 
+Option #includeweights# is meaningful only if the storing format is a {\em graph file}, i.e. if option #graph# is specified. In this case, the weights associated with the edges (neighbors) of the nodes (regions) are stored in addition to the graph structure.
 \item #replace# \\
 The #replace# option allows \BayesX to overwrite an already existing file. If #replace# is omitted in the optionlist an error will be raised if you attempt to overwrite an existing file. This prevents you from overwriting an existing file unintentionally.
 \end{itemize}
 
 
 \section{Method reorder}
- \label{mapreorder} 
- \index{Reorder regions of a map} 
+ \label{mapreorder}
+ \index{Reorder regions of a map}
  \index{Map object!Reorder command}
 
 \begin{stanza}{Description}

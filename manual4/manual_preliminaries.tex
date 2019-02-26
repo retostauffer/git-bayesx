@@ -14,7 +14,6 @@
 \usepackage{longtable}
 \usepackage{xr}
 
-\usepackage{thumbpdf}
 \usepackage{hyperref}
 \usepackage{xspace}
 
@@ -33,8 +32,7 @@
     pdfpagemode=UseOutlines,
     bookmarksopen=true,
     bookmarksnumbered=true,
-    pdfstartpage={1},
-    hyperindex=true
+    pdfstartpage={1}
     }
 
 
@@ -54,7 +52,7 @@
  \setlength{\evensidemargin}{-0.4cm}
 
  \renewcommand{\baselinestretch}{1.0}
- 
+
  \fancyhead[RO,LE]{\thepage}
  \fancyhead[C]{}
  \fancyhead[LO]{\nouppercase\rightmark}
@@ -317,8 +315,8 @@
 
 \newenvironment{stanza}[1]
  {
- \subheader{#1} 
- \begin{itemize} 
+ \subheader{#1}
+ \begin{itemize}
  \item[]
  }
  {
@@ -329,7 +327,7 @@
 \newcommand{\preface}[1]
  {
  \thispagestyle{empty}
-    
+
  \begin{center}
  {\bfseries \em \huge BayesX}
 

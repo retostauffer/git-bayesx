@@ -25,10 +25,6 @@ given in \citeasnoun{BelLan08} and \citeasnoun{Bel07}.
 models} \index{Varying coefficients} \index{Bayesian semiparametric
 regression} \index{model choice} \index{variable selection}
 
-%First steps with {\em remlreg objects} can be done with the example
-%in chapter \ref*{remlregzambiaanalysis} of the tutorial manual which
-%provides a self-contained demonstrating example.
-
 \clearpage
 
 \section{Method regress}
@@ -278,8 +274,7 @@ with 30 knots:
 
 #Y = X1(psplinerw2,degree=2,nrknots=30)#
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection, an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. However, in some situations it may be
 favorable to define the list of smoothing parameters manually. {\em stepwisereg objects} provide three alternative ways for
 manually specifying the ordered list of smoothing parameters of a model term. They are specified via option {\tt sp} and -
@@ -362,8 +357,7 @@ nonlinear effect. The following model statement defines zero degree P-splines wi
 First order differences are obtained by
 specifying #X1(rw1)#.
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 
@@ -402,8 +396,7 @@ where the second argument indicates the period of the seasonal
 effect. In the example above, the period is 12 corresponding to
 monthly data.
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
@@ -437,8 +430,7 @@ defines a pairwise difference penalty for #region# where the
 geographical information is stored in the {\em map object}
 #germany#. An error will be raised if #germany# is not existing.
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 
@@ -474,8 +466,7 @@ specifies a two-dimensional cubic P-spline with second order difference
 penalty where the geographical information is stored in the
 {\em map object} #germany#.
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
@@ -511,8 +502,7 @@ is not clear how well these models can be estimated using {\em
 stepwisereg objects}.
 
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
@@ -573,8 +563,7 @@ this case the model
 assumes different effects of both #X2# and #Z2# in the groups.
 
 To perform model choice and variable selection an ordered list of smoothing
-parameters must be defined, see \autoref{stepwiseest}
-in the methodology manual. {\em BayesX} automatically defines an appropriate
+parameters must be defined. {\em BayesX} automatically defines an appropriate
 list of smoothing parameters, i.e. it
 is usually not necessary to  specify the smoothing parameters.
 The list of smoothing parameters is specified manually in the same way as for P-splines,
@@ -604,8 +593,7 @@ penalty is defined as follows:
 #Y = X1*X2(rw2)#
 
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 
@@ -647,8 +635,7 @@ centered to avoid identifiability problems:
 #Y = X1*region(spatial, map=germany, center)#
 
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 
@@ -686,8 +673,7 @@ specifies a two-dimensional cubic P-spline with first order
 difference penalty where the geographical information is stored in the
 {\em map object} #germany#.
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
@@ -728,8 +714,7 @@ would be
 
 #X1(linear) + X1*grvar(random#[, {\em options}]#)#
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-\autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
@@ -785,8 +770,7 @@ The model term
 
 specifies an ANOVA type interaction effect with  second order difference penalty for the main effects.
 
-To perform model choice and variable selection an ordered list of smoothing parameters must be defined, see
-autoref{stepwiseest} in the methodology manual. {\em BayesX} automatically defines an appropriate list of smoothing
+To perform model choice and variable selection an ordered list of smoothing parameters must be defined. {\em BayesX} automatically defines an appropriate list of smoothing
 parameters, i.e. it is usually not necessary to  specify the smoothing parameters. The list of smoothing parameters is
 specified manually in the same way as for P-splines, see the entry above (page \pageref{psplines_stepwise}).
 \end{itemize}
@@ -1063,8 +1047,7 @@ distributed response is specified by adding
 #family=gamma#
 
 to the options list. An optional weight variable {\em weightvar}
-can be specified to estimate weighted regression models, see
-\autoref{weightspecification} for details.
+can be specified to estimate weighted regression models.
 
 It is possible to assume a fixed  scale
 parameter. The scale parameter is defined to be fixed by adding
@@ -1137,10 +1120,7 @@ the responses are assumed to be the average of individual responses.
 \subsubsection*{Piecewise exponential model
 (p.e.m.)}\index{Piecewise exponential model}
 
-In subsection \ref*{continuoustime} of the methodology manual we
-demonstrated how continuous time survival data are manipulated
-to transform it to a Poisson model for estimation. Suppose that the
-following modified data set is available
+Suppose that the following data set is available
 \vspace{0.5cm}\\
 \begin{tabular}{c|c|c|c|c|c|c}
 #y# & #indnr# & #a# & $\delta$ &  $\Delta$ &   #x1# &
@@ -1154,8 +1134,7 @@ $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$& $\vdots$\\
 \end{tabular}
 \vspace{0.5cm}\\
 with indicator #y#, interval limit #a#, indicator of non-censoring
-$\delta$ and offset $\Delta$ defined as in subsection
-\ref*{continuoustime} of the methodology manual. Let #x1# be a
+$\delta$ and offset $\Delta$. Let #x1# be a
 covariate with linear effect and #x2# a continuous covariate with
 nonlinear effect. Then the correct syntax for estimating a
 p.e.m.~with a {\em stepwisereg object} named #s# is e.g.~as follows:
@@ -1181,8 +1160,7 @@ to the model statement.
 
 \begin{itemize}
 \item {\tt algorithm = stringvalue} \\
-Specifies the selection algorithm. Possible values are {\tt cdescent1} (adaptive algorithms in the methodology manual, see
-\autoref{stepwiseest}), {\tt cdescent2} (adaptive algorithms  1 and 2 with backfitting, see remarks 1 and 2 of section 3 in
+Specifies the selection algorithm. Possible values are {\tt cdescent1}, {\tt cdescent2} (adaptive algorithms  1 and 2 with backfitting, see remarks 1 and 2 of section 3 in
 \citeasnoun{BelLan08}), {\tt cdescent3} (search according to {\tt cdescent1}  followed by {\tt cdescent2}  using the
 selected model in the first step as the start model) and {\tt stepwise} (stepwise algorithm implemented in the gam routine
 of S-plus, see Chambers and Hastie, 1991).
