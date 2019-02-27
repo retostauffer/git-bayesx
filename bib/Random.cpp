@@ -2148,7 +2148,7 @@ double incomplete_gamma (double a, double x)
 
 double gamma_cdf(double y, double mu, double sigma)
   {
-  const double p = 0.0;
+  double p = 0.0;
   #if defined(BAYESX_GSL_INCLUDED)
   p = gsl_cdf_gamma_P(y, sigma, mu/sigma);
   #endif
