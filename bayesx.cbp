@@ -32,7 +32,7 @@
 		<Compiler>
 			<Add option="-O3" />
 			<Add option="-w" />
-			<Add option="-fexceptions -DBayesX_gsl_included -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC" />
+			<Add option="-fexceptions -DBayesX_gsl_included -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -DINCLUDE_MCMC -DBAYESX_GSL_INCLUDED" />
 			<Add directory="adaptiv" />
 			<Add directory="alex" />
 			<Add directory="andrea" />
