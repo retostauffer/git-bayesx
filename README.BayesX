@@ -1,41 +1,39 @@
-##########################
-##########################
-### BayesX version 2.2 ###
-##########################
-##########################
+############################
+############################
+### BayesX version 3.0.2 ###
+############################
+############################
 
-# Last changes: 21.02.2013
+# Last changes: 9.3.2019
 
 ################
 # Introduction #
 ################
 
 This Readme file provides information on how to compile BayesX from source code.
-If you have no specific reason for using the source code and if you are working
-on a Windows OS, we suggest to use the Windows installer instead of your own source
-code compilation (see www.bayesx.org).
 
-The source code of BayesX can be obtained in two different ways:
-- The download website (www.bayesx.org) offers a zip-archive with the current
-  stabler release of BayesX (sourcecode.zip).
+If you do not have the source code avalailable already, it can be obtained in two 
+different ways:
+
+- The download website on www.bayesx.org offers a zip-archive with the current
+  stable release of BayesX (sourcecode.zip).
 - There is an anonymous (read-only) SVN access to the current development version
   of BayesX via https://svn.gwdg.de/svn/bayesx/. This is not considered a stable
   distribution and may comprise development versions that may fail for several
   reasons.
 
 For compiling the source code, we provide support for two different versions:
+
 - Customized make support via the cmake functionality (http://www.cmake.org/).
 - A basic makefile that has to be adapted manually to your OS.
 
 The advantage of cmake is that it provides automated support for adapting the
-makefile to your local computing environment (automatic detection of java and other
-required components) and also allows to compile both a command line and a GUI
-version of BayesX across a variety of platforms. The ordinary makefile makes
-less requirement for your system but only compiles the source code version
-of BayesX.
+makefile to your local computing environment (automatic detection of some
+required components) across a variety of platforms. The ordinary makefile makes
+less requirement for your system but may require more manual adujstments.
 
 Comments / additions / corrections to the information in this file should be
-submitted to bayesx@stat.uni-muenchen.de.
+submitted to bayesx@gwdg.de.
 
 ############################
 # Build BayesX using cmake #
@@ -57,76 +55,25 @@ probably only work on platforms with a good preset of tools (e.g. most linux
 distributions) but in most cases some additional arguments will be required (see
 below).
 
-# different versions of BayesX and cmake info
+The cmake specifications are made in CMakeLists.txt which comprise a specification 
+of the sources included and additional information on required libraries etc. Usually, 
+you should not have to make any changes to these files.
 
-There are two different versions of BayesX:
-- a pure command line version without graphical use interface that excluisvely
-  relies on C++ code
-- a version comprising a graphical user interface implemented in java that
-  internally invokes C++ code for computations.
-  
-Both versions will be build with cmake. The corresponding specifications are made in
-
-- CMakeLists.txt (for the command line version) and
-- java/CMakeLists.txt (for the GUI version)
-
-Both files comprise a specification of the sources included and additional information
-on required libraries etc. Usually, you should not have to make any changes to
-these files.
-
-Calling cmake will create a make file that, by default, builds both BayesX versions.
-
-The two versions can be invoked as follows: For the command line version, there
-will be an executable BayesX that is called via
+Calling cmake will create a make file that builds the BayesX executable, such that
 
 > bayesx
 
-Note that BayesX has to be executable. Under linux systems, the call sometimes has to
+starts the software. Note that BayesX has to be executable. Under linux systems, the call sometimes has to
 be changed to
 
 > ./bayesx
-
-For the java version, change to the java subdirectory via
-
-> cd java
-
-and execute
-
-> ./run-java-gui.sh
-
-This should start the java GUI. Note that run-java-gui.sh has to be executable.
-This can be ensured by first  typing
-
-> chmod 700 run-java-gui.sh
-
-(or an appropriate modification).
-
-An alternative is to execute the following (in the java subdirectory):
-
-> javac BayesX.java
-> java BayesX
-
-This requires that java is contained in the current path. Under linux systems, you will
-have to specify the java.library.path manually. This can be done by adding the
-appropriate option to the java calls:
-
-> javac -Djava.library.path=. BayesX.java
-> java -Djava.library.path=. BayesX
-
-or by explicitly speciying the variable:
-
-> export LD_LIBRARY_PATH=.
-> javac BayesX.java
-> java BayesX
 
 # Requirements:
 To be able to use cmake to generate a customized Makefile, you will need the
 following components:
 
 - the cmake (>= version 2.8.10) facility (available from www.cmake.org).
-- C and C++ compiler such as gcc and g++ (available from for windows via www.mingw.org).
-- a recent java development kit (we only used ORACLE java so far and failed with openjava,
-  java download: http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+- C and C++ compiler such as gcc and g++ (available for windows via www.mingw.org).
 - when working in a unix-type environment (linux, Mac OS), you will need the
   readline library. This is not required for windows platforms.
 
@@ -165,12 +112,6 @@ For example to specify 64bit MinGW compilers, the cmake call may look as follows
 
 > cmake -D CMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -D CMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ .
 
-On some systems, the automatic location of java does not work properly. This can be fixed by
-specifying the variables JAVA_AWT_LIBRARY, JAVA_JVM_LIBRARY and JAVA_INCLUDE_PATH.
-An example call looks as follows:
-
-cmake  -D JAVA_AWT_LIBRARY="C:\Program Files\Java\jdk1.7.0_13\lib" -D JAVA_JVM_LIBRARY="C:\Program Files\Java\jdk1.7.0_13\lib" -D JAVA_INCLUDE_PATH="C:\Program Files\Java\jdk1.7.0_13\include" .
-
 Of course, all options can be combined.
 
 # some known problems / trouble shooting:
@@ -178,12 +119,6 @@ Of course, all options can be combined.
 - cmake conflicts with r-tools: If you have installed r-tools and included r-tools
 binaries in your search path, this will conflict with cmake. You will have to delete r-tools
 from the path (see "Requirements" above).
-
-- java is not detected: See "Additional Options for cmake" above to explicitly
-specify the location of java on your computer.
-
-- Invoking the java GUI sometimes fails on linux: You will have to specify the
-java.library.path, see "Different versions of BayesX" above.
 
 - If cmake failes, it sometimes helps to delete the cmake cache file CMakeCache.txt
 
@@ -224,15 +159,8 @@ to be used by make can be specified by the -j option. Four example, four kernels
 will be used with
 > mingw32-make -j4
 
-The command line version of BayesX can now be invoked by
+BayesX can now be invoked by
 > BayesX
-
-To work with the GUI version, add java to the path:
-> PATH c:\programme\jdk\bin;%PATH%
-and compile the java version
-> cd java
-> javac BayesX.java
-> java BayesX
 
 
 - 32bit windows machine
@@ -259,15 +187,8 @@ Add r-tools to make mingw32-make available:
 and call make (with no. of kernels defined by -j):
 > mingw32-make -j2
 
-The command line version of BayesX can now be invoked by
+BayesX can now be invoked by
 > BayesX
-
-To work with the GUI version, add java to the path:
-> PATH c:\programme\jdk\bin;%PATH%
-and compile the java version
-> cd java
-> javac BayesX.java
-> java BayesX
 
 
 ####################################
