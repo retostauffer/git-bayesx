@@ -144,30 +144,12 @@ rm -rf CVS
 cd ..
 
 cd ..
-mkdir java
-
-cd ..
-cp -rf java\doc sourcecode\java\doc
-cp -rf java\umontreal sourcecode\java\umontreal
-
-cd java
-cp *.java ..\sourcecode\java
-cp *.cpp ..\sourcecode\java
-cp *.h ..\sourcecode\java
-cp *.sh ..\sourcecode\java
-cp *.txt ..\sourcecode\java
-cp *.gif ..\sourcecode\java
-cp *.jpg ..\sourcecode\java
-
-cd ..\sourcecode
-mkdir gnuobj
 
 rm *.zip
 rm *.o
 rm *.d
 rm *.exe
 zip -ll -r bayesxsource.zip .
-zip -r bayesxsource.zip java\umontreal java\doc java\Bayesicon.gif
 
 cd ..
 zip -r sourcecode\bayesxsource.zip share\cmake\FindGSL.cmake
