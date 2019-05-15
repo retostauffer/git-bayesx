@@ -1619,7 +1619,7 @@ double DISTR_gumbel_copula::logc(double & F1, double & F2, double * linpred)
 double DISTR_gumbel_copula::condfc(double & x, double & linpred_F, double & y, double & F2, double * linpred)
   {
   #if defined(BayesX_gsl_included)
-/*  if (this->optionsp->rotation != 0)
+  if (this->optionsp->rotation != 0)
     {
     std::cerr << "Roatations are not implemented for Gumbel Copula" << std::endl;
     exit(1);
@@ -1669,7 +1669,7 @@ double DISTR_gumbel_copula::condfc(double & x, double & linpred_F, double & y, d
   double const u_prime = exp(-pow(zzz, q));
 
   double const res = gsl_cdf_ugaussian_Pinv(u_prime)  + linpred_F;
-  return res;*/
+  return res;
 
   #else
   std::cerr << "Gumbel Copula requires GSL" << std::endl;
