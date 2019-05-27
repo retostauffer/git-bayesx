@@ -1966,7 +1966,8 @@ bool superbayesreg::create_distribution(void)
   else
     w = datamatrix(1,1);
 
-
+  if(generaloptions.samplesel && distr_binomialprobit_copulas.size()>0)
+    w = distr_binomialprobit_copulas[0].responseorig;
 
   describetext.push_back("Response distribution: "
                            + family.getvalue() + "\n");
@@ -9029,7 +9030,7 @@ bool superbayesreg::create_distribution(void)
     return true;
     }
 
-  datamatrix sampleselweight;
+/*  datamatrix sampleselweight;
   if(generaloptions.samplesel)
     {
     sampleselweight = distr_binomialprobit_copulas[0].responseorig;
@@ -9066,7 +9067,7 @@ bool superbayesreg::create_distribution(void)
       {
       distr_gumbel_copulas[0].weight = sampleselweight;
       }
-    }
+    }*/
 
 
 
