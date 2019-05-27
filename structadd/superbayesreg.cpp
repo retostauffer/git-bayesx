@@ -1797,13 +1797,20 @@ void hregressrun(superbayesreg & b)
 
         ST::string pathgraphs = b.outfile.getvalue();
 
+        bool skipfirst = b.shared;
+
+        if(b.generaloptions.samplesel)
+          {
+          skipfirst=true;
+          }
+
         if (b.modeonly.getvalue())
           {
-          failure = b.simobj.posteriormode(pathgraphs,b.shared,false);
+          failure = b.simobj.posteriormode(pathgraphs,skipfirst,false);
           }
         else
           failure = b.simobj.simulate(pathgraphs,b.setseed.getvalue(),
-          b.computemodeforstartingvalues, b.shared);
+          b.computemodeforstartingvalues, skipfirst);
         }
 
       if (!failure)
