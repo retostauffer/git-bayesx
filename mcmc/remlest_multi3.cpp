@@ -854,7 +854,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
         {
         if(respind(i*nrcat2+j,0)==1)
           {
-          loglike += log(mu(i*nrcat2+j,0));
+          loglike += weight(i,0)*log(mu(i*nrcat2+j,0));
           k=1;
           }
         else
@@ -864,7 +864,7 @@ for (l=0; l<zcutbeta[zcutbeta.size()-1]; l++ )                                  
         }
       if(k==0)
         {
-        loglike += log(1-refprob);
+        loglike += weight(i,0)*log(1-refprob);
         }
       }
     }
@@ -1334,7 +1334,7 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
         {
         if(respind(i*nrcat2+j,0)==1)
           {
-          loglike += log(mu(i*nrcat2+j,0));
+          loglike += weight(i,0)*log(mu(i*nrcat2+j,0));
           k=1;
           }
         else
@@ -1344,7 +1344,7 @@ for (l=0; l<xcutbeta[xcutbeta.size()-1]; l++ )                                  
         }
       if(k==0)
         {
-        loglike += log(1-refprob);
+        loglike += weight(i,0)*log(1-refprob);
         }
       }
     }
@@ -1489,10 +1489,10 @@ void remlest_multinomial_catsp::compute_weights(datamatrix & mu, datamatrix & wo
       {
       for(j=i*nrcat2,l=0; l<nrcat2; j++, l++)
         {
-        workweights(j,l)=mu(j,0)*(1-mu(j,0));
+        workweights(j,l)=weight(i,0)*mu(j,0)*(1-mu(j,0));
         for(k1=j+1,k2=l+1; k2<nrcat2; k1++, k2++)
           {
-          workweights(j,k2)=-mu(j,0)*mu(k1,0);
+          workweights(j,k2)=-weight(i,0)*mu(j,0)*mu(k1,0);
           workweights(k1,l)=workweights(j,k2);
           }
         }

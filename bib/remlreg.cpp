@@ -849,7 +849,7 @@ bool remlreg::create_data(datamatrix & weight)
       }
     // only weights 1 or 0 allowed for multinomial responses and survival times
     if(family.getvalue()=="multinomial" ||
-       family.getvalue()=="multinomialcatsp" ||
+//       family.getvalue()=="multinomialcatsp" ||
        family.getvalue()=="cumlogit" ||
        family.getvalue()=="cumprobit" ||
        family.getvalue()=="seqlogit" ||
