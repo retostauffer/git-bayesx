@@ -1965,15 +1965,7 @@ DISTR_JM::DISTR_JM(GENERAL_OPTIONS * o, const datamatrix & r,
   predictor_name = "shared_predictor";
   outexpectation = true;
 
-/*//  if (check_weightsone() == true)
-//    wtype = wweightschange_weightsone;
-// else
-    wtype = wweightschange_weightsneqone;*/
-
-  if (check_weightsone() == true)
-    wtype = wweightschange_weightsone;
- else
-    wtype = wweightschange_weightsneqone;
+  wtype = wweightschange_weightsneqone;
 
   family = "Shared predictor";
   updateIWLS = true;
@@ -2063,7 +2055,6 @@ double DISTR_JM::loglikelihood(double * response, double * linpred,
   return res;
   }
 
-
 double DISTR_JM::loglikelihood_weightsone(
                                   double * response, double * linpred)
   {
@@ -2126,7 +2117,7 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
       alpha = 0;
     set_pointer();
     }
-  double res = 0;
+  double res;
 
   double ww1, ww2, wr1, wr2;
   double * ww1p = &ww1;
@@ -2134,15 +2125,27 @@ double DISTR_JM::compute_iwls(double * response, double * linpred,
   double * wr1p = &wr1;
   double * wr2p = &wr2;
 
-//  res = (*weightpoisp) * dpois->compute_iwls(resppoisp, predpoisp, weightpoisp, ww1p, wr1p, like);
-//  res += (*weightd2p) * dist2->compute_iwls(respd2p, predd2p, weightd2p, ww2p, wr2p, like);
-  res = dpois->compute_iwls(resppoisp, predpoisp, weightpoisp, ww1p, wr1p, like);
-  res += dist2->compute_iwls(respd2p, predd2p, weightd2p, ww2p, wr2p, like);
+  res = dpois->compute_iwls(resppoisp, predpoisp, weightpoisp, ww1p, wr1p, like) +
+        dist2->compute_iwls(respd2p, predd2p, weightd2p, ww2p, wr2p, like);
 
-//  *workingweight = (*weightpoisp)*alpha*alpha*ww1 + (*weightd2p) / dist2->sigma2 * ww2;
-//  *workingresponse = *linpred + ((*weightpoisp) * alpha * ww1 * (wr1-*predpoisp) + (*weightd2p) / dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
-  *workingweight = alpha*alpha*ww1 + 1.0 / dist2->sigma2 * ww2;
-  *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + 1.0 / dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
+  if (*weightd2p != 0)
+    {
+    *workingweight = (*weightpoisp)*alpha*alpha*ww1 + (*weightd2p) / dist2->sigma2 * ww2;
+    *workingresponse = *linpred + ((*weightpoisp) * alpha * ww1 * (wr1-*predpoisp) + (*weightd2p) / dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
+    }
+  else
+    {
+    if(alpha != 0)
+      {
+      *workingweight = (*weightpoisp)*alpha*alpha*ww1;
+      *workingresponse = *linpred + ((*weightpoisp) * alpha * ww1 * (wr1-*predpoisp)) / *workingweight;
+      }
+    else
+      {
+      *workingweight = 0.0;
+      *workingresponse = *linpred;
+      }
+    }
 
   update_pointer();
   return res;
@@ -2175,29 +2178,11 @@ void DISTR_JM::compute_iwls_wweightschange_weightsone(
   dpois->compute_iwls_wweightschange_weightsone(resppoisp, predpoisp, ww1p, wr1p, like1, compute_like);
   dist2->compute_iwls_wweightschange_weightsone(respd2p, predd2p, ww2p, wr2p, like2, compute_like);
 
-//  if(compute_like)
-//    like += (*weightpoisp)*like1+(*weightd2p)*like2;
   if(compute_like)
     like += like1+like2;
 
-//  *workingweight = (*weightpoisp)*alpha*alpha*ww1 + (*weightd2p)/dist2->sigma2 * ww2;
-//  *workingresponse = *linpred + ((*weightpoisp) * alpha * ww1 * (wr1-*predpoisp) + (*weightd2p)/dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
   *workingweight = alpha*alpha*ww1 + 1.0/dist2->sigma2 * ww2;
   *workingresponse = *linpred + (alpha * ww1 * (wr1-*predpoisp) + 1.0/dist2->sigma2 * ww2 * (wr2-*predd2p)) / *workingweight;
-//  *workingweight = ww2;
-//  *workingresponse = wr2;
-
-/*  if(counter<=10)
-  {
-  cout << "like1: " << like1 << endl;
-  cout << "like2: " << like2 << endl;
-  cout << "ww1: " << ww1 << endl;
-  cout << "ww2: " << ww2 << endl;
-  cout << "wr1: " << wr1 << endl;
-  cout << "wr2: " << wr2 << endl;
-  cout << "response: " << *workingresponse << endl;
-  cout << "weight: " << *workingweight << endl << endl;
-  }*/
 
   update_pointer();
   }

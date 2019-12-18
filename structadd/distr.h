@@ -74,12 +74,6 @@ class __EXPORT_TYPE DISTR
   bool copula; //bool only true if copula model specified
   bool copularotate; // bool only true if copula is rotated
 
-  // FUNCTION: check_workingweights_one
-  // TASK: checks if all workingweights are one (returns true if this is the
-  //       case)
-
-  bool check_weightsone(void);
-
   // FUNCTION: compute_nrzeroweights
   // TASK: determines the number of zero weights and returns the result
 
@@ -156,6 +150,13 @@ class __EXPORT_TYPE DISTR
   unsigned predstart_mumult;
 
   double meaneffect;
+
+  // FUNCTION: check_workingweights_one
+  // TASK: checks if all workingweights are one (returns true if this is the
+  //       case)
+
+  bool check_weightsone(void);
+
 
   //----------------------------------------------------------------------------
   //---------------------- linpredlimits for save estimation -------------------
