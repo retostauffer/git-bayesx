@@ -5,10 +5,10 @@ d.infile using c:\bayesx\trunk\testh\testdata\multinomprobit.raw
 
 mcmcreg b
 b.outfile = c:\bayesx\trunk\testh\results\c1
-b.hregress y1 = const + x1 + x2 , family=multinom_logit equationtype=servant hlevel=1 iterations=12000 step=10 burnin=2000 using d
+b.hregress y1 = const + x1 + x2 , family=multinom_probit equationtype=servant hlevel=1 iterations=12000 step=10 burnin=2000 using d
 
 b.outfile = c:\bayesx\trunk\testh\results\c2
-b.hregress y2 = const + x1 + x2 , family=multinom_logit  equationtype=mean hlevel=1  using d
+b.hregress y2 = const + x1 + x2 , family=multinom_probit equationtype=main hlevel=1  using d
 
 
 % mcmcreg c
