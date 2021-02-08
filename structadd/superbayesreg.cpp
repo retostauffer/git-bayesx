@@ -3088,16 +3088,16 @@ bool superbayesreg::create_distribution(void)
      equations[modnr].distrp = &distr_bivt_sigmas[distr_bivt_sigmas.size()-1];
      equations[modnr].pathd = "";
 
-     if (distr_bivt_sigmas.size() == 2)
+/*     if (distr_bivt_sigmas.size() == 2)
        {
        distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response2 = distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response;
        distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response2 = distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response;
        }
-
+*/
 
      }
  //------------------------------ END: bivt_sigma -------------------------------
-
+ 
 
  // ----------------------------------- bivt_mu ----------------------------------
    else if ((family.getvalue() == "bivt") && ((equationtype.getvalue()=="mu"))
@@ -3156,6 +3156,8 @@ bool superbayesreg::create_distribution(void)
        distr_bivt_mus[distr_bivt_mus.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
        distr_bivt_rhos[distr_bivt_rhos.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
        distr_bivt_dfs[distr_bivt_dfs.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
+			 distr_bivt_sigmas[distr_bivt_sigmas.size()-2].response2 = distr_bivt_mus[distr_bivt_mus.size()-1].response;
+       distr_bivt_sigmas[distr_bivt_sigmas.size()-1].response2 = distr_bivt_mus[distr_bivt_mus.size()-2].response;
     //   distr_bivt_dfs[distr_bivt_dfs.size()-1].response = distr_bivt_mus[distr_bivt_mus.size()-1].response;
 
        distr_bivt_dfs[distr_bivt_dfs.size()-1].distrp.push_back(
