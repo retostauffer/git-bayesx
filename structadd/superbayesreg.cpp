@@ -351,6 +351,8 @@ void superbayesreg::create_hregress(void)
   equationtypes.push_back("main");
   equationtypes.push_back("servant");
   equationtypes.push_back("mu");
+	equationtypes.push_back("mu1");
+	equationtypes.push_back("mu2");
   equationtypes.push_back("pi");
   equationtypes.push_back("tau");
   equationtypes.push_back("lambda");
@@ -3100,7 +3102,7 @@ bool superbayesreg::create_distribution(void)
  
 
  // ----------------------------------- bivt_mu ----------------------------------
-   else if ((family.getvalue() == "bivt") && ((equationtype.getvalue()=="mu"))
+   else if ((family.getvalue() == "bivt") && ((equationtype.getvalue()=="mu") || (equationtype.getvalue()=="mu1") || (equationtype.getvalue()=="mu2"))
            )
      {
 
