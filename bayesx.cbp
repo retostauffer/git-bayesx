@@ -32,7 +32,7 @@
 		<Compiler>
 			<Add option="-O3" />
 			<Add option="-w" />
-			<Add option="-fexceptions -DBayesX_gsl_included -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -DINCLUDE_MCMC -DBAYESX_GSL_INCLUDED" />
+			<Add option="-fexceptions -D__BUILDING_GNU -DTEMPL_INCL_DEF -D_MSC_VER2 -DNO_TEMPLATE_FRIENDS -DINCLUDE_REML -DINCLUDE_MCMC -DINCLUDE_MCMC" />
 			<Add directory="adaptiv" />
 			<Add directory="alex" />
 			<Add directory="andrea" />
@@ -48,8 +48,8 @@
 			<Add directory="../../../gsl" />
 		</Compiler>
 		<Linker>
-			<Add library="..\..\gsl\lib\libgsl.a" />
-			<Add library="..\..\gsl\lib\libgslcblas.a" />
+			<Add library="../../gsl/lib/libgsl.a" />
+			<Add library="../../gsl/lib/libgslcblas.a" />
 		</Linker>
 		<Unit filename="adaptiv/fullcond_adaptiv.cpp" />
 		<Unit filename="adaptiv/fullcond_adaptiv.h" />
@@ -306,10 +306,6 @@
 		<Unit filename="structadd/model_parameters.h" />
 		<Unit filename="structadd/superbayesreg.cpp" />
 		<Unit filename="structadd/superbayesreg.h" />
-		<Extensions>
-			<code_completion />
-			<debugger />
-			<envvars />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
