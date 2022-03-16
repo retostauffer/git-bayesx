@@ -3077,6 +3077,9 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
   {
   unsigned  i;
 
+//  cout << "test1" << endl;
+//  cout << wtype << endl;
+
   double * workweight = weight.getV();
   double * workresponse = response.getV();
 
@@ -3117,6 +3120,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
 
   if (wtype==wweightschange_weightsneqone)
     {
+//    cout << "weightsneqone" << endl;
     for (i=0;i<nrobs;i++,workweight++,work_workingweight++,workresponse++,
           work_workingresponse++,worklin++,worklintilde++,fxp++)
       {
@@ -3128,6 +3132,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
     }
   else if (wtype==wweightschange_weightsone)
     {
+//    cout << "weightsone" << endl;
     for (i=0;i<nrobs;i++,work_workingweight++,workresponse++,
           work_workingresponse++,worklin++,worklintilde++,fxp++)
       {
@@ -3170,6 +3175,9 @@ void DISTR_gaussian_multeffect::compute_iwls(const bool & current,datamatrix & l
   double * worklin;
   double * worklintilde;
   double * fxp = fx.getV();
+
+  cout << "test2" << endl;
+  cout << wtype << endl;
 
   if (current)
     {

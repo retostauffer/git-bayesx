@@ -868,15 +868,15 @@ void FC_nonp::update_isotonic(void)
     count++;
     }
 
-  ofstream out("c:/temp/param.raw");
+/*  ofstream out("c:/temp/param.raw");
   param.prettyPrint(out);
-  out.close();
+  out.close();*/
 
   perform_centering();
 
-  ofstream out2("c:/temp/param2.raw");
+/*  ofstream out2("c:/temp/param2.raw");
   param.prettyPrint(out2);
-  out2.close();
+  out2.close();*/
 
   designp->compute_f(param,paramlin,beta,fsample.beta);
 
