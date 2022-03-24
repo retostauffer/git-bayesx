@@ -319,7 +319,15 @@ void DISTR::set_multiplicative(DISTR * d)
   if (check_weightsone())
     wtype = wweightschange_weightsone;
   else
+    {
     wtype = wweightschange_weightsneqone;
+    weightsone = false;
+    }
+  if(dg->family == "Quantile regression based on asymmetric Laplace distribution")
+    {
+    wtype = wweightschange_weightsneqone;
+    weightsone = false;
+    }
   }
 
 
@@ -3080,6 +3088,7 @@ double DISTR_gaussian_multeffect::compute_iwls(const bool & current, const bool 
 //  cout << "test1" << endl;
 //  cout << wtype << endl;
 
+  // suspicious: get weight from level 1 equation!!
   double * workweight = weight.getV();
   double * workresponse = response.getV();
 
